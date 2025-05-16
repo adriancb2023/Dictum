@@ -7,6 +7,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>Recursos\Logo\logo.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -37,8 +38,12 @@
     <None Remove="Recursos\Iconos\documentos2.png" />
     <None Remove="Recursos\Iconos\home.png" />
     <None Remove="Recursos\Iconos\home2.png" />
-    <None Remove="Recursos\Iconos\luna2.png" />
+    <None Remove="Recursos\Logo\logo.ico" />
     <None Remove="Recursos\Logo\logo.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Recursos\Logo\logo.ico" />
   </ItemGroup>
 
   <ItemGroup>
@@ -94,9 +99,9 @@
     <Resource Include="Recursos\Iconos\documentos2.png" />
     <Resource Include="Recursos\Iconos\home.png" />
     <Resource Include="Recursos\Iconos\home2.png" />
-    <Resource Include="Recursos\Iconos\luna2.png" />
     <Resource Include="Recursos\Iconos\sol.png" />
     <Resource Include="Recursos\Iconos\luna.png" />
+    <Resource Include="Recursos\Logo\logo.ico" />
     <Resource Include="Recursos\Logo\logo.png" />
   </ItemGroup>
 

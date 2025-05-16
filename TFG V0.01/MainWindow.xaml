@@ -41,7 +41,7 @@
                     <TextBlock x:Name="PercentageText" Text="0%" FontSize="36" 
                                Foreground="White" HorizontalAlignment="Center" 
                                FontWeight="SemiBold"/>
-                    <TextBlock Text="Cargando" FontSize="14" Foreground="#EEFFFFFF" 
+                    <TextBlock x:Name="cargando" Text="Cargando" FontSize="14" Foreground="#EEFFFFFF" 
                                HorizontalAlignment="Center" Margin="0,5,0,0"/>
                 </StackPanel>
             </Grid>

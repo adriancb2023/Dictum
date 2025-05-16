@@ -40,6 +40,7 @@ namespace TFG_V0._01.Ventanas
             _supabaseAutentificacion = new SupabaseAutentificacion();
             // Inicializar animaciones
             InitializeAnimations();
+            cargarIdioma(MainWindow.idioma);
 
             // Aplicar tema
             AplicarModoSistema();
@@ -147,7 +148,7 @@ namespace TFG_V0._01.Ventanas
             }
             else
             {
-                icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/luna.png", UriKind.Relative)); 
+                icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/luna.png", UriKind.Relative));
                 backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString("pack://application:,,,/TFG V0.01;component/Recursos/Background/claro/main.png") as ImageSource;
             }
         }
@@ -241,5 +242,72 @@ namespace TFG_V0._01.Ventanas
             }
         }
         #endregion
-    }
+
+        #region Idiomas
+        private void cargarIdioma(int idioma)
+        {
+            switch (idioma)
+            {
+                case 0: // Español
+                    Titulo.Text = "Registro";
+                    Subtitulo.Text = "Crea una cuenta nueva";
+                    correo.Text = "Email";
+                    Pass1.Text = "Contraseña";
+                    Pass2.Text = "Repita la contraseña";
+                    btnRegistrarse.Content = "Registrarse";
+                    btnVolver.Content = "Volver al login";
+                    break;
+
+                case 1: // Inglés
+                    Titulo.Text = "Sign Up";
+                    Subtitulo.Text = "Create a new account";
+                    correo.Text = "Email";
+                    Pass1.Text = "Password";
+                    Pass2.Text = "Repeat password";
+                    btnRegistrarse.Content = "Sign Up";
+                    btnVolver.Content = "Back to login";
+                    break;
+
+                case 2: // Catalán
+                    Titulo.Text = "Registre";
+                    Subtitulo.Text = "Crea un compte nou";
+                    correo.Text = "Correu electrònic";
+                    Pass1.Text = "Contrasenya";
+                    Pass2.Text = "Repeteix la contrasenya";
+                    btnRegistrarse.Content = "Registra’t";
+                    btnVolver.Content = "Torna a l'inici de sessió";
+                    break;
+
+                case 3: // Gallego
+                    Titulo.Text = "Rexistro";
+                    Subtitulo.Text = "Crea unha conta nova";
+                    correo.Text = "Correo electrónico";
+                    Pass1.Text = "Contrasinal";
+                    Pass2.Text = "Repita o contrasinal";
+                    btnRegistrarse.Content = "Rexistrarse";
+                    btnVolver.Content = "Volver ao login";
+                    break;
+
+                case 4: // Euskera
+                    Titulo.Text = "Erregistroa";
+                    Subtitulo.Text = "Kontu berri bat sortu";
+                    correo.Text = "Posta elektronikoa";
+                    Pass1.Text = "Pasahitza";
+                    Pass2.Text = "Pasahitza berriro idatzi";
+                    btnRegistrarse.Content = "Erregistratu";
+                    btnVolver.Content = "Itzuli saio-hasierara";
+                    break;
+                default:
+                    Titulo.Text = "Registro";
+                    Subtitulo.Text = "Crea una cuenta nueva";
+                    correo.Text = "Email";
+                    Pass1.Text = "Contraseña";
+                    Pass2.Text = "Repita la contraseña";
+                    btnRegistrarse.Content = "Registrarse";
+                    btnVolver.Content = "Volver al login";
+                    break;
+            }
+        }
+        #endregion
+    } 
 }

@@ -26,14 +26,15 @@ namespace TFG_V0._01.Ventanas
         {
             InitializeComponent();
             _authService = new SupabaseAutentificacion();
-            // Inicializar animaciones
+            CargarIdioma(MainWindow.idioma);
+
+
             InitializeAnimations();
 
-            // Aplicar tema
             AplicarModoSistema();
 
-            // Animar entrada
             BeginFadeInAnimation();
+
         }
         #endregion
 
@@ -341,6 +342,70 @@ namespace TFG_V0._01.Ventanas
         private void PasswordBox_LostFocus(object sender, RoutedEventArgs e)
         {
             // Puedes agregar validación aquí si es necesario
+        }
+        #endregion
+
+        #region Idiomas
+        private void CargarIdioma(int idioma)
+        {
+            switch (idioma)
+            {
+                case 0:
+                    btnIniciarSecion.Content = "Iniciar Sesión";
+                    btnRegistrarse.Content = "Registrarse";
+                    Titulo.Text = "Bienvenido";
+                    subTitulo.Text = "Inicia sesión para continuar";
+                    Correo.Text = "Email";
+                    Pass.Text = "Contraseña";
+                    errorLogin.Text = "Email o contraseña incorrectos.";
+                    break;
+                case 1:
+                    btnIniciarSecion.Content = "Log In";
+                    btnRegistrarse.Content = "Sign Up";
+                    Titulo.Text = "Welcome";
+                    subTitulo.Text = "Log in to continue";
+                    Correo.Text = "Email";
+                    Pass.Text = "Password";
+                    errorLogin.Text = "Incorrect email or password.";
+                    break;
+                case 2:
+                    btnIniciarSecion.Content = "Inicia Sessió";
+                    btnRegistrarse.Content = "Registra’t";
+                    Titulo.Text = "Benvingut";
+                    subTitulo.Text = "Inicia sessió per continuar";
+                    Correo.Text = "Correu electrònic";
+                    Pass.Text = "Contrasenya";
+                    errorLogin.Text = "Correu o contrasenya incorrectes.";
+                    break;
+                case 3:
+                    btnIniciarSecion.Content = "Iniciar sesión";
+                    btnRegistrarse.Content = "Rexistrarse";
+                    Titulo.Text = "Benvido";
+                    subTitulo.Text = "Inicia sesión para continuar";
+                    Correo.Text = "Correo electrónico";
+                    Pass.Text = "Contrasinal";
+                    errorLogin.Text = "Correo ou contrasinal incorrectos.";
+                    break;
+                case 4:
+                    btnIniciarSecion.Content = "Saioa hasi";
+                    btnRegistrarse.Content = "Erregistratu";
+                    Titulo.Text = "Ongi etorri";
+                    subTitulo.Text = "Jarraitzeko hasi saioa";
+                    Correo.Text = "Posta elektronikoa";
+                    Pass.Text = "Pasahitza";
+                    errorLogin.Text = "Posta edo pasahitz okerra.";
+                    break;
+                default:
+                    btnIniciarSecion.Content = "Iniciar Sesión";
+                    btnRegistrarse.Content = "Registrarse";
+                    Titulo.Text = "Bienvenido";
+                    subTitulo.Text = "Inicia sesión para continuar";
+                    Correo.Text = "Email";
+                    Pass.Text = "Contraseña";
+                    errorLogin.Text = "Email o contraseña incorrectos.";
+                    break;
+            }
+
         }
         #endregion
     }

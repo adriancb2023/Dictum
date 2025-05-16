@@ -123,6 +123,23 @@ namespace TFG_V0._01.Supabase
                 return casos;
             }
         }
+
+        public async Task<List<Caso>> ObtenerCasosActivosPorRangoFechasAsync(DateTime fechaInicio, DateTime fechaFin)
+        {
+            await InicializarAsync();
+            var todos = await ObtenerTodosAsync();
+
+            // Filtrar por estado y rango de fechas
+            var activos = todos
+                .Where(c =>
+                    (c.estado_nombre.Equals("abierto", StringComparison.OrdinalIgnoreCase) ||
+                     c.estado_nombre.Equals("en proceso", StringComparison.OrdinalIgnoreCase)) &&
+                    c.fecha_inicio >= fechaInicio &&
+                    c.fecha_inicio < fechaFin)
+                .ToList();
+
+            return activos;
+        }
     }
 
     public class CasoUpdateDto

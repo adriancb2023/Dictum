@@ -7,7 +7,7 @@
         xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         mc:Ignorable="d"
         Title="TFG  v0.01" Height="850" Width="1200"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen" Loaded="Window_Loaded">
 
     <Window.Resources>
         <!-- Estilo para el botón de cambio de tema -->
@@ -163,7 +163,12 @@
                 <RowDefinition Height="0.10*"/>
             </Grid.RowDefinitions>
 
-            <!-- Header Section -->
+            <!-- Pantalla Carga -->
+            <Grid Visibility="Collapsed" x:Name="LoadingPanel" Background="#AA000000" Panel.ZIndex="1000" Margin="0,88,0,64" Grid.RowSpan="3">
+                <TextBlock Text="Cargando..." Foreground="White" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Grid>
+
+            <!-- Cabeceras -->
             <Grid Grid.Row="0" Margin="0,10,0,20">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -171,8 +176,8 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
-                    <TextBlock x:Name="txtBienvenida" Text="Bienvenido, Usuario" FontSize="24" FontWeight="Bold" Foreground="White"/>
-                    <TextBlock Text="Panel de Control" FontSize="16" Foreground="#CCFFFFFF" Margin="0,5,0,0"/>
+                    <TextBlock x:Name="titulo" Text="Panel de control." FontSize="24" FontWeight="Bold" Foreground="White"/>
+                    <TextBlock x:Name="subtitulo" Text="Resumen de actividad." FontSize="16" Foreground="#CCFFFFFF" Margin="0,5,0,0"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
@@ -191,16 +196,17 @@
                 </StackPanel>
             </Grid>
 
-            <!-- Main Dashboard Content -->
+            <!-- Dashboar -->
             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                 <Grid>
+
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <!-- First Row - Summary Cards -->
+                    <!-- Cartas casos, clientes,documentos,eventos -->
                     <Grid Grid.Row="0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -216,11 +222,11 @@
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
-                                <TextBlock Text="Casos Activos" FontSize="14" Foreground="#CCFFFFFF" Grid.Row="0"/>
+                                <TextBlock x:Name="resumenCasos" Text="Casos Activos" FontSize="14" Foreground="#CCFFFFFF" Grid.Row="0"/>
                                 <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,15,0,0">
                                     <TextBlock Text="{Binding CasosActivos}" FontSize="36" FontWeight="Bold" Foreground="White"/>
                                     <Border Background="#4CAF50" CornerRadius="5" Padding="5,2" Margin="15,10,0,0" VerticalAlignment="Top">
-                                        <TextBlock Text="+2" FontSize="12" Foreground="White"/>
+                                        <TextBlock x:Name="scoreCasos" Text="-" FontSize="12" Foreground="White"/>
                                     </Border>
                                 </StackPanel>
                             </Grid>
@@ -233,7 +239,7 @@
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
-                                <TextBlock Text="Clientes" FontSize="14" Foreground="#CCFFFFFF" Grid.Row="0"/>
+                                <TextBlock x:Name="resumenClientes" Text="Clientes" FontSize="14" Foreground="#CCFFFFFF" Grid.Row="0"/>
                                 <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,15,0,0">
                                     <TextBlock x:Name="txtClientCount" Text="{Binding ClientCount, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" FontSize="36" FontWeight="Bold" Foreground="White" MinWidth="55" Width="0"/>
                                     <Border Background="#2196F3" CornerRadius="5" Padding="5,2" Margin="15,10,0,0" VerticalAlignment="Top">
@@ -250,11 +256,11 @@
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
-                                <TextBlock Text="Documentos" FontSize="14" Foreground="#CCFFFFFF" Grid.Row="0"/>
+                                <TextBlock x:Name="resumenDocumentos" Text="Documentos" FontSize="14" Foreground="#CCFFFFFF" Grid.Row="0"/>
                                 <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,15,0,0">
                                     <TextBlock Text="{Binding Documentos}" FontSize="36" FontWeight="Bold" Foreground="White"/>
                                     <Border Background="#FF9800" CornerRadius="5" Padding="5,2" Margin="15,10,0,0" VerticalAlignment="Top">
-                                        <TextBlock Text="+23" FontSize="12" Foreground="White"/>
+                                        <TextBlock x:Name="scoreDocumentos" Text="-" FontSize="12" Foreground="White"/>
                                     </Border>
                                 </StackPanel>
                             </Grid>
@@ -267,25 +273,26 @@
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
-                                <TextBlock Text="Eventos Próximos" FontSize="14" Foreground="#CCFFFFFF" Grid.Row="0"/>
+                                <TextBlock x:Name="resumenEventos" Text="Eventos Próximos" FontSize="14" Foreground="#CCFFFFFF" Grid.Row="0"/>
                                 <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,15,0,0">
                                     <TextBlock Text="8" FontSize="36" FontWeight="Bold" Foreground="White"/>
                                     <Border Background="#E91E63" CornerRadius="5" Padding="5,2" Margin="15,10,0,0" VerticalAlignment="Top">
-                                        <TextBlock Text="Hoy" FontSize="12" Foreground="White"/>
+                                        <TextBlock x:Name="hoy" Text="Hoy" FontSize="12" Foreground="White"/>
                                     </Border>
                                 </StackPanel>
                             </Grid>
                         </Border>
                     </Grid>
 
-                    <!-- Second Row - Calendar and Tasks -->
-                    <Grid Grid.Row="1" Margin="0,20,0,0">
+
+                    <!-- Calendario Eventos -->
+                    <Grid Grid.Row="1" Margin="0,20,0,20">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="2*"/>
                             <ColumnDefinition Width="1*"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- Calendar Card -->
+                        <!-- Calendario -->
                         <Border Grid.Column="0" Style="{StaticResource CardStyle}" Margin="0,0,10,0">
                             <Grid>
                                 <Grid.RowDefinitions>
@@ -324,13 +331,13 @@
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="*"/>
                                             </Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Column="0" Text="Lun" HorizontalAlignment="Center" Foreground="#CCFFFFFF"/>
-                                            <TextBlock Grid.Column="1" Text="Mar" HorizontalAlignment="Center" Foreground="#CCFFFFFF"/>
-                                            <TextBlock Grid.Column="2" Text="Mié" HorizontalAlignment="Center" Foreground="#CCFFFFFF"/>
-                                            <TextBlock Grid.Column="3" Text="Jue" HorizontalAlignment="Center" Foreground="#CCFFFFFF"/>
-                                            <TextBlock Grid.Column="4" Text="Vie" HorizontalAlignment="Center" Foreground="#CCFFFFFF"/>
-                                            <TextBlock Grid.Column="5" Text="Sáb" HorizontalAlignment="Center" Foreground="#CCFFFFFF"/>
-                                            <TextBlock Grid.Column="6" Text="Dom" HorizontalAlignment="Center" Foreground="#CCFFFFFF"/>
+                                            <TextBlock x:Name="lunes" Grid.Column="0" Text="Lun" HorizontalAlignment="Center" Foreground="#CCFFFFFF"/>
+                                            <TextBlock x:Name="martes" Grid.Column="1" Text="Mar" HorizontalAlignment="Center" Foreground="#CCFFFFFF"/>
+                                            <TextBlock x:Name="miercoles" Grid.Column="2" Text="Mié" HorizontalAlignment="Center" Foreground="#CCFFFFFF"/>
+                                            <TextBlock x:Name="jueves" Grid.Column="3" Text="Jue" HorizontalAlignment="Center" Foreground="#CCFFFFFF"/>
+                                            <TextBlock x:Name="viernes" Grid.Column="4" Text="Vie" HorizontalAlignment="Center" Foreground="#CCFFFFFF"/>
+                                            <TextBlock x:Name="sabado" Grid.Column="5" Text="Sáb" HorizontalAlignment="Center" Foreground="#CCFFFFFF"/>
+                                            <TextBlock x:Name="domingo" Grid.Column="6" Text="Dom" HorizontalAlignment="Center" Foreground="#CCFFFFFF"/>
                                         </Grid>
 
                                         <!-- Calendar Events -->
@@ -400,7 +407,7 @@
                             </Grid>
                         </Border>
 
-                        <!-- Tasks Card -->
+                        <!-- Tareas Pendientes -->
                         <Border Grid.Column="1" Style="{StaticResource CardStyle}" Margin="10,0,0,0">
                             <Grid>
                                 <Grid.RowDefinitions>
@@ -409,61 +416,62 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
-                                <TextBlock Grid.Row="0" Text="Tareas Pendientes" FontSize="16" FontWeight="SemiBold" Foreground="White"/>
+                                <TextBlock x:Name="listaTareas" Grid.Row="0" Text="Tareas Pendientes" FontSize="16" FontWeight="SemiBold" Foreground="White"/>
 
-                                <StackPanel Grid.Row="1" Margin="0,15,0,0">
-                                    <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="300">
-                                        <ItemsControl ItemsSource="{Binding TareasPendientesLista}">
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate>
-                                                    <Border Background="#30FFFFFF" CornerRadius="10" Padding="10" Margin="0,0,0,10">
-                                                        <Grid>
-                                                            <Grid.ColumnDefinitions>
-                                                                <ColumnDefinition Width="Auto"/>
-                                                                <ColumnDefinition Width="*"/>
-                                                            </Grid.ColumnDefinitions>
-                                                            <CheckBox Grid.Column="0" Margin="0,0,10,0" VerticalAlignment="Center"
+                                <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="1" Margin="0,15,0,0"  MaxHeight="535">
+                                    <ItemsControl ItemsSource="{Binding TareasPendientesLista}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Background="#30FFFFFF" CornerRadius="10" Padding="10" Margin="0,0,0,10">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <CheckBox Grid.Column="0" Margin="0,0,10,0" VerticalAlignment="Center"
                                                                       Checked="CheckBox_TareaFinalizada"/>
-                                                            <StackPanel Grid.Column="1">
-                                                                <TextBlock Text="{Binding titulo}" Foreground="White" TextWrapping="Wrap"/>
-                                                                <TextBlock Text="{Binding descripcion}" Foreground="#CCFFFFFF" FontSize="12" Margin="0,5,0,0"/>
-                                                                <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                                                                    <Border CornerRadius="5" Padding="5,2" Margin="0,0,10,0">
-                                                                        <Border.Style>
-                                                                            <Style TargetType="Border">
-                                                                                <Setter Property="Background" Value="#4CAF50"/>
-                                                                                <Style.Triggers>
-                                                                                    <DataTrigger Binding="{Binding estado}" Value="Pendiente">
-                                                                                        <Setter Property="Background" Value="#FFC107"/>
-                                                                                    </DataTrigger>
-                                                                                    <DataTrigger Binding="{Binding estado}" Value="En progreso">
-                                                                                        <Setter Property="Background" Value="#4CAF50"/>
-                                                                                    </DataTrigger>
-                                                                                    <DataTrigger Binding="{Binding estado}" Value="Finalizado">
-                                                                                        <Setter Property="Background" Value="#F44336"/>
-                                                                                    </DataTrigger>
-                                                                                </Style.Triggers>
-                                                                            </Style>
-                                                                        </Border.Style>
-                                                                        <TextBlock Text="{Binding estado}" Foreground="White" FontSize="12"/>
-                                                                    </Border>
-                                                                </StackPanel>
+                                                        <StackPanel Grid.Column="1">
+                                                            <TextBlock Text="{Binding titulo}" Foreground="White" TextWrapping="Wrap"/>
+                                                            <TextBlock Text="{Binding descripcion}" Foreground="#CCFFFFFF" FontSize="12" Margin="0,5,0,0"/>
+                                                            <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                                                                <Border CornerRadius="5" Padding="5,2" Margin="0,0,10,0">
+                                                                    <Border.Style>
+                                                                        <Style TargetType="Border">
+                                                                            <Setter Property="Background" Value="#4CAF50"/>
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding estado}" Value="Pendiente">
+                                                                                    <Setter Property="Background" Value="#FFC107"/>
+                                                                                </DataTrigger>
+                                                                                <DataTrigger Binding="{Binding estado}" Value="En progreso">
+                                                                                    <Setter Property="Background" Value="#4CAF50"/>
+                                                                                </DataTrigger>
+                                                                                <DataTrigger Binding="{Binding estado}" Value="Finalizado">
+                                                                                    <Setter Property="Background" Value="#F44336"/>
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </Border.Style>
+                                                                    <TextBlock Text="{Binding estado}" Foreground="White" FontSize="12"/>
+                                                                </Border>
                                                             </StackPanel>
-                                                        </Grid>
-                                                    </Border>
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
-                                    </ScrollViewer>
-                                </StackPanel>
+                                                        </StackPanel>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
 
-                                <Button Grid.Row="2" Content="+ Añadir Tarea" Style="{StaticResource RoundedButtonStyle}" Margin="0,15,0,0" Background="#30FFFFFF"/>
+
+                                <Button x:Name="btnAñadirTarea" Grid.Row="2" Content="+ Añadir Tarea" Style="{StaticResource RoundedButtonStyle}" Margin="0,15,0,0" Background="#30FFFFFF"/>
                             </Grid>
                         </Border>
+
                     </Grid>
 
-                    <!-- Third Row - Recent Cases -->
-                    <Border Grid.Row="2" Style="{StaticResource CardStyle}" Margin="0,20,0,0">
+
+                    <!-- Casos Recientes -->
+                    <Border Grid.Row="2" Style="{StaticResource CardStyle}" Margin="0,0,0,0" MaxHeight="310">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -475,8 +483,8 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="Casos Recientes" FontSize="16" FontWeight="SemiBold" Foreground="White"/>
-                                <Button Grid.Column="1" Content="Ver Todos" Style="{StaticResource RoundedButtonStyle}" Background="#30FFFFFF" Click="VerTodosCasos_Click"/>
+                                <TextBlock x:Name="casosRecientes" Text="Casos Recientes" FontSize="16" FontWeight="SemiBold" Foreground="White"/>
+                                <Button x:Name="btnVerTodosCasos" Grid.Column="1" Content="Ver Todos" Style="{StaticResource RoundedButtonStyle}" Background="#30FFFFFF" Click="VerTodosCasos_Click"/>
                             </Grid>
 
                             <Grid Grid.Row="1" Margin="0,15,0,0">
@@ -494,15 +502,15 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Nº Caso" Foreground="#CCFFFFFF"/>
-                                    <TextBlock Grid.Column="1" Text="Cliente" Foreground="#CCFFFFFF"/>
-                                    <TextBlock Grid.Column="2" Text="Tipo" Foreground="#CCFFFFFF"/>
-                                    <TextBlock Grid.Column="3" Text="Estado" Foreground="#CCFFFFFF"/>
-                                    <TextBlock Grid.Column="4" Text="Acciones" Foreground="#CCFFFFFF"/>
+                                    <TextBlock x:Name="ncasos" Grid.Column="0" Text="Nº Caso" Foreground="#CCFFFFFF"/>
+                                    <TextBlock x:Name="Ccliente" Grid.Column="1" Text="Cliente" Foreground="#CCFFFFFF"/>
+                                    <TextBlock x:Name="Ctipo" Grid.Column="2" Text="Tipo" Foreground="#CCFFFFFF"/>
+                                    <TextBlock x:Name="Cestado" Grid.Column="3" Text="Estado" Foreground="#CCFFFFFF"/>
+                                    <TextBlock x:Name="Cacciones" Grid.Column="4" Text="Acciones" Foreground="#CCFFFFFF"/>
                                 </Grid>
 
                                 <!-- Cases List with Scroll -->
-                                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Height="300">
+                                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" MaxHeight="300" >
                                     <ItemsControl ItemsSource="{Binding CasosRecientesLista}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
@@ -540,16 +548,22 @@
                             </Grid>
                         </Grid>
                     </Border>
+
                 </Grid>
             </ScrollViewer>
 
             <!-- Footer -->
             <Border Grid.Row="2" Background="#30FFFFFF" CornerRadius="10" Padding="15" Margin="0,20,0,0">
                 <Grid>
-                    <TextBlock Text="© 2025 TFG v0.01 - TFG" Foreground="#CCFFFFFF" VerticalAlignment="Center"/>
-                    <TextBlock Text="Versión 0.01" Foreground="#CCFFFFFF" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                    <TextBlock Text="© 2025 TFG" Foreground="#CCFFFFFF" VerticalAlignment="Center" Margin="20,0,0,0" FontWeight="Bold" FontSize="15"/>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,20,0">
+                        <TextBlock x:Name="Version" Text="Versión: " Foreground="#CCFFFFFF" VerticalAlignment="Center" HorizontalAlignment="Right" FontWeight="Bold" FontSize="15"/>
+                        <TextBlock x:Name="VersionNumber" Text="0.1" Foreground="#CCFFFFFF" VerticalAlignment="Center" HorizontalAlignment="Right" FontWeight="Bold" FontSize="15"/>
+                    </StackPanel>
                 </Grid>
             </Border>
+
         </Grid>
+
     </Grid>
 </Window>

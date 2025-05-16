@@ -9,6 +9,7 @@
         WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
+
         <!-- Estilo para el botón de cambio de tema -->
         <Style x:Key="ThemeButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
@@ -177,23 +178,31 @@
 
         <!-- Contenido principal -->
         <Grid Grid.Column="2" Margin="20">
+
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <!-- Header -->
-            <TextBlock Text="Ajustes" FontSize="24" FontWeight="Bold" Foreground="White" Margin="0,0,0,20"/>
+            <!-- Contenido principal -->
+            <Grid Grid.Column="2" Margin="20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-            <!-- Contenido de ajustes -->
-            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                <StackPanel>
-                    <!-- Sección de Apariencia -->
-                    <Border Style="{StaticResource CardStyle}" Margin="0,0,0,20">
-                        <StackPanel>
+                <!-- Header -->
+                <TextBlock Text="Ajustes" FontSize="24" FontWeight="Bold" Foreground="White" Margin="0,0,0,20"/>
+
+                <!-- Contenido de ajustes -->
+                <Border Grid.Row="1" Style="{StaticResource CardStyle}" Margin="0,0,0,20">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="10">
+
+                            <!-- Sección de Apariencia -->
                             <TextBlock Text="Apariencia" FontSize="18" FontWeight="Bold" Foreground="White" Margin="0,0,0,15"/>
-
-                            <Grid Margin="0,0,0,10">
+                            <Grid Margin="0,0,0,20">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
@@ -202,76 +211,62 @@
                                     <TextBlock Text="Tema Oscuro" Foreground="White" FontWeight="SemiBold"/>
                                     <TextBlock Text="Cambiar entre tema claro y oscuro" Foreground="#CCFFFFFF" FontSize="12"/>
                                 </StackPanel>
-                                <!--
-                                <CheckBox Grid.Column="1" Style="{StaticResource ToggleSwitchStyle}" IsChecked="True" x:Name="ThemeToggle" Checked="ThemeToggle_Checked" Unchecked="ThemeToggle_Unchecked"/>-->
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
+                                    <Image Source="/TFG V0.01;component/Recursos/Iconos/sol.png" Width="20" Height="20"/>
+                                    <TextBlock Text="Claro" Foreground="White" VerticalAlignment="Center" Margin="5,0,10,0"/>
+                                    <CheckBox x:Name="modoClaro" Grid.Column="1" Style="{StaticResource ToggleSwitchStyle}" IsChecked="True" Checked="ThemeToggle_Checked" Unchecked="ThemeToggle_Unchecked"/>
+                                    <TextBlock Text="Oscuro" Foreground="White" VerticalAlignment="Center" Margin="10,0,5,0"/>
+                                    <Image Source="/TFG V0.01;component/Recursos/Iconos/luna2.png" Width="20" Height="20"/>
+                                </StackPanel>
                             </Grid>
-                        </StackPanel>
-                    </Border>
 
-                    <!-- Sección de Notificaciones -->
-                    <Border Style="{StaticResource CardStyle}" Margin="0,0,0,20">
-                        <StackPanel>
-                            <TextBlock Text="Notificaciones" FontSize="18" FontWeight="Bold" Foreground="White" Margin="0,0,0,15"/>
+                            <!-- Separador -->
+                            <Separator Background="#454545" Margin="0,10,0,20"/>
 
-                            <Grid Margin="0,0,0,10">
+                            <!-- Sección de Idioma -->
+                            <TextBlock Text="Idioma" FontSize="18" FontWeight="Bold" Foreground="White" Margin="0,0,0,15"/>
+                            <ComboBox x:Name="LanguageComboBox" Width="200" HorizontalAlignment="Left" Margin="0,0,0,20">
+                                <ComboBoxItem Content="Español" Tag="1" />
+                                <ComboBoxItem Content="English" Tag="2" />
+                                <ComboBoxItem Content="Català" Tag="3" />
+                                <ComboBoxItem Content="Galego" Tag="4" />
+                                <ComboBoxItem Content="Euskara" Tag="5" />
+                            </ComboBox>
+
+                            <!-- Separador -->
+                            <Separator Background="#454545" Margin="0,10,0,20"/>
+
+                            <!-- Sección de Base de Datos -->
+                            <TextBlock Text="Base de Datos" FontSize="18" FontWeight="Bold" Foreground="White" Margin="0,0,0,15"/>
+                            <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="Notificaciones de Eventos" Foreground="White" FontWeight="SemiBold"/>
-                                    <TextBlock Text="Recibir notificaciones de eventos próximos" Foreground="#CCFFFFFF" FontSize="12"/>
-                                </StackPanel>
-                                <CheckBox Grid.Column="1" Style="{StaticResource ToggleSwitchStyle}" />
-                            </Grid>
 
-                            <Grid Margin="0,0,0,10">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="Notificaciones de Casos" Foreground="White" FontWeight="SemiBold"/>
-                                    <TextBlock Text="Recibir notificaciones de actualizaciones de casos" Foreground="#CCFFFFFF" FontSize="12"/>
+                                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                    <TextBlock Text="Tipo de Base de Datos" Foreground="White" FontWeight="SemiBold" FontSize="16"/>
+                                    <TextBlock Text="Elige dónde almacenar tus datos" Foreground="#CCFFFFFF" FontSize="12" Margin="0,5,0,0"/>
                                 </StackPanel>
-                                <CheckBox Grid.Column="1" Style="{StaticResource ToggleSwitchStyle}" />
+
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
+                                    <Image Source="/TFG V0.01;component/Recursos/Iconos/local.png" Width="20" Height="20"/>
+                                    <TextBlock Text="Local" Foreground="White" VerticalAlignment="Center" Margin="5,0,10,0"/>
+                                    <CheckBox x:Name="BBDD" Style="{StaticResource ToggleSwitchStyle}" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Nube" Foreground="White" VerticalAlignment="Center" Margin="10,0,5,0"/>
+                                    <Image Source="/TFG V0.01;component/Recursos/Iconos/cloud.png" Width="20" Height="20"/>
+                                </StackPanel>
                             </Grid>
                         </StackPanel>
-                    </Border>
+                    </ScrollViewer>
+                </Border>
 
-                    <!-- Sección de Privacidad -->
-                    <Border Style="{StaticResource CardStyle}" Margin="0,0,0,20">
-                        <StackPanel>
-                            <TextBlock Text="Privacidad" FontSize="18" FontWeight="Bold" Foreground="White" Margin="0,0,0,15"/>
-
-                            <Grid Margin="0,0,0,10">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="Historial de Búsqueda" Foreground="White" FontWeight="SemiBold"/>
-                                    <TextBlock Text="Guardar historial de búsquedas" Foreground="#CCFFFFFF" FontSize="12"/>
-                                </StackPanel>
-                                <CheckBox Grid.Column="1" Style="{StaticResource ToggleSwitchStyle}" />
-                            </Grid>
-
-                            <Button Content="Limpiar Historial" Style="{StaticResource RoundedButtonStyle}" 
-                                    Background="#40FFFFFF" Foreground="White" Margin="0,10,0,0" />
-                        </StackPanel>
-                    </Border>
-
-                    <!-- Sección de Cuenta -->
-                    <Border Style="{StaticResource CardStyle}">
-                        <StackPanel>
-                            <TextBlock Text="Cuenta" FontSize="18" FontWeight="Bold" Foreground="White" Margin="0,0,0,15"/>
-
-                            <Button Content="Cerrar Sesión" Style="{StaticResource RoundedButtonStyle}" 
-                                    Background="#40FFFFFF" Foreground="White"/>
-                        </StackPanel>
-                    </Border>
+                <!-- Botones de acción -->
+                <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+                    <Button Content="Cancelar" Style="{StaticResource RoundedButtonStyle}" Width="120" Margin="0,0,10,0"/>
+                    <Button Content="Guardar" Style="{StaticResource RoundedButtonStyle}" Width="120" Background="#007AFF" Click="GuardarConfig"/>
                 </StackPanel>
-            </ScrollViewer>
+            </Grid>
         </Grid>
     </Grid>
 </Window>

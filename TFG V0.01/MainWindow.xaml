@@ -11,23 +11,16 @@
 
     <!-- Contenedor principal con fondo translúcido -->
     <Border CornerRadius="150" MouseDown="Border_MouseDown">
-        <Border.Background>
-            <SolidColorBrush Color="#801E1E2E" Opacity="0.85"/>
-        </Border.Background>
-
         <Grid>
             <!-- Círculo de carga -->
             <Grid Width="200" Height="200">
-                <!-- Círculo de fondo -->
-                <Ellipse Width="200" Height="200" Stroke="#40FFFFFF" StrokeThickness="10"/>
-
                 <!-- Arco de progreso dinámico -->
                 <Path x:Name="ProgressPath" StrokeThickness="10" 
                       StrokeStartLineCap="Round" StrokeEndLineCap="Round">
                     <Path.Stroke>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                            <GradientStop Color="#3084F2" Offset="0"/>
-                            <GradientStop Color="#8B5CF6" Offset="1"/>
+                            <GradientStop Color="#d4179f" Offset="0"/>
+                            <GradientStop Color="#5b49c9" Offset="1"/>
                         </LinearGradientBrush>
                     </Path.Stroke>
                     <Path.Data>
@@ -40,11 +33,9 @@
                         </PathGeometry>
                     </Path.Data>
                 </Path>
-
                 <!-- Panel de fondo para el texto para mejorar legibilidad -->
                 <Border Width="120" Height="120" CornerRadius="60" 
                         Background="#80000000" Opacity="0.5"/>
-
                 <!-- Porcentaje de carga -->
                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                     <TextBlock x:Name="PercentageText" Text="0%" FontSize="36" 
@@ -54,7 +45,6 @@
                                HorizontalAlignment="Center" Margin="0,5,0,0"/>
                 </StackPanel>
             </Grid>
-
             <!-- Botón de cerrar -->
             <Button Content="×" FontSize="16" Width="24" Height="24" 
                     HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,20,20,0"
@@ -82,16 +72,6 @@
                     </Style>
                 </Button.Style>
             </Button>
-
-            <!-- Efecto de brillo para mejorar la apariencia -->
-            <Border CornerRadius="150" Opacity="0.2">
-                <Border.Background>
-                    <RadialGradientBrush>
-                        <GradientStop Color="#FFFFFF" Offset="0"/>
-                        <GradientStop Color="Transparent" Offset="1"/>
-                    </RadialGradientBrush>
-                </Border.Background>
-            </Border>
         </Grid>
     </Border>
 </Window>

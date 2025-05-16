@@ -16,12 +16,16 @@ namespace TFG_V0._01
         private DateTime startTime;
         private readonly TimeSpan duration = TimeSpan.FromSeconds(2.0);
         public static bool isDarkTheme;
+
+        public static bool tipoBBDD;
+        public static int idioma;
         #endregion
 
         #region Constructor
         public MainWindow()
         {
             DetectarModo();
+            ReadConfiguration();
             InitializeComponent();
             StartLoadingAnimation();
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
@@ -144,6 +148,48 @@ namespace TFG_V0._01
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
+        }
+        #endregion
+
+        #region Lectura de Configuración
+        private void ReadConfiguration()
+        {
+            // Valores por defecto
+            isDarkTheme = true;    // Modo oscuro
+            idioma = 0;            // Español 
+            tipoBBDD = true;       // Nube
+
+            try
+            {
+                // Ruta en el escritorio
+                string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                string filePathDesktop = System.IO.Path.Combine(desktopPath, "config.json");
+
+                // Usa solo una de las rutas para leer el archivo de configuración:
+                string filePath = filePathDesktop;
+
+                if (!System.IO.File.Exists(filePath))
+                    return; // No hay configuración guardada, se mantienen los valores por defecto
+
+                string json = System.IO.File.ReadAllText(filePath);
+                var config = Newtonsoft.Json.JsonConvert.DeserializeObject<Configuracion>(json);
+
+                if (config != null)
+                {
+                    if (config.ModoOscuro != null)
+                        isDarkTheme = config.ModoOscuro.Value;
+
+                    if (config.Idioma != null)
+                        idioma = config.Idioma.Value;
+
+                    if (config.TipoBBDD != null)
+                        tipoBBDD = config.TipoBBDD.Value;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error al leer la configuración: " + ex.Message);
+            }
         }
         #endregion
     }

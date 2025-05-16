@@ -36,6 +36,7 @@ namespace TFG_V0._01.Ventanas
             InitializeComponent();
             InitializeAnimations();
             AplicarModoSistema();
+            ReadConfiguration();
         }
         #endregion
 
@@ -354,5 +355,88 @@ namespace TFG_V0._01.Ventanas
             trans.BeginAnimation(TranslateTransform.XProperty, anim);
         }
         #endregion
+
+        #region Switch
+        private void ThemeToggle_Checked(object sender, RoutedEventArgs e)
+        {
+            // Cambia el fondo a tema oscuro
+            backgroundFondo.ImageSource = new System.Windows.Media.Imaging.BitmapImage(
+                new System.Uri("pack://application:,,,/TFG V0.01;component/Recursos/Background/oscuro/main.png"));
+        }
+
+        private void ThemeToggle_Unchecked(object sender, RoutedEventArgs e)
+        {
+            // Cambia el fondo a tema claro
+            backgroundFondo.ImageSource = new System.Windows.Media.Imaging.BitmapImage(
+                new System.Uri("pack://application:,,,/TFG V0.01;component/Recursos/Background/claro/main.png"));
+        }
+        #endregion
+
+        #region Creacion JSON Config
+        private void GuardarConfig(object sender, RoutedEventArgs e)
+        {
+            bool isDarkMode = modoClaro.IsChecked.HasValue && modoClaro.IsChecked.Value;
+            int idioma = LanguageComboBox.SelectedIndex; // Mejor usar SelectedIndex para el idioma
+            bool bbdd = BBDD.IsChecked.HasValue && BBDD.IsChecked.Value;
+
+            // Crear el objeto de configuración
+            Configuracion config = new Configuracion
+            {
+                ModoOscuro = isDarkMode,
+                Idioma = idioma,
+                TipoBBDD = bbdd
+            };
+
+            // Serializar a JSON
+            string json = Newtonsoft.Json.JsonConvert.SerializeObject(config, Newtonsoft.Json.Formatting.Indented);
+
+            // Guardar en el escritorio
+            string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            //guardar en la carpeta de datos de la aplicacion
+            //string filePath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "config.json");
+            string filePath = System.IO.Path.Combine(desktopPath, "config.json");
+            System.IO.File.WriteAllText(filePath, json);
+
+            MessageBox.Show("Configuración guardada correctamente en el escritorio.");
+        }
+        #endregion
+
+        #region Archivo Config Leido
+        private void ReadConfiguration()
+        {
+            try
+            {
+                string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                string filePathDesktop = System.IO.Path.Combine(desktopPath, "config.json");
+
+                string filePath = filePathDesktop;
+
+                if (!System.IO.File.Exists(filePath))
+                    return;
+
+                string json = System.IO.File.ReadAllText(filePath);
+                var config = Newtonsoft.Json.JsonConvert.DeserializeObject<Configuracion>(json);
+
+                if (config != null)
+                {
+                    if (config.ModoOscuro != null)
+                        modoClaro.IsChecked = config.ModoOscuro.Value;
+
+                    if (config.Idioma.HasValue && config.Idioma.Value >= 0 && config.Idioma.Value < LanguageComboBox.Items.Count)
+                        LanguageComboBox.SelectedIndex = config.Idioma.Value;
+
+                    if (config.TipoBBDD != null)
+                        BBDD.IsChecked = config.TipoBBDD.Value;
+
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error al leer la configuración: " + ex.Message);
+            }
+        }
+        #endregion
+
+
     }
 }

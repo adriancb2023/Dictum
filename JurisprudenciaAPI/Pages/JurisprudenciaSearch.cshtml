@@ -1,0 +1,140 @@
+@page "/BusquedaJusrisprudencia"
+@model JurisprudenciaApi.Pages.JurisprudenciaSearchModel
+@{ // This sets the title shown in the browser tab
+    ViewData["Title"] = "Búsqueda de Jurisprudencia";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<form method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="form-group row mb-2">
+        <label asp-for="Input.TextoLibre" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <input asp-for="Input.TextoLibre" class="form-control" placeholder="Búsqueda por texto libre" />
+            <span asp-validation-for="Input.TextoLibre" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="form-group row mb-2">
+        <label asp-for="Input.Jurisdiccion" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-4">
+            <!-- Simple dropdown for now. Replace with multi-select later if needed -->
+            <select asp-for="Input.Jurisdiccion" class="form-select">
+                <option value="">Todas</option>
+                <option value="CIVIL">Civil</option>
+                <option value="PENAL">Penal</option>
+                <option value="CONTENCIOSO">Contencioso</option>
+                <option value="SOCIAL">Social</option>
+                <option value="MILITAR">Militar</option>
+                <option value="ESPECIAL">Especial</option>
+            </select>
+            <span asp-validation-for="Input.Jurisdiccion" class="text-danger"></span>
+        </div>
+        <label asp-for="Input.TipoResolucion" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-4">
+             <!-- Placeholder for Tipo Resolución - Complex control needs more work -->
+            <input asp-for="Input.TipoResolucion" class="form-control" placeholder="Tipo Resolución (simplificado)" />
+            <span asp-validation-for="Input.TipoResolucion" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="form-group row mb-2">
+        <label asp-for="Input.TipoOrgano" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <!-- Placeholder for Tipo Organo - Complex control needs more work -->
+            <input asp-for="Input.TipoOrgano" class="form-control" placeholder="Tipo Órgano (simplificado)" />
+            <span asp-validation-for="Input.TipoOrgano" class="text-danger"></span>
+        </div>
+    </div>
+
+     <div class="form-group row mb-2">
+        <label asp-for="Input.Localizacion" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+             <!-- Placeholder for Localizacion - Complex control needs more work -->
+            <input asp-for="Input.Localizacion" class="form-control" placeholder="Localización (simplificado)" />
+            <span asp-validation-for="Input.Localizacion" class="text-danger"></span>
+        </div>
+    </div>
+
+    <hr />
+
+    <div class="form-group row mb-2">
+        <label asp-for="Input.Roj" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-4">
+            <input asp-for="Input.Roj" class="form-control" />
+            <span asp-validation-for="Input.Roj" class="text-danger"></span>
+        </div>
+        <label asp-for="Input.Ecli" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-4">
+            <input asp-for="Input.Ecli" class="form-control" placeholder="ECLI:ES:TS:2014:3877" />
+            <span asp-validation-for="Input.Ecli" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="form-group row mb-2">
+        <label asp-for="Input.FechaResolucionDesde" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-4">
+            <input asp-for="Input.FechaResolucionDesde" class="form-control" />
+            <span asp-validation-for="Input.FechaResolucionDesde" class="text-danger"></span>
+        </div>
+         <label asp-for="Input.NumeroResolucion" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-4">
+            <input asp-for="Input.NumeroResolucion" class="form-control" />
+            <span asp-validation-for="Input.NumeroResolucion" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="form-group row mb-2">
+        <label asp-for="Input.FechaResolucionHasta" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-4">
+            <input asp-for="Input.FechaResolucionHasta" class="form-control" />
+            <span asp-validation-for="Input.FechaResolucionHasta" class="text-danger"></span>
+        </div>
+        <label asp-for="Input.NumeroRecurso" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-4">
+            <input asp-for="Input.NumeroRecurso" class="form-control" />
+            <span asp-validation-for="Input.NumeroRecurso" class="text-danger"></span>
+        </div>
+    </div>
+
+     <hr />
+
+     <div class="form-group row mb-2">
+        <label asp-for="Input.Ponente" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <input asp-for="Input.Ponente" class="form-control" />
+            <span asp-validation-for="Input.Ponente" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="form-group row mb-2">
+        <label asp-for="Input.Idioma" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-4">
+             <select asp-for="Input.Idioma" class="form-select">
+                <option value="">Todos</option>
+                <option value="1">Español</option>
+                <option value="2">Català</option>
+                <option value="3">Galego</option>
+                <option value="4">Euskera</option>
+            </select>
+            <span asp-validation-for="Input.Idioma" class="text-danger"></span>
+        </div>
+    </div>
+
+    <!-- Add other form fields here based on SearchInputModel -->
+
+    <hr />
+
+    <div class="form-group row mt-3">
+        <div class="col-sm-10 offset-sm-2">
+             <button type="submit" class="btn btn-primary">Buscar</button>
+             <!-- Add Limpiar button if needed -->
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+} 

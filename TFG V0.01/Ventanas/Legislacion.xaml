@@ -1,0 +1,87 @@
+﻿<Window x:Class="TFG_V0._01.Ventanas.Legislacion"
+       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+       xmlns:local="clr-namespace:TFG_V0._01.Ventanas"
+       mc:Ignorable="d"
+       Title="Legislacion" Height="450" Width="800">
+
+   
+   <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="AUTO" />
+            <ColumnDefinition Width="2" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <!-- Fondo -->
+        <Grid.Background>
+           <ImageBrush x:Name="backgroundFondo" ImageSource="/TFG V0.01;component/Recursos/Background/oscuro/main.png"/>
+       </Grid.Background>
+
+       <!-- Contenido Principal -->
+       <StackPanel Margin="20">
+           <TextBlock Text="Utilice el buscador de disposiciones para buscar normas que son citadas en las distintas resoluciones del fondo documental." TextWrapping="Wrap" Margin="0,0,0,10" Foreground="White"/>
+           <Grid>
+               <Grid.ColumnDefinitions>
+                   <ColumnDefinition Width="*"/>
+                   <ColumnDefinition Width="Auto"/>
+               </Grid.ColumnDefinitions>
+               <TextBox Grid.Column="0" Margin="0,0,10,0"/>
+               <Button Grid.Column="1" Content="🔍" Width="30"/>
+           </Grid>
+           <Grid Margin="0,10,0,0">
+               <Grid.ColumnDefinitions>
+                   <ColumnDefinition Width="*"/>
+                   <ColumnDefinition Width="*"/>
+                   <ColumnDefinition Width="*"/>
+               </Grid.ColumnDefinitions>
+               <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                   <TextBlock Text="Nº Oficial" FontWeight="Bold" Foreground="White"/>
+                   <TextBox/>
+               </StackPanel>
+               <StackPanel Grid.Column="1" Margin="0,0,10,0">
+                   <TextBlock Text="Nº BOE" FontWeight="Bold" Foreground="White"/>
+                   <TextBox/>
+               </StackPanel>
+               <StackPanel Grid.Column="2">
+                   <TextBlock Text="Nº Refer." FontWeight="Bold" Foreground="White"/>
+                   <TextBox/>
+               </StackPanel>
+           </Grid>
+           <Grid Margin="0,10,0,0">
+               <Grid.ColumnDefinitions>
+                   <ColumnDefinition Width="*"/>
+                   <ColumnDefinition Width="*"/>
+                   <ColumnDefinition Width="*"/>
+               </Grid.ColumnDefinitions>
+               <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                   <TextBlock Text="Rango" FontWeight="Bold" Foreground="White"/>
+                   <TextBox/>
+               </StackPanel>
+               <StackPanel Grid.Column="1" Margin="0,0,10,0">
+                   <TextBlock Text="Órgano" FontWeight="Bold" Foreground="White"/>
+                   <TextBox/>
+               </StackPanel>
+               <StackPanel Grid.Column="2">
+                   <TextBlock Text="Materia" FontWeight="Bold" Foreground="White"/>
+                   <TextBox/>
+               </StackPanel>
+           </Grid>
+           <Grid Margin="0,10,0,0">
+               <Grid.ColumnDefinitions>
+                   <ColumnDefinition Width="*"/>
+                   <ColumnDefinition Width="*"/>
+               </Grid.ColumnDefinitions>
+               <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                   <TextBlock Text="Fª Public." FontWeight="Bold" Foreground="White"/>
+                   <DatePicker/>
+               </StackPanel>
+               <StackPanel Grid.Column="1">
+                   <TextBlock Text="Fª Dispos." FontWeight="Bold" Foreground="White"/>
+                   <DatePicker/>
+               </StackPanel>
+           </Grid>
+       </StackPanel>
+   </Grid>
+</Window>

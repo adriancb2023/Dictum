@@ -1,0 +1,97 @@
+﻿<Window x:Class="TFG_V0._01.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TFG_V0._01"
+        mc:Ignorable="d"
+        Title="TFG Application" Height="300" Width="300"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
+
+    <!-- Contenedor principal con fondo translúcido -->
+    <Border CornerRadius="150" MouseDown="Border_MouseDown">
+        <Border.Background>
+            <SolidColorBrush Color="#801E1E2E" Opacity="0.85"/>
+        </Border.Background>
+
+        <Grid>
+            <!-- Círculo de carga -->
+            <Grid Width="200" Height="200">
+                <!-- Círculo de fondo -->
+                <Ellipse Width="200" Height="200" Stroke="#40FFFFFF" StrokeThickness="10"/>
+
+                <!-- Arco de progreso dinámico -->
+                <Path x:Name="ProgressPath" StrokeThickness="10" 
+                      StrokeStartLineCap="Round" StrokeEndLineCap="Round">
+                    <Path.Stroke>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#3084F2" Offset="0"/>
+                            <GradientStop Color="#8B5CF6" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Path.Stroke>
+                    <Path.Data>
+                        <PathGeometry>
+                            <PathFigure x:Name="ProgressFigure" StartPoint="100,20">
+                                <ArcSegment x:Name="ProgressArc" Point="100,20" 
+                                            Size="90,90" SweepDirection="Clockwise" 
+                                            IsLargeArc="False"/>
+                            </PathFigure>
+                        </PathGeometry>
+                    </Path.Data>
+                </Path>
+
+                <!-- Panel de fondo para el texto para mejorar legibilidad -->
+                <Border Width="120" Height="120" CornerRadius="60" 
+                        Background="#80000000" Opacity="0.5"/>
+
+                <!-- Porcentaje de carga -->
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <TextBlock x:Name="PercentageText" Text="0%" FontSize="36" 
+                               Foreground="White" HorizontalAlignment="Center" 
+                               FontWeight="SemiBold"/>
+                    <TextBlock Text="Cargando" FontSize="14" Foreground="#EEFFFFFF" 
+                               HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- Botón de cerrar -->
+            <Button Content="×" FontSize="16" Width="24" Height="24" 
+                    HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,20,20,0"
+                    Background="#40000000" Foreground="White" BorderThickness="0"
+                    Click="CloseButton_Click" Cursor="Hand">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}" 
+                                            CornerRadius="12">
+                                        <ContentPresenter HorizontalAlignment="Center" 
+                                                          VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#80000000"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+
+            <!-- Efecto de brillo para mejorar la apariencia -->
+            <Border CornerRadius="150" Opacity="0.2">
+                <Border.Background>
+                    <RadialGradientBrush>
+                        <GradientStop Color="#FFFFFF" Offset="0"/>
+                        <GradientStop Color="Transparent" Offset="1"/>
+                    </RadialGradientBrush>
+                </Border.Background>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

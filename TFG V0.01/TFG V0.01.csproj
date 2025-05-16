@@ -1,0 +1,109 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <RootNamespace>TFG_V0._01</RootNamespace>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Recursos\Background\claro\bg-footer-light.png" />
+    <None Remove="Recursos\Background\claro\bg-main-light.jpg" />
+    <None Remove="Recursos\Background\claro\fotter.png" />
+    <None Remove="Recursos\Background\claro\main.png" />
+    <None Remove="Recursos\Background\claro\mod1.png" />
+    <None Remove="Recursos\Background\oscuro\bg-footer-dark.png" />
+    <None Remove="Recursos\Background\oscuro\bg-main-dark-1440w.jpg" />
+    <None Remove="Recursos\Background\oscuro\bg-subtle-1-dark-1440w.jpg" />
+    <None Remove="Recursos\Background\oscuro\bg-subtle-2-dark-1440w.jpg" />
+    <None Remove="Recursos\Background\oscuro\footer.png" />
+    <None Remove="Recursos\Background\oscuro\main.png" />
+    <None Remove="Recursos\Background\oscuro\mod1.png" />
+    <None Remove="Recursos\Background\oscuro\mod2.png" />
+    <None Remove="Recursos\Iconos\ajustes.png" />
+    <None Remove="Recursos\Iconos\ajustes2.png" />
+    <None Remove="Recursos\Iconos\ayuda.png" />
+    <None Remove="Recursos\Iconos\ayuda2.png" />
+    <None Remove="Recursos\Iconos\buscar.png" />
+    <None Remove="Recursos\Iconos\buscar2.png" />
+    <None Remove="Recursos\Iconos\casos.png" />
+    <None Remove="Recursos\Iconos\casos2.png" />
+    <None Remove="Recursos\Iconos\clientes.png" />
+    <None Remove="Recursos\Iconos\clientes2.png" />
+    <None Remove="Recursos\Iconos\documentos.png" />
+    <None Remove="Recursos\Iconos\documentos2.png" />
+    <None Remove="Recursos\Iconos\home.png" />
+    <None Remove="Recursos\Iconos\home2.png" />
+    <None Remove="Recursos\Iconos\luna2.png" />
+    <None Remove="Recursos\Logo\logo.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentWPF" Version="0.10.2" />
+    <PackageReference Include="FontAwesome.WPF" Version="4.7.0.9" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.12.1" />
+    <PackageReference Include="MaterialDesignColors" Version="5.2.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.5" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3240.44" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Panuon.UI.Silver" Version="1.1.3.4" />
+    <PackageReference Include="Selenium.WebDriver" Version="4.32.0" />
+    <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="136.0.7103.9400" />
+    <PackageReference Include="Supabase" Version="1.1.1" />
+    <PackageReference Include="Supabase.Core" Version="0.13.7" />
+    <PackageReference Include="Supabase.Postgrest" Version="4.1.0" />
+    <PackageReference Include="Supabase.Storage" Version="2.0.2" />
+    <PackageReference Include="Supabase.Gotrue" Version="6.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Recursos\Imagenes\" />
+    <Folder Include="Recursos\ER BBDD\" />
+    <Folder Include="Recursos\Raw\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\JurisprudenciaAPI\JurisprudenciaAPI.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Recursos\Background\claro\fotter.png" />
+    <Resource Include="Recursos\Background\claro\main.png" />
+    <Resource Include="Recursos\Background\claro\mod1.png" />
+    <Resource Include="Recursos\Background\oscuro\footer.png" />
+    <Resource Include="Recursos\Background\oscuro\main.png" />
+    <Resource Include="Recursos\Background\oscuro\mod1.png" />
+    <Resource Include="Recursos\Background\oscuro\mod2.png" />
+    <Resource Include="Recursos\Iconos\agenda2.png" />
+    <Resource Include="Recursos\Iconos\agenda.png" />
+    <Resource Include="Recursos\Iconos\ajustes.png" />
+    <Resource Include="Recursos\Iconos\ajustes2.png" />
+    <Resource Include="Recursos\Iconos\ayuda.png" />
+    <Resource Include="Recursos\Iconos\ayuda2.png" />
+    <Resource Include="Recursos\Iconos\buscar.png" />
+    <Resource Include="Recursos\Iconos\buscar2.png" />
+    <Resource Include="Recursos\Iconos\casos.png" />
+    <Resource Include="Recursos\Iconos\casos2.png" />
+    <Resource Include="Recursos\Iconos\clientes.png" />
+    <Resource Include="Recursos\Iconos\clientes2.png" />
+    <Resource Include="Recursos\Iconos\documentos.png" />
+    <Resource Include="Recursos\Iconos\documentos2.png" />
+    <Resource Include="Recursos\Iconos\home.png" />
+    <Resource Include="Recursos\Iconos\home2.png" />
+    <Resource Include="Recursos\Iconos\luna2.png" />
+    <Resource Include="Recursos\Iconos\sol.png" />
+    <Resource Include="Recursos\Iconos\luna.png" />
+    <Resource Include="Recursos\Logo\logo.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

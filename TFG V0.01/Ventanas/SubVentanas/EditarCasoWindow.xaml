@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:conv="clr-namespace:TFG_V0._01.Converters"
         Title="Editar Caso"
-        Height="500" Width="500"
+        Height="680" Width="550"
         WindowStartupLocation="CenterOwner"
         ResizeMode="CanResize"
         Background="#F0F2F5"
@@ -11,6 +11,7 @@
         AllowsTransparency="False"
         Loaded="Window_Loaded"
         MouseLeftButtonDown="Border_MouseLeftButtonDown">
+
     <Window.Resources>
         <conv:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
         <conv:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
@@ -48,60 +49,85 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+        <!-- Estilo de tarjeta -->
+        <Style x:Key="CardStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="20"/>
+            <Setter Property="Background">
+                <Setter.Value>
+                    <SolidColorBrush x:Name="colortarjeta" Color="#454545" Opacity="0.4"/>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="BorderBrush" Value="#333" />
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="15"/>
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="Black" BlurRadius="15" ShadowDepth="2" Opacity="0.3"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
-    <Border Background="#FAFAFC" CornerRadius="12" Padding="20" Margin="10">
-        <Border.Effect>
-            <DropShadowEffect BlurRadius="10" ShadowDepth="1" Color="#11000000"/>
-        </Border.Effect>
-        <StackPanel>
-            <TextBlock Text="Editar Caso" FontSize="22" FontWeight="Bold" Foreground="#222" Margin="0,0,0,18"/>
-            <!-- Campos de edición -->
-            <StackPanel Margin="0,0,0,10">
-                <TextBlock Text="Fecha de inicio" FontWeight="SemiBold" Foreground="#444"/>
-                <DatePicker SelectedDate="{Binding FechaInicio, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,4,0,10"/>
-                <TextBlock Text="Título" FontWeight="SemiBold" Foreground="#444"/>
-                <TextBox Text="{Binding Titulo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,4,0,10"/>
-                <TextBlock Text="Descripción" FontWeight="SemiBold" Foreground="#444"/>
-                <TextBox Text="{Binding Descripcion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,4,0,10" Height="60"/>
-                <TextBlock Text="Estado" FontWeight="SemiBold" Foreground="#444"/>
-                <ComboBox ItemsSource="{Binding EstadosDisponibles, UpdateSourceTrigger=PropertyChanged}"
+    <Grid>
+        <Grid.Background>
+            <ImageBrush x:Name="backgroundFondo" ImageSource="/TFG V0.01;component/Recursos/Background/oscuro/main.png"/>
+        </Grid.Background>
+        
+        <Border Style="{StaticResource CardStyle}" CornerRadius="12" Padding="20" Margin="45">
+
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="10" ShadowDepth="1" Color="#11000000"/>
+            </Border.Effect>
+            <StackPanel>
+                <TextBlock Text="Editar Caso" FontSize="22" FontWeight="Bold" Foreground="#CCFFFFFF" Margin="0,0,0,18"/>
+                <!-- Campos de edición -->
+                <StackPanel Margin="0,0,0,10">
+                    <TextBlock Text="Fecha de inicio" FontWeight="SemiBold" Foreground="#CCFFFFFF"/>
+                    <DatePicker SelectedDate="{Binding FechaInicio, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,4,0,10"/>
+                    <TextBlock Text="Título" FontWeight="SemiBold" Foreground="#CCFFFFFF"/>
+                    <TextBox Text="{Binding Titulo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,4,0,10"/>
+                    <TextBlock Text="Descripción" FontWeight="SemiBold" Foreground="#CCFFFFFF"/>
+                    <TextBox Text="{Binding Descripcion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,4,0,10" Height="60"/>
+                    <TextBlock Text="Estado" FontWeight="SemiBold" Foreground="#CCFFFFFF"/>
+                    <ComboBox ItemsSource="{Binding EstadosDisponibles, UpdateSourceTrigger=PropertyChanged}"
                           SelectedItem="{Binding EstadoSeleccionado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                           DisplayMemberPath="nombre"
                           SelectedValuePath="id"
                           Margin="0,4,0,0"/>
+                </StackPanel>
+                <TextBlock Text="{Binding MensajeError}" Foreground="Red" FontSize="13" Margin="0,0,0,8" Visibility="{Binding MensajeError, Converter={StaticResource StringToVisibilityConverter}}"/>
+                <!-- Documentos -->
+                <TextBlock Text="Documentos del caso" FontWeight="SemiBold" FontSize="15" Margin="0,0,0,6" Foreground="#CCFFFFFF"/>
+                <Border Background="White" CornerRadius="8" Padding="6" Margin="0,0,0,10">
+                    <ScrollViewer VerticalScrollBarVisibility="Visible" Height="140">
+                        <ItemsControl ItemsSource="{Binding DocumentosCaso}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="#F7F9FB" CornerRadius="6" Padding="8" Margin="0,0,0,8" BorderBrush="#EEE" BorderThickness="1">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="2*"/>
+                                                <ColumnDefinition Width="1.2*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding nombre}" FontWeight="Bold" Grid.Column="0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding fecha_subid, StringFormat='Subido: {0:dd/MM/yyyy}'}" Foreground="#888" Grid.Column="1" VerticalAlignment="Center"/>
+                                            <Button Content="Ver" Command="{Binding DataContext.VerDocumentoCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Margin="8,0,0,0" Width="55" Grid.Column="2" Style="{StaticResource ModernDetailsButtonStyle}"/>
+                                            <Button Content="Descargar" Command="{Binding DataContext.DescargarDocumentoCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Margin="8,0,0,0" Width="90" Grid.Column="3" Style="{StaticResource ModernDetailsButtonStyle}"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Border>
+                <!-- Botones -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
+                    <Button Content="Guardar" Style="{StaticResource ModernDetailsButtonStyle}" Width="100" Margin="0,0,10,0" Click="Guardar_Click"/>
+                    <Button Content="Cancelar" Style="{StaticResource ModernDetailsButtonStyle}" Width="100" Click="Cancelar_Click" Background="White" Foreground="Black"/>
+                </StackPanel>
             </StackPanel>
-            <TextBlock Text="{Binding MensajeError}" Foreground="Red" FontSize="13" Margin="0,0,0,8" Visibility="{Binding MensajeError, Converter={StaticResource StringToVisibilityConverter}}"/>
-            <!-- Documentos -->
-            <TextBlock Text="Documentos del caso" FontWeight="SemiBold" FontSize="15" Margin="0,0,0,6"/>
-            <Border Background="White" CornerRadius="8" Padding="6" Margin="0,0,0,10">
-                <ScrollViewer VerticalScrollBarVisibility="Visible" Height="140">
-                    <ItemsControl ItemsSource="{Binding DocumentosCaso}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border Background="#F7F9FB" CornerRadius="6" Padding="8" Margin="0,0,0,8" BorderBrush="#EEE" BorderThickness="1">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="2*"/>
-                                            <ColumnDefinition Width="1.2*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Text="{Binding nombre}" FontWeight="Bold" Grid.Column="0" VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding fecha_subid, StringFormat='Subido: {0:dd/MM/yyyy}'}" Foreground="#888" Grid.Column="1" VerticalAlignment="Center"/>
-                                        <Button Content="Ver" Command="{Binding DataContext.VerDocumentoCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Margin="8,0,0,0" Width="55" Grid.Column="2" Style="{StaticResource ModernDetailsButtonStyle}"/>
-                                        <Button Content="Descargar" Command="{Binding DataContext.DescargarDocumentoCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Margin="8,0,0,0" Width="90" Grid.Column="3" Style="{StaticResource ModernDetailsButtonStyle}"/>
-                                    </Grid>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
-            </Border>
-            <!-- Botones -->
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
-                <Button Content="Guardar" Style="{StaticResource ModernDetailsButtonStyle}" Width="100" Margin="0,0,10,0" Click="Guardar_Click"/>
-                <Button Content="Cancelar" Style="{StaticResource ModernDetailsButtonStyle}" Width="100" Click="Cancelar_Click"/>
-            </StackPanel>
-        </StackPanel>
-    </Border>
+        </Border>
+    </Grid>
 </Window>

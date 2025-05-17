@@ -136,7 +136,6 @@ namespace TFG_V0._01.Ventanas
         {
             try
             {
-                await _clientesService.InicializarAsync();
                 await _casosService.InicializarAsync();
 
                 var clientes = await _clientesService.ObtenerClientesAsync();

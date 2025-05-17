@@ -118,7 +118,6 @@ namespace TFG_V0._01.Ventanas
         {
             try
             {
-                await _supabaseClientes.InicializarAsync();
                 var clientes = await _supabaseClientes.ObtenerClientesAsync();
                 ListaClientes.Clear();
                 foreach (var cliente in clientes)

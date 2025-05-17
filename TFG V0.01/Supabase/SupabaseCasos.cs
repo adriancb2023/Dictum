@@ -41,7 +41,6 @@ namespace TFG_V0._01.Supabase
                 if (_inicializado) return;
                 await _client.InitializeAsync().ConfigureAwait(false);
                 await Task.WhenAll(
-                    _clientesService.InicializarAsync(),
                     _estadosService.InicializarAsync(),
                     _tiposCasoService.InicializarAsync()
                 ).ConfigureAwait(false);

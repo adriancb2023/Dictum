@@ -399,7 +399,6 @@ namespace TFG_V0._01.Ventanas
         {
             try
             {
-                await _clientesService.InicializarAsync();
                 var clientes = await _clientesService.ObtenerClientesAsync();
                 ClientCount = clientes?.Count ?? 0;
                 _previousClientCount = 0;

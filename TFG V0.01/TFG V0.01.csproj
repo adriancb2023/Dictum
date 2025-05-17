@@ -11,6 +11,25 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="NewFolder\**" />
+    <Compile Remove="Ventanas\NewFolder1\**" />
+    <Compile Remove="Ventanas\NewFolder2\**" />
+    <Compile Remove="Ventanas\NewFolder\**" />
+    <EmbeddedResource Remove="NewFolder\**" />
+    <EmbeddedResource Remove="Ventanas\NewFolder1\**" />
+    <EmbeddedResource Remove="Ventanas\NewFolder2\**" />
+    <EmbeddedResource Remove="Ventanas\NewFolder\**" />
+    <None Remove="NewFolder\**" />
+    <None Remove="Ventanas\NewFolder1\**" />
+    <None Remove="Ventanas\NewFolder2\**" />
+    <None Remove="Ventanas\NewFolder\**" />
+    <Page Remove="NewFolder\**" />
+    <Page Remove="Ventanas\NewFolder1\**" />
+    <Page Remove="Ventanas\NewFolder2\**" />
+    <Page Remove="Ventanas\NewFolder\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Recursos\Background\claro\bg-footer-light.png" />
     <None Remove="Recursos\Background\claro\bg-main-light.jpg" />
     <None Remove="Recursos\Background\claro\fotter.png" />
@@ -66,13 +85,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="NewFolder\" />
     <Folder Include="Recursos\Imagenes\" />
     <Folder Include="Recursos\ER BBDD\" />
     <Folder Include="Recursos\Raw\" />
-    <Folder Include="Ventanas\NewFolder1\" />
-    <Folder Include="Ventanas\NewFolder2\" />
-    <Folder Include="Ventanas\NewFolder\" />
   </ItemGroup>
 
   <ItemGroup>

@@ -12,33 +12,24 @@ namespace TFG_V0._01.Supabase
 
         public SupabaseEstado()
         {
-            _client = new Client(Credenciales.SupabaseUrl, Credenciales.AnonKey);
+            _client = new(Credenciales.SupabaseUrl, Credenciales.AnonKey);
         }
 
-        public async Task InicializarAsync()
-        {
-            await _client.InitializeAsync();
-        }
+        public Task InicializarAsync() => _client.InitializeAsync();
 
         public async Task<List<Estado>> ObtenerTodosAsync()
         {
-            var result = await _client.From<Estado>().Limit(50000).Get();
+            var result = await _client.From<Estado>().Get();
             return result.Models;
         }
 
-        public async Task InsertarAsync(Estado entidad)
-        {
-            await _client.From<Estado>().Insert(entidad);
-        }
+        public Task InsertarAsync(Estado entidad) =>
+            _client.From<Estado>().Insert(entidad);
 
-        public async Task ActualizarAsync(Estado entidad)
-        {
-            await _client.From<Estado>().Update(entidad);
-        }
+        public Task ActualizarAsync(Estado entidad) =>
+            _client.From<Estado>().Update(entidad);
 
-        public async Task EliminarAsync(int id)
-        {
-            await _client.From<Estado>().Where(x => x.id == id).Delete();
-        }
+        public Task EliminarAsync(int id) =>
+            _client.From<Estado>().Where(x => x.id == id).Delete();
     }
 }

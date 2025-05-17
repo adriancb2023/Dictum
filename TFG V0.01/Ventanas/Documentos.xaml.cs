@@ -439,7 +439,6 @@ namespace TFG_V0._01.Ventanas
 
         private async Task CargarClientesAsync()
         {
-            await _supabaseClientes.InicializarAsync();
             var clientes = await _supabaseClientes.ObtenerClientesAsync();
             ListaClientes.Clear();
             foreach (var c in clientes)

@@ -1,7 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Supabase;
 using TFG_V0._01.Supabase.Models;
@@ -18,36 +15,24 @@ namespace TFG_V0._01.Supabase
             _client = new Client(Credenciales.SupabaseUrl, Credenciales.AnonKey);
         }
 
-        public async Task InicializarAsync()
-        {
-            await _client.InitializeAsync();
-        }
+        public Task InicializarAsync() => _client.InitializeAsync();
 
         public async Task<List<Estado>> ObtenerTodosAsync()
         {
-            var result = await _client.From<Estado>().Limit(50000).Get();
+            var result = await _client.From<Estado>().Get();
             return result.Models;
         }
 
-        public async Task<Estado> ObtenerPorIdAsync(int id)
-        {
-            var result = await _client.From<Estado>().Where(x => x.id == id).Single();
-            return result;
-        }
+        public Task<Estado> ObtenerPorIdAsync(int id) =>
+            _client.From<Estado>().Where(x => x.id == id).Single();
 
-        public async Task InsertarAsync(Estado estado)
-        {
-            await _client.From<Estado>().Insert(estado);
-        }
+        public Task InsertarAsync(Estado estado) =>
+            _client.From<Estado>().Insert(estado);
 
-        public async Task ActualizarAsync(Estado estado)
-        {
-            await _client.From<Estado>().Update(estado);
-        }
+        public Task ActualizarAsync(Estado estado) =>
+            _client.From<Estado>().Update(estado);
 
-        public async Task EliminarAsync(int id)
-        {
-            await _client.From<Estado>().Where(x => x.id == id).Delete();
-        }
+        public Task EliminarAsync(int id) =>
+            _client.From<Estado>().Where(x => x.id == id).Delete();
     }
-} 
+}

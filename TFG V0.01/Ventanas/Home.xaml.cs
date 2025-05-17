@@ -18,12 +18,12 @@ namespace TFG_V0._01.Ventanas
 {
     public partial class Home : Window, INotifyPropertyChanged
     {
-        #region variables animacion
+        #region 🎬 variables animacion
         private Storyboard fadeInStoryboard;
         private Storyboard shakeStoryboard;
         #endregion
 
-        #region variables
+        #region 📊 variables
         private readonly SupabaseAutentificacion _authService;
         private readonly SupabaseClientes _clientesService;
         private readonly SupabaseCasos _supabaseCasos;
@@ -114,7 +114,7 @@ namespace TFG_V0._01.Ventanas
         private readonly UIElement[] navbarItems;
         #endregion
 
-        #region Inicializacion
+        #region ⚡ Inicializacion
         public Home()
         {
             InitializeComponent();
@@ -155,7 +155,7 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
-        #region Patalla de carga
+        #region ⌛ Patalla de carga
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
             LoadingPanel.Visibility = Visibility.Visible;
@@ -167,7 +167,7 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
-        #region Aplicar modo oscuro/claro cargado por sistema
+        #region 🌓 Aplicar modo oscuro/claro cargado por sistema
         private void AplicarModoSistema()
         {
             var button = FindName("ThemeButton") as Button;
@@ -211,7 +211,7 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
-        #region modo oscuro/claro + navbar
+        #region 🌓 modo oscuro/claro + navbar
         private void CambiarIconosAOscuros()
         {
             CambiarIcono("imagenHome2", "/TFG V0.01;component/Recursos/Iconos/home.png");
@@ -279,7 +279,7 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
-        #region navbar animacion
+        #region 🔄 navbar animacion
         private void CambiarVisibilidadNavbar(Visibility visibilidad)
         {
             foreach (var item in navbarItems)
@@ -298,7 +298,7 @@ namespace TFG_V0._01.Ventanas
 
         #endregion
 
-        #region Navbar botones
+        #region 🔄 Navbar botones
         private void AbrirVentana<T>() where T : Window, new()
         {
             var ventana = new T();
@@ -316,7 +316,7 @@ namespace TFG_V0._01.Ventanas
         private void irAjustes(object sender, RoutedEventArgs e) => AbrirVentana<Ajustes>();
         #endregion
 
-        #region Animaciones
+        #region 🎬  Animaciones
 
         private void InitializeAnimations()
         {
@@ -369,7 +369,7 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
-        #region Cargar datos
+        #region 📥 Cargar datos
 
         private async Task CargarDatosDashboard()
         {
@@ -590,7 +590,7 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
-        #region ScoreCasos
+        #region 📥 ScoreCasos
         private async void CargarScoreCasos()
         {
             try
@@ -631,7 +631,7 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
-        #region ScoreDocumentos
+        #region 📥 ScoreDocumentos
         private async void CargarScoreDocumentos()
         {
             try
@@ -660,7 +660,7 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
-        #region Proximos eventos
+        #region 📥 Proximos eventos
         /*
         private async void CargarProximosEventos()
         {
@@ -683,7 +683,7 @@ namespace TFG_V0._01.Ventanas
         */
         #endregion
 
-        #region Dia Actual
+        #region 📅 Dia Actual
         private void diaSemana()
         {
             var diaSemana = fechaActual.DayOfWeek;
@@ -717,7 +717,7 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
-        #region Cambiar de fecha Calendario
+        #region 📅 Cambiar de fecha Calendario
         private static readonly string[] NombresMeses = { "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre" };
 
         private void CambiarMesCalendario(int incremento)

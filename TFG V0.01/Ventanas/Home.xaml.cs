@@ -395,28 +395,41 @@ namespace TFG_V0._01.Ventanas
         #endregion
 
         #region Cargar datos
+
         private async Task CargarDatosDashboard()
         {
             try
             {
-                var clientes = await _clientesService.ObtenerClientesAsync();
+                // Cargar clientes y actualizar contador
+                var clientesTask = _clientesService.ObtenerClientesAsync();
+
+                // Cargar casos, documentos y tareas en paralelo
+                var casosTask = _supabaseCasos.ObtenerTodosAsync();
+                var documentosService = new SupabaseDocumentos();
+                var documentosInitTask = documentosService.InicializarAsync();
+                var tareasService = new SupabaseTareas();
+                var tareasInitTask = tareasService.InicializarAsync();
+                var recienteService = new SupabaseReciente();
+                var recienteInitTask = recienteService.InicializarAsync();
+
+                await Task.WhenAll(documentosInitTask, tareasInitTask, recienteInitTask);
+
+                var documentosTask = documentosService.ObtenerTodosAsync();
+                var tareasTask = tareasService.ObtenerTodosAsync();
+                var recientesTask = recienteService.ObtenerTodosAsync();
+
+                var clientes = await clientesTask;
                 ClientCount = clientes?.Count ?? 0;
                 _previousClientCount = 0;
                 UpdateClientCountChange();
 
-                var casosService = new SupabaseCasos();
-                await casosService.InicializarAsync();
-                var casos = await casosService.ObtenerTodosAsync();
+                var casos = await casosTask;
                 CasosActivos = casos?.Count ?? 0;
 
-                var documentosService = new SupabaseDocumentos();
-                await documentosService.InicializarAsync();
-                var documentos = await documentosService.ObtenerTodosAsync();
+                var documentos = await documentosTask;
                 Documentos = documentos?.Count ?? 0;
 
-                var tareasService = new SupabaseTareas();
-                await tareasService.InicializarAsync();
-                var tareas = await tareasService.ObtenerTodosAsync();
+                var tareas = await tareasTask;
                 var tareasPendientes = tareas.Where(t => t.estado != "Finalizado").ToList();
                 TareasPendientes = tareasPendientes.Count;
 
@@ -424,16 +437,21 @@ namespace TFG_V0._01.Ventanas
                 foreach (var tarea in tareasPendientes)
                     TareasPendientesLista.Add(tarea);
 
-                var recienteService = new SupabaseReciente();
-                await recienteService.InicializarAsync();
-                var recientes = await recienteService.ObtenerTodosAsync();
+                var recientes = await recientesTask;
                 CasosRecientesLista.Clear();
-
                 var fechaLimite = DateTime.Now.Date.AddDays(-28);
 
-                foreach (var reciente in recientes)
+                // Cargar casos recientes en paralelo
+                var casosRecientes = await Task.WhenAll(
+                    recientes.Select(async reciente =>
+                    {
+                        var caso = await _supabaseCasos.ObtenerPorIdAsync(reciente.id_caso);
+                        return (caso, reciente);
+                    })
+                );
+
+                foreach (var (caso, _) in casosRecientes)
                 {
-                    var caso = await _supabaseCasos.ObtenerPorIdAsync(reciente.id_caso);
                     if (caso != null && caso.fecha_inicio.Date >= fechaLimite)
                     {
                         CasosRecientesLista.Add(new CasoViewModel
@@ -449,7 +467,7 @@ namespace TFG_V0._01.Ventanas
                 }
                 CasosRecientes = CasosRecientesLista.Count;
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show($"Error al cargar los datos del dashboard: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
@@ -458,20 +476,14 @@ namespace TFG_V0._01.Ventanas
         private void UpdateClientCountChange()
         {
             int change = ClientCount - _previousClientCount;
-            if (change > 0)
-                ClientCountChange = $"+{change}";
-            else if (change < 0)
-                ClientCountChange = change.ToString();
-            else
-                ClientCountChange = "+0";
+            ClientCountChange = change > 0 ? $"+{change}" : change < 0 ? change.ToString() : "+0";
         }
 
         private async void CheckBox_TareaFinalizada(object sender, RoutedEventArgs e)
         {
             try
             {
-                var checkBox = sender as CheckBox;
-                if (checkBox?.DataContext is Tarea tarea)
+                if (sender is CheckBox checkBox && checkBox.DataContext is Tarea tarea)
                 {
                     tarea.estado = "Finalizado";
                     var tareasService = new SupabaseTareas();
@@ -543,34 +555,25 @@ namespace TFG_V0._01.Ventanas
             }
         }
 
-        private string ObtenerColorEstado(string estado)
+        private string ObtenerColorEstado(string estado) => estado.ToLower() switch
         {
-            return estado.ToLower() switch
-            {
-                "activo" => "#4CAF50",
-                "en proceso" => "#FF9800",
-                "finalizado" => "#F44336",
-                _ => "#757575"
-            };
-        }
+            "activo" => "#4CAF50",
+            "en proceso" => "#FF9800",
+            "finalizado" => "#F44336",
+            _ => "#757575"
+        };
 
         private string ObtenerColorEstadoCaso(string estado)
         {
-            switch (estado.ToLower())
+            return estado.ToLower() switch
             {
-                case "abierto":
-                    return "#43A047";
-                case "en proceso":
-                    return "#1976D2";
-                case "cerrado":
-                    return "#D32F2F";
-                case "pendiente":
-                    return "#FFB300";
-                case "revisado":
-                    return "#5C6BC0";
-                default:
-                    return "#BDBDBD";
-            }
+                "abierto" => "#43A047",
+                "en proceso" => "#1976D2",
+                "cerrado" => "#D32F2F",
+                "pendiente" => "#FFB300",
+                "revisado" => "#5C6BC0",
+                _ => "#BDBDBD"
+            };
         }
 
         private void VerTodosCasos_Click(object sender, RoutedEventArgs e)
@@ -611,6 +614,7 @@ namespace TFG_V0._01.Ventanas
             }
         }
         #endregion
+
 
         #region ScoreCasos
         private async void CargarScoreCasos()

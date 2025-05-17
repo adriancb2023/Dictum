@@ -13,6 +13,10 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System;
 using System.Windows.Documents;
+using TFG_V0._01.BBDDLocal;
+using Polly;
+using SupabaseTarea = TFG_V0._01.Supabase.Models.Tarea; // Alias para evitar ambigüedad
+using SupabaseCaso = TFG_V0._01.Supabase.Models.Caso;   // Alias para evitar ambigüedad
 
 namespace TFG_V0._01.Ventanas
 {
@@ -34,7 +38,7 @@ namespace TFG_V0._01.Ventanas
         private int _documentos;
         private int _tareasPendientes;
         private int _casosRecientes;
-        public ObservableCollection<Tarea> TareasPendientesLista { get; set; } = new ObservableCollection<Tarea>();
+        public ObservableCollection<SupabaseTarea> TareasPendientesLista { get; set; } = new ObservableCollection<SupabaseTarea>();
         public ObservableCollection<string> EstadosDisponibles { get; set; } = new ObservableCollection<string> { "Pendiente", "En progreso", "Finalizado" };
         private ObservableCollection<CasoViewModel> _casosRecientesLista;
         public ObservableCollection<CasoViewModel> CasosRecientesLista
@@ -121,7 +125,6 @@ namespace TFG_V0._01.Ventanas
             DataContext = this;
 
             CargarIdioma(MainWindow.idioma);
-            //CargarIdiomaNavbar(MainWindow.idioma);
 
             diaSemana();
 
@@ -133,7 +136,6 @@ namespace TFG_V0._01.Ventanas
             _clientesService = new SupabaseClientes();
             _supabaseCasos = new SupabaseCasos();
             CasosRecientesLista = new ObservableCollection<CasoViewModel>();
-
 
             // Inicializar valores
             ClientCount = 0;
@@ -158,12 +160,21 @@ namespace TFG_V0._01.Ventanas
         #region ⌛ Patalla de carga
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            LoadingPanel.Visibility = Visibility.Visible;
-            CargarDatosDashboard();
-            CargarScoreCasos();
-            CargarCasosRecientes();
-            CargarScoreDocumentos();
-            LoadingPanel.Visibility = Visibility.Collapsed;
+            if (MainWindow.tipoBBDD)
+            {
+                LoadingPanel.Visibility = Visibility.Visible;
+                await CargarDatosDashboard();
+                CargarScoreCasos();
+                CargarCasosRecientes();
+                CargarScoreDocumentos();
+                LoadingPanel.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                LoadingPanel.Visibility = Visibility.Visible;
+                CargarCasosActibosLocal();
+                LoadingPanel.Visibility = Visibility.Collapsed;
+            }
         }
         #endregion
 
@@ -369,6 +380,159 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
+        #region 📅 Dia Actual
+        private void diaSemana()
+        {
+            var diaSemana = fechaActual.DayOfWeek;
+            switch (diaSemana)
+            {
+                case DayOfWeek.Monday:
+                    lunes.Foreground = new SolidColorBrush(Colors.Red);
+                    break;
+                case DayOfWeek.Tuesday:
+                    martes.Foreground = new SolidColorBrush(Colors.Red);
+                    break;
+                case DayOfWeek.Wednesday:
+                    miercoles.Foreground = new SolidColorBrush(Colors.Red);
+                    break;
+                case DayOfWeek.Thursday:
+                    jueves.Foreground = new SolidColorBrush(Colors.Red);
+                    break;
+                case DayOfWeek.Friday:
+                    viernes.Foreground = new SolidColorBrush(Colors.Red);
+                    break;
+                case DayOfWeek.Saturday:
+                    sabado.Foreground = new SolidColorBrush(Colors.Red);
+                    break;
+                case DayOfWeek.Sunday:
+                    domingo.Foreground = new SolidColorBrush(Colors.Red);
+                    break;
+                default:
+                    break;
+            }
+        }
+        #endregion
+
+        #region 📅 Cambiar de fecha Calendario
+        private static readonly string[] NombresMeses = { "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre" };
+
+        private void CambiarMesCalendario(int incremento)
+        {
+            int nuevoMes = fechaActual.Month + incremento;
+            int nuevoAnio = fechaActual.Year;
+
+            if (nuevoMes < 1)
+            {
+                nuevoMes = 12;
+                nuevoAnio--;
+            }
+            else if (nuevoMes > 12)
+            {
+                nuevoMes = 1;
+                nuevoAnio++;
+            }
+
+            fechaActual = new DateOnly(nuevoAnio, nuevoMes, 1);
+            ActualizarTextoFechaElegida();
+        }
+
+        private void mesAnterior(object sender, RoutedEventArgs e)
+        {
+            CambiarMesCalendario(-1);
+        }
+
+        private void mesSiguiente(object sender, RoutedEventArgs e)
+        {
+            CambiarMesCalendario(1);
+        }
+
+        private void mesActual(object sender, RoutedEventArgs e)
+        {
+            var fechaHoy = DateOnly.FromDateTime(DateTime.Now);
+
+            if (fechaActual.Equals(fechaHoy))
+            {
+                if (sender is Button btn)
+                    ShakeElement(btn);
+            }
+            else
+            {
+                fechaActual = fechaHoy;
+                ActualizarTextoFechaElegida();
+            }
+        }
+
+        private void ActualizarTextoFechaElegida()
+        {
+            mesText = NombresMeses[fechaActual.Month - 1];
+            anio = fechaActual.Year.ToString();
+            FechaElegida.Text = $"{mesText} {anio}";
+        }
+        #endregion
+
+        #region 🈳 Idioma
+        private void CargarIdioma(int idioma)
+        {
+            var idiomas = new (string Titulo, string Subtitulo, string ResumenCasos, string ResumenClientes, string ResumenDocumentos, string ResumenEventos,
+                string Lunes, string Martes, string Miercoles, string Jueves, string Viernes, string Sabado, string Domingo,
+                string ListaTareas, string BtnAñadirTarea, string BtnVerTodosCasos, string CasosRecientes, string NCasos, string CCliente, string CTipo, string CEstado, string CAcciones, string Version, string Hoy)[]
+            {
+                ("Panel de control.", "Bienvenido a la aplicación de gestión de casos. Se encuentra en el Dashboard de la aplicacion.",
+                 "Casos Activos:", "Clientes:", "Documentos:", "Eventos Póximos:",
+                 "Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom",
+                 "Tareas Pendientes", "Añadir Tarea", "Ver todos los casos", "Casos Recientes", "Nº Caso", "Cliente", "Tipo", "Estado", "Acciones", "Versión: ", "Hoy"),
+                ("Dashboard", "Welcome to the case management application. You are on the application's dashboard.",
+                 "Active Cases:", "Clients:", "Documents:", "Upcoming Events:",
+                 "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun",
+                 "Pending Tasks", "Add Task", "View All Cases", "Recent Cases", "Case No.", "Client", "Type", "Status", "Actions", "Version: ", "Today"),
+                ("Panell de control", "Benvingut a l'aplicació de gestió de casos. Estàs al panell de l'aplicació.",
+                 "Casos Actius:", "Clients:", "Documents:", "Esdeveniments propers:",
+                 "Dll", "Dt", "Dc", "Dj", "Dv", "Ds", "Dg",
+                 "Tasques pendents", "Afegir tasca", "Veure tots els casos", "Casos recents", "Nº Cas", "Client", "Tipus", "Estat", "Accions", "Versió: ", "Avui"),
+                ("Panel de control", "Benvido á aplicación de xestión de casos. Estás no panel da aplicación.",
+                 "Casos activos:", "Clientes:", "Documentos:", "Eventos próximos:",
+                 "Lun", "Mar", "Mér", "Xov", "Ven", "Sáb", "Dom",
+                 "Tarefas pendentes", "Engadir tarefa", "Ver todos os casos", "Casos recentes", "Nº Caso", "Cliente", "Tipo", "Estado", "Accións", "Versión: ", "Hoxe"),
+                ("Kontrol panela", "Ongi etorri kasuen kudeaketa aplikaziora. Aplikazioaren panel nagusian zaude.",
+                 "Kasuan aktiboak:", "Bezeroak:", "Dokumentuak:", "Hurrengo ekitaldiak:",
+                 "Al", "Ar", "Az", "Og", "Or", "La", "Ig",
+                 "Zain dauden zereginak", "Zeregina gehitu", "Kasu guztiak ikusi", "Azken kasuak", "Kasua Nº", "Bezeroa", "Mota", "Egoera", "Ekintzak", "Bertsioa: ", "Gaur")
+            };
+
+            if (idioma < 0 || idioma >= idiomas.Length)
+                idioma = 0;
+
+            var t = idiomas[idioma];
+
+            titulo.Text = t.Titulo;
+            subtitulo.Text = t.Subtitulo;
+            resumenCasos.Text = t.ResumenCasos;
+            resumenClientes.Text = t.ResumenClientes;
+            resumenDocumentos.Text = t.ResumenDocumentos;
+            resumenEventos.Text = t.ResumenEventos;
+            lunes.Text = t.Lunes;
+            martes.Text = t.Martes;
+            miercoles.Text = t.Miercoles;
+            jueves.Text = t.Jueves;
+            viernes.Text = t.Viernes;
+            sabado.Text = t.Sabado;
+            domingo.Text = t.Domingo;
+            listaTareas.Text = t.ListaTareas;
+            btnAñadirTarea.Content = t.BtnAñadirTarea;
+            btnVerTodosCasos.Content = t.BtnVerTodosCasos;
+            casosRecientes.Text = t.CasosRecientes;
+            ncasos.Text = t.NCasos;
+            Ccliente.Text = t.CCliente;
+            Ctipo.Text = t.CTipo;
+            Cestado.Text = t.CEstado;
+            Cacciones.Text = t.CAcciones;
+            Version.Text = t.Version;
+            hoy.Text = t.Hoy;
+        }
+        #endregion
+
+        #region ☁ SUPABASE 
+
         #region 📥 Cargar datos
 
         private async Task CargarDatosDashboard()
@@ -458,7 +622,7 @@ namespace TFG_V0._01.Ventanas
         {
             try
             {
-                if (sender is CheckBox checkBox && checkBox.DataContext is Tarea tarea)
+                if (sender is CheckBox checkBox && checkBox.DataContext is SupabaseTarea tarea)
                 {
                     tarea.estado = "Finalizado";
                     var tareasService = new SupabaseTareas();
@@ -474,7 +638,7 @@ namespace TFG_V0._01.Ventanas
 
         private async void ComboBox_EstadoChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (sender is ComboBox comboBox && comboBox.DataContext is Tarea tarea)
+            if (sender is ComboBox comboBox && comboBox.DataContext is SupabaseTarea tarea)
             {
                 var nuevoEstado = comboBox.SelectedItem as string;
                 if (!string.IsNullOrEmpty(nuevoEstado) && tarea.estado != nuevoEstado)
@@ -602,7 +766,7 @@ namespace TFG_V0._01.Ventanas
                 var primerDiaMesAnterior = primerDiaMesActual.AddMonths(-1);
                 var primerDiaMesSiguiente = primerDiaMesActual.AddMonths(1);
 
-                Func<Caso, bool> esActivo = c =>
+                Func<SupabaseCaso, bool> esActivo = c =>
                     c.estado_nombre.Equals("abierto", StringComparison.OrdinalIgnoreCase) ||
                     c.estado_nombre.Equals("en proceso", StringComparison.OrdinalIgnoreCase);
 
@@ -683,187 +847,27 @@ namespace TFG_V0._01.Ventanas
         */
         #endregion
 
-        #region 📅 Dia Actual
-        private void diaSemana()
-        {
-            var diaSemana = fechaActual.DayOfWeek;
-            switch (diaSemana)
-            {
-                case DayOfWeek.Monday:
-                    lunes.Foreground = new SolidColorBrush(Colors.Red);
-                    break;
-                case DayOfWeek.Tuesday:
-                    martes.Foreground = new SolidColorBrush(Colors.Red);
-                    break;
-                case DayOfWeek.Wednesday:
-                    miercoles.Foreground = new SolidColorBrush(Colors.Red);
-                    break;
-                case DayOfWeek.Thursday:
-                    jueves.Foreground = new SolidColorBrush(Colors.Red);
-                    break;
-                case DayOfWeek.Friday:
-                    viernes.Foreground = new SolidColorBrush(Colors.Red);
-                    break;
-                case DayOfWeek.Saturday:
-                    sabado.Foreground = new SolidColorBrush(Colors.Red);
-                    break;
-                case DayOfWeek.Sunday:
-                    domingo.Foreground = new SolidColorBrush(Colors.Red);
-                    break;
-                default:
-
-                    break;
-            }
-        }
         #endregion
 
-        #region 📅 Cambiar de fecha Calendario
-        private static readonly string[] NombresMeses = { "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre" };
+        #region 💾 BBDD LOCAL
 
-        private void CambiarMesCalendario(int incremento)
+        //cargar total de casos activos Local
+        private void CargarCasosActibosLocal()
         {
-            int nuevoMes = fechaActual.Month + incremento;
-            int nuevoAnio = fechaActual.Year;
-
-            if (nuevoMes < 1)
+            try
             {
-                nuevoMes = 12;
-                nuevoAnio--;
+                using (var db = new TfgContext())
+                {
+                    var estadosActivos = new[] { 1, 2, 4, 5 };
+                    var casosActivos = db.Casos
+                    .Count(c => estadosActivos.Contains(c.IdEstado));
+                    totalCActivos.Text = casosActivos.ToString();
+                }
             }
-            else if (nuevoMes > 12)
+            catch (Exception ex)
             {
-                nuevoMes = 1;
-                nuevoAnio++;
+                MessageBox.Show($"Error al cargar los casos activos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-
-            fechaActual = new DateOnly(nuevoAnio, nuevoMes, 1);
-            ActualizarTextoFechaElegida();
-        }
-
-        private void mesAnterior(object sender, RoutedEventArgs e)
-        {
-            CambiarMesCalendario(-1);
-        }
-
-        private void mesSiguiente(object sender, RoutedEventArgs e)
-        {
-            CambiarMesCalendario(1);
-        }
-
-        private void mesActual(object sender, RoutedEventArgs e)
-        {
-            var fechaHoy = DateOnly.FromDateTime(DateTime.Now);
-
-            if (fechaActual.Equals(fechaHoy))
-            {
-                if (sender is Button btn)
-                    ShakeElement(btn);
-            }
-            else
-            {
-                fechaActual = fechaHoy;
-                ActualizarTextoFechaElegida();
-            }
-        }
-
-        private void ActualizarTextoFechaElegida()
-        {
-            mesText = NombresMeses[fechaActual.Month - 1];
-            anio = fechaActual.Year.ToString();
-            FechaElegida.Text = $"{mesText} {anio}";
-        }
-        #endregion
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        #region Idioma
-        private void CargarIdioma(int idioma)
-        {
-            var idiomas = new (string Titulo, string Subtitulo, string ResumenCasos, string ResumenClientes, string ResumenDocumentos, string ResumenEventos,
-                string Lunes, string Martes, string Miercoles, string Jueves, string Viernes, string Sabado, string Domingo,
-                string ListaTareas, string BtnAñadirTarea, string BtnVerTodosCasos, string CasosRecientes, string NCasos, string CCliente, string CTipo, string CEstado, string CAcciones, string Version, string Hoy)[]
-            {
-                ("Panel de control.", "Bienvenido a la aplicación de gestión de casos. Se encuentra en el Dashboard de la aplicacion.",
-                 "Casos Activos:", "Clientes:", "Documentos:", "Eventos Póximos:",
-                 "Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom",
-                 "Tareas Pendientes", "Añadir Tarea", "Ver todos los casos", "Casos Recientes", "Nº Caso", "Cliente", "Tipo", "Estado", "Acciones", "Versión: ", "Hoy"),
-                ("Dashboard", "Welcome to the case management application. You are on the application's dashboard.",
-                 "Active Cases:", "Clients:", "Documents:", "Upcoming Events:",
-                 "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun",
-                 "Pending Tasks", "Add Task", "View All Cases", "Recent Cases", "Case No.", "Client", "Type", "Status", "Actions", "Version: ", "Today"),
-                ("Panell de control", "Benvingut a l'aplicació de gestió de casos. Estàs al panell de l'aplicació.",
-                 "Casos Actius:", "Clients:", "Documents:", "Esdeveniments propers:",
-                 "Dll", "Dt", "Dc", "Dj", "Dv", "Ds", "Dg",
-                 "Tasques pendents", "Afegir tasca", "Veure tots els casos", "Casos recents", "Nº Cas", "Client", "Tipus", "Estat", "Accions", "Versió: ", "Avui"),
-                ("Panel de control", "Benvido á aplicación de xestión de casos. Estás no panel da aplicación.",
-                 "Casos activos:", "Clientes:", "Documentos:", "Eventos próximos:",
-                 "Lun", "Mar", "Mér", "Xov", "Ven", "Sáb", "Dom",
-                 "Tarefas pendentes", "Engadir tarefa", "Ver todos os casos", "Casos recentes", "Nº Caso", "Cliente", "Tipo", "Estado", "Accións", "Versión: ", "Hoxe"),
-                ("Kontrol panela", "Ongi etorri kasuen kudeaketa aplikaziora. Aplikazioaren panel nagusian zaude.",
-                 "Kasuan aktiboak:", "Bezeroak:", "Dokumentuak:", "Hurrengo ekitaldiak:",
-                 "Al", "Ar", "Az", "Og", "Or", "La", "Ig",
-                 "Zain dauden zereginak", "Zeregina gehitu", "Kasu guztiak ikusi", "Azken kasuak", "Kasua Nº", "Bezeroa", "Mota", "Egoera", "Ekintzak", "Bertsioa: ", "Gaur")
-            };
-
-            if (idioma < 0 || idioma >= idiomas.Length)
-                idioma = 0;
-
-            var t = idiomas[idioma];
-
-            titulo.Text = t.Titulo;
-            subtitulo.Text = t.Subtitulo;
-            resumenCasos.Text = t.ResumenCasos;
-            resumenClientes.Text = t.ResumenClientes;
-            resumenDocumentos.Text = t.ResumenDocumentos;
-            resumenEventos.Text = t.ResumenEventos;
-            lunes.Text = t.Lunes;
-            martes.Text = t.Martes;
-            miercoles.Text = t.Miercoles;
-            jueves.Text = t.Jueves;
-            viernes.Text = t.Viernes;
-            sabado.Text = t.Sabado;
-            domingo.Text = t.Domingo;
-            listaTareas.Text = t.ListaTareas;
-            btnAñadirTarea.Content = t.BtnAñadirTarea;
-            btnVerTodosCasos.Content = t.BtnVerTodosCasos;
-            casosRecientes.Text = t.CasosRecientes;
-            ncasos.Text = t.NCasos;
-            Ccliente.Text = t.CCliente;
-            Ctipo.Text = t.CTipo;
-            Cestado.Text = t.CEstado;
-            Cacciones.Text = t.CAcciones;
-            Version.Text = t.Version;
-            hoy.Text = t.Hoy;
         }
         #endregion
     }

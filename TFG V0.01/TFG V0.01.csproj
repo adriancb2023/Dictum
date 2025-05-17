@@ -66,9 +66,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="NewFolder\" />
     <Folder Include="Recursos\Imagenes\" />
     <Folder Include="Recursos\ER BBDD\" />
     <Folder Include="Recursos\Raw\" />
+    <Folder Include="Ventanas\NewFolder1\" />
+    <Folder Include="Ventanas\NewFolder2\" />
+    <Folder Include="Ventanas\NewFolder\" />
   </ItemGroup>
 
   <ItemGroup>

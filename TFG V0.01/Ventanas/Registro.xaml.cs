@@ -1,30 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using System.Windows.Xps.Packaging;
-using System;
-using System.ComponentModel.DataAnnotations;
 using TFG_V0._01.Supabase;
-using DrawingBrushes = System.Drawing.Brushes;
 using WpfBrushes = System.Windows.Media.Brushes;
 using WpfImage = System.Windows.Controls.Image;
 
 namespace TFG_V0._01.Ventanas
 {
-    /// <summary>
-    /// Lógica de interacción para Registro.xaml
-    /// </summary>
     public partial class Registro : Window
     {
         #region variables
@@ -38,14 +24,9 @@ namespace TFG_V0._01.Ventanas
         {
             InitializeComponent();
             _supabaseAutentificacion = new SupabaseAutentificacion();
-            // Inicializar animaciones
             InitializeAnimations();
-            cargarIdioma(MainWindow.idioma);
-
-            // Aplicar tema
+            CargarIdioma(MainWindow.idioma);
             AplicarModoSistema();
-
-            // Animar entrada
             BeginFadeInAnimation();
         }
         #endregion
@@ -53,30 +34,38 @@ namespace TFG_V0._01.Ventanas
         #region Animaciones
         private void InitializeAnimations()
         {
-            // Animación de entrada con fade
             fadeInStoryboard = new Storyboard();
-            DoubleAnimation fadeIn = new DoubleAnimation
-            {
-                From = 0,
-                To = 1,
-                Duration = TimeSpan.FromSeconds(0.5)
-            };
+            var fadeIn = CrearFadeAnimation(0, 1, 0.5);
             Storyboard.SetTarget(fadeIn, this);
-            Storyboard.SetTargetProperty(fadeIn, new PropertyPath("Opacity"));
+            Storyboard.SetTargetProperty(fadeIn, new PropertyPath(nameof(Opacity)));
             fadeInStoryboard.Children.Add(fadeIn);
 
-            // Animación de shake para error
             shakeStoryboard = new Storyboard();
-            DoubleAnimation shakeAnimation = new DoubleAnimation
+            var shakeAnimation = CrearShakeAnimation();
+            shakeStoryboard.Children.Add(shakeAnimation);
+        }
+
+        private DoubleAnimation CrearFadeAnimation(double from, double to, double durationSeconds, bool autoReverse = false)
+        {
+            return new DoubleAnimation
+            {
+                From = from,
+                To = to,
+                Duration = TimeSpan.FromSeconds(durationSeconds),
+                AutoReverse = autoReverse
+            };
+        }
+
+        private DoubleAnimation CrearShakeAnimation()
+        {
+            return new DoubleAnimation
             {
                 From = 0,
-                To = 1,
+                To = 5,
                 AutoReverse = true,
                 RepeatBehavior = new RepeatBehavior(3),
                 Duration = TimeSpan.FromSeconds(0.05)
             };
-
-            shakeStoryboard.Children.Add(shakeAnimation);
         }
 
         private void BeginFadeInAnimation()
@@ -87,19 +76,9 @@ namespace TFG_V0._01.Ventanas
 
         private void ShakeElement(FrameworkElement element)
         {
-            TranslateTransform trans = new TranslateTransform();
+            var trans = new TranslateTransform();
             element.RenderTransform = trans;
-
-            DoubleAnimation anim = new DoubleAnimation
-            {
-                From = 0,
-                To = 5,
-                AutoReverse = true,
-                RepeatBehavior = new RepeatBehavior(3),
-                Duration = TimeSpan.FromSeconds(0.05)
-            };
-
-            trans.BeginAnimation(TranslateTransform.XProperty, anim);
+            trans.BeginAnimation(TranslateTransform.XProperty, CrearShakeAnimation());
         }
         #endregion
 
@@ -111,53 +90,43 @@ namespace TFG_V0._01.Ventanas
 
             if (MainWindow.isDarkTheme)
             {
-                // Aplicar modo oscuro
                 if (icon != null)
-                {
                     icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/sol.png", UriKind.Relative));
-                }
-                backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString("pack://application:,,,/TFG V0.01;component/Recursos/Background/oscuro/main.png") as ImageSource;
+                backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString(
+                    "pack://application:,,,/TFG V0.01;component/Recursos/Background/oscuro/main.png") as ImageSource;
+                Titulo.Foreground = WpfBrushes.White;
+                Subtitulo.Foreground = WpfBrushes.White;
+                correo.Foreground = WpfBrushes.White;
+                Pass1.Foreground = WpfBrushes.White;
+                Pass2.Foreground = WpfBrushes.White;
             }
             else
             {
-                // Aplicar modo claro
                 if (icon != null)
-                {
                     icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/luna2.png", UriKind.Relative));
-                }
-                backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString("pack://application:,,,/TFG V0.01;component/Recursos/Background/claro/main.png") as ImageSource;
+                backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString(
+                    "pack://application:,,,/TFG V0.01;component/Recursos/Background/claro/main.png") as ImageSource;
+                Titulo.Foreground = WpfBrushes.Black;
+                Subtitulo.Foreground = WpfBrushes.Black;
+                correo.Foreground = WpfBrushes.Black;
+                Pass1.Foreground = WpfBrushes.Black;
+                Pass2.Foreground = WpfBrushes.Black;
             }
         }
-        #endregion
 
-        #region modo oscuro/claro
         private void ThemeButton_Click(object sender, RoutedEventArgs e)
         {
             MainWindow.isDarkTheme = !MainWindow.isDarkTheme;
-            var button = sender as Button;
-            var icon = button.Template.FindName("ThemeIcon", button) as Image;
-            if (MainWindow.isDarkTheme)
-            {
-                icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/sol.png", UriKind.Relative));
-                backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString("pack://application:,,,/TFG V0.01;component/Recursos/Background/oscuro/main.png") as ImageSource;
-                Titulo.Foreground = Brushes.White;
-                Subtitulo.Foreground = Brushes.White;
-                correo.Foreground = Brushes.White;
-                Pass1.Foreground = Brushes.White;
-                Pass2.Foreground = Brushes.White;
-            }
-            else
-            {
-                icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/luna.png", UriKind.Relative));
-                backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString("pack://application:,,,/TFG V0.01;component/Recursos/Background/claro/main.png") as ImageSource;
-            }
+            AplicarModoSistema();
+            var fadeAnimation = CrearFadeAnimation(0.7, 0.9, 0.3, true);
+            backgroundFondo.BeginAnimation(OpacityProperty, fadeAnimation);
         }
         #endregion
 
         #region volver al login
         private void VolverLogin(object sender, RoutedEventArgs e)
         {
-            Login login = new Login();
+            var login = new Login();
             login.Show();
             this.Close();
         }
@@ -175,6 +144,8 @@ namespace TFG_V0._01.Ventanas
                 if (password != confirmPassword)
                 {
                     MessageBox.Show("Las contraseñas no coinciden");
+                    ShakeElement(PasswordBox);
+                    ShakeElement(PasswordBox2);
                     return;
                 }
 
@@ -192,14 +163,12 @@ namespace TFG_V0._01.Ventanas
         private void Border_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ChangedButton == MouseButton.Left)
-            {
-                this.DragMove(); // Permite mover la ventana al arrastrar el borde
-            }
+                this.DragMove();
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
-            this.Close(); // Cierra la ventana
+            this.Close();
         }
 
         private void PasswordBox_GotFocus(object sender, RoutedEventArgs e)
@@ -207,8 +176,8 @@ namespace TFG_V0._01.Ventanas
             var passwordBox = sender as PasswordBox;
             if (passwordBox != null && passwordBox.Password == "Contraseña")
             {
-                passwordBox.Password = string.Empty; // Limpia el texto predeterminado
-                passwordBox.Foreground = Brushes.Black;
+                passwordBox.Password = string.Empty;
+                passwordBox.Foreground = WpfBrushes.Black;
             }
         }
 
@@ -217,8 +186,8 @@ namespace TFG_V0._01.Ventanas
             var passwordBox = sender as PasswordBox;
             if (passwordBox != null && string.IsNullOrWhiteSpace(passwordBox.Password))
             {
-                passwordBox.Password = "Contraseña"; // Restaura el texto predeterminado
-                passwordBox.Foreground = Brushes.Gray;
+                passwordBox.Password = "Contraseña";
+                passwordBox.Foreground = WpfBrushes.Gray;
             }
         }
 
@@ -227,8 +196,8 @@ namespace TFG_V0._01.Ventanas
             var textBox = sender as TextBox;
             if (textBox != null && textBox.Text == "Usuario")
             {
-                textBox.Text = string.Empty; // Limpia el texto predeterminado
-                textBox.Foreground = Brushes.Black;
+                textBox.Text = string.Empty;
+                textBox.Foreground = WpfBrushes.Black;
             }
         }
 
@@ -237,77 +206,37 @@ namespace TFG_V0._01.Ventanas
             var textBox = sender as TextBox;
             if (textBox != null && string.IsNullOrWhiteSpace(textBox.Text))
             {
-                textBox.Text = "Usuario"; // Restaura el texto predeterminado
-                textBox.Foreground = Brushes.Gray;
+                textBox.Text = "Usuario";
+                textBox.Foreground = WpfBrushes.Gray;
             }
         }
         #endregion
 
         #region Idiomas
-        private void cargarIdioma(int idioma)
+        private void CargarIdioma(int idioma)
         {
-            switch (idioma)
+            var idiomas = new (string Titulo, string Subtitulo, string Correo, string Pass1, string Pass2, string BtnRegistrarse, string BtnVolver)[]
             {
-                case 0: // Español
-                    Titulo.Text = "Registro";
-                    Subtitulo.Text = "Crea una cuenta nueva";
-                    correo.Text = "Email";
-                    Pass1.Text = "Contraseña";
-                    Pass2.Text = "Repita la contraseña";
-                    btnRegistrarse.Content = "Registrarse";
-                    btnVolver.Content = "Volver al login";
-                    break;
+                ("Registro", "Crea una cuenta nueva", "Email", "Contraseña", "Repita la contraseña", "Registrarse", "Volver al login"), // Español
+                ("Sign Up", "Create a new account", "Email", "Password", "Repeat password", "Sign Up", "Back to login"), // Inglés
+                ("Registre", "Crea un compte nou", "Correu electrònic", "Contrasenya", "Repeteix la contrasenya", "Registra’t", "Torna a l'inici de sessió"), // Catalán
+                ("Rexistro", "Crea unha conta nova", "Correo electrónico", "Contrasinal", "Repita o contrasinal", "Rexistrarse", "Volver ao login"), // Gallego
+                ("Erregistroa", "Kontu berri bat sortu", "Posta elektronikoa", "Pasahitza", "Pasahitza berriro idatzi", "Erregistratu", "Itzuli saio-hasierara") // Euskera
+            };
 
-                case 1: // Inglés
-                    Titulo.Text = "Sign Up";
-                    Subtitulo.Text = "Create a new account";
-                    correo.Text = "Email";
-                    Pass1.Text = "Password";
-                    Pass2.Text = "Repeat password";
-                    btnRegistrarse.Content = "Sign Up";
-                    btnVolver.Content = "Back to login";
-                    break;
+            if (idioma < 0 || idioma >= idiomas.Length)
+                idioma = 0;
 
-                case 2: // Catalán
-                    Titulo.Text = "Registre";
-                    Subtitulo.Text = "Crea un compte nou";
-                    correo.Text = "Correu electrònic";
-                    Pass1.Text = "Contrasenya";
-                    Pass2.Text = "Repeteix la contrasenya";
-                    btnRegistrarse.Content = "Registra’t";
-                    btnVolver.Content = "Torna a l'inici de sessió";
-                    break;
+            var textos = idiomas[idioma];
 
-                case 3: // Gallego
-                    Titulo.Text = "Rexistro";
-                    Subtitulo.Text = "Crea unha conta nova";
-                    correo.Text = "Correo electrónico";
-                    Pass1.Text = "Contrasinal";
-                    Pass2.Text = "Repita o contrasinal";
-                    btnRegistrarse.Content = "Rexistrarse";
-                    btnVolver.Content = "Volver ao login";
-                    break;
-
-                case 4: // Euskera
-                    Titulo.Text = "Erregistroa";
-                    Subtitulo.Text = "Kontu berri bat sortu";
-                    correo.Text = "Posta elektronikoa";
-                    Pass1.Text = "Pasahitza";
-                    Pass2.Text = "Pasahitza berriro idatzi";
-                    btnRegistrarse.Content = "Erregistratu";
-                    btnVolver.Content = "Itzuli saio-hasierara";
-                    break;
-                default:
-                    Titulo.Text = "Registro";
-                    Subtitulo.Text = "Crea una cuenta nueva";
-                    correo.Text = "Email";
-                    Pass1.Text = "Contraseña";
-                    Pass2.Text = "Repita la contraseña";
-                    btnRegistrarse.Content = "Registrarse";
-                    btnVolver.Content = "Volver al login";
-                    break;
-            }
+            Titulo.Text = textos.Titulo;
+            Subtitulo.Text = textos.Subtitulo;
+            correo.Text = textos.Correo;
+            Pass1.Text = textos.Pass1;
+            Pass2.Text = textos.Pass2;
+            btnRegistrarse.Content = textos.BtnRegistrarse;
+            btnVolver.Content = textos.BtnVolver;
         }
         #endregion
-    } 
+    }
 }

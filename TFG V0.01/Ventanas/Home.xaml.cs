@@ -146,6 +146,7 @@ namespace TFG_V0._01.Ventanas
             CargarDatosDashboard();
             CargarScoreCasos();
             CargarCasosRecientes();
+            CargarScoreDocumentos();
             LoadingPanel.Visibility = Visibility.Collapsed;
         }
         #endregion
@@ -181,6 +182,14 @@ namespace TFG_V0._01.Ventanas
                 backgroun_menu.Background = new SolidColorBrush(Color.FromArgb(48, 128, 128, 128)); // Gris semitransparente
 
             }
+        }
+
+        private void ThemeButton_Click(object sender, RoutedEventArgs e)
+        {
+            MainWindow.isDarkTheme = !MainWindow.isDarkTheme;
+            AplicarModoSistema();
+            var fadeAnimation = CrearFadeAnimation(0.7, 0.9, 0.3, true);
+            backgroundFondo.BeginAnimation(OpacityProperty, fadeAnimation);
         }
         #endregion
 
@@ -276,84 +285,6 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
-        #region boton cambiar tema
-        private void ThemeButton_Click(object sender, RoutedEventArgs e)
-        {
-            // Alternar el estado del tema
-            MainWindow.isDarkTheme = !MainWindow.isDarkTheme;
-
-            // Obtener el botón y el icono
-            var button = sender as Button;
-            var icon = button?.Template.FindName("ThemeIcon", button) as Image;
-
-            if (MainWindow.isDarkTheme)
-            {
-                // Cambiar a modo oscuro
-                if (icon != null)
-                {
-                    icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/sol.png", UriKind.Relative));
-                }
-
-                backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString(
-                    @"C:\Users\Harvie\Documents\TFG\V 0.1\TFG\TFG V0.01\Recursos\Background\oscuro\main.png") as ImageSource;
-
-                CambiarIconosAClaros();
-                CambiarTextosBlanco();
-                backgroun_menu.Background = new SolidColorBrush(Color.FromArgb(48, 255, 255, 255)); // Fondo semitransparente
-            }
-            else
-            {
-                // Cambiar a modo claro
-                if (icon != null)
-                {
-                    icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/luna.png", UriKind.Relative));
-                }
-
-                backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString(
-                    @"C:\Users\Harvie\Documents\TFG\V 0.1\TFG\TFG V0.01\Recursos\Background\claro\main.png") as ImageSource;
-
-                CambiarIconosAOscuros();
-                CambiarTextosNegro();
-                backgroun_menu.Background = new SolidColorBrush(Color.FromArgb(48, 128, 128, 128)); // Gris semitransparente
-            }
-        }
-        #endregion
-
-        #region Control de ventana sin bordes
-        private void Border_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ClickCount == 2)
-            {
-                if (WindowState == WindowState.Maximized)
-                    WindowState = WindowState.Normal;
-                else
-                    WindowState = WindowState.Maximized;
-            }
-            else
-            {
-                this.DragMove();
-            }
-        }
-
-        private void btnMinimize_Click(object sender, RoutedEventArgs e)
-        {
-            WindowState = WindowState.Minimized;
-        }
-
-        private void btnMaximize_Click(object sender, RoutedEventArgs e)
-        {
-            if (WindowState == WindowState.Maximized)
-                WindowState = WindowState.Normal;
-            else
-                WindowState = WindowState.Maximized;
-        }
-
-        private void btnClose_Click(object sender, RoutedEventArgs e)
-        {
-            this.Close();
-        }
-        #endregion
-
         #region Navbar botones
         private void irHome(object sender, RoutedEventArgs e)
         {
@@ -410,37 +341,43 @@ namespace TFG_V0._01.Ventanas
             ajustes.Show();
             this.Close();
         }
-
-
         #endregion
 
         #region Animaciones
         private void InitializeAnimations()
         {
-            // Animación de entrada con fade
             fadeInStoryboard = new Storyboard();
-            DoubleAnimation fadeIn = new DoubleAnimation
-            {
-                From = 0,
-                To = 1,
-                Duration = TimeSpan.FromSeconds(0.5)
-            };
+            var fadeIn = CrearFadeAnimation(0, 1, 0.5);
             Storyboard.SetTarget(fadeIn, this);
-            Storyboard.SetTargetProperty(fadeIn, new PropertyPath("Opacity"));
+            Storyboard.SetTargetProperty(fadeIn, new PropertyPath(nameof(Opacity)));
             fadeInStoryboard.Children.Add(fadeIn);
 
-            // Animación de shake para error
             shakeStoryboard = new Storyboard();
-            DoubleAnimation shakeAnimation = new DoubleAnimation
+            var shakeAnimation = CrearShakeAnimation();
+            shakeStoryboard.Children.Add(shakeAnimation);
+        }
+
+        private DoubleAnimation CrearFadeAnimation(double from, double to, double durationSeconds, bool autoReverse = false)
+        {
+            return new DoubleAnimation
+            {
+                From = from,
+                To = to,
+                Duration = TimeSpan.FromSeconds(durationSeconds),
+                AutoReverse = autoReverse
+            };
+        }
+
+        private DoubleAnimation CrearShakeAnimation()
+        {
+            return new DoubleAnimation
             {
                 From = 0,
-                To = 1,
+                To = 5,
                 AutoReverse = true,
                 RepeatBehavior = new RepeatBehavior(3),
                 Duration = TimeSpan.FromSeconds(0.05)
             };
-
-            shakeStoryboard.Children.Add(shakeAnimation);
         }
 
         private void BeginFadeInAnimation()
@@ -451,19 +388,9 @@ namespace TFG_V0._01.Ventanas
 
         private void ShakeElement(FrameworkElement element)
         {
-            TranslateTransform trans = new TranslateTransform();
+            var trans = new TranslateTransform();
             element.RenderTransform = trans;
-
-            DoubleAnimation anim = new DoubleAnimation
-            {
-                From = 0,
-                To = 5,
-                AutoReverse = true,
-                RepeatBehavior = new RepeatBehavior(3),
-                Duration = TimeSpan.FromSeconds(0.05)
-            };
-
-            trans.BeginAnimation(TranslateTransform.XProperty, anim);
+            trans.BeginAnimation(TranslateTransform.XProperty, CrearShakeAnimation());
         }
         #endregion
 
@@ -472,26 +399,22 @@ namespace TFG_V0._01.Ventanas
         {
             try
             {
-                // Clientes
                 await _clientesService.InicializarAsync();
                 var clientes = await _clientesService.ObtenerClientesAsync();
                 ClientCount = clientes?.Count ?? 0;
                 _previousClientCount = 0;
                 UpdateClientCountChange();
 
-                // Casos Activos
                 var casosService = new SupabaseCasos();
                 await casosService.InicializarAsync();
                 var casos = await casosService.ObtenerTodosAsync();
                 CasosActivos = casos?.Count ?? 0;
 
-                // Documentos
                 var documentosService = new SupabaseDocumentos();
                 await documentosService.InicializarAsync();
                 var documentos = await documentosService.ObtenerTodosAsync();
                 Documentos = documentos?.Count ?? 0;
 
-                // Tareas Pendientes
                 var tareasService = new SupabaseTareas();
                 await tareasService.InicializarAsync();
                 var tareas = await tareasService.ObtenerTodosAsync();
@@ -502,13 +425,11 @@ namespace TFG_V0._01.Ventanas
                 foreach (var tarea in tareasPendientes)
                     TareasPendientesLista.Add(tarea);
 
-                // Casos Recientes (opcional, si quieres mostrar el número)
                 var recienteService = new SupabaseReciente();
                 await recienteService.InicializarAsync();
                 var recientes = await recienteService.ObtenerTodosAsync();
                 CasosRecientesLista.Clear();
 
-                // Calcular la fecha límite (hoy menos 28 días)
                 var fechaLimite = DateTime.Now.Date.AddDays(-28);
 
                 foreach (var reciente in recientes)
@@ -539,17 +460,11 @@ namespace TFG_V0._01.Ventanas
         {
             int change = ClientCount - _previousClientCount;
             if (change > 0)
-            {
                 ClientCountChange = $"+{change}";
-            }
             else if (change < 0)
-            {
                 ClientCountChange = change.ToString();
-            }
             else
-            {
                 ClientCountChange = "+0";
-            }
         }
 
         private async void CheckBox_TareaFinalizada(object sender, RoutedEventArgs e)
@@ -559,15 +474,10 @@ namespace TFG_V0._01.Ventanas
                 var checkBox = sender as CheckBox;
                 if (checkBox?.DataContext is Tarea tarea)
                 {
-                    // Cambia el estado a Finalizado y actualiza en la base de datos
                     tarea.estado = "Finalizado";
                     var tareasService = new SupabaseTareas();
                     await tareasService.InicializarAsync();
                     await tareasService.ActualizarAsync(tarea);
-
-                    // NO elimines la tarea de la lista aquí
-                    // TareasPendientesLista.Remove(tarea);
-                    // TareasPendientes = TareasPendientesLista.Count;
                 }
             }
             catch (Exception ex)
@@ -588,7 +498,6 @@ namespace TFG_V0._01.Ventanas
                     await tareasService.InicializarAsync();
                     await tareasService.ActualizarAsync(tarea);
 
-                    // Si el estado es Finalizado, remover de la lista
                     if (nuevoEstado == "Finalizado")
                     {
                         TareasPendientesLista.Remove(tarea);
@@ -605,12 +514,12 @@ namespace TFG_V0._01.Ventanas
                 await _supabaseCasos.InicializarAsync();
                 var casos = await _supabaseCasos.ObtenerTodosAsync();
 
-                // Calcular la fecha límite (hoy menos 28 días)
-                var fechaLimite = DateTime.Now.Date.AddDays(-28);
+                var fechaLimite = DateTime.Now.Date.AddDays(-3);
 
-                // Filtrar solo los casos cuya fecha_inicio sea >= fechaLimite
                 var casosRecientes = casos
                     .Where(c => c.fecha_inicio.Date >= fechaLimite)
+                    .GroupBy(c => c.id)
+                    .Select(g => g.First())
                     .OrderByDescending(c => c.fecha_inicio)
                     .ToList();
 
@@ -651,17 +560,17 @@ namespace TFG_V0._01.Ventanas
             switch (estado.ToLower())
             {
                 case "abierto":
-                    return "#43A047"; // Verde fuerte
+                    return "#43A047";
                 case "en proceso":
-                    return "#1976D2"; // Azul intenso
+                    return "#1976D2";
                 case "cerrado":
-                    return "#D32F2F"; // Rojo profesional
+                    return "#D32F2F";
                 case "pendiente":
-                    return "#FFB300"; // Ámbar
+                    return "#FFB300";
                 case "revisado":
-                    return "#5C6BC0"; // Azul-violeta
+                    return "#5C6BC0";
                 default:
-                    return "#BDBDBD"; // Gris claro por defecto
+                    return "#BDBDBD";
             }
         }
 
@@ -712,29 +621,24 @@ namespace TFG_V0._01.Ventanas
                 await _supabaseCasos.InicializarAsync();
                 var todos = await _supabaseCasos.ObtenerTodosAsync();
 
-                // Definir fechas de inicio y fin de los meses
                 var primerDiaMesActual = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
                 var primerDiaMesAnterior = primerDiaMesActual.AddMonths(-1);
                 var primerDiaMesSiguiente = primerDiaMesActual.AddMonths(1);
 
-                // Casos activos = "abierto" o "en proceso"
                 Func<Caso, bool> esActivo = c =>
                     c.estado_nombre.Equals("abierto", StringComparison.OrdinalIgnoreCase) ||
                     c.estado_nombre.Equals("en proceso", StringComparison.OrdinalIgnoreCase);
 
-                // Casos activos del mes anterior
                 int casosMesAnterior = todos
                     .Where(esActivo)
                     .Count(c => c.fecha_inicio >= primerDiaMesAnterior && c.fecha_inicio < primerDiaMesActual);
 
-                // Casos activos de este mes
                 int casosMesActual = todos
                     .Where(esActivo)
                     .Count(c => c.fecha_inicio >= primerDiaMesActual && c.fecha_inicio < primerDiaMesSiguiente);
 
                 int diferencia = casosMesActual - casosMesAnterior;
 
-                // Actualizar el TextBlock scoreCasos (asegúrate de que el nombre x:Name="scoreCasos" está en el XAML)
                 if (scoreCasos != null)
                 {
                     if (diferencia > 0)
@@ -750,242 +654,96 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
-        #region Idioma
-        private void CargarIdioma(int idioma)
+        #region ScoreDocumentos
+        private async void CargarScoreDocumentos()
         {
-            switch (idioma)
+            try
             {
-                case 0: // Español
-                    titulo.Text = "Panel de control.";
-                    subtitulo.Text = "Bienvenido a la aplicación de gestión de casos. Se encuentra en el Dashboard de la aplicacion.";
-                    resumenCasos.Text = "Casos Activos:";
-                    resumenClientes.Text = "Clientes:";
-                    resumenDocumentos.Text = "Documentos:";
-                    resumenEventos.Text = "Eventos Póximos:";
-                    lunes.Text = "Lun";
-                    martes.Text = "Mar";
-                    miercoles.Text = "Mie";
-                    jueves.Text = "Jue";
-                    viernes.Text = "Vie";
-                    sabado.Text = "Sab";
-                    domingo.Text = "Dom";
-                    listaTareas.Text = "Tareas Pendientes";
-                    btnAñadirTarea.Content = "Añadir Tarea";
-                    btnVerTodosCasos.Content = "Ver todos los casos";
-                    casosRecientes.Text = "Casos Recientes";
-                    ncasos.Text = "Nº Caso";
-                    Ccliente.Text = "Cliente";
-                    Ctipo.Text = "Tipo";
-                    Cestado.Text = "Estado";
-                    Cacciones.Text = "Acciones";
-                    Version.Text = "Versión: ";
-                    hoy.Text = "Hoy";
-                    break;
+                var documentosService = new SupabaseDocumentos();
+                await documentosService.InicializarAsync();
+                var documentos = await documentosService.ObtenerTodosAsync();
 
-                case 1: // Inglés
-                    titulo.Text = "Dashboard";
-                    subtitulo.Text = "Welcome to the case management application. You are on the application's dashboard.";
-                    resumenCasos.Text = "Active Cases:";
-                    resumenClientes.Text = "Clients:";
-                    resumenDocumentos.Text = "Documents:";
-                    resumenEventos.Text = "Upcoming Events:";
-                    lunes.Text = "Mon";
-                    martes.Text = "Tue";
-                    miercoles.Text = "Wed";
-                    jueves.Text = "Thu";
-                    viernes.Text = "Fri";
-                    sabado.Text = "Sat";
-                    domingo.Text = "Sun";
-                    listaTareas.Text = "Pending Tasks";
-                    btnAñadirTarea.Content = "Add Task";
-                    btnVerTodosCasos.Content = "View All Cases";
-                    casosRecientes.Text = "Recent Cases";
-                    ncasos.Text = "Case No.";
-                    Ccliente.Text = "Client";
-                    Ctipo.Text = "Type";
-                    Cestado.Text = "Status";
-                    Cacciones.Text = "Actions";
-                    Version.Text = "Version: ";
-                    hoy.Text = "Today";
-                    break;
+                var ayer = DateTime.Now.Date.AddDays(-1);
 
-                case 2: // Catalán
-                    titulo.Text = "Panell de control";
-                    subtitulo.Text = "Benvingut a l'aplicació de gestió de casos. Estàs al panell de l'aplicació.";
-                    resumenCasos.Text = "Casos Actius:";
-                    resumenClientes.Text = "Clients:";
-                    resumenDocumentos.Text = "Documents:";
-                    resumenEventos.Text = "Esdeveniments propers:";
-                    lunes.Text = "Dll";
-                    martes.Text = "Dt";
-                    miercoles.Text = "Dc";
-                    jueves.Text = "Dj";
-                    viernes.Text = "Dv";
-                    sabado.Text = "Ds";
-                    domingo.Text = "Dg";
-                    listaTareas.Text = "Tasques pendents";
-                    btnAñadirTarea.Content = "Afegir tasca";
-                    btnVerTodosCasos.Content = "Veure tots els casos";
-                    casosRecientes.Text = "Casos recents";
-                    ncasos.Text = "Nº Cas";
-                    Ccliente.Text = "Client";
-                    Ctipo.Text = "Tipus";
-                    Cestado.Text = "Estat";
-                    Cacciones.Text = "Accions";
-                    Version.Text = "Versió: ";
-                    hoy.Text = "Avui";
-                    break;
+                int documentosNuevos = documentos.Count(d => d.fecha_subid.Date == ayer);
 
-                case 3: // Gallego
-                    titulo.Text = "Panel de control";
-                    subtitulo.Text = "Benvido á aplicación de xestión de casos. Estás no panel da aplicación.";
-                    resumenCasos.Text = "Casos activos:";
-                    resumenClientes.Text = "Clientes:";
-                    resumenDocumentos.Text = "Documentos:";
-                    resumenEventos.Text = "Eventos próximos:";
-                    lunes.Text = "Lun";
-                    martes.Text = "Mar";
-                    miercoles.Text = "Mér";
-                    jueves.Text = "Xov";
-                    viernes.Text = "Ven";
-                    sabado.Text = "Sáb";
-                    domingo.Text = "Dom";
-                    listaTareas.Text = "Tarefas pendentes";
-                    btnAñadirTarea.Content = "Engadir tarefa";
-                    btnVerTodosCasos.Content = "Ver todos os casos";
-                    casosRecientes.Text = "Casos recentes";
-                    ncasos.Text = "Nº Caso";
-                    Ccliente.Text = "Cliente";
-                    Ctipo.Text = "Tipo";
-                    Cestado.Text = "Estado";
-                    Cacciones.Text = "Accións";
-                    Version.Text = "Versión: ";
-                    hoy.Text = "Hoxe";
-                    break;
-
-                case 4: // Euskera
-                    titulo.Text = "Kontrol panela";
-                    subtitulo.Text = "Ongi etorri kasuen kudeaketa aplikaziora. Aplikazioaren panel nagusian zaude.";
-                    resumenCasos.Text = "Kasuan aktiboak:";
-                    resumenClientes.Text = "Bezeroak:";
-                    resumenDocumentos.Text = "Dokumentuak:";
-                    resumenEventos.Text = "Hurrengo ekitaldiak:";
-                    lunes.Text = "Al";
-                    martes.Text = "Ar";
-                    miercoles.Text = "Az";
-                    jueves.Text = "Og";
-                    viernes.Text = "Or";
-                    sabado.Text = "La";
-                    domingo.Text = "Ig";
-                    listaTareas.Text = "Zain dauden zereginak";
-                    btnAñadirTarea.Content = "Zeregina gehitu";
-                    btnVerTodosCasos.Content = "Kasu guztiak ikusi";
-                    casosRecientes.Text = "Azken kasuak";
-                    ncasos.Text = "Kasua Nº";
-                    Ccliente.Text = "Bezeroa";
-                    Ctipo.Text = "Mota";
-                    Cestado.Text = "Egoera";
-                    Cacciones.Text = "Ekintzak";
-                    Version.Text = "Bertsioa: ";
-                    hoy.Text = "Gaur";
-                    break;
-
-                default:
-                    titulo.Text = "Panel de control.";
-                    subtitulo.Text = "Bienvenido a la aplicación de gestión de casos. Se encuentra en el Dashboard de la aplicacion.";
-                    resumenCasos.Text = "Casos Activos:";
-                    resumenClientes.Text = "Clientes:";
-                    resumenDocumentos.Text = "Documentos:";
-                    resumenEventos.Text = "Eventos Póximos:";
-                    lunes.Text = "Lun";
-                    martes.Text = "Mar";
-                    miercoles.Text = "Mie";
-                    jueves.Text = "Jue";
-                    viernes.Text = "Vie";
-                    sabado.Text = "Sab";
-                    domingo.Text = "Dom";
-                    listaTareas.Text = "Tareas Pendientes";
-                    btnAñadirTarea.Content = "Añadir Tarea";
-                    btnVerTodosCasos.Content = "Ver todos los casos";
-                    casosRecientes.Text = "Casos Recientes";
-                    ncasos.Text = "Nº Caso";
-                    Ccliente.Text = "Cliente";
-                    Ctipo.Text = "Tipo";
-                    Cestado.Text = "Estado";
-                    Cacciones.Text = "Acciones";
-                    Version.Text = "Versión ";
-                    break;
+                if (scoreDocumentos != null)
+                {
+                    scoreDocumentos.Text = $"+{documentosNuevos}";
+                }
+                else
+                {
+                    scoreDocumentos.Text = $"0";
+                }
             }
-
-
-        }
-
-        private void CargarIdiomaNavbar(int idioma)
-        {
-            switch (idioma)
+            catch (Exception ex)
             {
-                case 0: // Español
-                    btnHome.Content = "Inicio";
-                    btnBuscar.Content = "Buscar";
-                    btnDocumentos.Content = "Documentos";
-                    btnClientes.Content = "Clientes";
-                    btnCasos.Content = "Casos";
-                    btnAyuda.Content = "Ayuda";
-                    btnAgenda.Content = "Agenda";
-                    btnAjustes.Content = "Ajustes";
-                    break;
-                case 1: // Inglés
-                    btnHome.Content = "Home";
-                    btnBuscar.Content = "Search";
-                    btnDocumentos.Content = "Documents";
-                    btnClientes.Content = "Clients";
-                    btnCasos.Content = "Cases";
-                    btnAyuda.Content = "Help";
-                    btnAgenda.Content = "Agenda";
-                    btnAjustes.Content = "Settings";
-                    break;
-                case 2: // Catalán
-                    btnHome.Content = "Inici";
-                    btnBuscar.Content = "Cercar";
-                    btnDocumentos.Content = "Documents";
-                    btnClientes.Content = "Clients";
-                    btnCasos.Content = "Casos";
-                    btnAyuda.Content = "Ajuda";
-                    btnAgenda.Content = "Agenda";
-                    btnAjustes.Content = "Configuraciós";
-                    break;
-                case 3: // Gallego
-                    btnHome.Content = "Inicio";
-                    btnBuscar.Content = "Buscar";
-                    btnDocumentos.Content = "Documentos";
-                    btnClientes.Content = "Clientes";
-                    btnCasos.Content = "Casos";
-                    btnAyuda.Content = "Axuda";
-                    btnAgenda.Content = "Axenda";
-                    btnAjustes.Content = "Configuracións";
-                    break;
-                case 4: // Euskera
-                    btnAgenda.Content = "Agenda";
-                    btnAjustes.Content = "Ezarpenak";
-                    btnAyuda.Content = "Laguntza";
-                    btnCasos.Content = "Kasuen";
-                    btnClientes.Content = "Bezeroak";
-                    btnDocumentos.Content = "Dokumentuak";
-                    btnHome.Content = "Hasiera";
-                    btnBuscar.Content = "Bilatu";
-                    break;
-                default:
-                    btnHome.Content = "Inicio";
-                    btnBuscar.Content = "Buscar";
-                    btnDocumentos.Content = "Documentos";
-                    btnClientes.Content = "Clientes";
-                    btnCasos.Content = "Casos";
-                    btnAyuda.Content = "Ayuda";
-                    btnAgenda.Content = "Agenda";
-                    btnAjustes.Content = "Ajustes";
-                    break;
+                MessageBox.Show($"Error al calcular el score de documentos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
         #endregion
+
+        #region Idioma
+        private void CargarIdioma(int idioma)
+        {
+            var idiomas = new (string Titulo, string Subtitulo, string ResumenCasos, string ResumenClientes, string ResumenDocumentos, string ResumenEventos,
+                string Lunes, string Martes, string Miercoles, string Jueves, string Viernes, string Sabado, string Domingo,
+                string ListaTareas, string BtnAñadirTarea, string BtnVerTodosCasos, string CasosRecientes, string NCasos, string CCliente, string CTipo, string CEstado, string CAcciones, string Version, string Hoy)[]
+            {
+                ("Panel de control.", "Bienvenido a la aplicación de gestión de casos. Se encuentra en el Dashboard de la aplicacion.",
+                 "Casos Activos:", "Clientes:", "Documentos:", "Eventos Póximos:",
+                 "Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom",
+                 "Tareas Pendientes", "Añadir Tarea", "Ver todos los casos", "Casos Recientes", "Nº Caso", "Cliente", "Tipo", "Estado", "Acciones", "Versión: ", "Hoy"),
+                ("Dashboard", "Welcome to the case management application. You are on the application's dashboard.",
+                 "Active Cases:", "Clients:", "Documents:", "Upcoming Events:",
+                 "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun",
+                 "Pending Tasks", "Add Task", "View All Cases", "Recent Cases", "Case No.", "Client", "Type", "Status", "Actions", "Version: ", "Today"),
+                ("Panell de control", "Benvingut a l'aplicació de gestió de casos. Estàs al panell de l'aplicació.",
+                 "Casos Actius:", "Clients:", "Documents:", "Esdeveniments propers:",
+                 "Dll", "Dt", "Dc", "Dj", "Dv", "Ds", "Dg",
+                 "Tasques pendents", "Afegir tasca", "Veure tots els casos", "Casos recents", "Nº Cas", "Client", "Tipus", "Estat", "Accions", "Versió: ", "Avui"),
+                ("Panel de control", "Benvido á aplicación de xestión de casos. Estás no panel da aplicación.",
+                 "Casos activos:", "Clientes:", "Documentos:", "Eventos próximos:",
+                 "Lun", "Mar", "Mér", "Xov", "Ven", "Sáb", "Dom",
+                 "Tarefas pendentes", "Engadir tarefa", "Ver todos os casos", "Casos recentes", "Nº Caso", "Cliente", "Tipo", "Estado", "Accións", "Versión: ", "Hoxe"),
+                ("Kontrol panela", "Ongi etorri kasuen kudeaketa aplikaziora. Aplikazioaren panel nagusian zaude.",
+                 "Kasuan aktiboak:", "Bezeroak:", "Dokumentuak:", "Hurrengo ekitaldiak:",
+                 "Al", "Ar", "Az", "Og", "Or", "La", "Ig",
+                 "Zain dauden zereginak", "Zeregina gehitu", "Kasu guztiak ikusi", "Azken kasuak", "Kasua Nº", "Bezeroa", "Mota", "Egoera", "Ekintzak", "Bertsioa: ", "Gaur")
+            };
+
+            if (idioma < 0 || idioma >= idiomas.Length)
+                idioma = 0;
+
+            var t = idiomas[idioma];
+
+            titulo.Text = t.Titulo;
+            subtitulo.Text = t.Subtitulo;
+            resumenCasos.Text = t.ResumenCasos;
+            resumenClientes.Text = t.ResumenClientes;
+            resumenDocumentos.Text = t.ResumenDocumentos;
+            resumenEventos.Text = t.ResumenEventos;
+            lunes.Text = t.Lunes;
+            martes.Text = t.Martes;
+            miercoles.Text = t.Miercoles;
+            jueves.Text = t.Jueves;
+            viernes.Text = t.Viernes;
+            sabado.Text = t.Sabado;
+            domingo.Text = t.Domingo;
+            listaTareas.Text = t.ListaTareas;
+            btnAñadirTarea.Content = t.BtnAñadirTarea;
+            btnVerTodosCasos.Content = t.BtnVerTodosCasos;
+            casosRecientes.Text = t.CasosRecientes;
+            ncasos.Text = t.NCasos;
+            Ccliente.Text = t.CCliente;
+            Ctipo.Text = t.CTipo;
+            Cestado.Text = t.CEstado;
+            Cacciones.Text = t.CAcciones;
+            Version.Text = t.Version;
+            hoy.Text = t.Hoy;
+        }
+        #endregion
+
+        
     }
 }

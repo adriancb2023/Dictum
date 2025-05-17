@@ -1,145 +1,117 @@
 ﻿using System;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using TFG_V0._01.Supabase;
 
 namespace TFG_V0._01.Supabase
 {
     internal class SupabaseAutentificacion
     {
+        private static readonly HttpClient _httpClient = new HttpClient();
         private readonly string _supabaseUrl;
         private readonly string _anonKey;
-        private readonly HttpClient _httpClient;
+        private static readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        };
 
         public SupabaseAutentificacion()
         {
             _supabaseUrl = Credenciales.SupabaseUrl;
             _anonKey = Credenciales.AnonKey;
-            _httpClient = new HttpClient();
-            _httpClient.DefaultRequestHeaders.Add("apikey", _anonKey);
+
+            if (!_httpClient.DefaultRequestHeaders.Contains("apikey"))
+                _httpClient.DefaultRequestHeaders.Add("apikey", _anonKey);
         }
 
         public async Task<AuthResponse> SignUpAsync(string email, string password)
         {
-            try
-            {
-                var url = $"{_supabaseUrl}/auth/v1/signup";
-                var content = new StringContent(
-                    JsonSerializer.Serialize(new { email, password }),
-                    Encoding.UTF8,
-                    "application/json"
-                );
+            ArgumentException.ThrowIfNullOrWhiteSpace(email);
+            ArgumentException.ThrowIfNullOrWhiteSpace(password);
 
-                var response = await _httpClient.PostAsync(url, content);
-                var responseContent = await response.Content.ReadAsStringAsync();
+            var url = $"{_supabaseUrl}/auth/v1/signup";
+            var content = new StringContent(
+                JsonSerializer.Serialize(new { email, password }),
+                Encoding.UTF8,
+                "application/json"
+            );
 
-                if (!response.IsSuccessStatusCode)
-                {
-                    throw new Exception($"Error en el registro: {responseContent}");
-                }
+            var response = await _httpClient.PostAsync(url, content);
+            var responseContent = await response.Content.ReadAsStringAsync();
 
-                return JsonSerializer.Deserialize<AuthResponse>(responseContent);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Error durante el registro", ex);
-            }
+            if (!response.IsSuccessStatusCode)
+                throw new Exception($"Error en el registro: {responseContent}");
+
+            return JsonSerializer.Deserialize<AuthResponse>(responseContent, _jsonOptions);
         }
 
         public async Task<AuthResponse> SignInAsync(string email, string password)
         {
-            try
-            {
-                var url = $"{_supabaseUrl}/auth/v1/token?grant_type=password";
-                var content = new StringContent(
-                    JsonSerializer.Serialize(new { email, password }),
-                    Encoding.UTF8,
-                    "application/json"
-                );
+            ArgumentException.ThrowIfNullOrWhiteSpace(email);
+            ArgumentException.ThrowIfNullOrWhiteSpace(password);
 
-                var response = await _httpClient.PostAsync(url, content);
-                var responseContent = await response.Content.ReadAsStringAsync();
+            var url = $"{_supabaseUrl}/auth/v1/token?grant_type=password";
+            var content = new StringContent(
+                JsonSerializer.Serialize(new { email, password }),
+                Encoding.UTF8,
+                "application/json"
+            );
 
-                if (!response.IsSuccessStatusCode)
-                {
-                    throw new Exception($"Error en el inicio de sesión: {responseContent}");
-                }
+            var response = await _httpClient.PostAsync(url, content);
+            var responseContent = await response.Content.ReadAsStringAsync();
 
-                return JsonSerializer.Deserialize<AuthResponse>(responseContent);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Error durante el inicio de sesión", ex);
-            }
+            if (!response.IsSuccessStatusCode)
+                throw new Exception($"Error en el inicio de sesión: {responseContent}");
+
+            return JsonSerializer.Deserialize<AuthResponse>(responseContent, _jsonOptions);
         }
 
         public async Task SignOutAsync(string accessToken)
         {
-            try
-            {
-                var url = $"{_supabaseUrl}/auth/v1/logout";
-                var request = new HttpRequestMessage(HttpMethod.Post, url);
-                request.Headers.Add("Authorization", $"Bearer {accessToken}");
+            ArgumentException.ThrowIfNullOrWhiteSpace(accessToken);
 
-                var response = await _httpClient.SendAsync(request);
-                if (!response.IsSuccessStatusCode)
-                {
-                    throw new Exception("Error al cerrar sesión");
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Error durante el cierre de sesión", ex);
-            }
+            var url = $"{_supabaseUrl}/auth/v1/logout";
+            var request = new HttpRequestMessage(HttpMethod.Post, url);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            var response = await _httpClient.SendAsync(request);
+            if (!response.IsSuccessStatusCode)
+                throw new Exception("Error al cerrar sesión");
         }
 
         public async Task ResetPasswordAsync(string email)
         {
-            try
-            {
-                var url = $"{_supabaseUrl}/auth/v1/recover";
-                var content = new StringContent(
-                    JsonSerializer.Serialize(new { email }),
-                    Encoding.UTF8,
-                    "application/json"
-                );
+            ArgumentException.ThrowIfNullOrWhiteSpace(email);
 
-                var response = await _httpClient.PostAsync(url, content);
-                if (!response.IsSuccessStatusCode)
-                {
-                    throw new Exception("Error al solicitar el restablecimiento de contraseña");
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Error durante el restablecimiento de contraseña", ex);
-            }
+            var url = $"{_supabaseUrl}/auth/v1/recover";
+            var content = new StringContent(
+                JsonSerializer.Serialize(new { email }),
+                Encoding.UTF8,
+                "application/json"
+            );
+
+            var response = await _httpClient.PostAsync(url, content);
+            if (!response.IsSuccessStatusCode)
+                throw new Exception("Error al solicitar el restablecimiento de contraseña");
         }
 
         public async Task<User> GetUserAsync(string accessToken)
         {
-            try
-            {
-                var url = $"{_supabaseUrl}/auth/v1/user";
-                var request = new HttpRequestMessage(HttpMethod.Get, url);
-                request.Headers.Add("Authorization", $"Bearer {accessToken}");
+            ArgumentException.ThrowIfNullOrWhiteSpace(accessToken);
 
-                var response = await _httpClient.SendAsync(request);
-                var responseContent = await response.Content.ReadAsStringAsync();
+            var url = $"{_supabaseUrl}/auth/v1/user";
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
-                if (!response.IsSuccessStatusCode)
-                {
-                    throw new Exception($"Error al obtener el usuario: {responseContent}");
-                }
+            var response = await _httpClient.SendAsync(request);
+            var responseContent = await response.Content.ReadAsStringAsync();
 
-                return JsonSerializer.Deserialize<User>(responseContent);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Error al obtener el usuario", ex);
-            }
+            if (!response.IsSuccessStatusCode)
+                throw new Exception($"Error al obtener el usuario: {responseContent}");
+
+            return JsonSerializer.Deserialize<User>(responseContent, _jsonOptions);
         }
     }
 

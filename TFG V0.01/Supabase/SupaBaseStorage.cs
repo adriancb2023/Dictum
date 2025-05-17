@@ -8,26 +8,27 @@ using Supabase.Storage;
 using Supabase.Storage.Exceptions;
 using Supabase.Storage.Interfaces;
 
-
 namespace TFG_V0._01.Supabase
 {
     internal class SupaBaseStorage
     {
         private const int MaxFileSize = 50 * 1024 * 1024; // 50MB
-        private static readonly string[] AllowedImageExtensions = { ".jpg", ".jpeg", ".png", ".gif" };
-        private static readonly string[] AllowedDocumentExtensions = { ".pdf", ".doc", ".docx", ".txt" };
-        private static readonly string[] AllowedVideoExtensions = { ".mp4", ".avi", ".mov", ".wmv" };
-        private static readonly string[] AllowedAudioExtensions = { ".mp3", ".wav", ".ogg", ".m4a" };
+        private static readonly HashSet<string> AllowedExtensions = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ".jpg", ".jpeg", ".png", ".gif",
+            ".pdf", ".doc", ".docx", ".txt",
+            ".mp4", ".avi", ".mov", ".wmv",
+            ".mp3", ".wav", ".ogg", ".m4a"
+        };
 
         private readonly global::Supabase.Client _client;
         private readonly IStorageClient<Bucket, FileObject> _storageClient;
-        private readonly string _bucketName;
+        private readonly string _bucketName = "documentos";
 
         public SupaBaseStorage()
         {
             _client = new global::Supabase.Client(Credenciales.SupabaseUrl, Credenciales.AnonKey);
             _storageClient = _client.Storage;
-            _bucketName = "documentos";
         }
 
         public async Task InicializarAsync()
@@ -46,16 +47,13 @@ namespace TFG_V0._01.Supabase
         {
             try
             {
-                ValidateFile(filePath, fileName);
-
+                ValidarArchivo(filePath, fileName);
                 if (string.IsNullOrWhiteSpace(bucketName))
-                    throw new ArgumentException("El nombre del cubo no puede estar vacío.");
+                    throw new ArgumentException("El nombre del cubo no puede estar vacío.", nameof(bucketName));
 
                 var bucket = _storageClient.From(bucketName);
-                using var fileStream = File.OpenRead(filePath);
                 var fileBytes = await File.ReadAllBytesAsync(filePath);
-                var result = await bucket.Upload(fileBytes, fileName);
-                return result;
+                return await bucket.Upload(fileBytes, fileName);
             }
             catch (Exception ex)
             {
@@ -68,10 +66,10 @@ namespace TFG_V0._01.Supabase
             try
             {
                 var fileName = Path.GetFileName(filePath);
+                ValidarArchivo(filePath, fileName);
                 var bucket = _storageClient.From(_bucketName);
                 var fileBytes = await File.ReadAllBytesAsync(filePath);
-                var result = await bucket.Upload(fileBytes, fileName);
-                return result;
+                return await bucket.Upload(fileBytes, fileName);
             }
             catch (Exception ex)
             {
@@ -83,12 +81,9 @@ namespace TFG_V0._01.Supabase
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(bucketName) || string.IsNullOrWhiteSpace(fileName))
-                    throw new ArgumentException("El nombre del cubo o archivo no puede estar vacío.");
-
+                ValidarNombreCuboYArchivo(bucketName, fileName);
                 var bucket = _storageClient.From(bucketName);
-                var result = await bucket.Download(fileName, (TransformOptions)null);
-                return result;
+                return await bucket.Download(fileName, (TransformOptions)null);
             }
             catch (Exception ex)
             {
@@ -100,11 +95,8 @@ namespace TFG_V0._01.Supabase
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(bucketName) || string.IsNullOrWhiteSpace(fileName))
-                    throw new ArgumentException("El nombre del cubo o archivo no puede estar vacío.");
-
-                var bucket = _storageClient.From(bucketName);
-                return bucket.GetPublicUrl(fileName);
+                ValidarNombreCuboYArchivo(bucketName, fileName);
+                return _storageClient.From(bucketName).GetPublicUrl(fileName);
             }
             catch (Exception ex)
             {
@@ -116,11 +108,8 @@ namespace TFG_V0._01.Supabase
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(bucketName) || string.IsNullOrWhiteSpace(fileName))
-                    throw new ArgumentException("El nombre del cubo o archivo no puede estar vacío.");
-
-                var bucket = _storageClient.From(bucketName);
-                await bucket.Remove(new List<string> { fileName });
+                ValidarNombreCuboYArchivo(bucketName, fileName);
+                await _storageClient.From(bucketName).Remove(new List<string> { fileName });
             }
             catch (Exception ex)
             {
@@ -133,11 +122,9 @@ namespace TFG_V0._01.Supabase
             try
             {
                 if (string.IsNullOrWhiteSpace(bucketName))
-                    throw new ArgumentException("El nombre del cubo no puede estar vacío.");
+                    throw new ArgumentException("El nombre del cubo no puede estar vacío.", nameof(bucketName));
 
-                var bucket = _storageClient.From(bucketName);
-                var result = await bucket.List();
-                return result;
+                return await _storageClient.From(bucketName).List();
             }
             catch (Exception ex)
             {
@@ -149,9 +136,8 @@ namespace TFG_V0._01.Supabase
         {
             try
             {
-                var bucket = _storageClient.From(_bucketName);
-                var files = await bucket.List();
-                return files.FirstOrDefault(f => f.Name == fileName);
+                return (await _storageClient.From(_bucketName).List())
+                    .FirstOrDefault(f => f.Name == fileName);
             }
             catch (Exception ex)
             {
@@ -163,12 +149,9 @@ namespace TFG_V0._01.Supabase
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(bucketName) || string.IsNullOrWhiteSpace(fileName))
-                    throw new ArgumentException("El nombre del cubo o archivo no puede estar vacío.");
-
-                var bucket = _storageClient.From(bucketName);
-                var files = await bucket.List();
-                return files.FirstOrDefault(f => f.Name == fileName);
+                ValidarNombreCuboYArchivo(bucketName, fileName);
+                return (await _storageClient.From(bucketName).List())
+                    .FirstOrDefault(f => f.Name == fileName);
             }
             catch (Exception ex)
             {
@@ -180,10 +163,9 @@ namespace TFG_V0._01.Supabase
         {
             try
             {
-                ValidateFile(newFilePath, oldFileName);
-
+                ValidarArchivo(newFilePath, oldFileName);
                 if (string.IsNullOrWhiteSpace(bucketName))
-                    throw new ArgumentException("El nombre del cubo no puede estar vacío.");
+                    throw new ArgumentException("El nombre del cubo no puede estar vacío.", nameof(bucketName));
 
                 await EliminarArchivoAsync(bucketName, oldFileName);
                 await SubirArchivoAsync(bucketName, newFilePath, oldFileName);
@@ -198,12 +180,9 @@ namespace TFG_V0._01.Supabase
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(bucketName) || string.IsNullOrWhiteSpace(fileName))
-                    throw new ArgumentException("El nombre del cubo o archivo no puede estar vacío.");
-
-                var bucket = _storageClient.From(bucketName);
-                var files = await bucket.List();
-                return files.FirstOrDefault(f => f.Name == fileName);
+                ValidarNombreCuboYArchivo(bucketName, fileName);
+                return (await _storageClient.From(bucketName).List())
+                    .FirstOrDefault(f => f.Name == fileName);
             }
             catch (Exception ex)
             {
@@ -216,7 +195,7 @@ namespace TFG_V0._01.Supabase
             try
             {
                 if (string.IsNullOrWhiteSpace(bucketName))
-                    throw new ArgumentException("El nombre del cubo no puede estar vacío.");
+                    throw new ArgumentException("El nombre del cubo no puede estar vacío.", nameof(bucketName));
 
                 await _storageClient.CreateBucket(bucketName);
             }
@@ -231,7 +210,7 @@ namespace TFG_V0._01.Supabase
             try
             {
                 if (string.IsNullOrWhiteSpace(bucketName))
-                    throw new ArgumentException("El nombre del cubo no puede estar vacío.");
+                    throw new ArgumentException("El nombre del cubo no puede estar vacío.", nameof(bucketName));
 
                 await _storageClient.DeleteBucket(bucketName);
             }
@@ -243,7 +222,7 @@ namespace TFG_V0._01.Supabase
 
         public string ObtenerCuboPorTipoArchivo(string filePath)
         {
-            var extension = Path.GetExtension(filePath).ToLower();
+            var extension = Path.GetExtension(filePath).ToLowerInvariant();
             return extension switch
             {
                 ".pdf" => "pdfs",
@@ -254,32 +233,30 @@ namespace TFG_V0._01.Supabase
             };
         }
 
-        private void ValidateFile(string rutaArchivo, string nombreArchivo)
+        private static void ValidarArchivo(string rutaArchivo, string nombreArchivo)
         {
             if (string.IsNullOrWhiteSpace(rutaArchivo))
-                throw new ArgumentException("La ruta del archivo no puede estar vacía.");
-
+                throw new ArgumentException("La ruta del archivo no puede estar vacía.", nameof(rutaArchivo));
             if (string.IsNullOrWhiteSpace(nombreArchivo))
-                throw new ArgumentException("El nombre del archivo no puede estar vacío.");
-
+                throw new ArgumentException("El nombre del archivo no puede estar vacío.", nameof(nombreArchivo));
             if (!File.Exists(rutaArchivo))
-                throw new FileNotFoundException("El archivo no existe en la ruta especificada.");
+                throw new FileNotFoundException("El archivo no existe en la ruta especificada.", rutaArchivo);
 
             var fileInfo = new FileInfo(rutaArchivo);
             if (fileInfo.Length > MaxFileSize)
                 throw new ArgumentException($"El archivo excede el tamaño máximo permitido de {MaxFileSize / 1024 / 1024}MB");
 
-            string extension = Path.GetExtension(nombreArchivo).ToLower();
-            if (!IsAllowedExtension(extension))
+            var extension = Path.GetExtension(nombreArchivo).ToLowerInvariant();
+            if (!AllowedExtensions.Contains(extension))
                 throw new ArgumentException($"Tipo de archivo no permitido: {extension}");
         }
 
-        private bool IsAllowedExtension(string extension)
+        private static void ValidarNombreCuboYArchivo(string bucketName, string fileName)
         {
-            return AllowedImageExtensions.Contains(extension) ||
-                   AllowedDocumentExtensions.Contains(extension) ||
-                   AllowedVideoExtensions.Contains(extension) ||
-                   AllowedAudioExtensions.Contains(extension);
+            if (string.IsNullOrWhiteSpace(bucketName))
+                throw new ArgumentException("El nombre del cubo no puede estar vacío.", nameof(bucketName));
+            if (string.IsNullOrWhiteSpace(fileName))
+                throw new ArgumentException("El nombre del archivo no puede estar vacío.", nameof(fileName));
         }
     }
 }

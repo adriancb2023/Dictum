@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using TFG_V0._01.Supabase.Models;
 using Client = Supabase.Client;
-
 
 namespace TFG_V0._01.Supabase
 {
@@ -14,28 +10,15 @@ namespace TFG_V0._01.Supabase
         private readonly Client _client;
 
         public SupabaseTareas()
-        {
-            _client = new Client(Credenciales.SupabaseUrl, Credenciales.AnonKey);
-        }
+            => _client = new Client(Credenciales.SupabaseUrl, Credenciales.AnonKey);
 
-        public async Task InicializarAsync()
-        {
-            await _client.InitializeAsync();
-        }
+        public Task InicializarAsync()
+            => _client.InitializeAsync();
 
         public async Task<List<Tarea>> ObtenerTodosAsync()
-        {
-            var result = await _client.From<Tarea>().Limit(50000).Get();
-            return result.Models;
-        }
+            => (await _client.From<Tarea>().Limit(50000).Get()).Models;
 
-        public async Task ActualizarAsync(Tarea tarea)
-        {
-            await _client.From<Tarea>().Update(tarea);
-        }
-        
-        
-        
-
+        public Task ActualizarAsync(Tarea tarea)
+            => _client.From<Tarea>().Update(tarea);
     }
 }

@@ -12,6 +12,7 @@ using TFG_V0._01.Supabase.Models;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System;
+using System.Windows.Documents;
 
 namespace TFG_V0._01.Ventanas
 {
@@ -104,6 +105,13 @@ namespace TFG_V0._01.Ventanas
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        private DateOnly fechaActual = DateOnly.FromDateTime(DateTime.Now);
+
+        private string mesText;
+
+        private string anio;
+        private readonly UIElement[] navbarItems;
         #endregion
 
         #region Inicializacion
@@ -115,8 +123,9 @@ namespace TFG_V0._01.Ventanas
             CargarIdioma(MainWindow.idioma);
             //CargarIdiomaNavbar(MainWindow.idioma);
 
-            InitializeAnimations();
+            diaSemana();
 
+            InitializeAnimations();
 
             AplicarModoSistema();
 
@@ -133,6 +142,13 @@ namespace TFG_V0._01.Ventanas
             Documentos = 0;
             TareasPendientes = 0;
             CasosRecientes = 0;
+            mesText = string.Empty;
+            anio = string.Empty;
+
+            navbarItems = new UIElement[]
+            {
+                inicio, buscar, documentos, clientes, casos, agenda, ajustes
+            };
 
             // Cargar datos después de que la ventana esté completamente inicializada
             //this.Loaded += async (s, e) => { await CargarDatosDashboard(); CargarScoreCasos(); CargarCasosRecientes(); };
@@ -154,35 +170,37 @@ namespace TFG_V0._01.Ventanas
         #region Aplicar modo oscuro/claro cargado por sistema
         private void AplicarModoSistema()
         {
-            var button = this.FindName("ThemeButton") as Button;
+            var button = FindName("ThemeButton") as Button;
             var icon = button?.Template.FindName("ThemeIcon", button) as Image;
+
+            if (icon != null)
+                icon.Source = new BitmapImage(new Uri(GetIconoTema(), UriKind.Relative));
+
+            backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString(GetBackgroundPath()) as ImageSource;
 
             if (MainWindow.isDarkTheme)
             {
-                // Aplicar modo oscuro
-                if (icon != null)
-                {
-                    icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/sol.png", UriKind.Relative));
-                }
-                backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString("pack://application:,,,/TFG V0.01;component/Recursos/Background/oscuro/main.png") as ImageSource;
                 CambiarIconosAClaros();
                 CambiarTextosBlanco();
                 backgroun_menu.Background = new SolidColorBrush(Color.FromArgb(48, 255, 255, 255)); // Fondo semitransparente
             }
             else
             {
-                // Aplicar modo claro
-                if (icon != null)
-                {
-                    icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/luna.png", UriKind.Relative));
-                }
-                backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString("pack://application:,,,/TFG V0.01;component/Recursos/Background/claro/main.png") as ImageSource;
                 CambiarIconosAOscuros();
                 CambiarTextosNegro();
                 backgroun_menu.Background = new SolidColorBrush(Color.FromArgb(48, 128, 128, 128)); // Gris semitransparente
-
             }
         }
+
+        private string GetIconoTema() =>
+            MainWindow.isDarkTheme
+                ? "/TFG V0.01;component/Recursos/Iconos/sol.png"
+                : "/TFG V0.01;component/Recursos/Iconos/luna.png";
+
+        private string GetBackgroundPath() =>
+            MainWindow.isDarkTheme
+                ? "pack://application:,,,/TFG V0.01;component/Recursos/Background/oscuro/main.png"
+                : "pack://application:,,,/TFG V0.01;component/Recursos/Background/claro/main.png";
 
         private void ThemeButton_Click(object sender, RoutedEventArgs e)
         {
@@ -262,115 +280,73 @@ namespace TFG_V0._01.Ventanas
         #endregion
 
         #region navbar animacion
+        private void CambiarVisibilidadNavbar(Visibility visibilidad)
+        {
+            foreach (var item in navbarItems)
+                item.Visibility = visibilidad;
+        }
+
         private void Menu_MouseEnter(object sender, MouseEventArgs e)
         {
-            inicio.Visibility = Visibility.Visible;
-            buscar.Visibility = Visibility.Visible;
-            documentos.Visibility = Visibility.Visible;
-            clientes.Visibility = Visibility.Visible;
-            casos.Visibility = Visibility.Visible;
-            agenda.Visibility = Visibility.Visible;
-            ajustes.Visibility = Visibility.Visible;
+            CambiarVisibilidadNavbar(Visibility.Visible);
         }
 
         private void Menu_MouseLeave(object sender, MouseEventArgs e)
         {
-            inicio.Visibility = Visibility.Collapsed;
-            buscar.Visibility = Visibility.Collapsed;
-            documentos.Visibility = Visibility.Collapsed;
-            clientes.Visibility = Visibility.Collapsed;
-            casos.Visibility = Visibility.Collapsed;
-            agenda.Visibility = Visibility.Collapsed;
-            ajustes.Visibility = Visibility.Collapsed;
+            CambiarVisibilidadNavbar(Visibility.Collapsed);
         }
+
         #endregion
 
         #region Navbar botones
-        private void irHome(object sender, RoutedEventArgs e)
+        private void AbrirVentana<T>() where T : Window, new()
         {
-            Home home = new Home();
-            home.Show();
+            var ventana = new T();
+            ventana.Show();
             this.Close();
         }
 
-        private void irJurisprudencia(object sender, RoutedEventArgs e)
-        {
-            BusquedaJurisprudencia busquedaJurisprudencia = new BusquedaJurisprudencia();
-            busquedaJurisprudencia.Show();
-            this.Close();
-        }
-
-        private void irDocumentos(object sender, RoutedEventArgs e)
-        {
-            Documentos documentos = new Documentos();
-            documentos.Show();
-            this.Close();
-        }
-
-        private void irClientes(object sender, RoutedEventArgs e)
-        {
-            Clientes clientes = new Clientes();
-            clientes.Show();
-            this.Close();
-        }
-
-        private void irCasos(object sender, RoutedEventArgs e)
-        {
-            Casos casos = new Casos();
-            casos.Show();
-            this.Close();
-        }
-
-        private void irAyuda(object sender, RoutedEventArgs e)
-        {
-            Ayuda ayuda = new Ayuda();
-            ayuda.Show();
-            this.Close();
-        }
-
-        private void irAgenda(object sender, RoutedEventArgs e)
-        {
-            Agenda agenda = new Agenda();
-            agenda.Show();
-            this.Close();
-        }
-
-        private void irAjustes(object sender, RoutedEventArgs e)
-        {
-            Ajustes ajustes = new Ajustes();
-            ajustes.Show();
-            this.Close();
-        }
+        private void irHome(object sender, RoutedEventArgs e) => AbrirVentana<Home>();
+        private void irJurisprudencia(object sender, RoutedEventArgs e) => AbrirVentana<BusquedaJurisprudencia>();
+        private void irDocumentos(object sender, RoutedEventArgs e) => AbrirVentana<Documentos>();
+        private void irClientes(object sender, RoutedEventArgs e) => AbrirVentana<Clientes>();
+        private void irCasos(object sender, RoutedEventArgs e) => AbrirVentana<Casos>();
+        private void irAyuda(object sender, RoutedEventArgs e) => AbrirVentana<Ayuda>();
+        private void irAgenda(object sender, RoutedEventArgs e) => AbrirVentana<Agenda>();
+        private void irAjustes(object sender, RoutedEventArgs e) => AbrirVentana<Ajustes>();
         #endregion
 
         #region Animaciones
+
         private void InitializeAnimations()
         {
-            fadeInStoryboard = new Storyboard();
-            var fadeIn = CrearFadeAnimation(0, 1, 0.5);
-            Storyboard.SetTarget(fadeIn, this);
-            Storyboard.SetTargetProperty(fadeIn, new PropertyPath(nameof(Opacity)));
-            fadeInStoryboard.Children.Add(fadeIn);
-
-            shakeStoryboard = new Storyboard();
-            var shakeAnimation = CrearShakeAnimation();
-            shakeStoryboard.Children.Add(shakeAnimation);
+            fadeInStoryboard = CrearStoryboard(this, OpacityProperty, CrearFadeAnimation(0, 1, 0.5));
+            shakeStoryboard = CrearStoryboard(null, TranslateTransform.XProperty, CrearShakeAnimation());
         }
 
-        private DoubleAnimation CrearFadeAnimation(double from, double to, double durationSeconds, bool autoReverse = false)
+        private Storyboard CrearStoryboard(DependencyObject target, DependencyProperty property, DoubleAnimation animation)
         {
-            return new DoubleAnimation
+            var storyboard = new Storyboard();
+            if (target != null && property != null)
+            {
+                Storyboard.SetTarget(animation, target);
+                Storyboard.SetTargetProperty(animation, new PropertyPath(property));
+            }
+            storyboard.Children.Add(animation);
+            return storyboard;
+        }
+
+        private DoubleAnimation CrearFadeAnimation(double from, double to, double durationSeconds, bool autoReverse = false) =>
+            new()
             {
                 From = from,
                 To = to,
                 Duration = TimeSpan.FromSeconds(durationSeconds),
                 AutoReverse = autoReverse
             };
-        }
 
-        private DoubleAnimation CrearShakeAnimation()
-        {
-            return new DoubleAnimation
+        private DoubleAnimation CrearShakeAnimation() =>
+            new()
             {
                 From = 0,
                 To = 5,
@@ -378,7 +354,6 @@ namespace TFG_V0._01.Ventanas
                 RepeatBehavior = new RepeatBehavior(3),
                 Duration = TimeSpan.FromSeconds(0.05)
             };
-        }
 
         private void BeginFadeInAnimation()
         {
@@ -615,7 +590,6 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
-
         #region ScoreCasos
         private async void CargarScoreCasos()
         {
@@ -686,6 +660,152 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
+        #region Proximos eventos
+        /*
+        private async void CargarProximosEventos()
+        {
+            try
+            {
+                var eventosService = new SupabaseEventos();
+                await eventosService.InicializarAsync();
+                var eventos = await eventosService.ObtenerTodosAsync();
+                var proximosEventos = eventos
+                    .Where(e => e.fecha_evento.Date >= DateTime.Now.Date)
+                    .OrderBy(e => e.fecha_evento)
+                    .ToList();
+                // Aquí puedes mostrar los próximos eventos en la interfaz de usuario
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar los próximos eventos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        */
+        #endregion
+
+        #region Dia Actual
+        private void diaSemana()
+        {
+            var diaSemana = fechaActual.DayOfWeek;
+            switch (diaSemana)
+            {
+                case DayOfWeek.Monday:
+                    lunes.Foreground = new SolidColorBrush(Colors.Red);
+                    break;
+                case DayOfWeek.Tuesday:
+                    martes.Foreground = new SolidColorBrush(Colors.Red);
+                    break;
+                case DayOfWeek.Wednesday:
+                    miercoles.Foreground = new SolidColorBrush(Colors.Red);
+                    break;
+                case DayOfWeek.Thursday:
+                    jueves.Foreground = new SolidColorBrush(Colors.Red);
+                    break;
+                case DayOfWeek.Friday:
+                    viernes.Foreground = new SolidColorBrush(Colors.Red);
+                    break;
+                case DayOfWeek.Saturday:
+                    sabado.Foreground = new SolidColorBrush(Colors.Red);
+                    break;
+                case DayOfWeek.Sunday:
+                    domingo.Foreground = new SolidColorBrush(Colors.Red);
+                    break;
+                default:
+
+                    break;
+            }
+        }
+        #endregion
+
+        #region Cambiar de fecha Calendario
+        private static readonly string[] NombresMeses = { "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre" };
+
+        private void CambiarMesCalendario(int incremento)
+        {
+            int nuevoMes = fechaActual.Month + incremento;
+            int nuevoAnio = fechaActual.Year;
+
+            if (nuevoMes < 1)
+            {
+                nuevoMes = 12;
+                nuevoAnio--;
+            }
+            else if (nuevoMes > 12)
+            {
+                nuevoMes = 1;
+                nuevoAnio++;
+            }
+
+            fechaActual = new DateOnly(nuevoAnio, nuevoMes, 1);
+            ActualizarTextoFechaElegida();
+        }
+
+        private void mesAnterior(object sender, RoutedEventArgs e)
+        {
+            CambiarMesCalendario(-1);
+        }
+
+        private void mesSiguiente(object sender, RoutedEventArgs e)
+        {
+            CambiarMesCalendario(1);
+        }
+
+        private void mesActual(object sender, RoutedEventArgs e)
+        {
+            var fechaHoy = DateOnly.FromDateTime(DateTime.Now);
+
+            if (fechaActual.Equals(fechaHoy))
+            {
+                if (sender is Button btn)
+                    ShakeElement(btn);
+            }
+            else
+            {
+                fechaActual = fechaHoy;
+                ActualizarTextoFechaElegida();
+            }
+        }
+
+        private void ActualizarTextoFechaElegida()
+        {
+            mesText = NombresMeses[fechaActual.Month - 1];
+            anio = fechaActual.Year.ToString();
+            FechaElegida.Text = $"{mesText} {anio}";
+        }
+        #endregion
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         #region Idioma
         private void CargarIdioma(int idioma)
         {
@@ -746,7 +866,5 @@ namespace TFG_V0._01.Ventanas
             hoy.Text = t.Hoy;
         }
         #endregion
-
-        
     }
 }

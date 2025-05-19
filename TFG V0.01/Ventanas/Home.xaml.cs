@@ -15,8 +15,9 @@ using System;
 using System.Windows.Documents;
 using TFG_V0._01.BBDDLocal;
 using Polly;
-using SupabaseTarea = TFG_V0._01.Supabase.Models.Tarea; // Alias para evitar ambigüedad
-using SupabaseCaso = TFG_V0._01.Supabase.Models.Caso;   // Alias para evitar ambigüedad
+using SupabaseTarea = TFG_V0._01.Supabase.Models.Tarea;
+using SupabaseCaso = TFG_V0._01.Supabase.Models.Caso;
+using Microsoft.EntityFrameworkCore;
 
 namespace TFG_V0._01.Ventanas
 {
@@ -180,7 +181,15 @@ namespace TFG_V0._01.Ventanas
                 ScoreDocumentosNuevos();
                 CargarTareasPendientes();
                 CargarTareasPendientesLista();
+
+
                 LoadingPanel.Visibility = Visibility.Collapsed;
+                if (string.IsNullOrWhiteSpace(mesText))
+                    mesText = NombresMeses[fechaActual.Month - 1];
+                if (string.IsNullOrWhiteSpace(anio))
+                    anio = fechaActual.Year.ToString();
+                cargarTareasCalendario(mesText, anio);
+                cargarCasosRecientes();
             }
         }
         #endregion
@@ -323,7 +332,6 @@ namespace TFG_V0._01.Ventanas
             ventana.Show();
             this.Close();
         }
-
         private void irHome(object sender, RoutedEventArgs e) => AbrirVentana<Home>();
         private void irJurisprudencia(object sender, RoutedEventArgs e) => AbrirVentana<BusquedaJurisprudencia>();
         private void irDocumentos(object sender, RoutedEventArgs e) => AbrirVentana<Documentos>();
@@ -474,6 +482,9 @@ namespace TFG_V0._01.Ventanas
             mesText = NombresMeses[fechaActual.Month - 1];
             anio = fechaActual.Year.ToString();
             FechaElegida.Text = $"{mesText} {anio}";
+
+            //actualizar lista en local 
+            cargarTareasCalendario(mesText, anio);
         }
         #endregion
 
@@ -1064,10 +1075,230 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
-        #region 📥 Cargar casos recientes 
-        
+        #region 📥 Cargar Eventos Citas 
+        private void cargarTareasCalendario(string mesText, string anio)
+        {
+            var colores = new List<string>
+    {
+        "#FF5722", "#F4511E", "#E64A19", "#D84315",
+        "#009688", "#26A69A", "#00796B", "#004D40",
+        "#3F51B5", "#5C6BC0", "#3949AB", "#1A237E"
+    };
+
+            // Usar el array NombresMeses ya definido en la clase
+            int mes = Array.FindIndex(NombresMeses, m =>
+                m.Equals(mesText?.Trim(), StringComparison.OrdinalIgnoreCase)
+            ) + 1;
+
+            if (mes == 0)
+            {
+                MessageBox.Show($"Mes no válido: '{mesText}'", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (!int.TryParse(anio, out int anioInt))
+            {
+                MessageBox.Show("Año no válido.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            using (var context = new TfgContext())
+            {
+                var tareas = context.Tareas
+                    .Where(t => t.FechaFin.Month == mes && t.FechaFin.Year == anioInt && t.Estado != "finalizado")
+                    .ToList();
+
+                var stackPanel = this.FindName("PanelEventos") as StackPanel;
+
+                if (stackPanel != null)
+                {
+                    stackPanel.Children.Clear();
+
+                    var random = new Random();
+                    int offset = random.Next(colores.Count);
+
+                    for (int i = 0; i < tareas.Count; i++)
+                    {
+                        var tarea = tareas[i];
+                        string colorHex = colores[(i + offset) % colores.Count];
+
+                        var border = new Border
+                        {
+                            Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(colorHex)),
+                            CornerRadius = new CornerRadius(10),
+                            Padding = new Thickness(10),
+                            Margin = new Thickness(0, 5, 0, 5)
+                        };
+
+                        var innerGrid = new Grid();
+                        innerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                        innerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+                        var fechaBorder = new Border
+                        {
+                            Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#30FFFFFF")),
+                            CornerRadius = new CornerRadius(5),
+                            Padding = new Thickness(8, 5, 8, 5),
+                            Margin = new Thickness(0, 0, 10, 0)
+                        };
+                        var fechaText = new TextBlock
+                        {
+                            Text = tarea.FechaFin.Day.ToString(),
+                            FontWeight = FontWeights.Bold,
+                            Foreground = Brushes.White
+                        };
+                        fechaBorder.Child = fechaText;
+
+                        var detallesStack = new StackPanel();
+                        var tituloText = new TextBlock
+                        {
+                            Text = tarea.Titulo,
+                            FontWeight = FontWeights.SemiBold,
+                            Foreground = Brushes.White
+                        };
+                        var descripcionText = new TextBlock
+                        {
+                            Text = tarea.Descripcion,
+                            Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#CCFFFFFF")),
+                            FontSize = 12
+                        };
+
+                        detallesStack.Children.Add(tituloText);
+                        detallesStack.Children.Add(descripcionText);
+
+                        Grid.SetColumn(fechaBorder, 0);
+                        Grid.SetColumn(detallesStack, 1);
+                        innerGrid.Children.Add(fechaBorder);
+                        innerGrid.Children.Add(detallesStack);
+
+                        border.Child = innerGrid;
+                        stackPanel.Children.Add(border);
+                    }
+                }
+            }
+        }
+
 
         #endregion
+
+        #region Casos Recientas
+        private void cargarCasosRecientes()
+        {
+            using (var context = new TfgContext())
+            {
+                var recienteIds = context.Recientes
+                    .Where(r => r.FechaHora <= DateTime.Now)
+                    .OrderByDescending(r => r.FechaHora)
+                    .Take(5)
+                    .Select(r => r.IdCaso)
+                    .ToList();
+
+                var casosRecientes = context.Casos
+                    .Include(c => c.IdClienteNavigation)
+                    .Include(c => c.IdEstadoNavigation)
+                    .Where(c => recienteIds.Contains(c.Id))
+                    .ToList();
+
+                CasosContainer.Children.Clear();
+
+                foreach (var caso in casosRecientes)
+                {
+                    var cliente = caso.IdClienteNavigation;
+                    var estado = caso.IdEstadoNavigation;
+
+
+                    var border = new Border
+                    {
+                        Background = new SolidColorBrush(Color.FromArgb(0x30, 0xFF, 0xFF, 0xFF)),
+                        CornerRadius = new CornerRadius(10),
+                        Padding = new Thickness(10),
+                        Margin = new Thickness(0, 0, 0, 10)
+                    };
+
+                    var grid = new Grid();
+                    for (int i = 0; i < 5; i++)
+                        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = (i == 4 ? GridLength.Auto : new GridLength(1, GridUnitType.Star)) });
+
+                    grid.Children.Add(CreateTextBlock(caso.Titulo, 0));
+                    grid.Children.Add(CreateTextBlock($"{cliente.Nombre} {cliente.Apellido1} {cliente.Apellido2}", 1));
+                    grid.Children.Add(CreateTextBlock(caso.Descripcion, 2));
+
+
+                    var estadoPanel = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
+                    var estadoBorder = new Border
+                    {
+                        Background = new SolidColorBrush(GetColorForEstado(estado.Nombre)),
+                        CornerRadius = new CornerRadius(5),
+                        Padding = new Thickness(8, 3, 8, 3)
+                    };
+                    estadoBorder.Child = new TextBlock
+                    {
+                        Text = estado.Nombre,
+                        Foreground = Brushes.White,
+                        FontSize = 12
+                    };
+                    estadoPanel.Children.Add(estadoBorder);
+                    Grid.SetColumn(estadoPanel, 3);
+                    grid.Children.Add(estadoPanel);
+
+                    //Botones sin definir aun 
+                    var btnPanel = new StackPanel { Orientation = Orientation.Horizontal };
+                    btnPanel.Children.Add(CreateIconButton("luna.png"));
+                    btnPanel.Children.Add(CreateIconButton("sol.png"));
+                    Grid.SetColumn(btnPanel, 4);
+                    grid.Children.Add(btnPanel);
+
+                    border.Child = grid;
+                    CasosContainer.Children.Add(border);
+                }
+            }
+        }
+
+        private TextBlock CreateTextBlock(string text, int column)
+        {
+            var tb = new TextBlock
+            {
+                Text = text,
+                Foreground = Brushes.White,
+                VerticalAlignment = VerticalAlignment.Center,
+                TextWrapping = TextWrapping.Wrap
+            };
+            Grid.SetColumn(tb, column);
+            return tb;
+        }
+
+        private Button CreateIconButton(string imageName)
+        {
+            return new Button
+            {
+                Width = 35,
+                Height = 35,
+                Background = new SolidColorBrush(Color.FromArgb(0x30, 0xFF, 0xFF, 0xFF)),
+                Margin = new Thickness(0, 0, 5, 0),
+                Style = (Style)this.FindResource("RoundedButtonStyle"),
+                Content = new Image
+                {
+                    Source = new BitmapImage(new Uri($"pack://application:,,,/TFG V0.01;component/Recursos/Iconos/{imageName}")),
+                    Width = 15,
+                    Height = 15
+                }
+            };
+        }
+
+        private Color GetColorForEstado(string estado)
+        {
+            return estado switch
+            {
+                "Abierto" => (Color)ColorConverter.ConvertFromString("#64B5F6"),   // Azul claro
+                "En Proceso" => (Color)ColorConverter.ConvertFromString("#FFB300"), // Amarillo
+                "Cerrado" => (Color)ColorConverter.ConvertFromString("#F44336"),   // Rojo
+                "Pendiente" => (Color)ColorConverter.ConvertFromString("#FF9800"), // Naranja
+                "Revisado" => (Color)ColorConverter.ConvertFromString("#4CAF50"),  // Verde
+                _ => Colors.Gray
+            };
+        }
+        #endregion
+
         #endregion
 
 

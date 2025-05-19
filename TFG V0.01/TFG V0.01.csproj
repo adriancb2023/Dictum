@@ -51,6 +51,10 @@
     <None Remove="Recursos\Background\oscuro\main.png" />
     <None Remove="Recursos\Background\oscuro\mod1.png" />
     <None Remove="Recursos\Background\oscuro\mod2.png" />
+    <None Remove="Recursos\Iconos\addCaso.png" />
+    <None Remove="Recursos\Iconos\addCaso2.png" />
+    <None Remove="Recursos\Iconos\addCliente.png" />
+    <None Remove="Recursos\Iconos\addCliente2.png" />
     <None Remove="Recursos\Iconos\ajustes.png" />
     <None Remove="Recursos\Iconos\ajustes2.png" />
     <None Remove="Recursos\Iconos\ayuda.png" />
@@ -121,6 +125,10 @@
     <Resource Include="Recursos\Background\oscuro\main.png" />
     <Resource Include="Recursos\Background\oscuro\mod1.png" />
     <Resource Include="Recursos\Background\oscuro\mod2.png" />
+    <Resource Include="Recursos\Iconos\addCaso.png" />
+    <Resource Include="Recursos\Iconos\addCaso2.png" />
+    <Resource Include="Recursos\Iconos\addCliente.png" />
+    <Resource Include="Recursos\Iconos\addCliente2.png" />
     <Resource Include="Recursos\Iconos\agenda2.png" />
     <Resource Include="Recursos\Iconos\agenda.png" />
     <Resource Include="Recursos\Iconos\ajustes.png" />

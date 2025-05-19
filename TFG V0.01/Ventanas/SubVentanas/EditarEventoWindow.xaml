@@ -1,0 +1,32 @@
+<Window x:Class="TFG_V0._01.Ventanas.SubVentanas.EditarEventoWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        mc:Ignorable="d"
+        Title="Editar Evento" Height="400" Width="400" WindowStartupLocation="CenterOwner" ResizeMode="NoResize" Background="#23272F">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <TextBlock Text="Título" Foreground="White" FontWeight="Bold" Margin="0,0,0,5"/>
+        <TextBox x:Name="txtTitulo" Grid.Row="1" Margin="0,0,0,10" Height="30"/>
+        <TextBlock Text="Descripción" Grid.Row="2" Foreground="White" FontWeight="Bold" Margin="0,0,0,5"/>
+        <TextBox x:Name="txtDescripcion" Grid.Row="3" Margin="0,0,0,10" Height="60" AcceptsReturn="True"/>
+        <StackPanel Grid.Row="4" Orientation="Vertical" Margin="0,10,0,0">
+            <TextBlock Text="Hora y minutos" Foreground="White" FontWeight="Bold" Margin="0,0,0,5"/>
+            <materialDesign:TimePicker x:Name="timePickerHoraMinuto" Margin="0,0,0,10"/>
+            <TextBlock Text="Estado" Foreground="White" FontWeight="Bold" Margin="0,0,0,5"/>
+            <ComboBox x:Name="cbEstadoEvento" Margin="0,0,0,10" DisplayMemberPath="Nombre" SelectedValuePath="Id"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Cancelar" Width="80" Margin="0,0,10,0" Click="Cancelar_Click"/>
+                <Button Content="Guardar" Width="80" Click="Guardar_Click"/>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Window> 

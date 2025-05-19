@@ -16,6 +16,11 @@ using TFG_V0._01.Supabase;
 using TFG_V0._01.Supabase.Models;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using TFG.Supabase;
+using TFG.Models;
+using System.Globalization;
+using CalendarControl = System.Windows.Controls.Calendar;
+using TFG_V0._01.Ventanas.SubVentanas;
 
 namespace TFG_V0._01.Ventanas
 {
@@ -32,6 +37,8 @@ namespace TFG_V0._01.Ventanas
         #region variables
         private readonly SupabaseClientes _clientesService;
         private readonly SupabaseCasos _casosService;
+        private readonly SupabaseEventosCitas _eventosCitasService;
+        private readonly SupabaseEstadosEventos _estadosEventosService;
         private ObservableCollection<Cliente> _clientes;
         private ObservableCollection<Caso> _todosLosCasos;
         private ObservableCollection<Caso> _casosFiltrados;
@@ -58,6 +65,10 @@ namespace TFG_V0._01.Ventanas
             get => _textoComboTodosLosCasos;
             set { _textoComboTodosLosCasos = value; OnPropertyChanged(nameof(TextoComboTodosLosCasos)); }
         }
+        private DateTime _fechaSeleccionada;
+        private Dictionary<DateTime, string> DiasConEventoColor = new();
+        private EventoCita eventoEditando = null;
+        private bool esEdicion = false;
 
         public ObservableCollection<Cliente> Clientes
         {
@@ -123,10 +134,15 @@ namespace TFG_V0._01.Ventanas
             
             _clientesService = new SupabaseClientes();
             _casosService = new SupabaseCasos();
+            _eventosCitasService = new SupabaseEventosCitas();
+            _estadosEventosService = new SupabaseEstadosEventos();
             
             Clientes = new ObservableCollection<Cliente>();
             TodosLosCasos = new ObservableCollection<Caso>();
             CasosFiltrados = new ObservableCollection<Caso>();
+            _fechaSeleccionada = DateTime.Today;
+            var calendar = this.FindName("calendar") as CalendarControl;
+            CargarEventosDelDia();
 
             // Cargar datos iniciales
             CargarDatosIniciales();
@@ -316,7 +332,72 @@ namespace TFG_V0._01.Ventanas
             _todosLosCasosView.Refresh();
         }
 
-        private void BtnBuscar1_Click(object sender, RoutedEventArgs e)
+        private async Task CargarDatosDelCaso(int idCaso)
+        {
+            try
+            {
+                await _casosService.InicializarAsync();
+                var caso = await _casosService.ObtenerPorIdAsync(idCaso);
+
+                if (caso != null)
+                {
+                    // Eventos y citas
+                    var colores = new List<string>
+                    {
+                        "#FF5722", "#F4511E", "#E64A19", "#D84315",
+                        "#009688", "#26A69A", "#00796B", "#004D40",
+                        "#3F51B5", "#5C6BC0", "#3949AB", "#1A237E"
+                    };
+
+                    var eventos = new List<object>();
+                    if (caso.Alertas != null)
+                    {
+                        eventos = caso.Alertas
+                            .Select((a, i) => new
+                            {
+                                Titulo = a.titulo ?? "",
+                                FechaDia = a.fecha_alerta != null ? a.fecha_alerta.Day.ToString() : "",
+                                Descripcion = a.descripcion ?? "",
+                                Estado = a.estado_alerta != null ? a.estado_alerta.ToString() : "",
+                                Color = colores[i % colores.Count]
+                            })
+                            .Cast<object>()
+                            .ToList();
+                    }
+                    var eventosList = this.FindName("EventosList") as System.Windows.Controls.ListView;
+                    if (eventosList != null) eventosList.ItemsSource = eventos;
+
+                    // Notas (usando la descripción del caso)
+                    var notas = new List<string> { caso.descripcion };
+                    var notasList = this.FindName("NotasList") as ListBox;
+                    if (notasList != null) notasList.ItemsSource = notas;
+
+                    // Documentos
+                    var documentos = caso.Documentos?
+                        .Select(d => d.nombre)
+                        .ToList() ?? new List<string>();
+                    var documentosList = this.FindName("DocumentosList") as ListBox;
+                    if (documentosList != null) documentosList.ItemsSource = documentos;
+
+                    // Tareas
+                    await CargarTareasDelCaso(idCaso);
+
+                    // Asegurar que el calendario tenga seleccionada la fecha actual
+                    var calendar = this.FindName("calendar") as CalendarControl;
+                    if (calendar != null)
+                    {
+                        calendar.SelectedDate = DateTime.Today;
+                        _fechaSeleccionada = DateTime.Today;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar los datos del caso: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async void BtnBuscar1_Click(object sender, RoutedEventArgs e)
         {
             var comboClientes = this.FindName("comboClientes") as ComboBox;
             var comboCasosFiltrados = this.FindName("comboCasosFiltrados") as ComboBox;
@@ -349,7 +430,18 @@ namespace TFG_V0._01.Ventanas
 
             if (CasoSeleccionado != null)
             {
-                CargarDatosDelCaso(CasoSeleccionado.id);
+                // Asegurar que el calendario tenga seleccionada la fecha actual
+                var calendar = this.FindName("calendar") as CalendarControl;
+                if (calendar != null)
+                {
+                    calendar.SelectedDate = DateTime.Today;
+                    _fechaSeleccionada = DateTime.Today;
+                }
+
+                // Cargar datos del caso y eventos
+                await CargarDatosDelCaso(CasoSeleccionado.id);
+                await CargarEventosDelDia();
+
                 var contenidoCasos = this.FindName("ContenidoCasos") as UIElement;
                 var buscador = this.FindName("Buscador") as UIElement;
                 if (contenidoCasos != null) contenidoCasos.Visibility = Visibility.Visible;
@@ -669,65 +761,6 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
-        #region Rellenar Ventana CASOS
-        private async void CargarDatosDelCaso(int idCaso)
-        {
-            try
-            {
-                await _casosService.InicializarAsync();
-                var caso = await _casosService.ObtenerPorIdAsync(idCaso);
-
-                if (caso != null)
-                {
-                    // Eventos y citas
-                    var colores = new List<string>
-                    {
-                        "#FF5722", "#F4511E", "#E64A19", "#D84315",
-                        "#009688", "#26A69A", "#00796B", "#004D40",
-                        "#3F51B5", "#5C6BC0", "#3949AB", "#1A237E"
-                    };
-
-                    var eventos = new List<object>();
-                    if (caso.Alertas != null)
-                    {
-                        eventos = caso.Alertas
-                            .Select((a, i) => new
-                            {
-                                Titulo = a.titulo ?? "",
-                                FechaDia = a.fecha_alerta != null ? a.fecha_alerta.Day.ToString() : "",
-                                Descripcion = a.descripcion ?? "",
-                                Estado = a.estado_alerta != null ? a.estado_alerta.ToString() : "",
-                                Color = colores[i % colores.Count]
-                            })
-                            .Cast<object>()
-                            .ToList();
-                    }
-                    var eventosList = this.FindName("EventosList") as ListView;
-                    if (eventosList != null) eventosList.ItemsSource = eventos;
-
-                    // Notas (usando la descripción del caso)
-                    var notas = new List<string> { caso.descripcion };
-                    var notasList = this.FindName("NotasList") as ListBox;
-                    if (notasList != null) notasList.ItemsSource = notas;
-
-                    // Documentos
-                    var documentos = caso.Documentos?
-                        .Select(d => d.nombre)
-                        .ToList() ?? new List<string>();
-                    var documentosList = this.FindName("DocumentosList") as ListBox;
-                    if (documentosList != null) documentosList.ItemsSource = documentos;
-
-                    // Tareas
-                    await CargarTareasDelCaso(idCaso);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error al cargar los datos del caso: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-        #endregion
-
         #region Cargar Tareas
         private async Task CargarTareasDelCaso(int idCaso)
         {
@@ -858,18 +891,178 @@ namespace TFG_V0._01.Ventanas
                 combo.SelectedItem = null;
             }
         }
+
+        private async void Calendar_SelectedDatesChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (sender is CalendarControl calendar && calendar.SelectedDate.HasValue)
+            {
+                _fechaSeleccionada = calendar.SelectedDate.Value;
+                await CargarEventosDelDia();
+            }
+        }
+
+        private async Task CargarEventosDelDia()
+        {
+            try
+            {
+                if (CasoSeleccionado == null)
+                {
+                    return;
+                }
+
+                await _eventosCitasService.InicializarAsync();
+                await _estadosEventosService.InicializarAsync();
+
+                var eventos = await _eventosCitasService.ObtenerEventosCitas();
+                var estados = await _estadosEventosService.ObtenerEstadosEventos();
+
+                // Filtrar eventos por el caso seleccionado
+                eventos = eventos.Where(e => e.IdCaso == CasoSeleccionado.id).ToList();
+
+                // Actualizar el diccionario de días con evento y color
+                DiasConEventoColor.Clear();
+                var eventosPorDia = eventos
+                    .GroupBy(e => e.Fecha.Date)
+                    .ToDictionary(g => g.Key, g => ObtenerColorEstado(estados.FirstOrDefault(s => s.Id == g.First().IdEstado)?.Nombre));
+                foreach (var kv in eventosPorDia)
+                    DiasConEventoColor[kv.Key] = kv.Value;
+
+                var eventosDelDia = eventos
+                    .Where(e => e.Fecha.Date == _fechaSeleccionada.Date)
+                    .OrderBy(e => e.Fecha)
+                    .Select(e => new EventoViewModel
+                    {
+                        Id = e.Id,
+                        Titulo = e.Titulo,
+                        Descripcion = e.Descripcion,
+                        Fecha = e.Fecha,
+                        EstadoNombre = estados.FirstOrDefault(s => s.Id == e.IdEstado)?.Nombre ?? "Sin estado",
+                        EstadoColor = ObtenerColorEstado(estados.FirstOrDefault(s => s.Id == e.IdEstado)?.Nombre),
+                        FechaInicio = e.FechaInicio
+                    })
+                    .ToList();
+
+                var eventosList = this.FindName("EventosList") as System.Windows.Controls.ListView;
+                if (eventosList != null)
+                    eventosList.ItemsSource = eventosDelDia;
+                var tituloEventos = this.FindName("TituloEventos") as System.Windows.Controls.TextBlock;
+                if (tituloEventos != null)
+                    tituloEventos.Text = $"Eventos del {_fechaSeleccionada:dd/MM/yyyy}";
+                // Forzar refresco visual del calendario
+                var calendar = this.FindName("calendar") as CalendarControl;
+                if (calendar != null)
+                    calendar.InvalidateVisual();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar los eventos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private string ObtenerColorEstado(string estado)
+        {
+            string color = estado?.ToLower() switch
+            {
+                "finalizado" => "#F44336",   // Rojo
+                "programado" => "#FFA726",   // Naranja
+                "cancelado" => "#757575",    // Gris
+                _ => "#BDBDBD"
+            };
+            return color;
+        }
+
+        private async void AñadirEvento_Click(object sender, RoutedEventArgs e)
+        {
+            var estados = await ObtenerEstadosEventosAsync();
+            var ventana = new EditarEventoWindow(estados);
+            if (ventana.ShowDialog() == true)
+            {
+                var selectedTime = ventana.HoraMinuto ?? DateTime.Now;
+                var nuevoEvento = new EventoCita
+                {
+                    Titulo = ventana.TituloEvento,
+                    Descripcion = ventana.DescripcionEvento,
+                    FechaString = _fechaSeleccionada.ToString("yyyy-MM-dd"),
+                    FechaInicio = new TimeSpan(selectedTime.Hour, selectedTime.Minute, 0),
+                    IdEstado = ventana.EstadoSeleccionado.Id,
+                    IdCaso = CasoSeleccionado?.id ?? 0
+                };
+                await _eventosCitasService.InsertarEventoCita(nuevoEvento);
+                await CargarEventosDelDia();
+            }
+        }
+
+        private async void ModificarEvento_Click(object sender, RoutedEventArgs e)
+        {
+            if (EventosList.SelectedItem is EventoViewModel vm)
+            {
+                var evento = await _eventosCitasService.ObtenerEventoCita(vm.Id);
+                var estados = await ObtenerEstadosEventosAsync();
+                var ventana = new EditarEventoWindow(
+                    estados,
+                    evento.Titulo,
+                    evento.Descripcion,
+                    DateTime.Today.Add(evento.FechaInicio),
+                    evento.IdEstado
+                );
+                if (ventana.ShowDialog() == true)
+                {
+                    evento.Titulo = ventana.TituloEvento;
+                    evento.Descripcion = ventana.DescripcionEvento;
+                    
+                    // Get the selected time or use current time as fallback
+                    var selectedTime = ventana.HoraMinuto ?? DateTime.Now;
+                    
+                    // Create a TimeSpan with just the hours and minutes
+                    evento.FechaInicio = new TimeSpan(selectedTime.Hour, selectedTime.Minute, 0);
+                    
+                    evento.IdEstado = ventana.EstadoSeleccionado.Id;
+                    await _eventosCitasService.ActualizarEventoCita(evento);
+                    await CargarEventosDelDia();
+                }
+            }
+            else
+            {
+                MessageBox.Show("Selecciona un evento para modificar.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private async Task<List<EstadoEvento>> ObtenerEstadosEventosAsync()
+        {
+            var service = new SupabaseEstadosEventos();
+            return await service.ObtenerEstadosEventos();
+        }
+
+        // Exponer el diccionario para el XAML
+        public Dictionary<DateTime, string> GetDiasConEventoColor() => DiasConEventoColor;
+
+        private async void EliminarEvento_Click(object sender, RoutedEventArgs e)
+        {
+            if (EventosList.SelectedItem is EventoViewModel vm)
+            {
+                var result = MessageBox.Show("¿Seguro que quieres eliminar este evento?", "Confirmar", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                if (result == MessageBoxResult.Yes)
+                {
+                    await _eventosCitasService.EliminarEventoCita(vm.Id);
+                    await CargarEventosDelDia();
+                }
+            }
+            else
+            {
+                MessageBox.Show("Selecciona un evento para eliminar.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
     }
 
-    // Converter para usar en XAML
-    public class NullToVisibilityConverter : System.Windows.Data.IValueConverter
+    public class EventoViewModel
     {
-        public object Convert(object value, System.Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            return value == null ? System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible;
-        }
-        public object ConvertBack(object value, System.Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            throw new System.NotImplementedException();
-        }
+        public int Id { get; set; }
+        public string Titulo { get; set; }
+        public string Descripcion { get; set; }
+        public DateTime Fecha { get; set; }
+        public string EstadoNombre { get; set; }
+        public string EstadoColor { get; set; }
+        public TimeSpan? FechaInicio { get; set; }
+        public string HoraMinuto => FechaInicio.HasValue ? FechaInicio.Value.ToString(@"hh\:mm") : Fecha.ToString("HH:mm");
     }
 }

@@ -70,6 +70,7 @@
     <PackageReference Include="FontAwesome.WPF" Version="4.7.0.9" />
     <PackageReference Include="HtmlAgilityPack" Version="1.12.1" />
     <PackageReference Include="MaterialDesignColors" Version="5.2.1" />
+    <PackageReference Include="MaterialDesignThemes" Version="5.2.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.5" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.5" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3240.44" />
@@ -82,6 +83,15 @@
     <PackageReference Include="Supabase.Postgrest" Version="4.1.0" />
     <PackageReference Include="Supabase.Storage" Version="2.0.2" />
     <PackageReference Include="Supabase.Gotrue" Version="6.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="MaterialDesignThemes.Wpf">
+      <HintPath>packages\MaterialDesignThemes.5.2.1\lib\net462\MaterialDesignThemes.Wpf.dll</HintPath>
+    </Reference>
+    <Reference Include="MaterialDesignColors">
+      <HintPath>packages\MaterialDesignColors.5.2.1\lib\net462\MaterialDesignColors.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>

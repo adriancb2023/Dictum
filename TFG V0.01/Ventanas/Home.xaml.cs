@@ -173,6 +173,13 @@ namespace TFG_V0._01.Ventanas
             {
                 LoadingPanel.Visibility = Visibility.Visible;
                 CargarCasosActibosLocal();
+                CargarScoreCasosActivosLocal();
+                CargarClientes();
+                ScoreClientesNuevos();
+                CargarDocumentos();
+                ScoreDocumentosNuevos();
+                CargarTareasPendientes();
+                CargarTareasPendientesLista();
                 LoadingPanel.Visibility = Visibility.Collapsed;
             }
         }
@@ -531,10 +538,11 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
+
+
         #region ☁ SUPABASE 
 
         #region 📥 Cargar datos
-
         private async Task CargarDatosDashboard()
         {
             try
@@ -620,19 +628,44 @@ namespace TFG_V0._01.Ventanas
 
         private async void CheckBox_TareaFinalizada(object sender, RoutedEventArgs e)
         {
-            try
+            if (MainWindow.tipoBBDD)
             {
-                if (sender is CheckBox checkBox && checkBox.DataContext is SupabaseTarea tarea)
+                try
                 {
-                    tarea.estado = "Finalizado";
-                    var tareasService = new SupabaseTareas();
-                    await tareasService.InicializarAsync();
-                    await tareasService.ActualizarAsync(tarea);
+                    if (sender is CheckBox checkBox && checkBox.DataContext is SupabaseTarea tarea)
+                    {
+                        tarea.estado = "Finalizado";
+                        var tareasService = new SupabaseTareas();
+                        await tareasService.InicializarAsync();
+                        await tareasService.ActualizarAsync(tarea);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error al actualizar la tarea: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
-            catch (Exception ex)
+            else
             {
-                MessageBox.Show($"Error al actualizar la tarea: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                try
+                {
+                    if (sender is CheckBox checkBox && checkBox.DataContext is SupabaseTarea tarea)
+                    {
+                        using (var db = new TfgContext())
+                        {
+                            var tareaLocal = db.Tareas.FirstOrDefault(t => t.Id == tarea.id);
+                            if (tareaLocal != null)
+                            {
+                                tareaLocal.Estado = "Finalizado";
+                                await db.SaveChangesAsync();
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error al actualizar la tarea: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
 
@@ -846,12 +879,13 @@ namespace TFG_V0._01.Ventanas
         }
         */
         #endregion
-
         #endregion
+
+
 
         #region 💾 BBDD LOCAL
 
-        //cargar total de casos activos Local
+        #region 📥 cargar total de casos activos Local
         private void CargarCasosActibosLocal()
         {
             try
@@ -869,6 +903,179 @@ namespace TFG_V0._01.Ventanas
                 MessageBox.Show($"Error al cargar los casos activos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+        #endregion
+
+        #region 📥 ScoreCasosActivos 
+        private void CargarScoreCasosActivosLocal()
+        {
+            try
+            {
+                using (var db = new TfgContext())
+                {
+                    var casosActivos = db.Casos
+                        .Count(c => c.IdEstado == 1 || c.IdEstado == 2 || c.IdEstado == 4 || c.IdEstado == 5);
+                    scoreCasos.Text = casosActivos.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar el score de casos activos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        #endregion
+
+        #region 📥 Cargar Clientes totales
+        private void CargarClientes()
+        {
+            try
+            {
+                using (var db = new TfgContext())
+                {
+                    var clientes = db.Clientes.Count();
+                    txtClientCount.Text = clientes.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar los clientes: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        #endregion
+
+        #region 📥 Cargar Score Clientes Nuevos este mes
+        private void ScoreClientesNuevos()
+        {
+            try
+            {
+                using (var db = new TfgContext())
+                {
+                    // Convertir los límites a DateOnly
+                    var primerDiaMesActual = new DateOnly(DateTime.Now.Year, DateTime.Now.Month, 1);
+                    var primerDiaMesSiguiente = primerDiaMesActual.AddMonths(1);
+
+                    // Contar clientes cuyo contrato es de este mes
+                    int clientesNuevos = db.Clientes
+                        .Count(c => c.FechaContrato >= primerDiaMesActual && c.FechaContrato < primerDiaMesSiguiente);
+
+                    if (txtClientCountChange != null)
+                        txtClientCountChange.Text = $"+{clientesNuevos}";
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar el score de clientes nuevos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        #endregion
+
+        #region 📥 Cargar Todos los documentos
+        private void CargarDocumentos()
+        {
+            try
+            {
+                using (var db = new TfgContext())
+                {
+                    var documentos = db.Documentos.Count();
+                    DocTotales.Text = documentos.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar los documentos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        #endregion
+
+        #region 📥 Cargar Score Documentos Nuevos
+        private void ScoreDocumentosNuevos()
+        {
+            try
+            {
+                using (var db = new TfgContext())
+                {
+                    var hoy = DateOnly.FromDateTime(DateTime.Now);
+                    var documentosNuevos = db.Documentos
+                        .Count(d => d.FechaSubid == hoy);
+                    scoreDocumentos.Text = $"+{documentosNuevos}";
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar el score de documentos nuevos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        #endregion
+
+        #region 📥 Tareas pendientes para hoy
+        private void CargarTareasPendientes()
+        {
+            try
+            {
+                using (var db = new TfgContext())
+                {
+                    var hoy = DateOnly.FromDateTime(DateTime.Now);
+                    var tareasPendientes = db.Tareas
+                        .Count(t => t.FechaFin == hoy && t.Estado != "Finalizado");
+                    ProxEventos.Text = tareasPendientes.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar las tareas pendientes: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        #endregion
+
+        #region 📥 Cargar lista de tareas pendientes
+        private void CargarTareasPendientesLista()
+        {
+            try
+            {
+                using (var db = new TfgContext())
+                {
+                    var tareasPendientes = db.Tareas
+                        .Where(t => t.Estado != "Finalizado")
+                        .OrderBy(t => t.FechaFin)
+                        .ToList();
+
+                    TareasPendientesLista.Clear();
+                    foreach (var tarea in tareasPendientes)
+                    {
+                        // Si SupabaseTarea y la entidad local Tarea no son iguales, mapea los campos necesarios
+                        TareasPendientesLista.Add(new SupabaseTarea
+                        {
+                            id = tarea.Id,
+                            titulo = tarea.Titulo,
+                            descripcion = tarea.Descripcion,
+                            fecha_fin = tarea.FechaFin.ToDateTime(TimeOnly.MinValue),
+                            estado = tarea.Estado
+                            // Añade aquí otros campos si es necesario
+                        });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar la lista de tareas pendientes: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        #endregion
+
+        #region 📥 Cargar casos recientes 
+        
+
+        #endregion
+        #endregion
+
+
+
+
+        #region 🐞 Resvisiones Bugs 
+        //revisar funcion CheckBox_TareaFinalizada => no funciona al 100% en local.
+
         #endregion
     }
 }

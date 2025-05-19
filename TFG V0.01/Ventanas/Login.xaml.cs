@@ -6,6 +6,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using TFG_V0._01.Supabase;
+using TFG_V0._01.Ventanas.SubVentanas;
 using WpfBrushes = System.Windows.Media.Brushes;
 using WpfImage = System.Windows.Controls.Image;
 
@@ -135,14 +136,23 @@ namespace TFG_V0._01.Ventanas
                 var resultado = await _authService.SignInAsync(email, password);
                 Mouse.OverrideCursor = null;
 
-                var successAnim = CrearFadeAnimation(1, 0, 0.3);
-                successAnim.Completed += (s, args) =>
+                if (resultado.User != null && resultado.User.Email == "root@root.com")
                 {
-                    var home = new Home();
-                    home.Show();
+                    var eleccionBBDD = new EleccionBBDD();
+                    eleccionBBDD.Show();
                     this.Close();
-                };
-                this.BeginAnimation(OpacityProperty, successAnim);
+                }
+                else
+                {
+                    var fadeOut = CrearFadeAnimation(1, 0, 0.3);
+                    fadeOut.Completed += (s, args) =>
+                    {
+                        var home = new Home();
+                        home.Show();
+                        this.Close();
+                    };
+                    this.BeginAnimation(OpacityProperty, fadeOut);
+                }
             }
             catch
             {
@@ -192,14 +202,23 @@ namespace TFG_V0._01.Ventanas
                 var resultado = await _authService.SignInAsync(email, password);
                 Mouse.OverrideCursor = null;
 
-                var fadeOut = CrearFadeAnimation(1, 0, 0.3);
-                fadeOut.Completed += (s, args) =>
+                if (resultado.User != null && resultado.User.Email == "root@root.com")
                 {
-                    var home = new Home();
-                    home.Show();
+                    var eleccionBBDD = new EleccionBBDD();
+                    eleccionBBDD.Show();
                     this.Close();
-                };
-                this.BeginAnimation(OpacityProperty, fadeOut);
+                }
+                else
+                {
+                    var fadeOut = CrearFadeAnimation(1, 0, 0.3);
+                    fadeOut.Completed += (s, args) =>
+                    {
+                        var home = new Home();
+                        home.Show();
+                        this.Close();
+                    };
+                    this.BeginAnimation(OpacityProperty, fadeOut);
+                }
             }
             catch (Exception ex)
             {

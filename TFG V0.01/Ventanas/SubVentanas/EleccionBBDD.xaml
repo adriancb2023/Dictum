@@ -1,0 +1,139 @@
+﻿<Window x:Class="TFG_V0._01.Ventanas.SubVentanas.EleccionBBDD"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TFG_V0._01.Ventanas.SubVentanas"
+        mc:Ignorable="d"
+        Title="EleccionBBDD" Height="350" Width="600"
+        WindowStartupLocation="CenterScreen">
+
+    <Window.Resources>
+        <!-- Estilo para Toggle Switch -->
+        <Style x:Key="ToggleSwitchStyle" TargetType="CheckBox">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <Grid>
+                            <Border Width="40" Height="20" Background="#666" CornerRadius="10">
+                                <Border x:Name="Switch" Width="18" Height="18" Background="White" CornerRadius="9"
+                                HorizontalAlignment="Left" Margin="1,0,0,0"/>
+                            </Border>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Switch" Property="HorizontalAlignment" Value="Right"/>
+                                <Setter TargetName="Switch" Property="Margin" Value="0,0,1,0"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="ModernDetailsButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#007ACC"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,0,0,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                            VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#005999"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#004C80"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <!-- Estilo de tarjeta -->
+        <Style x:Key="CardStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="20"/>
+            <Setter Property="Background">
+                <Setter.Value>
+                    <SolidColorBrush x:Name="colortarjeta" Color="#454545" Opacity="0.4"/>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="BorderBrush" Value="#333" />
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="15"/>
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="Black" BlurRadius="15" ShadowDepth="2" Opacity="0.3"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <!-- Estilo para el botón de cambio de tema -->
+        <Style x:Key="ThemeButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="20">
+                            <Image x:Name="ThemeIcon" Source="/TFG V0.01;component/Recursos/Iconos/sol.png" Width="20" Height="20"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Opacity" Value="0.8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.Background>
+            <ImageBrush x:Name="backgroundFondo" ImageSource="/TFG V0.01;component/Recursos/Background/oscuro/main.png"/>
+        </Grid.Background>
+
+        <!-- Claro/Oscuro  -->
+        <Button x:Name="ThemeButton" Width="35" Height="35" Margin="0" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="ThemeButton_Click" Style="{StaticResource ThemeButtonStyle}" Grid.Column="2"/>
+
+
+        <Border Style="{StaticResource CardStyle}" CornerRadius="12" Padding="20" Margin="25">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="10" ShadowDepth="1" Color="#11000000"/>
+            </Border.Effect>
+            <StackPanel>
+                <TextBlock x:Name="txtSeleccionBBDD" Text="Selecciona el tipo de Base de Datos" FontSize="22" FontWeight="Bold" Foreground="#CCFFFFFF" Margin="0,20,0,10" HorizontalAlignment="Center"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,15">
+                    <TextBlock x:Name="txtInfoSeleccion" Text="La base de datos seleccionada anteriormente está marcada con un icono " FontSize="12" Foreground="White" VerticalAlignment="Center"/>
+                    <Ellipse Width="7" Height="7" Fill="#EA33F7" StrokeThickness="1" VerticalAlignment="Center" Margin="0,3,0,0"/>
+                </StackPanel>
+                <!-- Campos de edición -->
+                <Grid Margin="0,30,0,30" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
+                        <Image x:Name="local" Source="/TFG V0.01;component/Recursos/Iconos/local.png" Width="20" Height="20"/>
+                        <TextBlock x:Name="txtLocal" Text="Local" Foreground="White" VerticalAlignment="Center" Margin="5,0,10,0"/>
+                        <CheckBox x:Name="BBDD" Style="{StaticResource ToggleSwitchStyle}" Margin="0,0,10,0" VerticalAlignment="Center" />
+                        <TextBlock x:Name="txtNube" Text="Nube" Foreground="White" VerticalAlignment="Center" Margin="10,0,5,0"/>
+                        <Image x:Name="supa" Source="/TFG V0.01;component/Recursos/Iconos/cloud.png" Width="20" Height="20"/>
+                    </StackPanel>
+                </Grid>
+                <!-- Botones -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,28,0,0" VerticalAlignment="Bottom" >
+                    <Button x:Name="btnAceptar" Content="Aceptar" Style="{StaticResource ModernDetailsButtonStyle}" Width="100" Margin="0,0,0,0" Click="iniciarModoAmind"  />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

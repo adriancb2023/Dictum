@@ -263,7 +263,7 @@
                                 </Grid.RowDefinitions>
                                 <TextBlock x:Name="resumenDocumentos" Text="Documentos" FontSize="14" Foreground="#CCFFFFFF" Grid.Row="0"/>
                                 <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,15,0,0">
-                                    <TextBlock Text="{Binding Documentos}" FontSize="36" FontWeight="Bold" Foreground="White"/>
+                                    <TextBlock x:Name="DocTotales" Text="{Binding Documentos}" FontSize="36" FontWeight="Bold" Foreground="White"/>
                                     <Border Background="#FF9800" CornerRadius="5" Padding="5,2" Margin="15,10,0,0" VerticalAlignment="Top">
                                         <TextBlock x:Name="scoreDocumentos" Text="-" FontSize="12" Foreground="White"/>
                                     </Border>
@@ -526,7 +526,7 @@
 
                                 <!-- Cases List with Scroll -->
                                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" MaxHeight="300" >
-                                    <ItemsControl ItemsSource="{Binding CasosRecientesLista}">
+                                    <ItemsControl x:Name="co" ItemsSource="{Binding CasosRecientesLista}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
                                                 <Border Background="#30FFFFFF" CornerRadius="10" Padding="10" Margin="0,0,0,10">

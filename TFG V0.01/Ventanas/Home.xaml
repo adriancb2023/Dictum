@@ -165,7 +165,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="0.10*"/>
             </Grid.RowDefinitions>
 
             <!-- Pantalla Carga -->
@@ -188,18 +188,20 @@
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                     <Border Background="#30FFFFFF" CornerRadius="20" Padding="15,8" Margin="0,0,15,0">
                         <StackPanel Orientation="Horizontal">
-                            <Image Source="/TFG V0.01;component/Recursos/Iconos/addcaso.png" Width="20" Height="20"/>
+                            <Image Source="/TFG V0.01;component/Recursos/Iconos/home.png" Width="20" Height="20"/>
+                            <TextBlock Text="5" Foreground="White" Margin="8,0,0,0" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Border>
                     <Border Background="#30FFFFFF" CornerRadius="20" Padding="15,8">
                         <StackPanel Orientation="Horizontal">
-                            <Image Source="/TFG V0.01;component/Recursos/Iconos/addcliente.png" Width="20" Height="20"/>
+                            <Image Source="/TFG V0.01;component/Recursos/Iconos/clientes.png" Width="20" Height="20"/>
+                            <TextBlock Text="Perfil" Foreground="White" Margin="8,0,0,0" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Border>
                 </StackPanel>
             </Grid>
 
-            <!-- Dashboar -->
+            <!-- Dashboard -->
             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                 <Grid>
 
@@ -278,7 +280,7 @@
                                 </Grid.RowDefinitions>
                                 <TextBlock x:Name="resumenEventos" Text="Eventos Próximos" FontSize="14" Foreground="#CCFFFFFF" Grid.Row="0"/>
                                 <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,15,0,0">
-                                    <TextBlock x:Name="ProxEventos" Text="-" FontSize="36" FontWeight="Bold" Foreground="White"/>
+                                    <TextBlock x:Name="ProxEventos" Text="{Binding EventosProximos}" FontSize="36" FontWeight="Bold" Foreground="White"/>
                                     <Border Background="#E91E63" CornerRadius="5" Padding="5,2" Margin="15,10,0,0" VerticalAlignment="Top">
                                         <TextBlock x:Name="hoy" Text="Hoy" FontSize="12" Foreground="White"/>
                                     </Border>
@@ -325,8 +327,7 @@
 
                                 </Grid>
 
-                                <Grid Grid.Row="1" Margin="0,15,0,0"  VerticalAlignment="Stretch">
-                                    
+                                <Grid Grid.Row="1" Margin="0,15,0,0">
                                     <!-- Simplified Calendar View -->
                                     <Grid>
                                         <Grid.RowDefinitions>
@@ -355,7 +356,7 @@
                                         </Grid>
 
                                         <!-- Calendar Events -->
-                                        <Grid Grid.Row="1" Margin="0,10,0,0" Visibility="Collapsed">
+                                        <Grid Grid.Row="1" Margin="0,10,0,0">
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="Auto"/>
                                                 <RowDefinition Height="Auto"/>
@@ -416,11 +417,6 @@
                                                 </Grid>
                                             </Border>
                                         </Grid>
-                                        
-                                        <!-- Eventos con Scroll LOCAL -->
-                                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,0,0,0" MaxHeight="600" x:Name="ContenedorEventos">
-                                            <StackPanel x:Name="PanelEventos" Margin="0,3,10,0"/>
-                                        </ScrollViewer>
                                     </Grid>
                                 </Grid>
                             </Grid>
@@ -437,7 +433,7 @@
 
                                 <TextBlock x:Name="listaTareas" Grid.Row="0" Text="Tareas Pendientes" FontSize="16" FontWeight="SemiBold" Foreground="White"/>
 
-                                <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="1" Margin="0,15,0,0"  MaxHeight="600">
+                                <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="1" Margin="0,15,0,0"  MaxHeight="535">
                                     <ItemsControl ItemsSource="{Binding TareasPendientesLista}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
@@ -506,7 +502,7 @@
                                 <Button x:Name="btnVerTodosCasos" Grid.Column="1" Content="Ver Todos" Style="{StaticResource RoundedButtonStyle}" Background="#30FFFFFF" Click="VerTodosCasos_Click"/>
                             </Grid>
 
-                            <Grid Grid.Row="1" Margin="0,0,0,0">
+                            <Grid Grid.Row="1" Margin="0,15,0,0">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="*"/>
@@ -529,7 +525,7 @@
                                 </Grid>
 
                                 <!-- Cases List with Scroll -->
-                                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" MaxHeight="300" Visibility="Collapsed">
+                                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" MaxHeight="300" >
                                     <ItemsControl x:Name="co" ItemsSource="{Binding CasosRecientesLista}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
@@ -563,10 +559,6 @@
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
-                                </ScrollViewer>
-
-                                <ScrollViewer Grid.Row="1" Margin="0" Background="#30FFFFFF" VerticalScrollBarVisibility="Auto" MaxHeight="118">
-                                    <StackPanel x:Name="CasosContainer" />
                                 </ScrollViewer>
                             </Grid>
                         </Grid>

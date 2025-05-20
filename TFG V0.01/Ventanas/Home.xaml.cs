@@ -13,8 +13,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System;
 using System.Windows.Documents;
-using TFG.Models;
-using TFG.Supabase;
 
 namespace TFG_V0._01.Ventanas
 {
@@ -29,7 +27,6 @@ namespace TFG_V0._01.Ventanas
         private readonly SupabaseAutentificacion _authService;
         private readonly SupabaseClientes _clientesService;
         private readonly SupabaseCasos _supabaseCasos;
-        private readonly SupabaseEventosCitas _eventosCitasService;
         private int _clientCount;
         private int _previousClientCount;
         private string _clientCountChange;
@@ -37,9 +34,7 @@ namespace TFG_V0._01.Ventanas
         private int _documentos;
         private int _tareasPendientes;
         private int _casosRecientes;
-        private int _eventosProximos;
         public ObservableCollection<Tarea> TareasPendientesLista { get; set; } = new ObservableCollection<Tarea>();
-        public ObservableCollection<EventoCita> EventosProximosLista { get; set; } = new ObservableCollection<EventoCita>();
         public ObservableCollection<string> EstadosDisponibles { get; set; } = new ObservableCollection<string> { "Pendiente", "En progreso", "Finalizado" };
         private ObservableCollection<CasoViewModel> _casosRecientesLista;
         public ObservableCollection<CasoViewModel> CasosRecientesLista
@@ -104,12 +99,6 @@ namespace TFG_V0._01.Ventanas
             set { _casosRecientes = value; OnPropertyChanged(); }
         }
 
-        public int EventosProximos
-        {
-            get => _eventosProximos;
-            set { _eventosProximos = value; OnPropertyChanged(); }
-        }
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -143,7 +132,6 @@ namespace TFG_V0._01.Ventanas
             _authService = new SupabaseAutentificacion();
             _clientesService = new SupabaseClientes();
             _supabaseCasos = new SupabaseCasos();
-            _eventosCitasService = new SupabaseEventosCitas();
             CasosRecientesLista = new ObservableCollection<CasoViewModel>();
 
 
@@ -154,7 +142,6 @@ namespace TFG_V0._01.Ventanas
             Documentos = 0;
             TareasPendientes = 0;
             CasosRecientes = 0;
-            EventosProximos = 0;
             mesText = string.Empty;
             anio = string.Empty;
 
@@ -399,14 +386,12 @@ namespace TFG_V0._01.Ventanas
                 var tareasInitTask = tareasService.InicializarAsync();
                 var recienteService = new SupabaseReciente();
                 var recienteInitTask = recienteService.InicializarAsync();
-                var eventosCitasInitTask = _eventosCitasService.InicializarAsync();
 
-                await Task.WhenAll(documentosInitTask, tareasInitTask, recienteInitTask, eventosCitasInitTask);
+                await Task.WhenAll(documentosInitTask, tareasInitTask, recienteInitTask);
 
                 var documentosTask = documentosService.ObtenerTodosAsync();
                 var tareasTask = tareasService.ObtenerTodosAsync();
                 var recientesTask = recienteService.ObtenerTodosAsync();
-                var eventosCitasTask = _eventosCitasService.ObtenerEventosCitas();
 
                 var clientes = await clientesTask;
                 ClientCount = clientes?.Count ?? 0;
@@ -421,7 +406,7 @@ namespace TFG_V0._01.Ventanas
 
                 var tareas = await tareasTask;
                 var tareasPendientes = tareas.Where(t => t.estado != "Finalizado").ToList();
-                TareasPendientes = tareasPendientes.Count();
+                TareasPendientes = tareasPendientes.Count;
 
                 TareasPendientesLista.Clear();
                 foreach (var tarea in tareasPendientes)
@@ -456,20 +441,6 @@ namespace TFG_V0._01.Ventanas
                     }
                 }
                 CasosRecientes = CasosRecientesLista.Count;
-
-                // Cargar eventos próximos
-                var eventosCitas = await eventosCitasTask;
-                var eventosProximos = eventosCitas
-                    .Where(e => e.Fecha.Date >= DateTime.Now.Date && e.Fecha.Date <= DateTime.Now.Date.AddDays(28))
-                    .Count();
-                
-                EventosProximos = eventosProximos;
-                OnPropertyChanged(nameof(EventosProximos));
-
-                if (ProxEventos != null)
-                {
-                    ProxEventos.Text = EventosProximos.ToString();
-                }
             }
             catch (Exception ex)
             {

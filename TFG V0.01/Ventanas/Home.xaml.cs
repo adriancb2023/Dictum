@@ -13,15 +13,10 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System;
 using System.Windows.Documents;
-<<<<<<< HEAD
-using TFG.Models;
-using TFG.Supabase;
-=======
 using TFG_V0._01.BBDDLocal;
 using Polly;
-using SupabaseTarea = TFG_V0._01.Supabase.Models.Tarea; // Alias para evitar ambigüedad
-using SupabaseCaso = TFG_V0._01.Supabase.Models.Caso;   // Alias para evitar ambigüedad
->>>>>>> parent of 5461466 (cambios)
+using TFG.Models;
+using TFG.Supabase;
 
 namespace TFG_V0._01.Ventanas
 {
@@ -45,7 +40,7 @@ namespace TFG_V0._01.Ventanas
         private int _tareasPendientes;
         private int _casosRecientes;
         private int _eventosProximos;
-        public ObservableCollection<Tarea> TareasPendientesLista { get; set; } = new ObservableCollection<Tarea>();
+        public ObservableCollection<dynamic> TareasPendientesLista { get; set; } = new ObservableCollection<dynamic>();
         public ObservableCollection<EventoCita> EventosProximosLista { get; set; } = new ObservableCollection<EventoCita>();
         public ObservableCollection<string> EstadosDisponibles { get; set; } = new ObservableCollection<string> { "Pendiente", "En progreso", "Finalizado" };
         private ObservableCollection<CasoViewModel> _casosRecientesLista;
@@ -139,7 +134,6 @@ namespace TFG_V0._01.Ventanas
             DataContext = this;
 
             CargarIdioma(MainWindow.idioma);
-            //CargarIdiomaNavbar(MainWindow.idioma);
 
             diaSemana();
 
@@ -152,7 +146,6 @@ namespace TFG_V0._01.Ventanas
             _supabaseCasos = new SupabaseCasos();
             _eventosCitasService = new SupabaseEventosCitas();
             CasosRecientesLista = new ObservableCollection<CasoViewModel>();
-
 
             // Inicializar valores
             ClientCount = 0;
@@ -169,23 +162,12 @@ namespace TFG_V0._01.Ventanas
             {
                 inicio, buscar, documentos, clientes, casos, agenda, ajustes
             };
-
-            // Cargar datos después de que la ventana esté completamente inicializada
-            //this.Loaded += async (s, e) => { await CargarDatosDashboard(); CargarScoreCasos(); CargarCasosRecientes(); };
         }
         #endregion
 
         #region ⌛ Patalla de carga
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
-<<<<<<< HEAD
-            LoadingPanel.Visibility = Visibility.Visible;
-            CargarDatosDashboard();
-            CargarScoreCasos();
-            CargarCasosRecientes();
-            CargarScoreDocumentos();
-            LoadingPanel.Visibility = Visibility.Collapsed;
-=======
             if (MainWindow.tipoBBDD)
             {
                 LoadingPanel.Visibility = Visibility.Visible;
@@ -193,6 +175,7 @@ namespace TFG_V0._01.Ventanas
                 CargarScoreCasos();
                 CargarCasosRecientes();
                 CargarScoreDocumentos();
+                await CargarTareasPendientesListaSupabase();
                 LoadingPanel.Visibility = Visibility.Collapsed;
             }
             else
@@ -205,10 +188,9 @@ namespace TFG_V0._01.Ventanas
                 CargarDocumentos();
                 ScoreDocumentosNuevos();
                 CargarTareasPendientes();
-                CargarTareasPendientesLista();
+                CargarTareasPendientesListaLocal();
                 LoadingPanel.Visibility = Visibility.Collapsed;
             }
->>>>>>> parent of 5461466 (cambios)
         }
         #endregion
 
@@ -414,8 +396,388 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
-<<<<<<< HEAD
-=======
+        #region 📥 Cargar datos
+
+        private async Task CargarDatosDashboard()
+        {
+            try
+            {
+                // Cargar clientes y actualizar contador
+                var clientesTask = _clientesService.ObtenerClientesAsync();
+
+                // Cargar casos, documentos y tareas en paralelo
+                var casosTask = _supabaseCasos.ObtenerTodosAsync();
+                var documentosService = new SupabaseDocumentos();
+                var documentosInitTask = documentosService.InicializarAsync();
+                var tareasService = new SupabaseTareas();
+                var tareasInitTask = tareasService.InicializarAsync();
+                var recienteService = new SupabaseReciente();
+                var recienteInitTask = recienteService.InicializarAsync();
+                var eventosCitasInitTask = _eventosCitasService.InicializarAsync();
+
+                await Task.WhenAll(documentosInitTask, tareasInitTask, recienteInitTask, eventosCitasInitTask);
+
+                var documentosTask = documentosService.ObtenerTodosAsync();
+                var tareasTask = tareasService.ObtenerTodosAsync();
+                var recientesTask = recienteService.ObtenerTodosAsync();
+                var eventosCitasTask = _eventosCitasService.ObtenerEventosCitas();
+
+                var clientes = await clientesTask;
+                ClientCount = clientes?.Count ?? 0;
+                _previousClientCount = 0;
+                UpdateClientCountChange();
+
+                var casos = await casosTask;
+                CasosActivos = casos?.Count ?? 0;
+
+                var documentos = await documentosTask;
+                Documentos = documentos?.Count ?? 0;
+
+                var tareas = await tareasTask;
+                var tareasPendientes = tareas.Where(t => t.estado != "Finalizado").ToList();
+                TareasPendientes = tareasPendientes.Count();
+
+                TareasPendientesLista.Clear();
+                foreach (var tarea in tareasPendientes)
+                    TareasPendientesLista.Add(tarea);
+
+                var recientes = await recientesTask;
+                CasosRecientesLista.Clear();
+                var fechaLimite = DateTime.Now.Date.AddDays(-28);
+
+                // Cargar casos recientes en paralelo
+                var casosRecientes = await Task.WhenAll(
+                    recientes.Select(async reciente =>
+                    {
+                        var caso = await _supabaseCasos.ObtenerPorIdAsync(reciente.id_caso);
+                        return (caso, reciente);
+                    })
+                );
+
+                foreach (var (caso, _) in casosRecientes)
+                {
+                    if (caso != null && caso.fecha_inicio.Date >= fechaLimite)
+                    {
+                        CasosRecientesLista.Add(new CasoViewModel
+                        {
+                            id = caso.id,
+                            referencia = caso.referencia,
+                            nombre_cliente = caso.nombre_cliente,
+                            tipo_nombre = caso.tipo_nombre,
+                            estado = caso.estado_nombre,
+                            estado_color = ObtenerColorEstadoCaso(caso.estado_nombre)
+                        });
+                    }
+                }
+                CasosRecientes = CasosRecientesLista.Count;
+
+                // Cargar eventos próximos
+                var eventosCitas = await eventosCitasTask;
+                var eventosProximos = eventosCitas
+                    .Where(e => e.Fecha.Date >= DateTime.Now.Date && e.Fecha.Date <= DateTime.Now.Date.AddDays(28))
+                    .Count();
+                
+                EventosProximos = eventosProximos;
+                OnPropertyChanged(nameof(EventosProximos));
+
+                if (ProxEventos != null)
+                {
+                    ProxEventos.Text = EventosProximos.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar los datos del dashboard: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void UpdateClientCountChange()
+        {
+            int change = ClientCount - _previousClientCount;
+            ClientCountChange = change > 0 ? $"+{change}" : change < 0 ? change.ToString() : "+0";
+        }
+
+        private async void CheckBox_TareaFinalizada(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (sender is CheckBox checkBox && checkBox.DataContext != null)
+                {
+                    if (MainWindow.tipoBBDD)
+                    {
+                        // Lógica para Supabase
+                        var tarea = checkBox.DataContext as TFG_V0._01.Supabase.Models.Tarea;
+                        if (tarea != null)
+                        {
+                            tarea.estado = "Finalizado";
+                            var tareasService = new SupabaseTareas();
+                            await tareasService.InicializarAsync();
+                            await tareasService.ActualizarAsync(tarea);
+                        }
+                    }
+                    else
+                    {
+                        // Lógica para base local
+                        var tarea = checkBox.DataContext as TFG_V0._01.BBDDLocal.Tarea;
+                        if (tarea != null)
+                        {
+                            using var db = new TfgContext();
+                            var tareaLocal = db.Tareas.Find(tarea.Id);
+                            if (tareaLocal != null)
+                            {
+                                tareaLocal.Estado = "Finalizado";
+                                db.SaveChanges();
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al actualizar la tarea: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async void ComboBox_EstadoChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (sender is ComboBox comboBox && comboBox.DataContext != null)
+            {
+                var nuevoEstado = comboBox.SelectedItem as string;
+                if (!string.IsNullOrEmpty(nuevoEstado))
+                {
+                    if (MainWindow.tipoBBDD)
+                    {
+                        // Lógica para Supabase
+                        var tarea = comboBox.DataContext as TFG_V0._01.Supabase.Models.Tarea;
+                        if (tarea != null && tarea.estado != nuevoEstado)
+                        {
+                            tarea.estado = nuevoEstado;
+                            var tareasService = new SupabaseTareas();
+                            await tareasService.InicializarAsync();
+                            await tareasService.ActualizarAsync(tarea);
+
+                            if (nuevoEstado == "Finalizado")
+                            {
+                                TareasPendientesLista.Remove(tarea);
+                                TareasPendientes = TareasPendientesLista.Count;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // Lógica para base local
+                        var tarea = comboBox.DataContext as TFG_V0._01.BBDDLocal.Tarea;
+                        if (tarea != null && tarea.Estado != nuevoEstado)
+                        {
+                            using var db = new TfgContext();
+                            var tareaLocal = db.Tareas.Find(tarea.Id);
+                            if (tareaLocal != null)
+                            {
+                                tareaLocal.Estado = nuevoEstado;
+                                db.SaveChanges();
+
+                                if (nuevoEstado == "Finalizado")
+                                {
+                                    TareasPendientesLista.Remove(tarea);
+                                    TareasPendientes = TareasPendientesLista.Count;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private async void CargarCasosRecientes()
+        {
+            try
+            {
+                await _supabaseCasos.InicializarAsync();
+                var casos = await _supabaseCasos.ObtenerTodosAsync();
+
+                var fechaLimite = DateTime.Now.Date.AddDays(-3);
+
+                var casosRecientes = casos
+                    .Where(c => c.fecha_inicio.Date >= fechaLimite)
+                    .GroupBy(c => c.id)
+                    .Select(g => g.First())
+                    .OrderByDescending(c => c.fecha_inicio)
+                    .ToList();
+
+                CasosRecientesLista.Clear();
+                foreach (var caso in casosRecientes)
+                {
+                    CasosRecientesLista.Add(new CasoViewModel
+                    {
+                        id = caso.id,
+                        referencia = caso.referencia,
+                        nombre_cliente = caso.nombre_cliente,
+                        tipo_nombre = caso.tipo_nombre,
+                        estado = caso.estado_nombre,
+                        estado_color = ObtenerColorEstadoCaso(caso.estado_nombre)
+                    });
+                }
+                CasosRecientes = CasosRecientesLista.Count;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar los casos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private string ObtenerColorEstado(string estado) => estado.ToLower() switch
+        {
+            "activo" => "#4CAF50",
+            "en proceso" => "#FF9800",
+            "finalizado" => "#F44336",
+            _ => "#757575"
+        };
+
+        private string ObtenerColorEstadoCaso(string estado)
+        {
+            return estado.ToLower() switch
+            {
+                "abierto" => "#43A047",
+                "en proceso" => "#1976D2",
+                "cerrado" => "#D32F2F",
+                "pendiente" => "#FFB300",
+                "revisado" => "#5C6BC0",
+                _ => "#BDBDBD"
+            };
+        }
+
+        private void VerTodosCasos_Click(object sender, RoutedEventArgs e)
+        {
+            // Implementar navegación a la vista completa de casos
+        }
+
+        private void EditarCaso_Click(object sender, RoutedEventArgs e)
+        {
+            var button = (Button)sender;
+            var caso = (CasoViewModel)button.DataContext;
+            // Implementar lógica de edición
+        }
+
+        private async void EliminarCaso_Click(object sender, RoutedEventArgs e)
+        {
+            var button = (Button)sender;
+            var caso = (CasoViewModel)button.DataContext;
+
+            var result = MessageBox.Show(
+                $"¿Está seguro que desea eliminar el caso {caso.referencia}?",
+                "Confirmar eliminación",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    await _supabaseCasos.EliminarAsync(caso.id);
+                    CasosRecientesLista.Remove(caso);
+                    CasosRecientes = CasosRecientesLista.Count;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error al eliminar el caso: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+        #endregion
+
+        #region 📥 ScoreCasos
+        private async void CargarScoreCasos()
+        {
+            try
+            {
+                await _supabaseCasos.InicializarAsync();
+                var todos = await _supabaseCasos.ObtenerTodosAsync();
+
+                var primerDiaMesActual = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                var primerDiaMesAnterior = primerDiaMesActual.AddMonths(-1);
+                var primerDiaMesSiguiente = primerDiaMesActual.AddMonths(1);
+
+                int casosMesAnterior = todos
+                    .Where(c => (c.estado_nombre.Equals("abierto", StringComparison.OrdinalIgnoreCase) ||
+                               c.estado_nombre.Equals("en proceso", StringComparison.OrdinalIgnoreCase)) &&
+                               c.fecha_inicio >= primerDiaMesAnterior && c.fecha_inicio < primerDiaMesActual)
+                    .Count();
+
+                int casosMesActual = todos
+                    .Where(c => (c.estado_nombre.Equals("abierto", StringComparison.OrdinalIgnoreCase) ||
+                               c.estado_nombre.Equals("en proceso", StringComparison.OrdinalIgnoreCase)) &&
+                               c.fecha_inicio >= primerDiaMesActual && c.fecha_inicio < primerDiaMesSiguiente)
+                    .Count();
+
+                int diferencia = casosMesActual - casosMesAnterior;
+
+                if (scoreCasos != null)
+                {
+                    if (diferencia > 0)
+                        scoreCasos.Text = $"+{diferencia}";
+                    else
+                        scoreCasos.Text = diferencia.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al calcular el score de casos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        #endregion
+
+        #region 📥 ScoreDocumentos
+        private async void CargarScoreDocumentos()
+        {
+            try
+            {
+                var documentosService = new SupabaseDocumentos();
+                await documentosService.InicializarAsync();
+                var documentos = await documentosService.ObtenerTodosAsync();
+
+                var ayer = DateTime.Now.Date.AddDays(-1);
+
+                int documentosNuevos = documentos.Count(d => d.fecha_subid.Date == ayer);
+
+                if (scoreDocumentos != null)
+                {
+                    scoreDocumentos.Text = $"+{documentosNuevos}";
+                }
+                else
+                {
+                    scoreDocumentos.Text = $"0";
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al calcular el score de documentos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        #endregion
+
+        #region 📥 Proximos eventos
+        /*
+        private async void CargarProximosEventos()
+        {
+            try
+            {
+                var eventosService = new SupabaseEventos();
+                await eventosService.InicializarAsync();
+                var eventos = await eventosService.ObtenerTodosAsync();
+                var proximosEventos = eventos
+                    .Where(e => e.fecha_evento.Date >= DateTime.Now.Date)
+                    .OrderBy(e => e.fecha_evento)
+                    .ToList();
+                // Aquí puedes mostrar los próximos eventos en la interfaz de usuario
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar los próximos eventos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        */
+        #endregion
+
         #region 📅 Dia Actual
         private void diaSemana()
         {
@@ -567,605 +929,127 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
-
-
-        #region ☁ SUPABASE 
-
->>>>>>> parent of 5461466 (cambios)
-        #region 📥 Cargar datos
-
-        private async Task CargarDatosDashboard()
+        #region 📥 Métodos para BBDD Local
+        private void CargarCasosActibosLocal()
         {
             try
             {
-                // Cargar clientes y actualizar contador
-                var clientesTask = _clientesService.ObtenerClientesAsync();
-
-                // Cargar casos, documentos y tareas en paralelo
-                var casosTask = _supabaseCasos.ObtenerTodosAsync();
-                var documentosService = new SupabaseDocumentos();
-                var documentosInitTask = documentosService.InicializarAsync();
-                var tareasService = new SupabaseTareas();
-                var tareasInitTask = tareasService.InicializarAsync();
-                var recienteService = new SupabaseReciente();
-                var recienteInitTask = recienteService.InicializarAsync();
-                var eventosCitasInitTask = _eventosCitasService.InicializarAsync();
-
-                await Task.WhenAll(documentosInitTask, tareasInitTask, recienteInitTask, eventosCitasInitTask);
-
-                var documentosTask = documentosService.ObtenerTodosAsync();
-                var tareasTask = tareasService.ObtenerTodosAsync();
-                var recientesTask = recienteService.ObtenerTodosAsync();
-                var eventosCitasTask = _eventosCitasService.ObtenerEventosCitas();
-
-                var clientes = await clientesTask;
-                ClientCount = clientes?.Count ?? 0;
-                _previousClientCount = 0;
-                UpdateClientCountChange();
-
-                var casos = await casosTask;
-                CasosActivos = casos?.Count ?? 0;
-
-                var documentos = await documentosTask;
-                Documentos = documentos?.Count ?? 0;
-
-                var tareas = await tareasTask;
-                var tareasPendientes = tareas.Where(t => t.estado != "Finalizado").ToList();
-                TareasPendientes = tareasPendientes.Count();
-
-                TareasPendientesLista.Clear();
-                foreach (var tarea in tareasPendientes)
-                    TareasPendientesLista.Add(tarea);
-
-                var recientes = await recientesTask;
-                CasosRecientesLista.Clear();
-                var fechaLimite = DateTime.Now.Date.AddDays(-28);
-
-                // Cargar casos recientes en paralelo
-                var casosRecientes = await Task.WhenAll(
-                    recientes.Select(async reciente =>
-                    {
-                        var caso = await _supabaseCasos.ObtenerPorIdAsync(reciente.id_caso);
-                        return (caso, reciente);
-                    })
-                );
-
-                foreach (var (caso, _) in casosRecientes)
-                {
-                    if (caso != null && caso.fecha_inicio.Date >= fechaLimite)
-                    {
-                        CasosRecientesLista.Add(new CasoViewModel
-                        {
-                            id = caso.id,
-                            referencia = caso.referencia,
-                            nombre_cliente = caso.nombre_cliente,
-                            tipo_nombre = caso.tipo_nombre,
-                            estado = caso.estado_nombre,
-                            estado_color = ObtenerColorEstadoCaso(caso.estado_nombre)
-                        });
-                    }
-                }
-                CasosRecientes = CasosRecientesLista.Count;
-
-                // Cargar eventos próximos
-                var eventosCitas = await eventosCitasTask;
-                var eventosProximos = eventosCitas
-                    .Where(e => e.Fecha.Date >= DateTime.Now.Date && e.Fecha.Date <= DateTime.Now.Date.AddDays(28))
-                    .Count();
-                
-                EventosProximos = eventosProximos;
-                OnPropertyChanged(nameof(EventosProximos));
-
-                if (ProxEventos != null)
-                {
-                    ProxEventos.Text = EventosProximos.ToString();
-                }
+                using var db = new TfgContext();
+                var casosActivos = db.Casos
+                    .Count(c => c.IdEstado != 3); // Asumiendo que 3 es el ID del estado "Finalizado"
+                CasosActivos = casosActivos;
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al cargar los datos del dashboard: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Error al cargar casos activos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private void UpdateClientCountChange()
-        {
-            int change = ClientCount - _previousClientCount;
-            ClientCountChange = change > 0 ? $"+{change}" : change < 0 ? change.ToString() : "+0";
-        }
-
-        private async void CheckBox_TareaFinalizada(object sender, RoutedEventArgs e)
+        private void CargarScoreCasosActivosLocal()
         {
             try
             {
-                if (sender is CheckBox checkBox && checkBox.DataContext is Tarea tarea)
-                {
-                    tarea.estado = "Finalizado";
-                    var tareasService = new SupabaseTareas();
-                    await tareasService.InicializarAsync();
-                    await tareasService.ActualizarAsync(tarea);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error al actualizar la tarea: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private async void ComboBox_EstadoChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (sender is ComboBox comboBox && comboBox.DataContext is Tarea tarea)
-            {
-                var nuevoEstado = comboBox.SelectedItem as string;
-                if (!string.IsNullOrEmpty(nuevoEstado) && tarea.estado != nuevoEstado)
-                {
-                    tarea.estado = nuevoEstado;
-                    var tareasService = new SupabaseTareas();
-                    await tareasService.InicializarAsync();
-                    await tareasService.ActualizarAsync(tarea);
-
-                    if (nuevoEstado == "Finalizado")
-                    {
-                        TareasPendientesLista.Remove(tarea);
-                        TareasPendientes = TareasPendientesLista.Count;
-                    }
-                }
-            }
-        }
-
-        private async void CargarCasosRecientes()
-        {
-            try
-            {
-                await _supabaseCasos.InicializarAsync();
-                var casos = await _supabaseCasos.ObtenerTodosAsync();
-
-                var fechaLimite = DateTime.Now.Date.AddDays(-3);
-
-                var casosRecientes = casos
-                    .Where(c => c.fecha_inicio.Date >= fechaLimite)
-                    .GroupBy(c => c.id)
-                    .Select(g => g.First())
-                    .OrderByDescending(c => c.fecha_inicio)
-                    .ToList();
-
-                CasosRecientesLista.Clear();
-                foreach (var caso in casosRecientes)
-                {
-                    CasosRecientesLista.Add(new CasoViewModel
-                    {
-                        id = caso.id,
-                        referencia = caso.referencia,
-                        nombre_cliente = caso.nombre_cliente,
-                        tipo_nombre = caso.tipo_nombre,
-                        estado = caso.estado_nombre,
-                        estado_color = ObtenerColorEstadoCaso(caso.estado_nombre)
-                    });
-                }
-                CasosRecientes = CasosRecientesLista.Count;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error al cargar los casos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private string ObtenerColorEstado(string estado) => estado.ToLower() switch
-        {
-            "activo" => "#4CAF50",
-            "en proceso" => "#FF9800",
-            "finalizado" => "#F44336",
-            _ => "#757575"
-        };
-
-        private string ObtenerColorEstadoCaso(string estado)
-        {
-            return estado.ToLower() switch
-            {
-                "abierto" => "#43A047",
-                "en proceso" => "#1976D2",
-                "cerrado" => "#D32F2F",
-                "pendiente" => "#FFB300",
-                "revisado" => "#5C6BC0",
-                _ => "#BDBDBD"
-            };
-        }
-
-        private void VerTodosCasos_Click(object sender, RoutedEventArgs e)
-        {
-            // Implementar navegación a la vista completa de casos
-        }
-
-        private void EditarCaso_Click(object sender, RoutedEventArgs e)
-        {
-            var button = (Button)sender;
-            var caso = (CasoViewModel)button.DataContext;
-            // Implementar lógica de edición
-        }
-
-        private async void EliminarCaso_Click(object sender, RoutedEventArgs e)
-        {
-            var button = (Button)sender;
-            var caso = (CasoViewModel)button.DataContext;
-
-            var result = MessageBox.Show(
-                $"¿Está seguro que desea eliminar el caso {caso.referencia}?",
-                "Confirmar eliminación",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning);
-
-            if (result == MessageBoxResult.Yes)
-            {
-                try
-                {
-                    await _supabaseCasos.EliminarAsync(caso.id);
-                    CasosRecientesLista.Remove(caso);
-                    CasosRecientes = CasosRecientesLista.Count;
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error al eliminar el caso: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-        }
-        #endregion
-
-        #region 📥 ScoreCasos
-        private async void CargarScoreCasos()
-        {
-            try
-            {
-                await _supabaseCasos.InicializarAsync();
-                var todos = await _supabaseCasos.ObtenerTodosAsync();
-
-                var primerDiaMesActual = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                using var db = new TfgContext();
+                var primerDiaMesActual = DateOnly.FromDateTime(new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1));
                 var primerDiaMesAnterior = primerDiaMesActual.AddMonths(-1);
-                var primerDiaMesSiguiente = primerDiaMesActual.AddMonths(1);
 
-                Func<Caso, bool> esActivo = c =>
-                    c.estado_nombre.Equals("abierto", StringComparison.OrdinalIgnoreCase) ||
-                    c.estado_nombre.Equals("en proceso", StringComparison.OrdinalIgnoreCase);
+                int casosMesAnterior = db.Casos
+                    .Count(c => c.FechaInicio >= primerDiaMesAnterior && c.FechaInicio < primerDiaMesActual);
 
-                int casosMesAnterior = todos
-                    .Where(esActivo)
-                    .Count(c => c.fecha_inicio >= primerDiaMesAnterior && c.fecha_inicio < primerDiaMesActual);
-
-                int casosMesActual = todos
-                    .Where(esActivo)
-                    .Count(c => c.fecha_inicio >= primerDiaMesActual && c.fecha_inicio < primerDiaMesSiguiente);
+                int casosMesActual = db.Casos
+                    .Count(c => c.FechaInicio >= primerDiaMesActual);
 
                 int diferencia = casosMesActual - casosMesAnterior;
-
-                if (scoreCasos != null)
-                {
-                    if (diferencia > 0)
-                        scoreCasos.Text = $"+{diferencia}";
-                    else
-                        scoreCasos.Text = diferencia.ToString();
-                }
+                scoreCasos.Text = diferencia > 0 ? $"+{diferencia}" : diferencia.ToString();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al calcular el score de casos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Error al cargar score de casos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-        #endregion
 
-        #region 📥 ScoreDocumentos
-        private async void CargarScoreDocumentos()
+        private void CargarClientes()
         {
             try
             {
-                var documentosService = new SupabaseDocumentos();
-                await documentosService.InicializarAsync();
-                var documentos = await documentosService.ObtenerTodosAsync();
-
-                var ayer = DateTime.Now.Date.AddDays(-1);
-
-                int documentosNuevos = documentos.Count(d => d.fecha_subid.Date == ayer);
-
-                if (scoreDocumentos != null)
-                {
-                    scoreDocumentos.Text = $"+{documentosNuevos}";
-                }
-                else
-                {
-                    scoreDocumentos.Text = $"0";
-                }
+                using var db = new TfgContext();
+                var clientes = db.Clientes.Count();
+                ClientCount = clientes;
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al calcular el score de documentos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Error al cargar clientes: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-        #endregion
 
-        #region 📥 Proximos eventos
-        /*
-        private async void CargarProximosEventos()
+        private void ScoreClientesNuevos()
         {
             try
             {
-                var eventosService = new SupabaseEventos();
-                await eventosService.InicializarAsync();
-                var eventos = await eventosService.ObtenerTodosAsync();
-                var proximosEventos = eventos
-                    .Where(e => e.fecha_evento.Date >= DateTime.Now.Date)
-                    .OrderBy(e => e.fecha_evento)
-                    .ToList();
-                // Aquí puedes mostrar los próximos eventos en la interfaz de usuario
+                using var db = new TfgContext();
+                var primerDiaMesActual = DateOnly.FromDateTime(new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1));
+                var primerDiaMesAnterior = primerDiaMesActual.AddMonths(-1);
+
+                int clientesMesAnterior = db.Clientes
+                    .Count(c => c.FechaContrato >= primerDiaMesAnterior && c.FechaContrato < primerDiaMesActual);
+
+                int clientesMesActual = db.Clientes
+                    .Count(c => c.FechaContrato >= primerDiaMesActual);
+
+                int diferencia = clientesMesActual - clientesMesAnterior;
+                ClientCountChange = diferencia > 0 ? $"+{diferencia}" : diferencia.ToString();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al cargar los próximos eventos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-        */
-        #endregion
-
-        #region 📅 Dia Actual
-        private void diaSemana()
-        {
-            var diaSemana = fechaActual.DayOfWeek;
-            switch (diaSemana)
-            {
-                case DayOfWeek.Monday:
-                    lunes.Foreground = new SolidColorBrush(Colors.Red);
-                    break;
-                case DayOfWeek.Tuesday:
-                    martes.Foreground = new SolidColorBrush(Colors.Red);
-                    break;
-                case DayOfWeek.Wednesday:
-                    miercoles.Foreground = new SolidColorBrush(Colors.Red);
-                    break;
-                case DayOfWeek.Thursday:
-                    jueves.Foreground = new SolidColorBrush(Colors.Red);
-                    break;
-                case DayOfWeek.Friday:
-                    viernes.Foreground = new SolidColorBrush(Colors.Red);
-                    break;
-                case DayOfWeek.Saturday:
-                    sabado.Foreground = new SolidColorBrush(Colors.Red);
-                    break;
-                case DayOfWeek.Sunday:
-                    domingo.Foreground = new SolidColorBrush(Colors.Red);
-                    break;
-                default:
-
-                    break;
-            }
-        }
-        #endregion
-
-        #region 📅 Cambiar de fecha Calendario
-        private static readonly string[] NombresMeses = { "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre" };
-
-        private void CambiarMesCalendario(int incremento)
-        {
-            int nuevoMes = fechaActual.Month + incremento;
-            int nuevoAnio = fechaActual.Year;
-
-            if (nuevoMes < 1)
-            {
-                nuevoMes = 12;
-                nuevoAnio--;
-            }
-            else if (nuevoMes > 12)
-            {
-                nuevoMes = 1;
-                nuevoAnio++;
-            }
-
-            fechaActual = new DateOnly(nuevoAnio, nuevoMes, 1);
-            ActualizarTextoFechaElegida();
-        }
-
-        private void mesAnterior(object sender, RoutedEventArgs e)
-        {
-            CambiarMesCalendario(-1);
-        }
-
-        private void mesSiguiente(object sender, RoutedEventArgs e)
-        {
-            CambiarMesCalendario(1);
-        }
-
-        private void mesActual(object sender, RoutedEventArgs e)
-        {
-            var fechaHoy = DateOnly.FromDateTime(DateTime.Now);
-
-            if (fechaActual.Equals(fechaHoy))
-            {
-                if (sender is Button btn)
-                    ShakeElement(btn);
-            }
-            else
-            {
-                fechaActual = fechaHoy;
-                ActualizarTextoFechaElegida();
+                MessageBox.Show($"Error al cargar score de clientes: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private void ActualizarTextoFechaElegida()
-        {
-            mesText = NombresMeses[fechaActual.Month - 1];
-            anio = fechaActual.Year.ToString();
-            FechaElegida.Text = $"{mesText} {anio}";
-        }
-        #endregion
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        #region Idioma
-        private void CargarIdioma(int idioma)
-        {
-            var idiomas = new (string Titulo, string Subtitulo, string ResumenCasos, string ResumenClientes, string ResumenDocumentos, string ResumenEventos,
-                string Lunes, string Martes, string Miercoles, string Jueves, string Viernes, string Sabado, string Domingo,
-                string ListaTareas, string BtnAñadirTarea, string BtnVerTodosCasos, string CasosRecientes, string NCasos, string CCliente, string CTipo, string CEstado, string CAcciones, string Version, string Hoy)[]
-            {
-<<<<<<< HEAD
-                ("Panel de control.", "Bienvenido a la aplicación de gestión de casos. Se encuentra en el Dashboard de la aplicacion.",
-                 "Casos Activos:", "Clientes:", "Documentos:", "Eventos Póximos:",
-                 "Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom",
-                 "Tareas Pendientes", "Añadir Tarea", "Ver todos los casos", "Casos Recientes", "Nº Caso", "Cliente", "Tipo", "Estado", "Acciones", "Versión: ", "Hoy"),
-                ("Dashboard", "Welcome to the case management application. You are on the application's dashboard.",
-                 "Active Cases:", "Clients:", "Documents:", "Upcoming Events:",
-                 "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun",
-                 "Pending Tasks", "Add Task", "View All Cases", "Recent Cases", "Case No.", "Client", "Type", "Status", "Actions", "Version: ", "Today"),
-                ("Panell de control", "Benvingut a l'aplicació de gestió de casos. Estàs al panell de l'aplicació.",
-                 "Casos Actius:", "Clients:", "Documents:", "Esdeveniments propers:",
-                 "Dll", "Dt", "Dc", "Dj", "Dv", "Ds", "Dg",
-                 "Tasques pendents", "Afegir tasca", "Veure tots els casos", "Casos recents", "Nº Cas", "Client", "Tipus", "Estat", "Accions", "Versió: ", "Avui"),
-                ("Panel de control", "Benvido á aplicación de xestión de casos. Estás no panel da aplicación.",
-                 "Casos activos:", "Clientes:", "Documentos:", "Eventos próximos:",
-                 "Lun", "Mar", "Mér", "Xov", "Ven", "Sáb", "Dom",
-                 "Tarefas pendentes", "Engadir tarefa", "Ver todos os casos", "Casos recentes", "Nº Caso", "Cliente", "Tipo", "Estado", "Accións", "Versión: ", "Hoxe"),
-                ("Kontrol panela", "Ongi etorri kasuen kudeaketa aplikaziora. Aplikazioaren panel nagusian zaude.",
-                 "Kasuan aktiboak:", "Bezeroak:", "Dokumentuak:", "Hurrengo ekitaldiak:",
-                 "Al", "Ar", "Az", "Og", "Or", "La", "Ig",
-                 "Zain dauden zereginak", "Zeregina gehitu", "Kasu guztiak ikusi", "Azken kasuak", "Kasua Nº", "Bezeroa", "Mota", "Egoera", "Ekintzak", "Bertsioa: ", "Gaur")
-            };
-
-            if (idioma < 0 || idioma >= idiomas.Length)
-                idioma = 0;
-
-            var t = idiomas[idioma];
-
-            titulo.Text = t.Titulo;
-            subtitulo.Text = t.Subtitulo;
-            resumenCasos.Text = t.ResumenCasos;
-            resumenClientes.Text = t.ResumenClientes;
-            resumenDocumentos.Text = t.ResumenDocumentos;
-            resumenEventos.Text = t.ResumenEventos;
-            lunes.Text = t.Lunes;
-            martes.Text = t.Martes;
-            miercoles.Text = t.Miercoles;
-            jueves.Text = t.Jueves;
-            viernes.Text = t.Viernes;
-            sabado.Text = t.Sabado;
-            domingo.Text = t.Domingo;
-            listaTareas.Text = t.ListaTareas;
-            btnAñadirTarea.Content = t.BtnAñadirTarea;
-            btnVerTodosCasos.Content = t.BtnVerTodosCasos;
-            casosRecientes.Text = t.CasosRecientes;
-            ncasos.Text = t.NCasos;
-            Ccliente.Text = t.CCliente;
-            Ctipo.Text = t.CTipo;
-            Cestado.Text = t.CEstado;
-            Cacciones.Text = t.CAcciones;
-            Version.Text = t.Version;
-            hoy.Text = t.Hoy;
-        }
-=======
-                using (var db = new TfgContext())
-                {
-                    var documentos = db.Documentos.Count();
-                    DocTotales.Text = documentos.ToString();
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error al cargar los documentos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-        #endregion
-
-        #region 📥 Cargar Score Documentos Nuevos
-        private void ScoreDocumentosNuevos()
+        private void CargarDocumentos()
         {
             try
             {
-                using (var db = new TfgContext())
-                {
-                    var hoy = DateOnly.FromDateTime(DateTime.Now);
-                    var documentosNuevos = db.Documentos
-                        .Count(d => d.FechaSubid == hoy);
-                    scoreDocumentos.Text = $"+{documentosNuevos}";
-                }
+                using var db = new TfgContext();
+                var documentos = db.Documentos.Count();
+                Documentos = documentos;
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al cargar el score de documentos nuevos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Error al cargar documentos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        #endregion
-
-        #region 📥 Tareas pendientes para hoy
         private void CargarTareasPendientes()
         {
             try
             {
-                using (var db = new TfgContext())
-                {
-                    var hoy = DateOnly.FromDateTime(DateTime.Now);
-                    var tareasPendientes = db.Tareas
-                        .Count(t => t.FechaFin == hoy && t.Estado != "Finalizado");
-                    ProxEventos.Text = tareasPendientes.ToString();
-                }
+                using var db = new TfgContext();
+                var hoy = DateOnly.FromDateTime(DateTime.Now);
+                var tareasPendientes = db.Tareas
+                    .Count(t => t.FechaFin == hoy && t.Estado != "Finalizado");
+                ProxEventos.Text = tareasPendientes.ToString();
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error al cargar las tareas pendientes: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-        #endregion
 
-        #region 📥 Cargar lista de tareas pendientes
-        private void CargarTareasPendientesLista()
+        private async Task CargarTareasPendientesListaSupabase()
         {
             try
             {
-                using (var db = new TfgContext())
-                {
-                    var tareasPendientes = db.Tareas
-                        .Where(t => t.Estado != "Finalizado")
-                        .OrderBy(t => t.FechaFin)
-                        .ToList();
+                var tareasService = new SupabaseTareas();
+                await tareasService.InicializarAsync();
+                var tareasPendientes = (await tareasService.ObtenerTodosAsync())
+                    .Where(t => t.estado != "Finalizado")
+                    .OrderBy(t => t.fecha_fin)
+                    .ToList();
 
-                    TareasPendientesLista.Clear();
-                    foreach (var tarea in tareasPendientes)
-                    {
-                        // Si SupabaseTarea y la entidad local Tarea no son iguales, mapea los campos necesarios
-                        TareasPendientesLista.Add(new SupabaseTarea
-                        {
-                            id = tarea.Id,
-                            titulo = tarea.Titulo,
-                            descripcion = tarea.Descripcion,
-                            fecha_fin = tarea.FechaFin.ToDateTime(TimeOnly.MinValue),
-                            estado = tarea.Estado
-                            // Añade aquí otros campos si es necesario
-                        });
-                    }
+                TareasPendientesLista.Clear();
+                foreach (var tarea in tareasPendientes)
+                {
+                    TareasPendientesLista.Add(tarea);
                 }
             }
             catch (Exception ex)
@@ -1173,21 +1057,44 @@ namespace TFG_V0._01.Ventanas
                 MessageBox.Show($"Error al cargar la lista de tareas pendientes: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-        #endregion
 
-        #region 📥 Cargar casos recientes 
-        
+        private void CargarTareasPendientesListaLocal()
+        {
+            try
+            {
+                using var db = new TfgContext();
+                var tareasPendientes = db.Tareas
+                    .Where(t => t.Estado != "Finalizado")
+                    .OrderBy(t => t.FechaFin)
+                    .ToList();
 
-        #endregion
-        #endregion
+                TareasPendientesLista.Clear();
+                foreach (var tarea in tareasPendientes)
+                {
+                    TareasPendientesLista.Add(tarea);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar la lista de tareas pendientes: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
 
-
-
-
-        #region 🐞 Resvisiones Bugs 
-        //revisar funcion CheckBox_TareaFinalizada => no funciona al 100% en local.
-
->>>>>>> parent of 5461466 (cambios)
+        private void ScoreDocumentosNuevos()
+        {
+            try
+            {
+                using var db = new TfgContext();
+                var hoy = DateOnly.FromDateTime(DateTime.Now);
+                var documentosNuevos = db.Documentos
+                    .Count(d => d.FechaSubid == hoy);
+                scoreDocumentos.Text = $"+{documentosNuevos}";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar el score de documentos nuevos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
         #endregion
     }
 }

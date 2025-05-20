@@ -14,26 +14,33 @@ namespace TFG_V0._01.Supabase.Models
     {
         [PrimaryKey("id", true)]
         public int id { get; set; }
-        public int id_caso { get; set; }
         public string titulo { get; set; }
         public string descripcion { get; set; }
-        public DateTime fecha_fin { get; set; }
-        private string _estado;
-        public string estado
-        {
-            get => _estado;
-            set
-            {
-                if (_estado != value)
-                {
-                    _estado = value;
-                    OnPropertyChanged(nameof(estado));
-                }
-            }
-        }
+        public DateTime fecha_creacion { get; set; }
+        public DateTime? fecha_vencimiento { get; set; }
+        public bool completada { get; set; }
+        public int id_caso { get; set; }
+        public string prioridad { get; set; } // Alta, Media, Baja
+        public string estado { get; set; } // Pendiente, En Progreso, Completada
 
         [Reference(typeof(Caso))]
         public Caso Caso { get; set; }
+
+        public string TiempoRestante
+        {
+            get
+            {
+                if (fecha_vencimiento == null)
+                    return "Sin fecha";
+                var dias = (fecha_vencimiento.Value.Date - DateTime.Now.Date).Days;
+                if (dias > 0)
+                    return $"Faltan {dias} días";
+                else if (dias == 0)
+                    return "Vence hoy";
+                else
+                    return $"Venció hace {-dias} días";
+            }
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string propertyName)

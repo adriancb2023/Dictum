@@ -3,7 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:conv="clr-namespace:TFG_V0._01.Converters"
         xmlns:local="clr-namespace:TFG_V0._01.Ventanas"
         mc:Ignorable="d"
         Title="Documentos" Height="850" Width="1200"
@@ -152,7 +151,7 @@
         </Style>
 
         <!-- Converter para la visibilidad del botón de limpiar -->
-        <conv:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+        <local:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
 
         <!-- ComboBoxWithClearStyle -->
         <Style x:Key="ComboBoxWithClearStyle" TargetType="ComboBox" BasedOn="{StaticResource ModernComboBoxStyle}">

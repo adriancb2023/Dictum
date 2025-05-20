@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using TFG_V0._01.Converters;
 
-namespace TFG.Models
+namespace TFG_V0._01.Supabase.Models
 {
     [Table("eventos_citas")]
     public class EventoCita : BaseModel

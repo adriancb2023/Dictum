@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Supabase;
-using TFG.Models;
+using TFG_V0._01.Supabase.Models;
 using Client = Supabase.Client;
-using TFG_V0._01.Supabase;
+using Supabase.Postgrest;
 
-namespace TFG.Supabase
+namespace TFG_V0._01.Supabase
 {
     public class SupabaseNotas
     {
@@ -55,6 +55,30 @@ namespace TFG.Supabase
             await InicializarAsync().ConfigureAwait(false);
             var response = await _client.From<Nota>().Where(x => x.IdCaso == idCaso).Get().ConfigureAwait(false);
             return response.Models;
+        }
+
+        public async Task<Nota> InsertarAsync(Nota nota)
+        {
+            await InicializarAsync().ConfigureAwait(false);
+            var response = await _client.From<Nota>().Insert(nota).ConfigureAwait(false);
+            return response.Models.Count > 0 ? response.Models[0] : null;
+        }
+
+        public async Task ActualizarAsync(Nota nota)
+        {
+            await InicializarAsync().ConfigureAwait(false);
+            await _client.From<Nota>()
+                .Where(x => x.Id == nota.Id)
+                .Set(x => x.Nombre, nota.Nombre)
+                .Set(x => x.Descripcion, nota.Descripcion)
+                .Update()
+                .ConfigureAwait(false);
+        }
+
+        public async Task EliminarAsync(int id)
+        {
+            await InicializarAsync().ConfigureAwait(false);
+            await _client.From<Nota>().Where(x => x.Id == id).Delete().ConfigureAwait(false);
         }
     }
 } 

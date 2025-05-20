@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Supabase;
-using TFG.Models;
+using TFG_V0._01.Supabase.Models;
 using Client = Supabase.Client;
-using TFG_V0._01.Supabase;
 
-namespace TFG.Supabase
+namespace TFG_V0._01.Supabase
 {
     public class SupabaseEventosCitas
     {

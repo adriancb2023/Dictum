@@ -12,15 +12,21 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using TFG_V0._01.Supabase;
-using TFG_V0._01.Supabase.Models;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using TFG.Supabase;
-using TFG.Models;
 using System.Globalization;
-using CalendarControl = System.Windows.Controls.Calendar;
+using System.IO;
+using TFG_V0._01.Supabase;
+using TFG_V0._01.Supabase.Models;
 using TFG_V0._01.Ventanas.SubVentanas;
+using System.Windows.Controls.Primitives;
+using Supabase;
+using Supabase.Gotrue;
+using Supabase.Realtime;
+using Supabase.Storage;
+using Supabase.Postgrest;
+using IOPath = System.IO.Path;
+using CalendarControl = System.Windows.Controls.Calendar;
 
 namespace TFG_V0._01.Ventanas
 {
@@ -39,11 +45,15 @@ namespace TFG_V0._01.Ventanas
         private readonly SupabaseCasos _casosService;
         private readonly SupabaseEventosCitas _eventosCitasService;
         private readonly SupabaseEstadosEventos _estadosEventosService;
+        private readonly SupabaseNotas _notasService;
+        private readonly SupabaseDocumentos _supabaseDocumentos;
+        private readonly SupabaseTareas _supabaseTareas;
         private ObservableCollection<Cliente> _clientes;
         private ObservableCollection<Caso> _todosLosCasos;
         private ObservableCollection<Caso> _casosFiltrados;
         private Cliente _clienteSeleccionado;
         private Caso _casoSeleccionado;
+        private Nota _notaSeleccionada;
         private ICollectionView _clientesView;
         private ICollectionView _casosFiltradosView;
         private ICollectionView _todosLosCasosView;
@@ -69,6 +79,10 @@ namespace TFG_V0._01.Ventanas
         private Dictionary<DateTime, string> DiasConEventoColor = new();
         private EventoCita eventoEditando = null;
         private bool esEdicion = false;
+        private List<Documento> _documentosDelCaso;
+        private List<Tarea> _tareasDelCaso;
+        private Documento _documentoSeleccionado;
+        private Tarea _tareaSeleccionada;
 
         public ObservableCollection<Cliente> Clientes
         {
@@ -136,6 +150,7 @@ namespace TFG_V0._01.Ventanas
             _casosService = new SupabaseCasos();
             _eventosCitasService = new SupabaseEventosCitas();
             _estadosEventosService = new SupabaseEstadosEventos();
+            _notasService = new SupabaseNotas();
             
             Clientes = new ObservableCollection<Cliente>();
             TodosLosCasos = new ObservableCollection<Caso>();
@@ -146,6 +161,11 @@ namespace TFG_V0._01.Ventanas
 
             // Cargar datos iniciales
             CargarDatosIniciales();
+
+            _supabaseDocumentos = new SupabaseDocumentos();
+            _supabaseTareas = new SupabaseTareas();
+            _documentosDelCaso = new List<Documento>();
+            _tareasDelCaso = new List<Tarea>();
         }
 
         private async void CargarDatosIniciales()
@@ -287,6 +307,9 @@ namespace TFG_V0._01.Ventanas
             if (combo.SelectedItem is Caso caso)
             {
                 combo.Text = caso.titulo;
+                _casoSeleccionado = caso;
+                CargarDocumentosDelCaso(caso.id);
+                CargarTareasDelCaso(caso.id);
             }
             _casosFiltradosView.Filter = null;
             _casosFiltradosView.Refresh();
@@ -367,28 +390,14 @@ namespace TFG_V0._01.Ventanas
                     var eventosList = this.FindName("EventosList") as System.Windows.Controls.ListView;
                     if (eventosList != null) eventosList.ItemsSource = eventos;
 
-                    // Notas (usando la descripción del caso)
-                    var notas = new List<string> { caso.descripcion };
-                    var notasList = this.FindName("NotasList") as ListBox;
-                    if (notasList != null) notasList.ItemsSource = notas;
+                    // Notas
+                    await CargarNotasDelCaso(idCaso);
 
                     // Documentos
-                    var documentos = caso.Documentos?
-                        .Select(d => d.nombre)
-                        .ToList() ?? new List<string>();
-                    var documentosList = this.FindName("DocumentosList") as ListBox;
-                    if (documentosList != null) documentosList.ItemsSource = documentos;
+                    await CargarDocumentosDelCaso(idCaso);
 
                     // Tareas
                     await CargarTareasDelCaso(idCaso);
-
-                    // Asegurar que el calendario tenga seleccionada la fecha actual
-                    var calendar = this.FindName("calendar") as CalendarControl;
-                    if (calendar != null)
-                    {
-                        calendar.SelectedDate = DateTime.Today;
-                        _fechaSeleccionada = DateTime.Today;
-                    }
                 }
             }
             catch (Exception ex)
@@ -762,95 +771,14 @@ namespace TFG_V0._01.Ventanas
         #endregion
 
         #region Cargar Tareas
-        private async Task CargarTareasDelCaso(int idCaso)
+        private async Task CargarTareasDelCaso(int casoId)
         {
             try
             {
-                await _casosService.InicializarAsync();
-                var caso = await _casosService.ObtenerPorIdAsync(idCaso);
-                var tareas = caso.Tareas?.OrderBy(t => t.fecha_fin).ToList() ?? new List<Tarea>();
-
-                var tareasList = this.FindName("TareasList") as ListBox;
-                if (tareasList != null)
-                {
-                    tareasList.Items.Clear();
-
-                    foreach (var tarea in tareas)
-                    {
-                        Border border = new Border
-                        {
-                            Background = new SolidColorBrush(Color.FromArgb(0x30, 0xFF, 0xFF, 0xFF)),
-                            CornerRadius = new CornerRadius(10),
-                            Padding = new Thickness(10),
-                            Margin = new Thickness(0, 0, 0, 10),
-                            HorizontalAlignment = HorizontalAlignment.Stretch
-                        };
-
-                        Grid grid = new Grid();
-                        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-                        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-
-                        CheckBox checkBox = new CheckBox
-                        {
-                            VerticalAlignment = VerticalAlignment.Center,
-                            Margin = new Thickness(0, 0, 10, 0),
-                            IsChecked = tarea.estado == "finalizado"
-                        };
-                        checkBox.Checked += async (s, e) =>
-                        {
-                            try
-                            {
-                                tarea.estado = "finalizado";
-                                await _casosService.ActualizarAsync(caso);
-                            }
-                            catch (Exception ex)
-                            {
-                                MessageBox.Show($"Error al actualizar la tarea: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                            }
-                        };
-                        Grid.SetColumn(checkBox, 0);
-
-                        StackPanel stack = new StackPanel();
-                        Grid.SetColumn(stack, 1);
-
-                        TextBlock titulo = new TextBlock
-                        {
-                            Text = tarea.titulo,
-                            Foreground = Brushes.White,
-                            TextWrapping = TextWrapping.Wrap,
-                            FontSize = 16,
-                            FontWeight = FontWeights.SemiBold
-                        };
-
-                        int diasRestantes = (tarea.fecha_fin - DateTime.Today).Days;
-                        string vencimientoTexto = diasRestantes == 0 ? "Vence hoy" : $"Vence en {diasRestantes} días";
-
-                        Brush color;
-                        if (diasRestantes == 0)
-                            color = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF5252")); // Rojo
-                        else if (diasRestantes <= 2)
-                            color = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC107")); // Amarillo
-                        else
-                            color = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#8BC34A")); // Verde
-
-                        TextBlock fecha = new TextBlock
-                        {
-                            Text = vencimientoTexto,
-                            Foreground = color,
-                            FontSize = 12,
-                            Margin = new Thickness(0, 5, 0, 0)
-                        };
-
-                        stack.Children.Add(titulo);
-                        stack.Children.Add(fecha);
-
-                        grid.Children.Add(checkBox);
-                        grid.Children.Add(stack);
-
-                        border.Child = grid;
-                        tareasList.Items.Add(border);
-                    }
-                }
+                await _supabaseTareas.InicializarAsync();
+                var tareas = await _supabaseTareas.ObtenerTareasDelCaso(casoId);
+                _tareasDelCaso = tareas;
+                TareasList.ItemsSource = tareas;
             }
             catch (Exception ex)
             {
@@ -913,11 +841,8 @@ namespace TFG_V0._01.Ventanas
                 await _eventosCitasService.InicializarAsync();
                 await _estadosEventosService.InicializarAsync();
 
-                var eventos = await _eventosCitasService.ObtenerEventosCitas();
+                var eventos = await _eventosCitasService.ObtenerEventosCitasPorCaso(CasoSeleccionado.id);
                 var estados = await _estadosEventosService.ObtenerEstadosEventos();
-
-                // Filtrar eventos por el caso seleccionado
-                eventos = eventos.Where(e => e.IdCaso == CasoSeleccionado.id).ToList();
 
                 // Actualizar el diccionario de días con evento y color
                 DiasConEventoColor.Clear();
@@ -942,12 +867,11 @@ namespace TFG_V0._01.Ventanas
                     })
                     .ToList();
 
-                var eventosList = this.FindName("EventosList") as System.Windows.Controls.ListView;
-                if (eventosList != null)
-                    eventosList.ItemsSource = eventosDelDia;
-                var tituloEventos = this.FindName("TituloEventos") as System.Windows.Controls.TextBlock;
+                EventosList.ItemsSource = eventosDelDia;
+                var tituloEventos = this.FindName("TituloEventos") as TextBlock;
                 if (tituloEventos != null)
                     tituloEventos.Text = $"Eventos del {_fechaSeleccionada:dd/MM/yyyy}";
+                
                 // Forzar refresco visual del calendario
                 var calendar = this.FindName("calendar") as CalendarControl;
                 if (calendar != null)
@@ -1029,8 +953,15 @@ namespace TFG_V0._01.Ventanas
 
         private async Task<List<EstadoEvento>> ObtenerEstadosEventosAsync()
         {
-            var service = new SupabaseEstadosEventos();
-            return await service.ObtenerEstadosEventos();
+            try
+            {
+                return await _estadosEventosService.ObtenerEstadosEventos();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al obtener los estados de eventos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return new List<EstadoEvento>();
+            }
         }
 
         // Exponer el diccionario para el XAML
@@ -1052,6 +983,336 @@ namespace TFG_V0._01.Ventanas
                 MessageBox.Show("Selecciona un evento para eliminar.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
+
+        #region Gestión de Notas
+        private async Task CargarNotasDelCaso(int casoId)
+        {
+            try
+            {
+                await _notasService.InicializarAsync();
+                var notas = await _notasService.ObtenerNotasPorCaso(casoId);
+                NotasList.ItemsSource = notas;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar las notas: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async void AgregarNota_Click(object sender, RoutedEventArgs e)
+        {
+            if (_casoSeleccionado == null)
+            {
+                MessageBox.Show("Por favor, seleccione un caso primero.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var ventana = new EditarNotaWindow(_casoSeleccionado.id);
+            if (ventana.ShowDialog() == true)
+            {
+                try
+                {
+                    await _notasService.InicializarAsync();
+                    await CargarNotasDelCaso(_casoSeleccionado.id);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error al crear la nota: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private async void ModificarNota_Click(object sender, RoutedEventArgs e)
+        {
+            if (_notaSeleccionada == null)
+            {
+                MessageBox.Show("Por favor, seleccione una nota para modificar.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var ventana = new EditarNotaWindow(_casoSeleccionado.id, _notaSeleccionada);
+            if (ventana.ShowDialog() == true)
+            {
+                try
+                {
+                    await _notasService.InicializarAsync();
+                    await CargarNotasDelCaso(_casoSeleccionado.id);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error al modificar la nota: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private async void EliminarNota_Click(object sender, RoutedEventArgs e)
+        {
+            if (_notaSeleccionada == null)
+            {
+                MessageBox.Show("Por favor, seleccione una nota para eliminar.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var result = MessageBox.Show("¿Está seguro de que desea eliminar esta nota?", "Confirmar eliminación", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            if (result == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    await _notasService.InicializarAsync();
+                    await _notasService.EliminarAsync(_notaSeleccionada.Id);
+                    await CargarNotasDelCaso(_casoSeleccionado.id);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error al eliminar la nota: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void NotasList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            _notaSeleccionada = NotasList.SelectedItem as Nota;
+        }
+        #endregion
+        private async void ModificarDocumento_Click(object sender, RoutedEventArgs e)
+        {
+            if (_documentoSeleccionado == null) return;
+
+            var ventana = new VentanaDocumento(_documentoSeleccionado);
+            if (ventana.ShowDialog() == true)
+            {
+                try
+                {
+                    _documentoSeleccionado.nombre = ventana.Nombre;
+                    _documentoSeleccionado.descripcion = ventana.Descripcion;
+                    _documentoSeleccionado.tipo_documento = ventana.TipoDocumento;
+                    if (!string.IsNullOrEmpty(ventana.RutaArchivo))
+                    {
+                        _documentoSeleccionado.ruta = ventana.RutaArchivo;
+                        _documentoSeleccionado.extension = IOPath.GetExtension(ventana.RutaArchivo);
+                        _documentoSeleccionado.tamanio = new FileInfo(ventana.RutaArchivo).Length.ToString();
+                    }
+
+                    await _supabaseDocumentos.ActualizarAsync(_documentoSeleccionado);
+                    await CargarDocumentosDelCaso(_casoSeleccionado.id);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error al modificar el documento: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private async void EliminarDocumento_Click(object sender, RoutedEventArgs e)
+        {
+            if (_documentoSeleccionado == null) return;
+
+            var result = MessageBox.Show("¿Está seguro de que desea eliminar este documento?", "Confirmar eliminación",
+                MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    await _supabaseDocumentos.EliminarAsync(_documentoSeleccionado.id);
+                    await CargarDocumentosDelCaso(_casoSeleccionado.id);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error al eliminar el documento: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private async void AgregarTarea_Click(object sender, RoutedEventArgs e)
+        {
+            var ventana = new EditarTareaWindow();
+            if (ventana.ShowDialog() == true)
+            {
+                try
+                {
+                    var tarea = new Tarea
+                    {
+                        titulo = ventana.Titulo,
+                        descripcion = ventana.Descripcion,
+                        id_caso = _casoSeleccionado.id,
+                        fecha_vencimiento = ventana.FechaVencimiento,
+                        prioridad = ventana.Prioridad,
+                        estado = ventana.EstadoSeleccionado
+                    };
+
+                    await _supabaseTareas.CrearTarea(tarea);
+                    await CargarTareasDelCaso(_casoSeleccionado.id);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error al crear la tarea: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private async void ModificarTarea_Click(object sender, RoutedEventArgs e)
+        {
+            if (_tareaSeleccionada == null) return;
+
+            var ventana = new EditarTareaWindow(_tareaSeleccionada.titulo, _tareaSeleccionada.descripcion, _tareaSeleccionada.fecha_vencimiento, _tareaSeleccionada.prioridad, _tareaSeleccionada.estado);
+            if (ventana.ShowDialog() == true)
+            {
+                try
+                {
+                    _tareaSeleccionada.titulo = ventana.Titulo;
+                    _tareaSeleccionada.descripcion = ventana.Descripcion;
+                    _tareaSeleccionada.fecha_vencimiento = ventana.FechaVencimiento;
+                    _tareaSeleccionada.prioridad = ventana.Prioridad;
+                    _tareaSeleccionada.estado = ventana.EstadoSeleccionado;
+
+                    await _supabaseTareas.ActualizarTarea(_tareaSeleccionada);
+                    await CargarTareasDelCaso(_casoSeleccionado.id);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error al modificar la tarea: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private async void EliminarTarea_Click(object sender, RoutedEventArgs e)
+        {
+            if (_tareaSeleccionada == null) return;
+
+            var result = MessageBox.Show("¿Está seguro de que desea eliminar esta tarea?", "Confirmar eliminación",
+                MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    await _supabaseTareas.EliminarTarea(_tareaSeleccionada.id);
+                    await CargarTareasDelCaso(_casoSeleccionado.id);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error al eliminar la tarea: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private async void TareaCheckBox_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is CheckBox checkBox && checkBox.DataContext is Tarea tarea)
+            {
+                try
+                {
+                    await _supabaseTareas.ActualizarEstadoTarea(tarea.id, checkBox.IsChecked ?? false);
+                    await CargarTareasDelCaso(_casoSeleccionado.id);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error al actualizar el estado de la tarea: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private async Task CargarDocumentosDelCaso(int casoId)
+        {
+            try
+            {
+                await _supabaseDocumentos.InicializarAsync();
+                var documentos = await _supabaseDocumentos.ObtenerPorCasoAsync(casoId);
+                DocumentosList.ItemsSource = documentos;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar los documentos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void DocumentosList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            _documentoSeleccionado = DocumentosList.SelectedItem as Documento;
+        }
+
+        private void TareasList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            _tareaSeleccionada = TareasList.SelectedItem as Tarea;
+        }
+
+        private void CasosList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (sender is ComboBox combo && combo.SelectedItem is Caso caso)
+            {
+                _casoSeleccionado = caso;
+                if (_casoSeleccionado != null)
+                {
+                    CargarEventosDelCaso(_casoSeleccionado.id);
+                    CargarNotasDelCaso(_casoSeleccionado.id);
+                    CargarTareasDelCaso(_casoSeleccionado.id);
+                    CargarDocumentosDelCaso(_casoSeleccionado.id);
+                }
+            }
+        }
+
+        private async Task CargarEventosDelCaso(int casoId)
+        {
+            try
+            {
+                await _eventosCitasService.InicializarAsync();
+                var eventos = await _eventosCitasService.ObtenerEventosCitasPorCaso(casoId);
+                await _estadosEventosService.InicializarAsync();
+                var estados = await _estadosEventosService.ObtenerEstadosEventos();
+                
+                var eventosConEstado = eventos.Select(e => new EventoViewModel
+                {
+                    Id = e.Id,
+                    Titulo = e.Titulo,
+                    Descripcion = e.Descripcion,
+                    Fecha = e.Fecha,
+                    EstadoNombre = estados.FirstOrDefault(s => s.Id == e.IdEstado)?.Nombre ?? "Sin estado",
+                    EstadoColor = ObtenerColorEstado(estados.FirstOrDefault(s => s.Id == e.IdEstado)?.Nombre),
+                    FechaInicio = e.FechaInicio
+                }).ToList();
+
+                EventosList.ItemsSource = eventosConEstado;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar los eventos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async void AgregarDocumento_Click(object sender, RoutedEventArgs e)
+        {
+            if (_casoSeleccionado == null)
+            {
+                MessageBox.Show("Por favor, seleccione un caso primero.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var ventana = new VentanaDocumento();
+            if (ventana.ShowDialog() == true)
+            {
+                try
+                {
+                    var documento = new Documento
+                    {
+                        nombre = ventana.Nombre,
+                        descripcion = ventana.Descripcion,
+                        tipo_documento = ventana.TipoDocumento,
+                        ruta = ventana.RutaArchivo,
+                        id_caso = _casoSeleccionado.id,
+                        extension = System.IO.Path.GetExtension(ventana.RutaArchivo),
+                        tamanio = new System.IO.FileInfo(ventana.RutaArchivo).Length.ToString()
+                    };
+
+                    await _supabaseDocumentos.InsertarAsync(documento);
+                    await CargarDocumentosDelCaso(_casoSeleccionado.id);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error al crear el documento: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
     }
 
     public class EventoViewModel
@@ -1062,7 +1323,17 @@ namespace TFG_V0._01.Ventanas
         public DateTime Fecha { get; set; }
         public string EstadoNombre { get; set; }
         public string EstadoColor { get; set; }
-        public TimeSpan? FechaInicio { get; set; }
-        public string HoraMinuto => FechaInicio.HasValue ? FechaInicio.Value.ToString(@"hh\:mm") : Fecha.ToString("HH:mm");
+        public TimeSpan FechaInicio { get; set; }
     }
+
+    public class CasoViewModel
+    {
+        public int id { get; set; }
+        public string referencia { get; set; }
+        public string nombre_cliente { get; set; }
+        public string tipo_nombre { get; set; }
+        public string estado { get; set; }
+        public string estado_color { get; set; }
+    }
+    
 }

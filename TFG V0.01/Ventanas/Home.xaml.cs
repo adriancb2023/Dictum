@@ -421,7 +421,7 @@ namespace TFG_V0._01.Ventanas
 
                 var tareas = await tareasTask;
                 var tareasPendientes = tareas.Where(t => t.estado != "Finalizado").ToList();
-                TareasPendientes = tareasPendientes.Count;
+                TareasPendientes = tareasPendientes.Count();
 
                 TareasPendientesLista.Clear();
                 foreach (var tarea in tareasPendientes)

@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Windows;
-using TFG.Models;
+using TFG_V0._01.Supabase.Models;
+using System.Windows.Input;
 
 namespace TFG_V0._01.Ventanas.SubVentanas
 {
@@ -45,6 +46,12 @@ namespace TFG_V0._01.Ventanas.SubVentanas
         {
             this.DialogResult = false;
             this.Close();
+        }
+
+        private void Border_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+                DragMove();
         }
     }
 } 

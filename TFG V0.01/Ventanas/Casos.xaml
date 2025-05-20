@@ -385,7 +385,7 @@
                                                     </Ellipse.Fill>
                                                 </Ellipse>
                                                 <TextBlock Text="{Binding titulo}" Foreground="White" FontWeight="Bold" FontSize="15"/>
-                                                <TextBlock Text="{Binding Estado.nombre, TargetNullValue='Sin estado'}" Foreground="#FFD6D6D6" FontSize="13" Margin="8,0,0,0"/>
+                                                <TextBlock Text="{Binding descripcion}" Foreground="#FFD6D6D6" FontSize="13" Margin="8,0,0,0"/>
                                             </StackPanel>
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
@@ -417,7 +417,7 @@
                                             <StackPanel Orientation="Horizontal" Margin="5">
                                                 <TextBlock Text="{Binding referencia}" Foreground="White" FontWeight="Bold" Margin="0,0,10,0"/>
                                                 <TextBlock Text="{Binding titulo}" Foreground="White" Margin="0,0,10,0"/>
-                                                <TextBlock Text="{Binding Estado.nombre, TargetNullValue='Sin estado'}" Foreground="#CCFFFFFF"/>
+                                                <TextBlock Text="{Binding descripcion}" Foreground="#CCFFFFFF"/>
                                             </StackPanel>
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
@@ -500,38 +500,38 @@
                                                   Background="Transparent"
                                                   BorderThickness="0"
                                                   Margin="0,0,0,0"
-                                                  HorizontalContentAlignment="Stretch"
-                                                  ItemsSource="{Binding EventosDelDia}">
+                                                  HorizontalContentAlignment="Stretch">
                                             <ListView.ItemTemplate>
                                                 <DataTemplate>
-                                                    <Border Background="#30FFFFFF"
-                                                            CornerRadius="8"
-                                                            Padding="4,2"
-                                                            Margin="0,2,0,2"
-                                                            HorizontalAlignment="Stretch"
-                                                            VerticalAlignment="Center">
-                                                        <Grid Margin="0"
-                                                              HorizontalAlignment="Stretch"
-                                                              VerticalAlignment="Center">
+                                                    <Border Background="#50FFFFFF"
+                                                            CornerRadius="16"
+                                                            Padding="18"
+                                                            Margin="0,8"
+                                                            Effect="{StaticResource DropShadowEffect}"
+                                                            HorizontalAlignment="Stretch">
+                                                        <Grid>
                                                             <Grid.ColumnDefinitions>
                                                                 <ColumnDefinition Width="Auto"/>
                                                                 <ColumnDefinition Width="*"/>
-                                                                <ColumnDefinition Width="Auto"/>
                                                             </Grid.ColumnDefinitions>
-                                                            <Border Background="#40FFFFFF"
-                                                                    CornerRadius="4"
-                                                                    Padding="8,2"
-                                                                    Margin="0,0,8,0"
-                                                                    VerticalAlignment="Center">
-                                                                <TextBlock Text="{Binding HoraMinuto}" FontWeight="Bold" FontSize="13" Foreground="White"/>
-                                                            </Border>
-                                                            <StackPanel Grid.Column="1"
-                                                                        VerticalAlignment="Center"
-                                                                        HorizontalAlignment="Stretch">
-                                                                <TextBlock Text="{Binding Titulo}" FontWeight="Bold" FontSize="14" Foreground="White"/>
-                                                                <TextBlock Text="{Binding Descripcion}" Foreground="#DDFFFFFF" FontSize="11"/>
+                                                            <!-- Círculo de estado -->
+                                                            <Ellipse Width="18" Height="18" Margin="0,0,12,0" Grid.Column="0">
+                                                                <Ellipse.Fill>
+                                                                    <SolidColorBrush Color="{Binding EstadoColor}"/>
+                                                                </Ellipse.Fill>
+                                                            </Ellipse>
+                                                            <!-- Info del evento -->
+                                                            <StackPanel Grid.Column="1">
+                                                                <TextBlock Text="{Binding titulo}" 
+                                                                           Foreground="White" 
+                                                                           FontWeight="SemiBold"/>
+                                                                <TextBlock Text="{Binding descripcion}" 
+                                                                           Foreground="#CCFFFFFF" 
+                                                                           FontSize="12"/>
+                                                                <TextBlock Text="{Binding estado_nombre}" 
+                                                                           Foreground="#CCFFFFFF" 
+                                                                           FontSize="12"/>
                                                             </StackPanel>
-                                                            <!-- Aquí puedes añadir el estado si lo deseas -->
                                                         </Grid>
                                                     </Border>
                                                 </DataTemplate>
@@ -560,14 +560,44 @@
                                 
                                 <TextBlock Text="Notas" FontSize="16" FontWeight="Bold" Foreground="White" Margin="0,0,0,10"/>
                                 
+                                <!-- Lista de notas -->
                                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                                    <ListBox x:Name="NotasList" Background="Transparent" BorderThickness="0" Foreground="White"/>
+                                    <ListView x:Name="NotasList" 
+                                           Background="Transparent" 
+                                           BorderThickness="0" 
+                                           Foreground="White"
+                                           HorizontalContentAlignment="Stretch"
+                                           SelectionChanged="NotasList_SelectionChanged">
+                                        <ListView.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Background="#50FFFFFF"
+                                                        CornerRadius="16"
+                                                        Padding="18"
+                                                        Margin="0,8"
+                                                        Effect="{StaticResource DropShadowEffect}"
+                                                        HorizontalAlignment="Stretch">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <!-- Info de la nota -->
+                                                        <StackPanel Grid.Column="1">
+                                                            <TextBlock Text="{Binding Nombre}" Foreground="White" FontWeight="SemiBold"/>
+                                                            <TextBlock Text="{Binding Descripcion}" Foreground="#CCFFFFFF" FontSize="12"/>
+                                                            <TextBlock Text="{Binding FechaCreacion, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" Foreground="#CCFFFFFF" FontSize="12"/>
+                                                        </StackPanel>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ListView.ItemTemplate>
+                                    </ListView>
                                 </ScrollViewer>
                                 
                                 <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
-                                    <Button Content="Añadir" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0"/>
-                                    <Button Content="Modificar" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0"/>
-                                    <Button Content="Eliminar" Style="{StaticResource RoundedButtonStyle}"/>
+                                    <Button x:Name="btnAgregarNota" Content="➕ Añadir" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0" Click="AgregarNota_Click"/>
+                                    <Button x:Name="btnModificarNota" Content="✏️ Modificar" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0" Click="ModificarNota_Click"/>
+                                    <Button x:Name="btnEliminarNota" Content="🗑 Eliminar" Style="{StaticResource RoundedButtonStyle}" Click="EliminarNota_Click"/>
                                 </StackPanel>
                             </Grid>
                         </Border>
@@ -584,12 +614,48 @@
                                 <TextBlock Text="Documentos del Caso" FontSize="16" FontWeight="Bold" Foreground="White" Margin="0,0,0,10"/>
                                 
                                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                                    <ListBox x:Name="DocumentosList" Background="Transparent" BorderThickness="0" Foreground="White"/>
+                                    <ListView x:Name="DocumentosList" 
+                                           Background="Transparent" 
+                                           BorderThickness="0" 
+                                           Foreground="White"
+                                           HorizontalContentAlignment="Stretch"
+                                           SelectionChanged="DocumentosList_SelectionChanged">
+                                        <ListView.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Background="#50FFFFFF"
+                                                        CornerRadius="16"
+                                                        Padding="18"
+                                                        Margin="0,8"
+                                                        Effect="{StaticResource DropShadowEffect}"
+                                                        HorizontalAlignment="Stretch">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <!-- Info del documento -->
+                                                        <StackPanel Grid.Column="1">
+                                                            <TextBlock Text="{Binding nombre}" 
+                                                                       Foreground="White" 
+                                                                       FontWeight="SemiBold"/>
+                                                            <TextBlock Text="{Binding descripcion}" 
+                                                                       Foreground="#CCFFFFFF" 
+                                                                       FontSize="12"/>
+                                                            <TextBlock Text="{Binding tipo_documento}" 
+                                                                       Foreground="#CCFFFFFF" 
+                                                                       FontSize="12"/>
+                                                        </StackPanel>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ListView.ItemTemplate>
+                                    </ListView>
                                 </ScrollViewer>
                                 
                                 <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
-                                    <Button Content="Añadir" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0"/>
-                                    <Button Content="Eliminar" Style="{StaticResource RoundedButtonStyle}"/>
+                                    <Button x:Name="btnAgregarDocumento" Content="➕ Añadir" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0" Click="AgregarDocumento_Click"/>
+                                    <Button x:Name="btnModificarDocumento" Content="✏️ Modificar" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0" Click="ModificarDocumento_Click"/>
+                                    <Button x:Name="btnEliminarDocumento" Content="🗑 Eliminar" Style="{StaticResource RoundedButtonStyle}" Click="EliminarDocumento_Click"/>
                                 </StackPanel>
                             </Grid>
                         </Border>
@@ -607,14 +673,57 @@
                             <TextBlock Text="Tareas Pendientes" FontSize="16" FontWeight="Bold" Foreground="White" Margin="0,0,0,10"/>
 
                             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                                <ListBox x:Name="TareasList" Background="Transparent" BorderThickness="0" Foreground="White"
-                                      HorizontalContentAlignment="Stretch"/>
+                                <ListView x:Name="TareasList" 
+                                       Background="Transparent" 
+                                       BorderThickness="0" 
+                                       Foreground="White"
+                                       HorizontalContentAlignment="Stretch"
+                                       SelectionChanged="TareasList_SelectionChanged">
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="#50FFFFFF"
+                                                    CornerRadius="16"
+                                                    Padding="18"
+                                                    Margin="0,8"
+                                                    Effect="{StaticResource DropShadowEffect}"
+                                                    HorizontalAlignment="Stretch">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <!-- Checkbox de tarea -->
+                                                    <CheckBox Grid.Column="0" 
+                                                            IsChecked="{Binding completada}"
+                                                            Click="TareaCheckBox_Click"
+                                                            Margin="0,0,12,0"/>
+                                                    <!-- Info de la tarea -->
+                                                    <StackPanel Grid.Column="1">
+                                                        <TextBlock Text="{Binding titulo}" 
+                                                                   Foreground="White" 
+                                                                   FontWeight="SemiBold"/>
+                                                        <TextBlock Text="{Binding descripcion}" 
+                                                                   Foreground="#CCFFFFFF" 
+                                                                   FontSize="12"/>
+                                                        <TextBlock Text="{Binding fecha_vencimiento, StringFormat='Vence: {0:dd/MM/yyyy}'}" 
+                                                                   Foreground="#CCFFFFFF" 
+                                                                   FontSize="12"/>
+                                                        <TextBlock Text="{Binding prioridad}" 
+                                                                   Foreground="#CCFFFFFF" 
+                                                                   FontSize="12"/>
+                                                        <TextBlock Text="{Binding TiempoRestante}" Foreground="Orange" FontSize="12"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
                             </ScrollViewer>
 
                             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
-                                <Button Content="Añadir" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0"/>
-                                <Button Content="Modificar" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0"/>
-                                <Button Content="Eliminar" Style="{StaticResource RoundedButtonStyle}"/>
+                                <Button x:Name="btnAgregarTarea" Content="➕ Añadir" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0" Click="AgregarTarea_Click"/>
+                                <Button x:Name="btnModificarTarea" Content="✏️ Modificar" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0" Click="ModificarTarea_Click"/>
+                                <Button x:Name="btnEliminarTarea" Content="🗑 Eliminar" Style="{StaticResource RoundedButtonStyle}" Click="EliminarTarea_Click"/>
                             </StackPanel>
                         </Grid>
                     </Border>

@@ -102,7 +102,7 @@ namespace TFG_V0._01.Ventanas
             else
             {
                 if (icon != null)
-                    icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/luna2.png", UriKind.Relative));
+                    icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/luna.png", UriKind.Relative));
                 backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString(
                     "pack://application:,,,/TFG V0.01;component/Recursos/Background/claro/main.png") as ImageSource;
             }

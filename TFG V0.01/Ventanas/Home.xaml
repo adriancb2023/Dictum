@@ -530,7 +530,7 @@
                                 </Grid>
 
                                 <!-- Cases List with Scroll -->
-                                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" MaxHeight="300" Visibility="Collapsed">
+                                <ScrollViewer x:Name="casosrecientesSupa" Grid.Row="1" VerticalScrollBarVisibility="Auto" MaxHeight="300" Visibility="Collapsed">
                                     <ItemsControl x:Name="co" ItemsSource="{Binding CasosRecientesLista}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
@@ -566,7 +566,7 @@
                                     </ItemsControl>
                                 </ScrollViewer>
 
-                                <ScrollViewer Grid.Row="1" Margin="0" Background="#30FFFFFF" VerticalScrollBarVisibility="Auto" MaxHeight="118">
+                                <ScrollViewer x:Name="casosrecientesLocal" Grid.Row="1" Margin="0" Background="#30FFFFFF" VerticalScrollBarVisibility="Auto" MaxHeight="118">
                                     <StackPanel x:Name="CasosContainer" />
                                 </ScrollViewer>
                             </Grid>

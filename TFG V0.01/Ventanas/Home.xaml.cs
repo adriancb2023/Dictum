@@ -163,7 +163,7 @@ namespace TFG_V0._01.Ventanas
         {
             if (MainWindow.tipoBBDD)
             {
-                LoadingPanel.Visibility = Visibility.Visible;
+                LoadingPanel.Visibility = Visibility.Collapsed;
                 await CargarDatosDashboard();
                 CargarScoreCasos();
                 CargarCasosRecientes();
@@ -172,7 +172,7 @@ namespace TFG_V0._01.Ventanas
             }
             else
             {
-                LoadingPanel.Visibility = Visibility.Visible;
+                LoadingPanel.Visibility = Visibility.Collapsed;
                 CargarCasosActibosLocal();
                 CargarScoreCasosActivosLocal();
                 CargarClientes();
@@ -188,7 +188,7 @@ namespace TFG_V0._01.Ventanas
                     mesText = NombresMeses[fechaActual.Month - 1];
                 if (string.IsNullOrWhiteSpace(anio))
                     anio = fechaActual.Year.ToString();
-                cargarTareasCalendario(mesText, anio);
+                cargarEventosCalendario(mesText, anio);
                 cargarCasosRecientes();
             }
         }
@@ -484,7 +484,14 @@ namespace TFG_V0._01.Ventanas
             FechaElegida.Text = $"{mesText} {anio}";
 
             //actualizar lista en local 
-            cargarTareasCalendario(mesText, anio);
+            if (MainWindow.tipoBBDD)
+            {
+
+            }
+            else
+            {
+                cargarEventosCalendario(mesText, anio);
+            }
         }
         #endregion
 
@@ -703,6 +710,8 @@ namespace TFG_V0._01.Ventanas
 
         private async void CargarCasosRecientes()
         {
+            casosrecientesLocal.Visibility = Visibility.Collapsed;
+            casosrecientesSupa.Visibility = Visibility.Visible;
             try
             {
                 await _supabaseCasos.InicializarAsync();
@@ -890,6 +899,7 @@ namespace TFG_V0._01.Ventanas
         }
         */
         #endregion
+
         #endregion
 
 
@@ -1076,7 +1086,7 @@ namespace TFG_V0._01.Ventanas
         #endregion
 
         #region 📥 Cargar Eventos Citas 
-        private void cargarTareasCalendario(string mesText, string anio)
+        private void cargarEventosCalendario(string mesText, string anio)
         {
             var colores = new List<string>
     {
@@ -1177,13 +1187,13 @@ namespace TFG_V0._01.Ventanas
                 }
             }
         }
-
-
         #endregion
 
         #region Casos Recientas
         private void cargarCasosRecientes()
         {
+            casosrecientesLocal.Visibility = Visibility.Visible;
+            casosrecientesSupa.Visibility = Visibility.Collapsed;
             using (var context = new TfgContext())
             {
                 var recienteIds = context.Recientes

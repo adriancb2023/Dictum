@@ -167,7 +167,11 @@ namespace TFG_V0._01.Ventanas
                 await CargarDatosDashboard();
                 CargarScoreCasos();
                 CargarCasosRecientes();
+
+                casosrecientesLocal.Visibility = Visibility.Collapsed;
+                casosrecientesSupa.Visibility = Visibility.Visible;
                 CargarScoreDocumentos();
+
                 LoadingPanel.Visibility = Visibility.Collapsed;
             }
             else
@@ -183,13 +187,18 @@ namespace TFG_V0._01.Ventanas
                 CargarTareasPendientesLista();
 
 
-                LoadingPanel.Visibility = Visibility.Collapsed;
                 if (string.IsNullOrWhiteSpace(mesText))
                     mesText = NombresMeses[fechaActual.Month - 1];
                 if (string.IsNullOrWhiteSpace(anio))
                     anio = fechaActual.Year.ToString();
                 cargarEventosCalendario(mesText, anio);
-                cargarCasosRecientes();
+
+                casosrecientesLocal.Visibility = Visibility.Visible;
+                casosrecientesSupa.Visibility = Visibility.Collapsed;
+                cargarCasosRecientesLocal();
+
+
+                LoadingPanel.Visibility = Visibility.Collapsed;
             }
         }
         #endregion
@@ -883,11 +892,11 @@ namespace TFG_V0._01.Ventanas
         {
             try
             {
-                var eventosService = new SupabaseEventos();
+                var eventosService = new SupabaseEventosCitas();
                 await eventosService.InicializarAsync();
-                var eventos = await eventosService.ObtenerTodosAsync();
+                var eventos = await eventosService.ObtenerEventosCitas();
                 var proximosEventos = eventos
-                    .Where(e => e.fecha_evento.Date >= DateTime.Now.Date)
+                    .Where(e => e.FechaInicio.Date >= DateTime.Now.Date)
                     .OrderBy(e => e.fecha_evento)
                     .ToList();
                 // Aquí puedes mostrar los próximos eventos en la interfaz de usuario
@@ -1190,7 +1199,7 @@ namespace TFG_V0._01.Ventanas
         #endregion
 
         #region Casos Recientas
-        private void cargarCasosRecientes()
+        private void cargarCasosRecientesLocal()
         {
             casosrecientesLocal.Visibility = Visibility.Visible;
             casosrecientesSupa.Visibility = Visibility.Collapsed;
@@ -1251,10 +1260,13 @@ namespace TFG_V0._01.Ventanas
                     Grid.SetColumn(estadoPanel, 3);
                     grid.Children.Add(estadoPanel);
 
-                    //Botones sin definir aun 
+                    var btnVer = CreateIconButton("ver.png");
+                    btnVer.Click += (s, e) => VerCaso_Click(caso.Id); 
+
+                    btnVer.Tag = caso;
+
                     var btnPanel = new StackPanel { Orientation = Orientation.Horizontal };
-                    btnPanel.Children.Add(CreateIconButton("luna.png"));
-                    btnPanel.Children.Add(CreateIconButton("sol.png"));
+                    btnPanel.Children.Add(btnVer);
                     Grid.SetColumn(btnPanel, 4);
                     grid.Children.Add(btnPanel);
 
@@ -1262,6 +1274,14 @@ namespace TFG_V0._01.Ventanas
                     CasosContainer.Children.Add(border);
                 }
             }
+        }
+
+        private void VerCaso_Click(int id_caso)
+        {
+            var ventanaCaso = new Casos(id_caso);
+            ventanaCaso.Show();
+            this.Close();
+
         }
 
         private TextBlock CreateTextBlock(string text, int column)
@@ -1307,6 +1327,8 @@ namespace TFG_V0._01.Ventanas
                 _ => Colors.Gray
             };
         }
+
+
         #endregion
 
         #endregion

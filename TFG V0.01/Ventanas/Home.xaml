@@ -289,7 +289,7 @@
                     </Grid>
 
 
-                    <!-- Calendario Eventos -->
+                    <!-- 2 fila -->
                     <Grid Grid.Row="1" Margin="0,20,0,20">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="2*"/>
@@ -297,7 +297,7 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- Calendario -->
-                        <Border Grid.Column="0" Style="{StaticResource CardStyle}" Margin="0,0,10,0">
+                        <Border Grid.Column="0" Style="{StaticResource CardStyle}" Margin="0,0,10,0" MaxHeight="800">
 
                             <Grid>
 
@@ -428,7 +428,7 @@
                         </Border>
 
                         <!-- Tareas Pendientes -->
-                        <Border Grid.Column="1" Style="{StaticResource CardStyle}" Margin="10,0,0,0">
+                        <Border Grid.Column="1" Style="{StaticResource CardStyle}" Margin="10,0,0,0" MaxHeight="800">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -530,7 +530,7 @@
                                 </Grid>
 
                                 <!-- Cases List with Scroll -->
-                                <ScrollViewer x:Name="casosrecientesSupa" Grid.Row="1" VerticalScrollBarVisibility="Auto" MaxHeight="300" Visibility="Collapsed">
+                                <ScrollViewer x:Name="casosrecientesSupa" Grid.Row="1" VerticalScrollBarVisibility="Auto" Visibility="Visible">
                                     <ItemsControl x:Name="co" ItemsSource="{Binding CasosRecientesLista}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
@@ -566,7 +566,7 @@
                                     </ItemsControl>
                                 </ScrollViewer>
 
-                                <ScrollViewer x:Name="casosrecientesLocal" Grid.Row="1" Margin="0" Background="#30FFFFFF" VerticalScrollBarVisibility="Auto" MaxHeight="118">
+                                <ScrollViewer x:Name="casosrecientesLocal" Grid.Row="1" Margin="0" Background="#30FFFFFF" VerticalScrollBarVisibility="Auto" MaxHeight="118" Visibility="Collapsed">
                                     <StackPanel x:Name="CasosContainer" />
                                 </ScrollViewer>
                             </Grid>

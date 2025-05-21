@@ -168,6 +168,15 @@ namespace TFG_V0._01.Ventanas
             _tareasDelCaso = new List<Tarea>();
         }
 
+        public Casos(int idCaso)
+        {
+            InitializeComponent();
+            // Lógica para cargar y mostrar el caso directamente
+            MostrarCasoPorId(idCaso);
+        }
+
+       
+
         private async void CargarDatosIniciales()
         {
             try
@@ -1323,6 +1332,48 @@ namespace TFG_V0._01.Ventanas
                 }
             }
         }
+
+        private async void MostrarCasoPorId(int idCaso)
+        {
+            try
+            {
+                // Cargar el caso desde Supabase
+                await _casosService.InicializarAsync();
+                var caso = await _casosService.ObtenerPorIdAsync(idCaso);
+
+                if (caso != null)
+                {
+                    // Asignar el caso seleccionado
+                    CasoSeleccionado = caso;
+
+                    // Cargar datos relacionados
+                    await CargarDatosDelCaso(caso.id);
+
+                    // Seleccionar la fecha actual en el calendario
+                    var calendar = this.FindName("calendar") as CalendarControl;
+                    if (calendar != null)
+                    {
+                        calendar.SelectedDate = DateTime.Today;
+                        _fechaSeleccionada = DateTime.Today;
+                    }
+
+                    // Mostrar el grid de detalle y ocultar el buscador
+                    var contenidoCasos = this.FindName("ContenidoCasos") as UIElement;
+                    var buscador = this.FindName("Buscador") as UIElement;
+                    if (contenidoCasos != null) contenidoCasos.Visibility = Visibility.Visible;
+                    if (buscador != null) buscador.Visibility = Visibility.Collapsed;
+                }
+                else
+                {
+                    MessageBox.Show("No se encontró el caso solicitado.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar el caso: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
     }
 
     public class EventoViewModel

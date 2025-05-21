@@ -75,6 +75,8 @@
     <None Remove="Recursos\Iconos\local.png" />
     <None Remove="Recursos\Iconos\local2.png" />
     <None Remove="Recursos\Iconos\localselect.png" />
+    <None Remove="Recursos\Iconos\ver.png" />
+    <None Remove="Recursos\Iconos\ver2.png" />
     <None Remove="Recursos\Logo\logo.ico" />
     <None Remove="Recursos\Logo\logo.png" />
   </ItemGroup>
@@ -171,6 +173,8 @@
     <Resource Include="Recursos\Iconos\localselect.png" />
     <Resource Include="Recursos\Iconos\sol.png" />
     <Resource Include="Recursos\Iconos\luna.png" />
+    <Resource Include="Recursos\Iconos\ver.png" />
+    <Resource Include="Recursos\Iconos\ver2.png" />
     <Resource Include="Recursos\Logo\logo.ico" />
     <Resource Include="Recursos\Logo\logo.png" />
   </ItemGroup>

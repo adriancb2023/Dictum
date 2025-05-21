@@ -635,9 +635,10 @@
                                                             <StackPanel Grid.Column="0" VerticalAlignment="Center">
                                                                 <TextBlock Text="{Binding nombre}" Foreground="White" FontWeight="Bold" FontSize="15"/>
                                                                 <TextBlock Text="{Binding fecha_subid, StringFormat='Subido: {0:dd/MM/yyyy}'}" Foreground="#FFD6D6D6" FontSize="12"/>
+                                                                <TextBlock Text="{Binding tipo_documento}" Foreground="#FFD6D6D6" FontSize="12"/>
                                                             </StackPanel>
-                                                            <Button Grid.Column="1" Content="Ver" Style="{StaticResource ModernDetailsButtonStyle}" Height="28" Width="55" FontSize="12" Margin="8,0,0,0"/>
-                                                            <Button Grid.Column="2" Content="Descargar" Style="{StaticResource ModernDetailsButtonStyle}" Height="28" Width="80" FontSize="12" Margin="8,0,0,0"/>
+                                                            <Button Grid.Column="1" Content="Ver" Style="{StaticResource ModernDetailsButtonStyle}" Height="28" Width="55" FontSize="12" Margin="8,0,0,0" Click="VerDocumento_Click"/>
+                                                            <Button Grid.Column="2" Content="Descargar" Style="{StaticResource ModernDetailsButtonStyle}" Height="28" Width="85" FontSize="12" Margin="8,0,0,0" Click="DescargarDocumento_Click"/>
                                                         </Grid>
                                                     </Border>
                                                 </DataTemplate>

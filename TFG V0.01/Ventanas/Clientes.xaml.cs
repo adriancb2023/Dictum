@@ -19,6 +19,7 @@ using TFG_V0._01.Supabase.Models;
 using System.Globalization;
 using System.ComponentModel;
 using TFG_V0._01.Helpers;
+using System.IO;
 
 namespace TFG_V0._01.Ventanas
 {
@@ -248,7 +249,6 @@ namespace TFG_V0._01.Ventanas
         {
             try
             {
-                // Suponiendo que tienes un servicio SupabaseDocumentos
                 var supabaseDocumentos = new SupabaseDocumentos();
                 await supabaseDocumentos.InicializarAsync();
                 var docs = await supabaseDocumentos.ObtenerPorClienteAsync(clienteId);
@@ -637,6 +637,10 @@ namespace TFG_V0._01.Ventanas
 
         private void VerDetalles(Caso caso)
         {
+            // Asegura que la referencia de Estado sea la misma que la de la lista
+            var estadoCorrecto = _estadosDisponibles.FirstOrDefault(e => e.id == caso.id_estado);
+            caso.Estado = estadoCorrecto;
+
             var ventana = new EditarCasoWindow(caso, _estadosDisponibles)
             {
                 Owner = this
@@ -719,6 +723,76 @@ namespace TFG_V0._01.Ventanas
             if (button?.TemplatedParent is ComboBox combo)
             {
                 combo.SelectedItem = null;
+            }
+        }
+
+        // Evento para ver documento
+        private void VerDocumento_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (sender is Button btn && btn.DataContext is Documento doc)
+                {
+                    var detallesWindow = new SubVentanas.DetallesDocumentoWindow(doc)
+                    {
+                        Owner = this
+                    };
+                    detallesWindow.ShowDialog();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error al abrir detalles: " + ex.Message);
+            }
+        }
+
+        // Evento para descargar documento
+        private async void DescargarDocumento_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.DataContext is Documento doc)
+            {
+                try
+                {
+                    var saveFileDialog = new Microsoft.Win32.SaveFileDialog
+                    {
+                        FileName = doc.nombre,
+                        Filter = "Todos los archivos|*.*",
+                        Title = "Guardar documento"
+                    };
+
+                    if (saveFileDialog.ShowDialog() == true)
+                    {
+                        // Verificar si el archivo existe
+                        if (!File.Exists(doc.ruta))
+                        {
+                            MessageBox.Show("El archivo original no se encuentra disponible.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                            return;
+                        }
+
+                        // Verificar si el directorio de destino existe
+                        var directory = System.IO.Path.GetDirectoryName(saveFileDialog.FileName);
+                        if (!Directory.Exists(directory))
+                        {
+                            Directory.CreateDirectory(directory);
+                        }
+
+                        // Copiar el archivo
+                        File.Copy(doc.ruta, saveFileDialog.FileName, true);
+                        MessageBox.Show("Documento descargado correctamente.", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    MessageBox.Show("No tiene permisos para guardar el archivo en la ubicación seleccionada.", "Error de permisos", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                catch (IOException ex)
+                {
+                    MessageBox.Show($"Error al acceder al archivo: {ex.Message}", "Error de E/S", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error al descargar el documento: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
     }

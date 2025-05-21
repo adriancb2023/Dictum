@@ -227,28 +227,34 @@
             <Setter Property="Padding" Value="4,2"/>
         </Style>
     </Window.Resources>
-    <Border CornerRadius="20" BorderThickness="1" BorderBrush="#2979FF" Margin="0">
-        <Border.Background>
-            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                <GradientStop Color="#2B2D42" Offset="0.0"/>
-                <GradientStop Color="#23243B" Offset="1.0"/>
-            </LinearGradientBrush>
-        </Border.Background>
+    <Border Style="{StaticResource WindowContainerStyle}">
         <Grid MouseLeftButtonDown="Border_MouseLeftButtonDown">
-            <!-- Botonera de ventana -->
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,10,10,0" Panel.ZIndex="100">
-                <Button Content="—" Click="btnMinimize_Click" Style="{StaticResource RoundedButtonStyle}" Width="30" Height="30" Margin="5" Background="#50FFFFFF" Foreground="White"/>
-                <Button Content="☐" Click="btnMaximize_Click" Style="{StaticResource RoundedButtonStyle}" Width="30" Height="30" Margin="5" Background="#50FFFFFF" Foreground="White"/>
-                <Button Content="✕" Click="btnClose_Click" Style="{StaticResource RoundedButtonStyle}" Width="30" Height="30" Margin="5" Background="#A0FF0000" Foreground="White"/>
-            </StackPanel>
-            <!-- Cabecera moderna -->
-            <Border Height="54" CornerRadius="20,20,0,0" Background="#2979FF" VerticalAlignment="Top">
-                <DockPanel LastChildFill="True">
-                    <TextBlock Text="🗂️" FontSize="22" Margin="16,0,8,0" VerticalAlignment="Center"/>
-                    <TextBlock Text="Editar Caso" FontSize="20" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
-                </DockPanel>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="54"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <!-- Cabecera y botonera UNIFICADAS -->
+            <Border Grid.Row="0" Background="#2979FF" CornerRadius="20,20,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <!-- Icono y texto -->
+                    <DockPanel Grid.Column="0" LastChildFill="True" VerticalAlignment="Center">
+                        <TextBlock Text="🗂️" FontSize="22" Margin="16,0,8,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="Editar Caso" FontSize="20" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+                    </DockPanel>
+                    <!-- Botonera de ventana -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0">
+                        <Button Content="—" Click="btnMinimize_Click" Style="{StaticResource WindowButtonStyle}"/>
+                        <Button Content="☐" Click="btnMaximize_Click" Style="{StaticResource WindowButtonStyle}"/>
+                        <Button Content="✕" Click="btnClose_Click" Style="{StaticResource WindowCloseButtonStyle}"/>
+                    </StackPanel>
+                </Grid>
             </Border>
-            <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,54,0,0">
+            <!-- Contenido principal -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,0,0,0">
                 <StackPanel Margin="30,20,30,30">
                     <!-- Fila Referencia y Fecha de inicio -->
                     <Grid Margin="0,0,0,10">

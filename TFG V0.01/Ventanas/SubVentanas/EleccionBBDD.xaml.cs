@@ -50,11 +50,29 @@ namespace TFG_V0._01.Ventanas.SubVentanas
                         BBDD.IsChecked = config.TipoBBDD.Value;
                     if (BBDD.IsChecked != true)
                     {
-                        local.Source = new BitmapImage(new Uri("pack://application:,,,/TFG V0.01;component/Recursos/Iconos/localselect.png"));
+                        // Ruta relativa al recurso local
+                        var localImgPath = "pack://application:,,,/TFG V0.01;component/Recursos/Iconos/localselect.png";
+                        try
+                        {
+                            local.Source = new BitmapImage(new Uri(localImgPath, UriKind.Absolute));
+                        }
+                        catch
+                        {
+                            local.Source = null;
+                        }
                     }
                     else
                     {
-                        supa.Source = new BitmapImage(new Uri("pack://application:,,,/TFG V0.01;component/Recursos/Iconos/cloudselect.png"));
+                        // Ruta relativa al recurso de nube
+                        var supaImgPath = "pack://application:,,,/TFG V0.01;component/Recursos/Iconos/cloudselect.png";
+                        try
+                        {
+                            supa.Source = new BitmapImage(new Uri(supaImgPath, UriKind.Absolute));
+                        }
+                        catch
+                        {
+                            supa.Source = null;
+                        }
                     }
                 }
             }

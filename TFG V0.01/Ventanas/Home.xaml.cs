@@ -1043,7 +1043,7 @@ namespace TFG_V0._01.Ventanas
                 await tareasService.InicializarAsync();
                 var tareasPendientes = (await tareasService.ObtenerTodosAsync())
                     .Where(t => t.estado != "Finalizado")
-                    .OrderBy(t => t.fecha_fin)
+                    .OrderBy(t => t.fecha_vencimiento)
                     .ToList();
 
                 TareasPendientesLista.Clear();

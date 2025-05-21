@@ -12,18 +12,26 @@
 
   <ItemGroup>
     <Compile Remove="NewFolder\**" />
+    <Compile Remove="Recursos\Imagenes\**" />
+    <Compile Remove="Recursos\Raw\**" />
     <Compile Remove="Ventanas\NewFolder1\**" />
     <Compile Remove="Ventanas\NewFolder2\**" />
     <Compile Remove="Ventanas\NewFolder\**" />
     <EmbeddedResource Remove="NewFolder\**" />
+    <EmbeddedResource Remove="Recursos\Imagenes\**" />
+    <EmbeddedResource Remove="Recursos\Raw\**" />
     <EmbeddedResource Remove="Ventanas\NewFolder1\**" />
     <EmbeddedResource Remove="Ventanas\NewFolder2\**" />
     <EmbeddedResource Remove="Ventanas\NewFolder\**" />
     <None Remove="NewFolder\**" />
+    <None Remove="Recursos\Imagenes\**" />
+    <None Remove="Recursos\Raw\**" />
     <None Remove="Ventanas\NewFolder1\**" />
     <None Remove="Ventanas\NewFolder2\**" />
     <None Remove="Ventanas\NewFolder\**" />
     <Page Remove="NewFolder\**" />
+    <Page Remove="Recursos\Imagenes\**" />
+    <Page Remove="Recursos\Raw\**" />
     <Page Remove="Ventanas\NewFolder1\**" />
     <Page Remove="Ventanas\NewFolder2\**" />
     <Page Remove="Ventanas\NewFolder\**" />
@@ -53,10 +61,16 @@
     <None Remove="Recursos\Iconos\casos2.png" />
     <None Remove="Recursos\Iconos\clientes.png" />
     <None Remove="Recursos\Iconos\clientes2.png" />
+    <None Remove="Recursos\Iconos\cloud.png" />
+    <None Remove="Recursos\Iconos\cloud2.png" />
+    <None Remove="Recursos\Iconos\cloudselect.png" />
     <None Remove="Recursos\Iconos\documentos.png" />
     <None Remove="Recursos\Iconos\documentos2.png" />
     <None Remove="Recursos\Iconos\home.png" />
     <None Remove="Recursos\Iconos\home2.png" />
+    <None Remove="Recursos\Iconos\local.png" />
+    <None Remove="Recursos\Iconos\local2.png" />
+    <None Remove="Recursos\Iconos\localselect.png" />
     <None Remove="Recursos\Logo\logo.ico" />
     <None Remove="Recursos\Logo\logo.png" />
   </ItemGroup>
@@ -110,9 +124,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Recursos\Imagenes\" />
     <Folder Include="Recursos\ER BBDD\" />
-    <Folder Include="Recursos\Raw\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -139,10 +151,16 @@
     <Resource Include="Recursos\Iconos\casos2.png" />
     <Resource Include="Recursos\Iconos\clientes.png" />
     <Resource Include="Recursos\Iconos\clientes2.png" />
+    <Resource Include="Recursos\Iconos\cloud.png" />
+    <Resource Include="Recursos\Iconos\cloud2.png" />
+    <Resource Include="Recursos\Iconos\cloudselect.png" />
     <Resource Include="Recursos\Iconos\documentos.png" />
     <Resource Include="Recursos\Iconos\documentos2.png" />
     <Resource Include="Recursos\Iconos\home.png" />
     <Resource Include="Recursos\Iconos\home2.png" />
+    <Resource Include="Recursos\Iconos\local.png" />
+    <Resource Include="Recursos\Iconos\local2.png" />
+    <Resource Include="Recursos\Iconos\localselect.png" />
     <Resource Include="Recursos\Iconos\sol.png" />
     <Resource Include="Recursos\Iconos\luna.png" />
     <Resource Include="Recursos\Logo\logo.ico" />

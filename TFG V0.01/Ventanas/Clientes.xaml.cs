@@ -641,10 +641,7 @@ namespace TFG_V0._01.Ventanas
             var estadoCorrecto = _estadosDisponibles.FirstOrDefault(e => e.id == caso.id_estado);
             caso.Estado = estadoCorrecto;
 
-            var ventana = new EditarCasoWindow(caso, _estadosDisponibles)
-            {
-                Owner = this
-            };
+            var ventana = new EditarCasoWindow(caso, _estadosDisponibles);
             if (ventana.ShowDialog() == true)
             {
                 // Aquí puedes guardar el caso actualizado en la base de datos

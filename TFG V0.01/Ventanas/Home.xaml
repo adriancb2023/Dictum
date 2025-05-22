@@ -230,7 +230,7 @@
                                 <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,15,0,0">
                                     <TextBlock x:Name="totalCActivos" Text="{Binding CasosActivos}" FontSize="36" FontWeight="Bold" Foreground="White"/>
                                     <Border Background="#4CAF50" CornerRadius="5" Padding="5,2" Margin="15,10,0,0" VerticalAlignment="Top">
-                                        <TextBlock x:Name="scoreCasos" Text="-" FontSize="12" Foreground="White"/>
+                                        <TextBlock x:Name="scoreCasos" Text="+0" FontSize="12" Foreground="White"/>
                                     </Border>
                                 </StackPanel>
                             </Grid>
@@ -247,7 +247,7 @@
                                 <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,15,0,0">
                                     <TextBlock x:Name="txtClientCount" Text="{Binding ClientCount, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" FontSize="36" FontWeight="Bold" Foreground="White" MinWidth="55" Width="0"/>
                                     <Border Background="#2196F3" CornerRadius="5" Padding="5,2" Margin="15,10,0,0" VerticalAlignment="Top">
-                                        <TextBlock x:Name="txtClientCountChange" Text="{Binding ClientCountChange, Mode=OneWay}" FontSize="12" Foreground="White"/>
+                                        <TextBlock x:Name="txtClientCountChange" Text="+0" FontSize="12" Foreground="White"/>
                                     </Border>
                                 </StackPanel>
                             </Grid>
@@ -264,7 +264,7 @@
                                 <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,15,0,0">
                                     <TextBlock x:Name="DocTotales" Text="{Binding Documentos}" FontSize="36" FontWeight="Bold" Foreground="White"/>
                                     <Border Background="#FF9800" CornerRadius="5" Padding="5,2" Margin="15,10,0,0" VerticalAlignment="Top">
-                                        <TextBlock x:Name="scoreDocumentos" Text="-" FontSize="12" Foreground="White"/>
+                                        <TextBlock x:Name="scoreDocumentos" Text="+0" FontSize="12" Foreground="White"/>
                                     </Border>
                                 </StackPanel>
                             </Grid>

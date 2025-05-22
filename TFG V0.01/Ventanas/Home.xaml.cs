@@ -700,37 +700,22 @@ namespace TFG_V0._01.Ventanas
             try
             {
                 await _supabaseCasos.InicializarAsync();
-                var todos = await _supabaseCasos.ObtenerTodosAsync();
+                var casos = await _supabaseCasos.ObtenerTodosAsync();
+                var fechaLimite = DateTime.Now.AddDays(-28);
 
-                var primerDiaMesActual = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
-                var primerDiaMesAnterior = primerDiaMesActual.AddMonths(-1);
-                var primerDiaMesSiguiente = primerDiaMesActual.AddMonths(1);
+                // Casos activos creados en los últimos 28 días y que no estén cerrados
+                var casosActivosPeriodo = casos
+                    .Where(c => c.fecha_inicio >= fechaLimite && c.estado_nombre != "Cerrado")
+                    .ToList();
 
-                Func<SupabaseCaso, bool> esActivo = c =>
-                    c.estado_nombre.Equals("abierto", StringComparison.OrdinalIgnoreCase) ||
-                    c.estado_nombre.Equals("en proceso", StringComparison.OrdinalIgnoreCase);
+                CasosActivos = casosActivosPeriodo.Count;
 
-                int casosMesAnterior = todos
-                    .Where(esActivo)
-                    .Count(c => c.fecha_inicio >= primerDiaMesAnterior && c.fecha_inicio < primerDiaMesActual);
-
-                int casosMesActual = todos
-                    .Where(esActivo)
-                    .Count(c => c.fecha_inicio >= primerDiaMesActual && c.fecha_inicio < primerDiaMesSiguiente);
-
-                int diferencia = casosMesActual - casosMesAnterior;
-
-                if (scoreCasos != null)
-                {
-                    if (diferencia > 0)
-                        scoreCasos.Text = $"+{diferencia}";
-                    else
-                        scoreCasos.Text = diferencia.ToString();
-                }
+                // Contador de nuevos casos activos (mismo filtro)
+                UpdateCasosCountChange(casosActivosPeriodo.Count);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al calcular el score de casos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Error al cargar casos: {ex.Message}");
             }
         }
 
@@ -739,24 +724,26 @@ namespace TFG_V0._01.Ventanas
             try
             {
                 await _documentosService.InicializarAsync();
-                var documentos = await _documentosService.ObtenerTodosAsync();
+                var documentos = await _documentosService.ObtenerTodosDocumentosManualAsync();
+                var fechaLimite = DateTime.Now.AddDays(-28);
 
-                var ayer = DateTime.Now.Date.AddDays(-1);
+                // Filtrar documentos subidos en los últimos 28 días
+                var documentosNuevos = documentos.Where(d => d.fecha_subid >= fechaLimite).ToList();
 
-                int documentosNuevos = documentos.Count(d => d.fecha_subid.Date == ayer);
+                // Obtener todos los casos para verificar el estado
+                await _supabaseCasos.InicializarAsync();
+                var casos = await _supabaseCasos.ObtenerTodosAsync();
+                var casosNoCerrados = casos.Where(c => c.estado_nombre != "Cerrado").Select(c => c.id).ToHashSet();
 
-                if (scoreDocumentos != null)
-                {
-                    scoreDocumentos.Text = $"+{documentosNuevos}";
-                }
-                else
-                {
-                    scoreDocumentos.Text = $"0";
-                }
+                // Solo contar documentos cuyo caso asociado no esté cerrado
+                var documentosNuevosActivos = documentosNuevos.Where(d => casosNoCerrados.Contains(d.id_caso)).ToList();
+
+                Documentos = documentosNuevosActivos.Count;
+                UpdateDocumentosCountChange(documentosNuevosActivos.Count);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al calcular el score de documentos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Error al cargar documentos: {ex.Message}");
             }
         }
 
@@ -824,14 +811,42 @@ namespace TFG_V0._01.Ventanas
 
         private void UpdateClientCountChange()
         {
-            if (_previousClientCount == 0)
+            var fechaLimite = DateTime.Now.AddDays(-28);
+            int diferencia = _clientCount - _previousClientCount;
+            
+            // Solo mostrar la diferencia si es reciente (últimos 28 días)
+            if (diferencia > 0)
+            {
+                ClientCountChange = $"+{diferencia}";
+            }
+            else
             {
                 ClientCountChange = "+0";
-                return;
             }
+        }
 
-            int difference = _clientCount - _previousClientCount;
-            ClientCountChange = difference >= 0 ? $"+{difference}" : $"{difference}";
+        private void UpdateCasosCountChange(int nuevosCasos)
+        {
+            if (nuevosCasos > 0)
+            {
+                scoreCasos.Text = $"+{nuevosCasos}";
+            }
+            else
+            {
+                scoreCasos.Text = "+0";
+            }
+        }
+
+        private void UpdateDocumentosCountChange(int nuevosDocumentos)
+        {
+            if (nuevosDocumentos > 0)
+            {
+                scoreDocumentos.Text = $"+{nuevosDocumentos}";
+            }
+            else
+            {
+                scoreDocumentos.Text = "+0";
+            }
         }
 
         private string ObtenerColorEstadoCaso(string estado)

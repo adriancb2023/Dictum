@@ -45,19 +45,31 @@
     <Border Background="#454545" CornerRadius="20" BorderThickness="1" BorderBrush="#666666" MouseLeftButtonDown="Border_MouseLeftButtonDown">
         <Grid Margin="20">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="54"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-
-            <!-- Título de la ventana -->
-            <TextBlock Text="{Binding TituloVentana}" 
-                       FontSize="24" 
-                       FontWeight="Bold" 
-                       Foreground="White" 
-                       Margin="0,0,0,20"/>
-
+            <!-- Cabecera y botonera UNIFICADAS -->
+            <Border Grid.Row="0" Background="#2979FF" CornerRadius="20,20,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <!-- Icono y texto -->
+                    <DockPanel Grid.Column="0" LastChildFill="True" VerticalAlignment="Center">
+                        <TextBlock Text="📝" FontSize="22" Margin="16,0,8,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="Editar Nota" FontSize="20" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+                    </DockPanel>
+                    <!-- Botonera de ventana -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0">
+                        <Button Content="—" Click="TFG_V0._01.Styles.WindowStyles.btnMinimize_Click" Style="{StaticResource WindowButtonStyle}"/>
+                        <Button Content="☐" Click="TFG_V0._01.Styles.WindowStyles.btnMaximize_Click" Style="{StaticResource WindowButtonStyle}"/>
+                        <Button Content="✕" Click="TFG_V0._01.Styles.WindowStyles.btnClose_Click" Style="{StaticResource WindowCloseButtonStyle}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
             <!-- Título de la nota -->
             <StackPanel Grid.Row="1" Margin="0,0,0,10">
                 <TextBlock Text="Título" 

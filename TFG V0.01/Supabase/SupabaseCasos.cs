@@ -11,6 +11,7 @@ using System.Net.Http.Headers;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Configuration;
 using System.IO;
+using System.Windows;
 
 namespace TFG_V0._01.Supabase
 {
@@ -56,21 +57,24 @@ namespace TFG_V0._01.Supabase
         {
             await InicializarAsync().ConfigureAwait(false);
 
-            var allCasos = new List<Caso>();
-            const int pageSize = 1000;
-            int offset = 0;
-            while (true)
-            {
-                var casos = await _client.From<Caso>().Range(offset, offset + pageSize - 1).Get().ConfigureAwait(false);
-                if (casos.Models.Count == 0)
-                    break;
-                allCasos.AddRange(casos.Models);
-                if (casos.Models.Count < pageSize)
-                    break;
-                offset += pageSize;
-            }
+            // --- PETICIÓN MANUAL PARA OBTENER TODOS LOS CASOS (RANGO AMPLIO) ---
+            var config = ConfigHelper.GetConfiguration();
+            var url = config["Supabase:Url"] + "/rest/v1/casos";
+            var apiKey = config["Supabase:AnonKey"];
 
-            // Cargar datos relacionados en paralelo
+            using var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("apikey", apiKey);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+            client.DefaultRequestHeaders.TryAddWithoutValidation("Range-Unit", "items");
+            client.DefaultRequestHeaders.TryAddWithoutValidation("Range", "0-49999");
+
+            var response = await client.GetAsync(url).ConfigureAwait(false);
+            response.EnsureSuccessStatusCode();
+
+            var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            var allCasos = JsonConvert.DeserializeObject<List<Caso>>(json);
+
+            // --- Mapeo de datos relacionados (profesional) ---
             var clientesTask = _clientesService.ObtenerClientesAsync();
             var estadosTask = _estadosService.ObtenerTodosAsync();
             var tiposTask = _tiposCasoService.ObtenerTodosAsync();

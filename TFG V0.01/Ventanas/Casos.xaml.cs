@@ -911,17 +911,26 @@ namespace TFG_V0._01.Ventanas
             if (ventana.ShowDialog() == true)
             {
                 var selectedTime = ventana.HoraMinuto ?? DateTime.Now;
+                // Crear la fecha completa con la fecha seleccionada y la hora elegida
+                var fechaEvento = new DateTime(
+                    _fechaSeleccionada.Year,
+                    _fechaSeleccionada.Month,
+                    _fechaSeleccionada.Day,
+                    selectedTime.Hour,
+                    selectedTime.Minute,
+                    0
+                );
                 var nuevoEvento = new EventoCita
                 {
                     Titulo = ventana.TituloEvento,
                     Descripcion = ventana.DescripcionEvento,
-                    FechaString = _fechaSeleccionada.ToString("yyyy-MM-dd"),
+                    Fecha = fechaEvento, // Asignar la fecha completa
                     FechaInicio = new TimeSpan(selectedTime.Hour, selectedTime.Minute, 0),
                     IdEstado = ventana.EstadoSeleccionado.Id,
                     IdCaso = CasoSeleccionado?.id ?? 0
                 };
                 await _eventosCitasService.InsertarEventoCita(nuevoEvento);
-                await CargarEventosDelDia();
+                await CargarEventosDelDia(); // Recargar la lista tras añadir
             }
         }
 

@@ -17,6 +17,7 @@ using TFG_V0._01.BBDDLocal;
 using Polly;
 using SupabaseTarea = TFG_V0._01.Supabase.Models.Tarea;
 using SupabaseCaso = TFG_V0._01.Supabase.Models.Caso;
+using LocalCaso = TFG_V0._01.BBDDLocal.Caso;
 using Microsoft.EntityFrameworkCore;
 
 namespace TFG_V0._01.Ventanas
@@ -32,6 +33,10 @@ namespace TFG_V0._01.Ventanas
         private readonly SupabaseAutentificacion _authService;
         private readonly SupabaseClientes _clientesService;
         private readonly SupabaseCasos _supabaseCasos;
+        private readonly SupabaseEventosCitas _eventosCitasService;
+        private readonly SupabaseDocumentos _documentosService;
+        private readonly SupabaseTareas _tareasService;
+        private readonly SupabaseReciente _recienteService;
         private int _clientCount;
         private int _previousClientCount;
         private string _clientCountChange;
@@ -104,19 +109,27 @@ namespace TFG_V0._01.Ventanas
             set { _casosRecientes = value; OnPropertyChanged(); }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
         private DateOnly fechaActual = DateOnly.FromDateTime(DateTime.Now);
 
         private string mesText;
 
         private string anio;
         private readonly UIElement[] navbarItems;
+        private int _eventosProximos;
+        public ObservableCollection<EventoCita> EventosProximosLista { get; set; } = new ObservableCollection<EventoCita>();
+
+        public int EventosProximos
+        {
+            get => _eventosProximos;
+            set { _eventosProximos = value; OnPropertyChanged(); }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
         #endregion
 
         #region ⚡ Inicializacion
@@ -136,6 +149,10 @@ namespace TFG_V0._01.Ventanas
             _authService = new SupabaseAutentificacion();
             _clientesService = new SupabaseClientes();
             _supabaseCasos = new SupabaseCasos();
+            _documentosService = new SupabaseDocumentos();
+            _tareasService = new SupabaseTareas();
+            _recienteService = new SupabaseReciente();
+            _eventosCitasService = new SupabaseEventosCitas();
             CasosRecientesLista = new ObservableCollection<CasoViewModel>();
 
             // Inicializar valores
@@ -152,6 +169,9 @@ namespace TFG_V0._01.Ventanas
             {
                 inicio, buscar, documentos, clientes, casos, agenda, ajustes
             };
+
+            _eventosCitasService = new SupabaseEventosCitas();
+            EventosProximos = 0;
 
             // Cargar datos después de que la ventana esté completamente inicializada
             //this.Loaded += async (s, e) => { await CargarDatosDashboard(); CargarScoreCasos(); CargarCasosRecientes(); };
@@ -565,52 +585,65 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
+        #region ☁ SUPABASE
+        private async Task InicializarServiciosSupabase()
+        {
+            try
+            {
+                await Task.WhenAll(
+                    _documentosService.InicializarAsync(),
+                    _tareasService.InicializarAsync(),
+                    _recienteService.InicializarAsync(),
+                    _eventosCitasService.InicializarAsync()
+                );
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al inicializar servicios de Supabase: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
 
-
-        #region ☁ SUPABASE 
-
-        #region 📥 Cargar datos
         private async Task CargarDatosDashboard()
         {
             try
             {
-                // Cargar clientes y actualizar contador
-                var clientesTask = _clientesService.ObtenerClientesAsync();
+                await InicializarServiciosSupabase();
 
-                // Cargar casos, documentos y tareas en paralelo
+                // Usar los métodos manuales para traer todos los registros
+                var clientesTask = _clientesService.ObtenerTodosClientesManualAsync();
                 var casosTask = _supabaseCasos.ObtenerTodosAsync();
-                var documentosService = new SupabaseDocumentos();
-                var documentosInitTask = documentosService.InicializarAsync();
-                var tareasService = new SupabaseTareas();
-                var tareasInitTask = tareasService.InicializarAsync();
-                var recienteService = new SupabaseReciente();
-                var recienteInitTask = recienteService.InicializarAsync();
+                var documentosTask = _documentosService.ObtenerTodosDocumentosManualAsync();
+                var tareasTask = _tareasService.ObtenerTodosAsync();
+                var recientesTask = _recienteService.ObtenerTodosAsync();
+                var eventosCitasTask = _eventosCitasService.ObtenerTodosEventosManualAsync();
 
-                await Task.WhenAll(documentosInitTask, tareasInitTask, recienteInitTask);
+                // Esperar a que todas las tareas se completen
+                await Task.WhenAll(clientesTask, casosTask, documentosTask, tareasTask, recientesTask, eventosCitasTask);
 
-                var documentosTask = documentosService.ObtenerTodosAsync();
-                var tareasTask = tareasService.ObtenerTodosAsync();
-                var recientesTask = recienteService.ObtenerTodosAsync();
-
+                // Procesar clientes
                 var clientes = await clientesTask;
                 ClientCount = clientes?.Count ?? 0;
                 _previousClientCount = 0;
                 UpdateClientCountChange();
 
+                // Procesar casos
                 var casos = await casosTask;
                 CasosActivos = casos?.Count ?? 0;
 
+                // Procesar documentos (sin límite)
                 var documentos = await documentosTask;
                 Documentos = documentos?.Count ?? 0;
 
+                // Procesar tareas
                 var tareas = await tareasTask;
                 var tareasPendientes = tareas.Where(t => t.estado != "Finalizado").ToList();
-                TareasPendientes = tareasPendientes.Count;
+                TareasPendientes = tareasPendientes.Count();
 
                 TareasPendientesLista.Clear();
                 foreach (var tarea in tareasPendientes)
                     TareasPendientesLista.Add(tarea);
 
+                // Procesar casos recientes
                 var recientes = await recientesTask;
                 CasosRecientesLista.Clear();
                 var fechaLimite = DateTime.Now.Date.AddDays(-28);
@@ -640,6 +673,20 @@ namespace TFG_V0._01.Ventanas
                     }
                 }
                 CasosRecientes = CasosRecientesLista.Count;
+
+                // Procesar eventos del día actual (comparando el string de la fecha)
+                var eventosCitas = await eventosCitasTask;
+                var hoyStr = DateTime.Now.ToString("yyyy-MM-dd");
+                var eventosHoy = eventosCitas
+                    .Where(e => e.FechaString == hoyStr)
+                    .Count();                
+                EventosProximos = eventosHoy;
+                OnPropertyChanged(nameof(EventosProximos));
+
+                if (ProxEventos != null)
+                {
+                    ProxEventos.Text = EventosProximos.ToString();
+                }
             }
             catch (Exception ex)
             {
@@ -647,177 +694,7 @@ namespace TFG_V0._01.Ventanas
             }
         }
 
-        private void UpdateClientCountChange()
-        {
-            int change = ClientCount - _previousClientCount;
-            ClientCountChange = change > 0 ? $"+{change}" : change < 0 ? change.ToString() : "+0";
-        }
-
-        private async void CheckBox_TareaFinalizada(object sender, RoutedEventArgs e)
-        {
-            if (MainWindow.tipoBBDD)
-            {
-                try
-                {
-                    if (sender is CheckBox checkBox && checkBox.DataContext is SupabaseTarea tarea)
-                    {
-                        tarea.estado = "Finalizado";
-                        var tareasService = new SupabaseTareas();
-                        await tareasService.InicializarAsync();
-                        await tareasService.ActualizarAsync(tarea);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error al actualizar la tarea: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-            else
-            {
-                try
-                {
-                    if (sender is CheckBox checkBox && checkBox.DataContext is SupabaseTarea tarea)
-                    {
-                        using (var db = new TfgContext())
-                        {
-                            var tareaLocal = db.Tareas.FirstOrDefault(t => t.Id == tarea.id);
-                            if (tareaLocal != null)
-                            {
-                                tareaLocal.Estado = "Finalizado";
-                                await db.SaveChangesAsync();
-                            }
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error al actualizar la tarea: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-        }
-
-        private async void ComboBox_EstadoChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (sender is ComboBox comboBox && comboBox.DataContext is SupabaseTarea tarea)
-            {
-                var nuevoEstado = comboBox.SelectedItem as string;
-                if (!string.IsNullOrEmpty(nuevoEstado) && tarea.estado != nuevoEstado)
-                {
-                    tarea.estado = nuevoEstado;
-                    var tareasService = new SupabaseTareas();
-                    await tareasService.InicializarAsync();
-                    await tareasService.ActualizarAsync(tarea);
-
-                    if (nuevoEstado == "Finalizado")
-                    {
-                        TareasPendientesLista.Remove(tarea);
-                        TareasPendientes = TareasPendientesLista.Count;
-                    }
-                }
-            }
-        }
-
-        private async void CargarCasosRecientes()
-        {
-            casosrecientesLocal.Visibility = Visibility.Collapsed;
-            casosrecientesSupa.Visibility = Visibility.Visible;
-            try
-            {
-                await _supabaseCasos.InicializarAsync();
-                var casos = await _supabaseCasos.ObtenerTodosAsync();
-
-                var fechaLimite = DateTime.Now.Date.AddDays(-3);
-
-                var casosRecientes = casos
-                    .Where(c => c.fecha_inicio.Date >= fechaLimite)
-                    .GroupBy(c => c.id)
-                    .Select(g => g.First())
-                    .OrderByDescending(c => c.fecha_inicio)
-                    .ToList();
-
-                CasosRecientesLista.Clear();
-                foreach (var caso in casosRecientes)
-                {
-                    CasosRecientesLista.Add(new CasoViewModel
-                    {
-                        id = caso.id,
-                        referencia = caso.referencia,
-                        nombre_cliente = caso.nombre_cliente,
-                        tipo_nombre = caso.tipo_nombre,
-                        estado = caso.estado_nombre,
-                        estado_color = ObtenerColorEstadoCaso(caso.estado_nombre)
-                    });
-                }
-                CasosRecientes = CasosRecientesLista.Count;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error al cargar los casos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private string ObtenerColorEstado(string estado) => estado.ToLower() switch
-        {
-            "activo" => "#4CAF50",
-            "en proceso" => "#FF9800",
-            "finalizado" => "#F44336",
-            _ => "#757575"
-        };
-
-        private string ObtenerColorEstadoCaso(string estado)
-        {
-            return estado.ToLower() switch
-            {
-                "abierto" => "#43A047",
-                "en proceso" => "#1976D2",
-                "cerrado" => "#D32F2F",
-                "pendiente" => "#FFB300",
-                "revisado" => "#5C6BC0",
-                _ => "#BDBDBD"
-            };
-        }
-
-        private void VerTodosCasos_Click(object sender, RoutedEventArgs e)
-        {
-            // Implementar navegación a la vista completa de casos
-        }
-
-        private void EditarCaso_Click(object sender, RoutedEventArgs e)
-        {
-            var button = (Button)sender;
-            var caso = (CasoViewModel)button.DataContext;
-            // Implementar lógica de edición
-        }
-
-        private async void EliminarCaso_Click(object sender, RoutedEventArgs e)
-        {
-            var button = (Button)sender;
-            var caso = (CasoViewModel)button.DataContext;
-
-            var result = MessageBox.Show(
-                $"¿Está seguro que desea eliminar el caso {caso.referencia}?",
-                "Confirmar eliminación",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning);
-
-            if (result == MessageBoxResult.Yes)
-            {
-                try
-                {
-                    await _supabaseCasos.EliminarAsync(caso.id);
-                    CasosRecientesLista.Remove(caso);
-                    CasosRecientes = CasosRecientesLista.Count;
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error al eliminar el caso: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-        }
-        #endregion
-
-        #region 📥 ScoreCasos
-        private async void CargarScoreCasos()
+        private async Task CargarScoreCasos()
         {
             try
             {
@@ -855,16 +732,13 @@ namespace TFG_V0._01.Ventanas
                 MessageBox.Show($"Error al calcular el score de casos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-        #endregion
 
-        #region 📥 ScoreDocumentos
-        private async void CargarScoreDocumentos()
+        private async Task CargarScoreDocumentos()
         {
             try
             {
-                var documentosService = new SupabaseDocumentos();
-                await documentosService.InicializarAsync();
-                var documentos = await documentosService.ObtenerTodosAsync();
+                await _documentosService.InicializarAsync();
+                var documentos = await _documentosService.ObtenerTodosAsync();
 
                 var ayer = DateTime.Now.Date.AddDays(-1);
 
@@ -884,34 +758,150 @@ namespace TFG_V0._01.Ventanas
                 MessageBox.Show($"Error al calcular el score de documentos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-        #endregion
 
-        #region 📥 Proximos eventos
-        /*
-        private async void CargarProximosEventos()
+        private async Task CargarCasosRecientes()
         {
             try
             {
-                var eventosService = new SupabaseEventosCitas();
-                await eventosService.InicializarAsync();
-                var eventos = await eventosService.ObtenerEventosCitas();
-                var proximosEventos = eventos
-                    .Where(e => e.FechaInicio.Date >= DateTime.Now.Date)
-                    .OrderBy(e => e.fecha_evento)
+                await _supabaseCasos.InicializarAsync();
+                var casos = await _supabaseCasos.ObtenerTodosAsync();
+
+                var fechaLimite = DateTime.Now.Date.AddDays(-28);
+
+                var casosRecientes = casos
+                    .Where(c => c.fecha_inicio.Date >= fechaLimite)
+                    .GroupBy(c => c.id)
+                    .Select(g => g.First())
+                    .OrderByDescending(c => c.fecha_inicio)
                     .ToList();
-                // Aquí puedes mostrar los próximos eventos en la interfaz de usuario
+
+                CasosRecientesLista.Clear();
+                foreach (var caso in casosRecientes)
+                {
+                    CasosRecientesLista.Add(new CasoViewModel
+                    {
+                        id = caso.id,
+                        referencia = caso.referencia,
+                        nombre_cliente = caso.nombre_cliente,
+                        tipo_nombre = caso.tipo_nombre,
+                        estado = caso.estado_nombre,
+                        estado_color = ObtenerColorEstadoCaso(caso.estado_nombre)
+                    });
+                }
+                CasosRecientes = CasosRecientesLista.Count;
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al cargar los próximos eventos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Error al cargar los casos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-        */
+
+        private async Task ActualizarTarea(SupabaseTarea tarea)
+        {
+            try
+            {
+                await _tareasService.InicializarAsync();
+                await _tareasService.ActualizarAsync(tarea);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al actualizar la tarea: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async Task EliminarCaso(int id)
+        {
+            try
+            {
+                await _supabaseCasos.EliminarAsync(id);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al eliminar el caso: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void UpdateClientCountChange()
+        {
+            if (_previousClientCount == 0)
+            {
+                ClientCountChange = "+0";
+                return;
+            }
+
+            int difference = _clientCount - _previousClientCount;
+            ClientCountChange = difference >= 0 ? $"+{difference}" : $"{difference}";
+        }
+
+        private string ObtenerColorEstadoCaso(string estado)
+        {
+            return estado?.ToLower() switch
+            {
+                "abierto"     => "#2196F3", // Azul
+                "en proceso"  => "#4CAF50", // Verde
+                "cerrado"     => "#F44336", // Rojo
+                "pendiente"   => "#FF9800", // Naranja
+                "revisado"    => "#9E9E9E", // Gris
+                _             => "#9E9E9E"  // Gris por defecto
+            };
+        }
+
+        private async void CheckBox_TareaFinalizada(object sender, RoutedEventArgs e)
+        {
+            if (sender is CheckBox checkBox && checkBox.DataContext is SupabaseTarea tarea)
+            {
+                try
+                {
+                    tarea.estado = checkBox.IsChecked ?? false ? "Finalizado" : "Pendiente";
+                    await ActualizarTarea(tarea);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error al actualizar la tarea: {ex.Message}");
+                    checkBox.IsChecked = !checkBox.IsChecked; // Revertir el cambio
+                }
+            }
+        }
+
+        private void VerTodosCasos_Click(object sender, RoutedEventArgs e)
+        {
+            var casosWindow = new Casos();
+            casosWindow.Show();
+            this.Close();
+        }
+
+        private void EditarCaso_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.DataContext is CasoViewModel caso)
+            {
+                var casosWindow = new Casos(caso.id);
+                casosWindow.Show();
+                this.Close();
+            }
+        }
+
+        private async void EliminarCaso_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.DataContext is CasoViewModel caso)
+            {
+                var result = MessageBox.Show("¿Estás seguro de que deseas eliminar este caso?", "Confirmar eliminación",
+                    MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        await EliminarCaso(caso.id);
+                        await CargarCasosRecientes();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Error al eliminar el caso: {ex.Message}");
+                    }
+                }
+            }
+        }
         #endregion
-
-        #endregion
-
-
 
         #region 💾 BBDD LOCAL
 
@@ -1225,10 +1215,9 @@ namespace TFG_V0._01.Ventanas
                     var cliente = caso.IdClienteNavigation;
                     var estado = caso.IdEstadoNavigation;
 
-
                     var border = new Border
                     {
-                        Background = new SolidColorBrush(Color.FromArgb(0x30, 0xFF, 0xFF, 0xFF)),
+                        Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#30FFFFFF")),
                         CornerRadius = new CornerRadius(10),
                         Padding = new Thickness(10),
                         Margin = new Thickness(0, 0, 0, 10)
@@ -1242,11 +1231,10 @@ namespace TFG_V0._01.Ventanas
                     grid.Children.Add(CreateTextBlock($"{cliente.Nombre} {cliente.Apellido1} {cliente.Apellido2}", 1));
                     grid.Children.Add(CreateTextBlock(caso.Descripcion, 2));
 
-
                     var estadoPanel = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
                     var estadoBorder = new Border
                     {
-                        Background = new SolidColorBrush(GetColorForEstado(estado.Nombre)),
+                        Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(ObtenerColorEstadoCaso(estado.Nombre))),
                         CornerRadius = new CornerRadius(5),
                         Padding = new Thickness(8, 3, 8, 3)
                     };
@@ -1281,7 +1269,6 @@ namespace TFG_V0._01.Ventanas
             var ventanaCaso = new Casos(id_caso);
             ventanaCaso.Show();
             this.Close();
-
         }
 
         private TextBlock CreateTextBlock(string text, int column)
@@ -1314,31 +1301,12 @@ namespace TFG_V0._01.Ventanas
                 }
             };
         }
-
-        private Color GetColorForEstado(string estado)
-        {
-            return estado switch
-            {
-                "Abierto" => (Color)ColorConverter.ConvertFromString("#64B5F6"),   // Azul claro
-                "En Proceso" => (Color)ColorConverter.ConvertFromString("#FFB300"), // Amarillo
-                "Cerrado" => (Color)ColorConverter.ConvertFromString("#F44336"),   // Rojo
-                "Pendiente" => (Color)ColorConverter.ConvertFromString("#FF9800"), // Naranja
-                "Revisado" => (Color)ColorConverter.ConvertFromString("#4CAF50"),  // Verde
-                _ => Colors.Gray
-            };
-        }
-
-
         #endregion
 
         #endregion
-
-
-
 
         #region 🐞 Resvisiones Bugs 
         //revisar funcion CheckBox_TareaFinalizada => no funciona al 100% en local.
-
         #endregion
     }
 }

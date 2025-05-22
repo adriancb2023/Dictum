@@ -26,6 +26,12 @@ namespace TFG_V0._01.Ventanas.SubVentanas
                 cbEstadoEvento.SelectedIndex = 0;
         }
 
+        private void Border_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+                DragMove();
+        }
+
         private void Guardar_Click(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrWhiteSpace(txtTitulo.Text))
@@ -46,12 +52,6 @@ namespace TFG_V0._01.Ventanas.SubVentanas
         {
             this.DialogResult = false;
             this.Close();
-        }
-
-        private void Border_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.LeftButton == MouseButtonState.Pressed)
-                DragMove();
         }
     }
 } 

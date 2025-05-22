@@ -4,13 +4,22 @@ using System.Threading.Tasks;
 using Supabase;
 using TFG_V0._01.Supabase.Models;
 using Client = Supabase.Client;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using Newtonsoft.Json;
+using Microsoft.Extensions.Configuration;
 
 namespace TFG_V0._01.Supabase
 {
     public class SupabaseClientes
     {
-        private static readonly Client _client = new(Credenciales.SupabaseUrl, Credenciales.AnonKey);
-        private static readonly Lazy<Task> _initTask = new(() => _client.InitializeAsync());
+        private static Client _client;
+        private static Lazy<Task> _initTask;
+
+        public SupabaseClientes()
+        {
+            _initTask = new Lazy<Task>(() => InicializarAsync());
+        }
 
         private async Task EnsureInitializedAsync() => await _initTask.Value;
 
@@ -44,6 +53,36 @@ namespace TFG_V0._01.Supabase
         {
             await EnsureInitializedAsync();
             await _client.From<Cliente>().Where(c => c.id == id).Delete();
+        }
+
+        #region ☁ SUPABASE
+        public async Task InicializarAsync()
+        {
+            if (_client == null)
+            {
+                _client = new Client(Credenciales.SupabaseUrl, Credenciales.AnonKey);
+                await _client.InitializeAsync();
+            }
+        }
+        #endregion
+
+        public async Task<List<Cliente>> ObtenerTodosClientesManualAsync()
+        {
+            var config = ConfigHelper.GetConfiguration();
+            var url = config["Supabase:Url"] + "/rest/v1/clientes";
+            var apiKey = config["Supabase:AnonKey"];
+
+            using var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("apikey", apiKey);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+            client.DefaultRequestHeaders.TryAddWithoutValidation("Range-Unit", "items");
+            client.DefaultRequestHeaders.TryAddWithoutValidation("Range", "0-49999");
+
+            var response = await client.GetAsync(url).ConfigureAwait(false);
+            response.EnsureSuccessStatusCode();
+
+            var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            return JsonConvert.DeserializeObject<List<Cliente>>(json);
         }
     }
 }

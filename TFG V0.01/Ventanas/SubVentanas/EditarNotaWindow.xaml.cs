@@ -12,6 +12,50 @@ namespace TFG_V0._01.Ventanas.SubVentanas
         private readonly SupabaseNotas _notasService;
         private readonly int _idCaso;
         private readonly Nota _notaOriginal;
+
+    #region ☁ SUPABASE
+        private async void Guardar_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(Nombre))
+            {
+                MessageBox.Show("Por favor, ingrese un título para la nota.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                await _notasService.InicializarAsync();
+
+                if (_notaOriginal == null)
+                {
+                    // Crear nueva nota
+                    var nuevaNota = new Nota
+                    {
+                        IdCaso = _idCaso,
+                        Nombre = Nombre,
+                        Descripcion = Descripcion,
+                        FechaCreacion = DateTime.Now
+                    };
+                    await _notasService.InsertarAsync(nuevaNota);
+                }
+                else
+                {
+                    // Actualizar nota existente
+                    _notaOriginal.Nombre = Nombre;
+                    _notaOriginal.Descripcion = Descripcion;
+                    await _notasService.ActualizarAsync(_notaOriginal);
+                }
+
+                DialogResult = true;
+                Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al guardar la nota: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        
+
         private string _tituloVentana;
         private string _nombre;
         private string _descripcion;
@@ -68,47 +112,6 @@ namespace TFG_V0._01.Ventanas.SubVentanas
             }
         }
 
-        private async void Guardar_Click(object sender, RoutedEventArgs e)
-        {
-            if (string.IsNullOrWhiteSpace(Nombre))
-            {
-                MessageBox.Show("Por favor, ingrese un título para la nota.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            try
-            {
-                await _notasService.InicializarAsync();
-
-                if (_notaOriginal == null)
-                {
-                    // Crear nueva nota
-                    var nuevaNota = new Nota
-                    {
-                        IdCaso = _idCaso,
-                        Nombre = Nombre,
-                        Descripcion = Descripcion,
-                        FechaCreacion = DateTime.Now
-                    };
-                    await _notasService.InsertarAsync(nuevaNota);
-                }
-                else
-                {
-                    // Actualizar nota existente
-                    _notaOriginal.Nombre = Nombre;
-                    _notaOriginal.Descripcion = Descripcion;
-                    await _notasService.ActualizarAsync(_notaOriginal);
-                }
-
-                DialogResult = true;
-                Close();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error al guardar la nota: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
         private void Cancelar_Click(object sender, RoutedEventArgs e)
         {
             DialogResult = false;
@@ -117,8 +120,23 @@ namespace TFG_V0._01.Ventanas.SubVentanas
 
         private void Border_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.LeftButton == MouseButtonState.Pressed)
-                DragMove();
+            if (e.ChangedButton == MouseButton.Left)
+                this.DragMove();
+        }
+
+        private void btnMinimize_Click(object sender, RoutedEventArgs e)
+        {
+            this.WindowState = WindowState.Minimized;
+        }
+
+        private void btnMaximize_Click(object sender, RoutedEventArgs e)
+        {
+            this.WindowState = this.WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+        }
+
+        private void btnClose_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -126,5 +144,7 @@ namespace TFG_V0._01.Ventanas.SubVentanas
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+    #endregion
     }
+    
 } 

@@ -31,11 +31,24 @@ namespace TFG_V0._01.Ventanas
         #endregion
 
         #region variables
-        private SupabaseClientes _supabaseClientes;
+        private readonly SupabaseClientes _supabaseClientes;
+        private readonly SupabaseCasos _supabaseCasos;
+        private readonly SupabaseCasoEtiquetas _supabaseCasoEtiquetas;
+        private readonly SupabaseEstados _supabaseEstados;
+        private readonly SupabaseDocumentos _supabaseDocumentos;
         public ObservableCollection<Cliente> ListaClientes { get; set; } = new ObservableCollection<Cliente>();
         private Cliente _selectedCliente;
         public ObservableCollection<Documento> DocumentosCliente { get; set; } = new ObservableCollection<Documento>();
         public ObservableCollection<Caso> HistorialCasos { get; set; } = new ObservableCollection<Caso>();
+        public ObservableCollection<Caso> CasosActivos
+        {
+            get { return _casosActivos; }
+            set
+            {
+                _casosActivos = value;
+                OnPropertyChanged(nameof(CasosActivos));
+            }
+        }
         public Cliente SelectedCliente
         {
             get => _selectedCliente;
@@ -74,21 +87,8 @@ namespace TFG_V0._01.Ventanas
             }
         }
         private ObservableCollection<Caso> _casosActivos;
-        
-        public ObservableCollection<Caso> CasosActivos
-        {
-            get { return _casosActivos; }
-            set
-            {
-                _casosActivos = value;
-                OnPropertyChanged(nameof(CasosActivos));
-            }
-        }
-        private SupabaseCasos _supabaseCasos = new SupabaseCasos();
-        private SupabaseCasoEtiquetas _supabaseCasoEtiquetas = new SupabaseCasoEtiquetas();
-        private SupabaseEstados _supabaseEstados = new SupabaseEstados();
-        public ICommand VerDetallesCommand { get; }
         private ObservableCollection<Estado> _estadosDisponibles = new ObservableCollection<Estado>();
+        public ICommand VerDetallesCommand { get; }
         private ICollectionView _clientesView;
         private string _textoComboCliente;
         public string TextoComboCliente
@@ -103,9 +103,13 @@ namespace TFG_V0._01.Ventanas
         {
             InitializeComponent();
             _supabaseClientes = new SupabaseClientes();
+            _supabaseCasos = new SupabaseCasos();
+            _supabaseCasoEtiquetas = new SupabaseCasoEtiquetas();
+            _supabaseEstados = new SupabaseEstados();
+            _supabaseDocumentos = new SupabaseDocumentos();
             AplicarModoSistema();
             InitializeAnimations();
-            CargarClientes();
+            _ = CargarClientesAsync();
             this.DataContext = this;
             _casosActivos = new ObservableCollection<Caso>();
             _ = CargarCasosActivosAsync();
@@ -115,10 +119,11 @@ namespace TFG_V0._01.Ventanas
         #endregion
 
         #region Eventos
-        private async void CargarClientes()
+        private async Task CargarClientesAsync()
         {
             try
             {
+                await _supabaseClientes.InicializarAsync();
                 var clientes = await _supabaseClientes.ObtenerClientesAsync();
                 ListaClientes.Clear();
                 foreach (var cliente in clientes)
@@ -130,12 +135,13 @@ namespace TFG_V0._01.Ventanas
             }
         }
 
-        private async void AgregarCliente(Cliente nuevoCliente)
+        private async Task AgregarClienteAsync(Cliente nuevoCliente)
         {
             try
             {
+                await _supabaseClientes.InicializarAsync();
                 await _supabaseClientes.InsertarClienteAsync(nuevoCliente);
-                CargarClientes();
+                await CargarClientesAsync();
             }
             catch (Exception ex)
             {
@@ -143,12 +149,13 @@ namespace TFG_V0._01.Ventanas
             }
         }
 
-        private async void ActualizarCliente(Cliente cliente)
+        private async Task ActualizarClienteAsync(Cliente cliente)
         {
             try
             {
+                await _supabaseClientes.InicializarAsync();
                 await _supabaseClientes.ActualizarClienteAsync(cliente);
-                CargarClientes();
+                await CargarClientesAsync();
             }
             catch (Exception ex)
             {
@@ -156,12 +163,13 @@ namespace TFG_V0._01.Ventanas
             }
         }
 
-        private async void EliminarCliente(int id)
+        private async Task EliminarClienteAsync(int id)
         {
             try
             {
+                await _supabaseClientes.InicializarAsync();
                 await _supabaseClientes.EliminarClienteAsync(id);
-                CargarClientes();
+                await CargarClientesAsync();
             }
             catch (Exception ex)
             {
@@ -223,8 +231,7 @@ namespace TFG_V0._01.Ventanas
                 SelectedCliente.id = nuevoId;
 
             IsEditPersonalInfoVisible = false;
-            await _supabaseClientes.ActualizarClienteAsync(SelectedCliente);
-            CargarClientes();
+            await ActualizarClienteAsync(SelectedCliente);
         }
 
         private void CancelarInformacion_Click(object sender, RoutedEventArgs e)
@@ -249,12 +256,13 @@ namespace TFG_V0._01.Ventanas
         {
             try
             {
-                var supabaseDocumentos = new SupabaseDocumentos();
-                await supabaseDocumentos.InicializarAsync();
-                var docs = await supabaseDocumentos.ObtenerPorClienteAsync(clienteId);
+                await _supabaseDocumentos.InicializarAsync();
+                var documentos = await _supabaseDocumentos.ObtenerDocumentosPorClienteAsync(clienteId);
                 DocumentosCliente.Clear();
-                foreach (var doc in docs)
-                    DocumentosCliente.Add(doc);
+                foreach (var documento in documentos)
+                {
+                    DocumentosCliente.Add(documento);
+                }
             }
             catch (Exception ex)
             {
@@ -603,21 +611,23 @@ namespace TFG_V0._01.Ventanas
             if (SelectedCliente == null)
                 return;
 
-            // Inicializar servicios
-            await _supabaseCasos.InicializarAsync();
+            try
+            {
+                await _supabaseCasos.InicializarAsync();
+                var todosLosCasos = (await _supabaseCasos.ObtenerTodosAsync())
+                    .Where(c => c.id_cliente == SelectedCliente.id)
+                    .ToList();
 
-            // Obtener todos los casos del cliente seleccionado
-            var todosLosCasos = (await _supabaseCasos.ObtenerTodosAsync())
-                .Where(c => c.id_cliente == SelectedCliente.id)
-                .ToList();
+                var casosActivos = todosLosCasos
+                    .Where(caso => caso.Estado != null && !string.Equals(caso.Estado.nombre, "Cerrado", StringComparison.OrdinalIgnoreCase))
+                    .ToList();
 
-            // Filtrar los casos cuyo Estado NO sea "Cerrado"
-            var casosActivos = todosLosCasos
-                .Where(caso => caso.Estado != null && !string.Equals(caso.Estado.nombre, "Cerrado", StringComparison.OrdinalIgnoreCase))
-                .ToList();
-
-            // Actualizar la colección observable
-            CasosActivos = new ObservableCollection<Caso>(casosActivos);
+                CasosActivos = new ObservableCollection<Caso>(casosActivos);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar casos activos: {ex.Message}");
+            }
         }
 
         private async Task CargarHistorialCasosAsync()
@@ -625,14 +635,20 @@ namespace TFG_V0._01.Ventanas
             if (SelectedCliente == null)
                 return;
 
-            await _supabaseCasos.InicializarAsync();
+            try
+            {
+                await _supabaseCasos.InicializarAsync();
+                var todosLosCasos = (await _supabaseCasos.ObtenerTodosAsync())
+                    .Where(c => c.id_cliente == SelectedCliente.id)
+                    .ToList();
 
-            var todosLosCasos = (await _supabaseCasos.ObtenerTodosAsync())
-                .Where(c => c.id_cliente == SelectedCliente.id)
-                .ToList();
-
-            HistorialCasos = new ObservableCollection<Caso>(todosLosCasos);
-            OnPropertyChanged(nameof(HistorialCasos));
+                HistorialCasos = new ObservableCollection<Caso>(todosLosCasos);
+                OnPropertyChanged(nameof(HistorialCasos));
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar historial de casos: {ex.Message}");
+            }
         }
 
         private void VerDetalles(Caso caso)

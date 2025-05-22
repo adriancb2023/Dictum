@@ -33,16 +33,12 @@ namespace TFG_V0._01.Ventanas
         private Storyboard shakeStoryboard;
         #endregion
 
-
-        #region variables
+        #region ☁ SUPABASE
         private readonly SupaBaseStorage _supaBaseStorage;
-        #endregion
+        private readonly SupabaseClientes _supabaseClientes = new SupabaseClientes();
+        private readonly SupabaseCasos _supabaseCasos = new SupabaseCasos();
+        private readonly SupabaseDocumentos _supabaseDocumentos = new SupabaseDocumentos();
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void OnPropertyChanged([CallerMemberName] string propertyName = null) =>
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
-        // --- ComboBox Clientes y Casos ---
         public ObservableCollection<Cliente> ListaClientes { get; set; } = new ObservableCollection<Cliente>();
         public ObservableCollection<Caso> ListaCasosFiltrados { get; set; } = new ObservableCollection<Caso>();
         private Cliente _selectedCliente;
@@ -76,14 +72,148 @@ namespace TFG_V0._01.Ventanas
             get => _textoComboCaso;
             set { _textoComboCaso = value; OnPropertyChanged(); }
         }
-        private readonly SupabaseClientes _supabaseClientes = new SupabaseClientes();
-        private readonly SupabaseCasos _supabaseCasos = new SupabaseCasos();
         public ObservableCollection<Documento> ArchivosPdf { get; set; } = new ObservableCollection<Documento>();
         public ObservableCollection<Documento> ArchivosImagen { get; set; } = new ObservableCollection<Documento>();
         public ObservableCollection<Documento> ArchivosVideo { get; set; } = new ObservableCollection<Documento>();
         public ObservableCollection<Documento> ArchivosAudio { get; set; } = new ObservableCollection<Documento>();
         public ObservableCollection<Documento> ArchivosOtros { get; set; } = new ObservableCollection<Documento>();
-        private readonly SupabaseDocumentos _supabaseDocumentos = new SupabaseDocumentos();
+
+        private async Task CargarClientesAsync()
+        {
+            try
+            {
+                await _supabaseClientes.InicializarAsync();
+                var clientes = await _supabaseClientes.ObtenerClientesAsync();
+                ListaClientes.Clear();
+                foreach (var c in clientes)
+                    ListaClientes.Add(c);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar clientes: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async void CargarCasosFiltrados()
+        {
+            try
+            {
+                ListaCasosFiltrados.Clear();
+                if (SelectedCliente == null) return;
+                await _supabaseCasos.InicializarAsync();
+                var casos = await _supabaseCasos.ObtenerTodosAsync();
+                foreach (var caso in casos.Where(c => c.id_cliente == SelectedCliente.id))
+                    ListaCasosFiltrados.Add(caso);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar casos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async Task CargarArchivosPorCasoAsync()
+        {
+            try
+            {
+                if (SelectedCaso == null) return;
+
+                ArchivosPdf.Clear();
+                ArchivosImagen.Clear();
+                ArchivosVideo.Clear();
+                ArchivosAudio.Clear();
+                ArchivosOtros.Clear();
+
+                var docs = await _supabaseDocumentos.ObtenerPorCasoAsync(SelectedCaso.id);
+
+                foreach (var doc in docs)
+                {
+                    var ext = System.IO.Path.GetExtension(doc.nombre).ToLower();
+                    if (ext == ".pdf")
+                        ArchivosPdf.Add(doc);
+                    else if (new[] { ".jpg", ".jpeg", ".png", ".gif" }.Contains(ext, StringComparer.OrdinalIgnoreCase))
+                        ArchivosImagen.Add(doc);
+                    else if (new[] { ".mp4", ".avi", ".mov", ".wmv" }.Contains(ext, StringComparer.OrdinalIgnoreCase))
+                        ArchivosVideo.Add(doc);
+                    else if (new[] { ".mp3", ".wav", ".ogg", ".m4a" }.Contains(ext, StringComparer.OrdinalIgnoreCase))
+                        ArchivosAudio.Add(doc);
+                    else
+                        ArchivosOtros.Add(doc);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar archivos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async Task SubirArchivoYGuardar(string bucket)
+        {
+            try
+            {
+                if (SelectedCaso == null)
+                {
+                    MessageBox.Show("Selecciona un caso primero.");
+                    return;
+                }
+                var dialog = new Microsoft.Win32.OpenFileDialog
+                {
+                    Filter = "Todos los archivos|*.*"
+                };
+                if (dialog.ShowDialog() == true)
+                {
+                    var filePath = dialog.FileName;
+                    var fileName = System.IO.Path.GetFileName(filePath);
+
+                    // Subir a Storage
+                    var ruta = await _supaBaseStorage.SubirArchivoAsync(bucket, filePath, fileName);
+
+                    // Guardar en tabla
+                    var doc = new Documento
+                    {
+                        id_caso = SelectedCaso.id,
+                        nombre = fileName,
+                        ruta = ruta,
+                        fecha_subid = DateTime.Now
+                    };
+                    await _supabaseDocumentos.InsertarAsync(doc);
+
+                    await CargarArchivosPorCasoAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al subir archivo: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async void EliminarArchivo_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if ((sender as Button)?.DataContext is Documento doc)
+                {
+                    var ext = System.IO.Path.GetExtension(doc.nombre).ToLower();
+                    string bucket = _supaBaseStorage.ObtenerCuboPorTipoArchivo(doc.nombre);
+
+                    // Eliminar de Storage
+                    await _supaBaseStorage.EliminarArchivoAsync(bucket, doc.nombre);
+
+                    // Eliminar de tabla
+                    await _supabaseDocumentos.EliminarAsync(doc.id);
+
+                    await CargarArchivosPorCasoAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al eliminar archivo: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        #endregion
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void OnPropertyChanged([CallerMemberName] string propertyName = null) =>
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
         public Documentos()
         {
@@ -437,24 +567,6 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
-        private async Task CargarClientesAsync()
-        {
-            var clientes = await _supabaseClientes.ObtenerClientesAsync();
-            ListaClientes.Clear();
-            foreach (var c in clientes)
-                ListaClientes.Add(c);
-        }
-
-        private async void CargarCasosFiltrados()
-        {
-            ListaCasosFiltrados.Clear();
-            if (SelectedCliente == null) return;
-            await _supabaseCasos.InicializarAsync();
-            var casos = await _supabaseCasos.ObtenerTodosAsync();
-            foreach (var caso in casos.Where(c => c.id_cliente == SelectedCliente.id))
-                ListaCasosFiltrados.Add(caso);
-        }
-
         private void ComboClientes_Loaded(object sender, RoutedEventArgs e)
         {
             var combo = sender as ComboBox;
@@ -536,88 +648,10 @@ namespace TFG_V0._01.Ventanas
             }
         }
 
-        private async Task CargarArchivosPorCasoAsync()
-        {
-            if (SelectedCaso == null) return;
-
-            ArchivosPdf.Clear();
-            ArchivosImagen.Clear();
-            ArchivosVideo.Clear();
-            ArchivosAudio.Clear();
-            ArchivosOtros.Clear();
-
-            var docs = await _supabaseDocumentos.ObtenerPorCasoAsync(SelectedCaso.id);
-
-            foreach (var doc in docs)
-            {
-                var ext = System.IO.Path.GetExtension(doc.nombre).ToLower();
-                if (ext == ".pdf")
-                    ArchivosPdf.Add(doc);
-                else if (new[] { ".jpg", ".jpeg", ".png", ".gif" }.Contains(ext, StringComparer.OrdinalIgnoreCase))
-                    ArchivosImagen.Add(doc);
-                else if (new[] { ".mp4", ".avi", ".mov", ".wmv" }.Contains(ext, StringComparer.OrdinalIgnoreCase))
-                    ArchivosVideo.Add(doc);
-                else if (new[] { ".mp3", ".wav", ".ogg", ".m4a" }.Contains(ext, StringComparer.OrdinalIgnoreCase))
-                    ArchivosAudio.Add(doc);
-                else
-                    ArchivosOtros.Add(doc);
-            }
-        }
-
         private async void SubirPdf_Click(object sender, RoutedEventArgs e) => await SubirArchivoYGuardar("pdfs");
         private async void SubirImagen_Click(object sender, RoutedEventArgs e) => await SubirArchivoYGuardar("imagenes");
         private async void SubirVideo_Click(object sender, RoutedEventArgs e) => await SubirArchivoYGuardar("videos");
         private async void SubirAudio_Click(object sender, RoutedEventArgs e) => await SubirArchivoYGuardar("audios");
         private async void SubirOtro_Click(object sender, RoutedEventArgs e) => await SubirArchivoYGuardar("otros");
-
-        private async Task SubirArchivoYGuardar(string bucket)
-        {
-            if (SelectedCaso == null)
-            {
-                MessageBox.Show("Selecciona un caso primero.");
-                return;
-            }
-            var dialog = new Microsoft.Win32.OpenFileDialog
-            {
-                Filter = "Todos los archivos|*.*"
-            };
-            if (dialog.ShowDialog() == true)
-            {
-                var filePath = dialog.FileName;
-                var fileName = System.IO.Path.GetFileName(filePath);
-
-                // Subir a Storage
-                var ruta = await _supaBaseStorage.SubirArchivoAsync(bucket, filePath, fileName);
-
-                // Guardar en tabla
-                var doc = new Documento
-                {
-                    id_caso = SelectedCaso.id,
-                    nombre = fileName,
-                    ruta = ruta,
-                    fecha_subid = DateTime.Now
-                };
-                await _supabaseDocumentos.InsertarAsync(doc);
-
-                await CargarArchivosPorCasoAsync();
-            }
-        }
-
-        private async void EliminarArchivo_Click(object sender, RoutedEventArgs e)
-        {
-            if ((sender as Button)?.DataContext is Documento doc)
-            {
-                var ext = System.IO.Path.GetExtension(doc.nombre).ToLower();
-                string bucket = _supaBaseStorage.ObtenerCuboPorTipoArchivo(doc.nombre);
-
-                // Eliminar de Storage
-                await _supaBaseStorage.EliminarArchivoAsync(bucket, doc.nombre);
-
-                // Eliminar de tabla
-                await _supabaseDocumentos.EliminarAsync(doc.id);
-
-                await CargarArchivosPorCasoAsync();
-            }
-        }
     }
 }

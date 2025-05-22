@@ -74,11 +74,28 @@ namespace TFG_V0._01.Ventanas.SubVentanas
             Close();
         }
 
+        #region Window Controls
+        private void btnMinimize_Click(object sender, RoutedEventArgs e)
+        {
+            this.WindowState = WindowState.Minimized;
+        }
+
+        private void btnMaximize_Click(object sender, RoutedEventArgs e)
+        {
+            this.WindowState = this.WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+        }
+
+        private void btnClose_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+
         private void Border_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.LeftButton == MouseButtonState.Pressed)
-                DragMove();
+            if (e.ChangedButton == MouseButton.Left)
+                this.DragMove();
         }
+        #endregion
 
         private void Examinar_Click(object sender, RoutedEventArgs e)
         {

@@ -5,6 +5,10 @@ using System.Threading.Tasks;
 using Supabase;
 using TFG_V0._01.Supabase.Models;
 using Client = Supabase.Client;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using Newtonsoft.Json;
+using Microsoft.Extensions.Configuration;
 
 namespace TFG_V0._01.Supabase
 {
@@ -72,6 +76,25 @@ namespace TFG_V0._01.Supabase
         {
             await InicializarAsync().ConfigureAwait(false);
             await _client.From<EventoCita>().Where(x => x.Id == id).Delete().ConfigureAwait(false);
+        }
+
+        public async Task<List<EventoCita>> ObtenerTodosEventosManualAsync()
+        {
+            var config = ConfigHelper.GetConfiguration();
+            var url = config["Supabase:Url"] + "/rest/v1/eventos_citas";
+            var apiKey = config["Supabase:AnonKey"];
+
+            using var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("apikey", apiKey);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+            client.DefaultRequestHeaders.TryAddWithoutValidation("Range-Unit", "items");
+            client.DefaultRequestHeaders.TryAddWithoutValidation("Range", "0-49999");
+
+            var response = await client.GetAsync(url).ConfigureAwait(false);
+            response.EnsureSuccessStatusCode();
+
+            var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            return JsonConvert.DeserializeObject<List<EventoCita>>(json);
         }
     }
 } 

@@ -30,6 +30,7 @@ namespace TFG_V0._01.Supabase.Models
         public int IdEstado { get; set; }
 
         [Column("fecha")]
+        [JsonProperty("fecha")]
         public string FechaString { get; set; }
 
         [JsonIgnore]

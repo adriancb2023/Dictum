@@ -917,6 +917,26 @@ namespace TFG_V0._01.Ventanas
                 }
             }
         }
+
+        private async void btnAddCaso_Click(object sender, RoutedEventArgs e)
+        {
+            var window = new SubVentanas.AñadirCasoWindow();
+            if (window.ShowDialog() == true)
+            {
+                // Refresh the cases list if needed
+                await CargarCasosRecientes();
+            }
+        }
+
+        private void btnAddCliente_Click(object sender, RoutedEventArgs e)
+        {
+            var window = new SubVentanas.AñadirClienteWindow();
+            if (window.ShowDialog() == true)
+            {
+                // Refresh the client list if needed
+                CargarClientes();
+            }
+        }
         #endregion
 
         #region 💾 BBDD LOCAL

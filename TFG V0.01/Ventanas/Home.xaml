@@ -187,16 +187,20 @@
                 </StackPanel>
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border Background="#30FFFFFF" CornerRadius="20" Padding="15,8" Margin="0,0,15,0">
-                        <StackPanel Orientation="Horizontal">
-                            <Image Source="/TFG V0.01;component/Recursos/Iconos/addcaso.png" Width="20" Height="20"/>
-                        </StackPanel>
-                    </Border>
-                    <Border Background="#30FFFFFF" CornerRadius="20" Padding="15,8">
-                        <StackPanel Orientation="Horizontal">
-                            <Image Source="/TFG V0.01;component/Recursos/Iconos/addCliente.png" Width="20" Height="20"/>
-                        </StackPanel>
-                    </Border>
+                    <Button x:Name="btnAddCaso" Background="Transparent" Padding="15,8" Margin="0,0,15,0" Click="btnAddCaso_Click">
+                        <Border Background="#30FFFFFF" CornerRadius="20">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="/TFG V0.01;component/Recursos/Iconos/addcaso.png" Width="20" Height="20"/>
+                            </StackPanel>
+                        </Border>
+                    </Button>
+                    <Button x:Name="btnAddCliente" Background="Transparent" Padding="15,8" Click="btnAddCliente_Click">
+                        <Border Background="#30FFFFFF" CornerRadius="20">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="/TFG V0.01;component/Recursos/Iconos/addCliente.png" Width="20" Height="20"/>
+                            </StackPanel>
+                        </Border>
+                    </Button>
                 </StackPanel>
             </Grid>
 

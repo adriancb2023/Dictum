@@ -8,7 +8,7 @@
         Title="TFG Application" Height="300" Width="300"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
-
+<!--a-->
     <!-- Contenedor principal con fondo translúcido -->
     <Border CornerRadius="150" MouseDown="Border_MouseDown">
         <Grid>

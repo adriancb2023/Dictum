@@ -483,7 +483,7 @@
                                 </ScrollViewer>
 
 
-                                <Button x:Name="btnAñadirTarea" Grid.Row="2" Content="+ Añadir Tarea" Style="{StaticResource RoundedButtonStyle}" Margin="0,15,0,0" Background="#30FFFFFF"/>
+                                <Button x:Name="btnAñadirTarea" Grid.Row="2" Content="+ Añadir Tarea" Style="{StaticResource RoundedButtonStyle}" Margin="0,15,0,0" Background="#30FFFFFF" Click="btnAñadirTarea_Click"/>
                             </Grid>
                         </Border>
 

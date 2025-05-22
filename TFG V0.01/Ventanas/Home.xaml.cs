@@ -19,6 +19,7 @@ using SupabaseTarea = TFG_V0._01.Supabase.Models.Tarea;
 using SupabaseCaso = TFG_V0._01.Supabase.Models.Caso;
 using LocalCaso = TFG_V0._01.BBDDLocal.Caso;
 using Microsoft.EntityFrameworkCore;
+using TFG_V0._01.Ventanas.SubVentanas;
 
 namespace TFG_V0._01.Ventanas
 {
@@ -1301,6 +1302,15 @@ namespace TFG_V0._01.Ventanas
                 }
             };
         }
+
+        private void btnAñadirTarea_Click(object sender, RoutedEventArgs e)
+        {
+            var ventana = new AñadirTareaWindow(0); // 0 as default case ID since it's from Home
+            if (ventana.ShowDialog() == true)
+            {
+                CargarTareasPendientesLista();
+            }
+        }
         #endregion
 
         #endregion
@@ -1308,5 +1318,7 @@ namespace TFG_V0._01.Ventanas
         #region 🐞 Resvisiones Bugs 
         //revisar funcion CheckBox_TareaFinalizada => no funciona al 100% en local.
         #endregion
+
+        
     }
 }

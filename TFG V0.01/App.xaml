@@ -9,7 +9,8 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <materialDesign:BundledTheme BaseTheme="Light" PrimaryColor="DeepPurple" SecondaryColor="Lime"/>
-                <ResourceDictionary Source="Styles/WindowStyles.xaml"/>
+                <ResourceDictionary Source="/Styles/WindowStyles.xaml"/>
+                <ResourceDictionary Source="/Styles/ControlStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <DropShadowEffect x:Key="DropShadowEffect" Color="Black" BlurRadius="15" ShadowDepth="2" Opacity="0.3"/>
         </ResourceDictionary>

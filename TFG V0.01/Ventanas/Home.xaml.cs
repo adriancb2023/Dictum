@@ -1,25 +1,24 @@
-﻿using System.Windows;
+﻿using Microsoft.EntityFrameworkCore;
+using Polly;
+using System;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
+using TFG_V0._01.Helpers;
 using TFG_V0._01.Supabase;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using TFG_V0._01.Supabase.Models;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System;
-using System.Windows.Documents;
-using TFG_V0._01.BBDDLocal;
-using Polly;
-using SupabaseTarea = TFG_V0._01.Supabase.Models.Tarea;
-using SupabaseCaso = TFG_V0._01.Supabase.Models.Caso;
-using LocalCaso = TFG_V0._01.BBDDLocal.Caso;
-using Microsoft.EntityFrameworkCore;
 using TFG_V0._01.Ventanas.SubVentanas;
+using SupabaseCaso = TFG_V0._01.Supabase.Models.Caso;
+using SupabaseTarea = TFG_V0._01.Supabase.Models.Tarea;
 
 namespace TFG_V0._01.Ventanas
 {
@@ -32,22 +31,43 @@ namespace TFG_V0._01.Ventanas
 
         #region 📊 variables
         private readonly SupabaseAutentificacion _authService;
+        
         private readonly SupabaseClientes _clientesService;
+        
         private readonly SupabaseCasos _supabaseCasos;
+        
         private readonly SupabaseEventosCitas _eventosCitasService;
+        
         private readonly SupabaseDocumentos _documentosService;
+        
         private readonly SupabaseTareas _tareasService;
+        
         private readonly SupabaseReciente _recienteService;
+
+        public ICommand VerDetallesCommand { get; }
+
         private int _clientCount;
+        
         private int _previousClientCount;
+        
         private string _clientCountChange;
+        
         private int _casosActivos;
+        
         private int _documentos;
+        
         private int _tareasPendientes;
+        
         private int _casosRecientes;
+
+        private ObservableCollection<Estado> _estadosDisponibles = new ObservableCollection<Estado>();
+        
         public ObservableCollection<SupabaseTarea> TareasPendientesLista { get; set; } = new ObservableCollection<SupabaseTarea>();
+        
         public ObservableCollection<string> EstadosDisponibles { get; set; } = new ObservableCollection<string> { "Pendiente", "En progreso", "Finalizado" };
+        
         private ObservableCollection<CasoViewModel> _casosRecientesLista;
+        
         public ObservableCollection<CasoViewModel> CasosRecientesLista
         {
             get => _casosRecientesLista;
@@ -115,8 +135,11 @@ namespace TFG_V0._01.Ventanas
         private string mesText;
 
         private string anio;
+       
         private readonly UIElement[] navbarItems;
+        
         private int _eventosProximos;
+        
         public ObservableCollection<EventoCita> EventosProximosLista { get; set; } = new ObservableCollection<EventoCita>();
 
         public int EventosProximos
@@ -132,6 +155,7 @@ namespace TFG_V0._01.Ventanas
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
         #endregion
+
 
         #region ⚡ Inicializacion
         public Home()
@@ -189,37 +213,13 @@ namespace TFG_V0._01.Ventanas
                 CargarScoreCasos();
                 CargarCasosRecientes();
 
-                casosrecientesLocal.Visibility = Visibility.Collapsed;
-                casosrecientesSupa.Visibility = Visibility.Visible;
                 CargarScoreDocumentos();
 
                 LoadingPanel.Visibility = Visibility.Collapsed;
             }
             else
             {
-                LoadingPanel.Visibility = Visibility.Collapsed;
-                CargarCasosActibosLocal();
-                CargarScoreCasosActivosLocal();
-                CargarClientes();
-                ScoreClientesNuevos();
-                CargarDocumentos();
-                ScoreDocumentosNuevos();
-                CargarTareasPendientes();
-                CargarTareasPendientesLista();
-
-
-                if (string.IsNullOrWhiteSpace(mesText))
-                    mesText = NombresMeses[fechaActual.Month - 1];
-                if (string.IsNullOrWhiteSpace(anio))
-                    anio = fechaActual.Year.ToString();
-                cargarEventosCalendario(mesText, anio);
-
-                casosrecientesLocal.Visibility = Visibility.Visible;
-                casosrecientesSupa.Visibility = Visibility.Collapsed;
-                cargarCasosRecientesLocal();
-
-
-                LoadingPanel.Visibility = Visibility.Collapsed;
+                
             }
         }
         #endregion
@@ -520,7 +520,6 @@ namespace TFG_V0._01.Ventanas
             }
             else
             {
-                cargarEventosCalendario(mesText, anio);
             }
         }
         #endregion
@@ -934,419 +933,8 @@ namespace TFG_V0._01.Ventanas
             if (window.ShowDialog() == true)
             {
                 // Refresh the client list if needed
-                CargarClientes();
             }
         }
-        #endregion
-
-        #region 💾 BBDD LOCAL
-
-        #region 📥 cargar total de casos activos Local
-        private void CargarCasosActibosLocal()
-        {
-            try
-            {
-                using (var db = new TfgContext())
-                {
-                    var estadosActivos = new[] { 1, 2, 4, 5 };
-                    var casosActivos = db.Casos
-                    .Count(c => estadosActivos.Contains(c.IdEstado));
-                    totalCActivos.Text = casosActivos.ToString();
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error al cargar los casos activos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-        #endregion
-
-        #region 📥 ScoreCasosActivos 
-        private void CargarScoreCasosActivosLocal()
-        {
-            try
-            {
-                using (var db = new TfgContext())
-                {
-                    var casosActivos = db.Casos
-                        .Count(c => c.IdEstado == 1 || c.IdEstado == 2 || c.IdEstado == 4 || c.IdEstado == 5);
-                    scoreCasos.Text = casosActivos.ToString();
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error al cargar el score de casos activos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        #endregion
-
-        #region 📥 Cargar Clientes totales
-        private void CargarClientes()
-        {
-            try
-            {
-                using (var db = new TfgContext())
-                {
-                    var clientes = db.Clientes.Count();
-                    txtClientCount.Text = clientes.ToString();
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error al cargar los clientes: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        #endregion
-
-        #region 📥 Cargar Score Clientes Nuevos este mes
-        private void ScoreClientesNuevos()
-        {
-            try
-            {
-                using (var db = new TfgContext())
-                {
-                    // Convertir los límites a DateOnly
-                    var primerDiaMesActual = new DateOnly(DateTime.Now.Year, DateTime.Now.Month, 1);
-                    var primerDiaMesSiguiente = primerDiaMesActual.AddMonths(1);
-
-                    // Contar clientes cuyo contrato es de este mes
-                    int clientesNuevos = db.Clientes
-                        .Count(c => c.FechaContrato >= primerDiaMesActual && c.FechaContrato < primerDiaMesSiguiente);
-
-                    if (txtClientCountChange != null)
-                        txtClientCountChange.Text = $"+{clientesNuevos}";
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error al cargar el score de clientes nuevos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-        #endregion
-
-        #region 📥 Cargar Todos los documentos
-        private void CargarDocumentos()
-        {
-            try
-            {
-                using (var db = new TfgContext())
-                {
-                    var documentos = db.Documentos.Count();
-                    DocTotales.Text = documentos.ToString();
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error al cargar los documentos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-        #endregion
-
-        #region 📥 Cargar Score Documentos Nuevos
-        private void ScoreDocumentosNuevos()
-        {
-            try
-            {
-                using (var db = new TfgContext())
-                {
-                    var hoy = DateOnly.FromDateTime(DateTime.Now);
-                    var documentosNuevos = db.Documentos
-                        .Count(d => d.FechaSubid == hoy);
-                    scoreDocumentos.Text = $"+{documentosNuevos}";
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error al cargar el score de documentos nuevos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        #endregion
-
-        #region 📥 Tareas pendientes para hoy
-        private void CargarTareasPendientes()
-        {
-            try
-            {
-                using (var db = new TfgContext())
-                {
-                    var hoy = DateOnly.FromDateTime(DateTime.Now);
-                    var tareasPendientes = db.Tareas
-                        .Count(t => t.FechaFin == hoy && t.Estado != "Finalizado");
-                    ProxEventos.Text = tareasPendientes.ToString();
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error al cargar las tareas pendientes: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-        #endregion
-
-        #region 📥 Cargar lista de tareas pendientes
-        private void CargarTareasPendientesLista()
-        {
-            try
-            {
-                using (var db = new TfgContext())
-                {
-                    var tareasPendientes = db.Tareas
-                        .Where(t => t.Estado != "Finalizado")
-                        .OrderBy(t => t.FechaFin)
-                        .ToList();
-
-                    TareasPendientesLista.Clear();
-                    foreach (var tarea in tareasPendientes)
-                    {
-                        // Si SupabaseTarea y la entidad local Tarea no son iguales, mapea los campos necesarios
-                        TareasPendientesLista.Add(new SupabaseTarea
-                        {
-                            id = tarea.Id,
-                            titulo = tarea.Titulo,
-                            descripcion = tarea.Descripcion,
-                            fecha_vencimiento = tarea.FechaFin.ToDateTime(TimeOnly.MinValue),
-                            estado = tarea.Estado
-                            // Añade aquí otros campos si es necesario
-                        });
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error al cargar la lista de tareas pendientes: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-        #endregion
-
-        #region 📥 Cargar Eventos Citas 
-        private void cargarEventosCalendario(string mesText, string anio)
-        {
-            var colores = new List<string>
-    {
-        "#FF5722", "#F4511E", "#E64A19", "#D84315",
-        "#009688", "#26A69A", "#00796B", "#004D40",
-        "#3F51B5", "#5C6BC0", "#3949AB", "#1A237E"
-    };
-
-            // Usar el array NombresMeses ya definido en la clase
-            int mes = Array.FindIndex(NombresMeses, m =>
-                m.Equals(mesText?.Trim(), StringComparison.OrdinalIgnoreCase)
-            ) + 1;
-
-            if (mes == 0)
-            {
-                MessageBox.Show($"Mes no válido: '{mesText}'", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            if (!int.TryParse(anio, out int anioInt))
-            {
-                MessageBox.Show("Año no válido.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            using (var context = new TfgContext())
-            {
-                var tareas = context.Tareas
-                    .Where(t => t.FechaFin.Month == mes && t.FechaFin.Year == anioInt && t.Estado != "finalizado")
-                    .ToList();
-
-                var stackPanel = this.FindName("PanelEventos") as StackPanel;
-
-                if (stackPanel != null)
-                {
-                    stackPanel.Children.Clear();
-
-                    var random = new Random();
-                    int offset = random.Next(colores.Count);
-
-                    for (int i = 0; i < tareas.Count; i++)
-                    {
-                        var tarea = tareas[i];
-                        string colorHex = colores[(i + offset) % colores.Count];
-
-                        var border = new Border
-                        {
-                            Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(colorHex)),
-                            CornerRadius = new CornerRadius(10),
-                            Padding = new Thickness(10),
-                            Margin = new Thickness(0, 5, 0, 5)
-                        };
-
-                        var innerGrid = new Grid();
-                        innerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-                        innerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-
-                        var fechaBorder = new Border
-                        {
-                            Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#30FFFFFF")),
-                            CornerRadius = new CornerRadius(5),
-                            Padding = new Thickness(8, 5, 8, 5),
-                            Margin = new Thickness(0, 0, 10, 0)
-                        };
-                        var fechaText = new TextBlock
-                        {
-                            Text = tarea.FechaFin.Day.ToString(),
-                            FontWeight = FontWeights.Bold,
-                            Foreground = Brushes.White
-                        };
-                        fechaBorder.Child = fechaText;
-
-                        var detallesStack = new StackPanel();
-                        var tituloText = new TextBlock
-                        {
-                            Text = tarea.Titulo,
-                            FontWeight = FontWeights.SemiBold,
-                            Foreground = Brushes.White
-                        };
-                        var descripcionText = new TextBlock
-                        {
-                            Text = tarea.Descripcion,
-                            Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#CCFFFFFF")),
-                            FontSize = 12
-                        };
-
-                        detallesStack.Children.Add(tituloText);
-                        detallesStack.Children.Add(descripcionText);
-
-                        Grid.SetColumn(fechaBorder, 0);
-                        Grid.SetColumn(detallesStack, 1);
-                        innerGrid.Children.Add(fechaBorder);
-                        innerGrid.Children.Add(detallesStack);
-
-                        border.Child = innerGrid;
-                        stackPanel.Children.Add(border);
-                    }
-                }
-            }
-        }
-        #endregion
-
-        #region Casos Recientas
-        private void cargarCasosRecientesLocal()
-        {
-            casosrecientesLocal.Visibility = Visibility.Visible;
-            casosrecientesSupa.Visibility = Visibility.Collapsed;
-            using (var context = new TfgContext())
-            {
-                var recienteIds = context.Recientes
-                    .Where(r => r.FechaHora <= DateTime.Now)
-                    .OrderByDescending(r => r.FechaHora)
-                    .Take(5)
-                    .Select(r => r.IdCaso)
-                    .ToList();
-
-                var casosRecientes = context.Casos
-                    .Include(c => c.IdClienteNavigation)
-                    .Include(c => c.IdEstadoNavigation)
-                    .Where(c => recienteIds.Contains(c.Id))
-                    .ToList();
-
-                CasosContainer.Children.Clear();
-
-                foreach (var caso in casosRecientes)
-                {
-                    var cliente = caso.IdClienteNavigation;
-                    var estado = caso.IdEstadoNavigation;
-
-                    var border = new Border
-                    {
-                        Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#30FFFFFF")),
-                        CornerRadius = new CornerRadius(10),
-                        Padding = new Thickness(10),
-                        Margin = new Thickness(0, 0, 0, 10)
-                    };
-
-                    var grid = new Grid();
-                    for (int i = 0; i < 5; i++)
-                        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = (i == 4 ? GridLength.Auto : new GridLength(1, GridUnitType.Star)) });
-
-                    grid.Children.Add(CreateTextBlock(caso.Titulo, 0));
-                    grid.Children.Add(CreateTextBlock($"{cliente.Nombre} {cliente.Apellido1} {cliente.Apellido2}", 1));
-                    grid.Children.Add(CreateTextBlock(caso.Descripcion, 2));
-
-                    var estadoPanel = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
-                    var estadoBorder = new Border
-                    {
-                        Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(ObtenerColorEstadoCaso(estado.Nombre))),
-                        CornerRadius = new CornerRadius(5),
-                        Padding = new Thickness(8, 3, 8, 3)
-                    };
-                    estadoBorder.Child = new TextBlock
-                    {
-                        Text = estado.Nombre,
-                        Foreground = Brushes.White,
-                        FontSize = 12
-                    };
-                    estadoPanel.Children.Add(estadoBorder);
-                    Grid.SetColumn(estadoPanel, 3);
-                    grid.Children.Add(estadoPanel);
-
-                    var btnVer = CreateIconButton("ver.png");
-                    btnVer.Click += (s, e) => VerCaso_Click(caso.Id); 
-
-                    btnVer.Tag = caso;
-
-                    var btnPanel = new StackPanel { Orientation = Orientation.Horizontal };
-                    btnPanel.Children.Add(btnVer);
-                    Grid.SetColumn(btnPanel, 4);
-                    grid.Children.Add(btnPanel);
-
-                    border.Child = grid;
-                    CasosContainer.Children.Add(border);
-                }
-            }
-        }
-
-        private void VerCaso_Click(int id_caso)
-        {
-            var ventanaCaso = new Casos(id_caso);
-            ventanaCaso.Show();
-            this.Close();
-        }
-
-        private TextBlock CreateTextBlock(string text, int column)
-        {
-            var tb = new TextBlock
-            {
-                Text = text,
-                Foreground = Brushes.White,
-                VerticalAlignment = VerticalAlignment.Center,
-                TextWrapping = TextWrapping.Wrap
-            };
-            Grid.SetColumn(tb, column);
-            return tb;
-        }
-
-        private Button CreateIconButton(string imageName)
-        {
-            return new Button
-            {
-                Width = 35,
-                Height = 35,
-                Background = new SolidColorBrush(Color.FromArgb(0x30, 0xFF, 0xFF, 0xFF)),
-                Margin = new Thickness(0, 0, 5, 0),
-                Style = (Style)this.FindResource("RoundedButtonStyle"),
-                Content = new Image
-                {
-                    Source = new BitmapImage(new Uri($"pack://application:,,,/TFG V0.01;component/Recursos/Iconos/{imageName}")),
-                    Width = 15,
-                    Height = 15
-                }
-            };
-        }
-
-        private void btnAñadirTarea_Click(object sender, RoutedEventArgs e)
-        {
-            var ventana = new AñadirTareaWindow(0); // 0 as default case ID since it's from Home
-            if (ventana.ShowDialog() == true)
-            {
-                CargarTareasPendientesLista();
-            }
-        }
-        #endregion
 
         #endregion
 
@@ -1354,6 +942,6 @@ namespace TFG_V0._01.Ventanas
         //revisar funcion CheckBox_TareaFinalizada => no funciona al 100% en local.
         #endregion
 
-        
+
     }
 }

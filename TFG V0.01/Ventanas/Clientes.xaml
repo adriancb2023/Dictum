@@ -357,7 +357,7 @@
         <!-- Contenido Principal -->
         <Grid Grid.Column="2" Margin="20">
             <!-- Selector de Cliente -->
-            <Grid x:Name="ClientSelectorGrid" Visibility="Visible">
+            <Grid x:Name="ClientSelectorGrid" Visibility="Collapsed">
                 <Border Style="{StaticResource CardStyle}">
                     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20">
                         <TextBlock Text="Seleccionar Cliente" FontSize="24" Foreground="White" HorizontalAlignment="Center" Margin="0,0,0,30"/>
@@ -406,7 +406,7 @@
             </Grid>
 
             <!-- Detalles del Cliente -->
-            <Grid x:Name="ClientDetailsGrid" Visibility="Collapsed">
+            <Grid x:Name="ClientDetailsGrid" Visibility="Visible">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>

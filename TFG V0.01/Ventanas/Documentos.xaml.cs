@@ -7,27 +7,28 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
+using TFG_V0._01.Supabase.Models;
 
 namespace TFG_V0._01.Ventanas
 {
     public partial class Documentos : Window, INotifyPropertyChanged
     {
         #region 🎬 variables animacion
-        private Storyboard fadeInStoryboard;
-        private Storyboard shakeStoryboard;
+        private Storyboard? fadeInStoryboard;
+        private Storyboard? shakeStoryboard;
         #endregion
 
         #region Propiedades y Variables
-        private bool isDarkMode = true;
+        private bool isDarkMode = true; // CS0414: El campo está asignado pero nunca se usa. Si no lo necesitas, elimínalo.
         private bool isFiltrosPanelVisible = false;
         private readonly Duration animationDuration = new Duration(TimeSpan.FromSeconds(0.3));
         private readonly DoubleAnimation fadeInAnimation;
         private readonly DoubleAnimation fadeOutAnimation;
         private readonly DoubleAnimation shakeAnimation;
 
-        public ObservableCollection<DocumentPanel> DocumentPanelsCollection { get; set; }
+        public ObservableCollection<DocumentPanel> DocumentPanelsCollection { get; set; } = new();
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -176,49 +177,40 @@ namespace TFG_V0._01.Ventanas
             var checkbox = sender as CheckBox;
             if (checkbox != null && checkbox.Tag != null)
             {
-                string tipo = checkbox.Tag.ToString();
+                string tipo = checkbox.Tag.ToString()!;
                 bool isChecked = checkbox.IsChecked ?? false;
 
                 // Si ningún checkbox está marcado, mostrar todos los paneles
                 var anyCheckboxChecked = false;
-                foreach (CheckBox cb in ((WrapPanel)((StackPanel)checkbox.Parent).Parent).Children)
+                var wrapPanel = checkbox.Parent as WrapPanel;
+                if (wrapPanel != null)
                 {
-                    if (cb.IsChecked ?? false)
+                    foreach (CheckBox cb in wrapPanel.Children)
                     {
-                        anyCheckboxChecked = true;
-                        break;
+                        if (cb.IsChecked ?? false)
+                        {
+                            anyCheckboxChecked = true;
+                            break;
+                        }
                     }
-                }
 
-                if (!anyCheckboxChecked)
-                {
-                    foreach (var panel in DocumentPanelsCollection)
+                    if (!anyCheckboxChecked)
                     {
-                        panel.IsVisible = true;
+                        foreach (var panel in DocumentPanelsCollection)
+                        {
+                            panel.IsVisible = true;
+                        }
                     }
-                }
-                else
-                {
-                    // Actualizar visibilidad según los checkboxes marcados
-                    foreach (var panel in DocumentPanelsCollection)
+                    else
                     {
-                        if (panel.Type == tipo)
+                        // Actualizar la visibilidad del panel correspondiente
+                        var panel = DocumentPanelsCollection.FirstOrDefault(p => p.Type == tipo);
+                        if (panel != null)
                         {
                             panel.IsVisible = isChecked;
                         }
-                        else if (!isChecked)
-                        {
-                            // Mantener visible si su checkbox correspondiente está marcado
-                            var correspondingCheckbox = ((WrapPanel)((StackPanel)checkbox.Parent).Parent).Children
-                                .OfType<CheckBox>()
-                                .FirstOrDefault(cb => cb.Tag.ToString() == panel.Type);
-                            panel.IsVisible = correspondingCheckbox?.IsChecked ?? false;
-                        }
                     }
                 }
-
-                // Reordenar paneles visibles
-                ReorderVisiblePanels();
             }
         }
 
@@ -231,102 +223,15 @@ namespace TFG_V0._01.Ventanas
             }
         }
         #endregion
-
-        private void DropZone_DragOver(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-            {
-                e.Effects = DragDropEffects.Copy;
-            }
-            e.Handled = true;
-        }
-
-        private void DropZone_Drop(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-            {
-                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-                // TODO: Implement file handling logic
-            }
-        }
-
-        private void SelectFiles_Click(object sender, RoutedEventArgs e)
-        {
-            var openFileDialog = new Microsoft.Win32.OpenFileDialog
-            {
-                Multiselect = true,
-                Filter = "All Files|*.*|PDF Files|*.pdf|Image Files|*.jpg;*.jpeg;*.png|Audio Files|*.mp3;*.wav|Video Files|*.mp4;*.avi"
-            };
-
-            if (openFileDialog.ShowDialog() == true)
-            {
-                // TODO: Implement file selection handling
-            }
-        }
-
-        private void OpenFile_Click(object sender, RoutedEventArgs e)
-        {
-            var button = sender as Button;
-            if (button?.Tag is string filePath)
-            {
-                try
-                {
-                    System.Diagnostics.Process.Start(filePath);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error al abrir el archivo: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-        }
-
-        private void DeleteFile_Click(object sender, RoutedEventArgs e)
-        {
-            var button = sender as Button;
-            if (button?.Tag is string filePath)
-            {
-                var result = MessageBox.Show("¿Está seguro de que desea eliminar este archivo?", 
-                    "Confirmar eliminación", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                
-                if (result == MessageBoxResult.Yes)
-                {
-                    try
-                    {
-                        System.IO.File.Delete(filePath);
-                        // TODO: Update UI to reflect deletion
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Error al eliminar el archivo: {ex.Message}", 
-                            "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                }
-            }
-        }
-
-        private void ComboClientes_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            // TODO: Implement client selection change logic
-        }
-
-        private void ComboCasos_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            // TODO: Implement case selection change logic
-        }
-
-        private void FiltroFecha_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
-        {
-            // TODO: Implement date filter change logic
-        }
     }
 
     public class DocumentPanel : INotifyPropertyChanged
     {
-        private string _title;
-        private string _type;
+        private string _title = string.Empty;
+        private string _type = string.Empty;
         private bool _isVisible;
         private bool _isOddPanel;
-        private ObservableCollection<DocumentFile> _files;
+        private ObservableCollection<DocumentFile> _files = new();
 
         public string Title
         {
@@ -378,7 +283,7 @@ namespace TFG_V0._01.Ventanas
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         protected virtual void OnPropertyChanged(string propertyName)
         {
@@ -389,100 +294,15 @@ namespace TFG_V0._01.Ventanas
         {
             Files = new ObservableCollection<DocumentFile>();
         }
-
-        #region Eventos de UI
-        private void DropZone_DragOver(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-            {
-                e.Effects = DragDropEffects.Copy;
-            }
-            e.Handled = true;
-        }
-
-        private void DropZone_Drop(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-            {
-                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-                // TODO: Implement file handling logic
-            }
-        }
-
-        private void SelectFiles_Click(object sender, RoutedEventArgs e)
-        {
-            var openFileDialog = new Microsoft.Win32.OpenFileDialog
-            {
-                Multiselect = true,
-                Filter = "All Files|*.*|PDF Files|*.pdf|Image Files|*.jpg;*.jpeg;*.png|Audio Files|*.mp3;*.wav|Video Files|*.mp4;*.avi"
-            };
-
-            if (openFileDialog.ShowDialog() == true)
-            {
-                // TODO: Implement file selection handling
-            }
-        }
-
-        private void OpenFile_Click(object sender, RoutedEventArgs e)
-        {
-            var button = sender as Button;
-            if (button?.Tag is string filePath)
-            {
-                try
-                {
-                    System.Diagnostics.Process.Start(filePath);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error al abrir el archivo: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-        }
-
-        private void DeleteFile_Click(object sender, RoutedEventArgs e)
-        {
-            var button = sender as Button;
-            if (button?.Tag is string filePath)
-            {
-                var result = MessageBox.Show("¿Está seguro de que desea eliminar este archivo?", 
-                    "Confirmar eliminación", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                
-                if (result == MessageBoxResult.Yes)
-                {
-                    try
-                    {
-                        System.IO.File.Delete(filePath);
-                        // TODO: Update UI to reflect deletion
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Error al eliminar el archivo: {ex.Message}", 
-                            "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                }
-            }
-        }
-
-        private void ComboClientes_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            // TODO: Implement client selection change logic
-        }
-
-        private void ComboCasos_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            // TODO: Implement case selection change logic
-        }
-
-        private void FiltroFecha_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
-        {
-            // TODO: Implement date filter change logic
-        }
-        #endregion
     }
+
     public class DocumentFile
     {
-        public string Name { get; set; }
-        public string Path { get; set; }
-        public string Type { get; set; }
+        public string Id { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string Path { get; set; } = string.Empty;
+        public string Type { get; set; } = string.Empty;
+        public DateTime UploadDate { get; set; }
+        public long Size { get; set; }
     }
 }

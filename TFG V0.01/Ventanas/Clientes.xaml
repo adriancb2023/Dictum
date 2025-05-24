@@ -11,6 +11,7 @@
         WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
+        
         <!-- Estilo para el botón de cambio de tema -->
         <Style x:Key="ThemeButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
@@ -31,6 +32,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        
         <!-- Botones redondeados -->
         <Style x:Key="RoundedButtonStyle" TargetType="{x:Type Button}">
             <Setter Property="Background" Value="#FFFFFF"/>
@@ -60,8 +62,10 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        
         <!-- Easing para suavizar la animación -->
         <QuadraticEase x:Key="SmoothEase" EasingMode="EaseInOut" />
+        
         <!-- Estilo ComboBox moderno -->
         <Style x:Key="ModernComboBoxStyle" TargetType="{x:Type ComboBox}">
             <Setter Property="Background" Value="#30FFFFFF"/>
@@ -114,15 +118,18 @@
                                 Placement="Bottom"
                                 AllowsTransparency="True" 
                                 Focusable="False"
-                                PopupAnimation="Slide">
+                                PopupAnimation="Slide"
+                                Panel.ZIndex="9999">
                                 <Grid MaxHeight="{TemplateBinding MaxDropDownHeight}"
                                       MinWidth="{Binding Path=ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
                                     <Border Background="#90454545" 
                                             BorderBrush="#40FFFFFF"
                                             BorderThickness="1" 
                                             CornerRadius="10" 
-                                            Margin="0,5,0,0">
-                                        <ScrollViewer SnapsToDevicePixels="True">
+                                            Margin="0,5,0,0"
+                                            Effect="{StaticResource DropShadowEffect}">
+                                        <ScrollViewer SnapsToDevicePixels="True"
+                                                    Margin="5">
                                             <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained"/>
                                         </ScrollViewer>
                                     </Border>
@@ -152,13 +159,19 @@
         <Style x:Key="CardStyle" TargetType="Border">
             <Setter Property="Background">
                 <Setter.Value>
-                    <SolidColorBrush x:Name="colortarjeta" Color="#454545" Opacity="0.4"/>
+                    <SolidColorBrush Color="#454545" Opacity="0.4"/>
                 </Setter.Value>
             </Setter>
-            <Setter Property="BorderBrush" Value="#333" />
+            <Setter Property="BorderBrush" Value="#40FFFFFF" />
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="15"/>
-            <Setter Property="Margin" Value="10"/>
+            <Setter Property="CornerRadius" Value="15"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Margin" Value="0,0,0,20"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="Black" BlurRadius="10" ShadowDepth="2" Opacity="0.2"/>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <DropShadowEffect x:Key="DropShadowEffect" Color="Black" BlurRadius="15" ShadowDepth="2" Opacity="0.3"/>
@@ -261,15 +274,18 @@
                                 Placement="Bottom"
                                 AllowsTransparency="True" 
                                 Focusable="False"
-                                PopupAnimation="Slide">
+                                PopupAnimation="Slide"
+                                Panel.ZIndex="9999">
                                 <Grid MaxHeight="{TemplateBinding MaxDropDownHeight}"
                                       MinWidth="{Binding Path=ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
                                     <Border Background="#90454545" 
                                             BorderBrush="#40FFFFFF"
                                             BorderThickness="1" 
                                             CornerRadius="10" 
-                                            Margin="0,5,0,0">
-                                        <ScrollViewer SnapsToDevicePixels="True">
+                                            Margin="0,5,0,0"
+                                            Effect="{StaticResource DropShadowEffect}">
+                                        <ScrollViewer SnapsToDevicePixels="True"
+                                                    Margin="5">
                                             <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained"/>
                                         </ScrollViewer>
                                     </Border>
@@ -284,132 +300,167 @@
     </Window.Resources>
 
     <Grid>
+        
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="AUTO" />
             <ColumnDefinition Width="2" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
+        
         <!-- Fondo -->
         <Grid.Background>
             <ImageBrush x:Name="backgroundFondo" ImageSource="/TFG V0.01;component/Recursos/Background/oscuro/main.png"/>
         </Grid.Background>
+        
         <!-- Navbar -->
         <controls:NavbarControl x:Name="navbar" Grid.Column="0" />
+        
         <!-- Claro/Oscuro  -->
         <Button x:Name="ThemeButton" Width="35" Height="35" Margin="0" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="ThemeButton_Click" Style="{StaticResource ThemeButtonStyle}" Grid.Column="2"/>
 
         <!-- Contenido Principal -->
         <Grid Grid.Column="2" Margin="20">
+
             <!-- Selector de Cliente -->
-            <Grid x:Name="ClientSelectorGrid" Visibility="Collapsed">
-                <Border Style="{StaticResource CardStyle}">
-                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20">
-                        <TextBlock Text="Seleccionar Cliente" FontSize="24" Foreground="White" HorizontalAlignment="Center" Margin="0,0,0,30"/>
-                        <ComboBox x:Name="ClientesComboBox"
-                                 Style="{StaticResource ComboBoxWithClearStyle}"
-                                 Margin="0,0,0,20"
-                                 IsEditable="True"
-                                 StaysOpenOnEdit="True"
-                                 IsTextSearchEnabled="False"
-                                 Loaded="ComboClientes_Loaded"
-                                 KeyUp="ComboClientes_KeyUp"
-                                 SelectionChanged="ComboClientes_SelectionChanged"
-                                 ItemsSource="{Binding ListaClientes}"
-                                 SelectedItem="{Binding SelectedCliente, Mode=TwoWay}">
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel Margin="5">
-                                        <TextBlock Text="{Binding nombre_cliente}" Foreground="White" FontSize="16"/>
-                                        <TextBlock Text="{Binding email1}" Foreground="#CCFFFFFF" FontSize="12"/>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
-                        <Button Content="Nuevo Cliente" Style="{StaticResource RoundedButtonStyle}" Background="#40FFFFFF" Foreground="White" Width="200"/>
-                        <Button Click="clientecheck"
-                                Background="Transparent"
-                                BorderThickness="0"
-                                Padding="0"
-                                Cursor="Hand"
-                                Focusable="False"
-                                OverridesDefaultStyle="True">
-                            <Button.Template>
-                                <ControlTemplate TargetType="Button">
-                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </ControlTemplate>
-                            </Button.Template>
-                            <TextBlock Text="Saltar a vista cliente"
-                                       Foreground="White"
-                                       FontSize="14"
-                                       TextDecorations="Underline"
-                                       VerticalAlignment="Center"
-                                       HorizontalAlignment="Center"/>
-                        </Button>
-                    </StackPanel>
+            <Grid x:Name="ClientSelectorGrid" Visibility="Visible">
+
+                <Border Style="{StaticResource CardStyle}" MaxWidth="600" MaxHeight="600" VerticalAlignment="Center" Margin="0">
+
+                    <Grid>
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Contenedor superior: título + combo -->
+                        <StackPanel Grid.Row="0" Margin="20">
+
+                            <TextBlock Text="Seleccionar Cliente"  FontSize="24" Foreground="White" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+
+                            <!-- ComboBox con altura colapsable -->
+                            <Grid x:Name="ComboBoxContainer" Height="40">
+
+                                <!-- contraído por defecto -->
+                                <ComboBox x:Name="ClientesComboBox"  Style="{StaticResource ComboBoxWithClearStyle}" IsEditable="True"  StaysOpenOnEdit="True"  IsTextSearchEnabled="False" MaxDropDownHeight="300" Loaded="ComboClientes_Loaded" KeyUp="ComboClientes_KeyUp" SelectionChanged="ComboClientes_SelectionChanged" 
+                                          DropDownOpened="ClientesComboBox_DropDownOpened" DropDownClosed="ClientesComboBox_DropDownClosed" ItemsSource="{Binding ListaClientes}" SelectedItem="{Binding SelectedCliente, Mode=TwoWay}"/>
+
+                            </Grid>
+
+                        </StackPanel>
+
+                        <!-- Contenedor de botones -->
+                        <StackPanel Grid.Row="1" Margin="20,10,20,20">
+
+                            <Button Content="Continuar" Style="{StaticResource RoundedButtonStyle}"  Background="White" Foreground="Black" HorizontalAlignment="Stretch" MaxWidth="400" Margin="0,0,0,10" Click="clientecheck"/>
+
+                            <Button Content="Nuevo Cliente" Style="{StaticResource RoundedButtonStyle}"  Background="#40FFFFFF" Foreground="White" HorizontalAlignment="Stretch"  MaxWidth="400"/>
+
+                        </StackPanel>
+
+                    </Grid>
+
                 </Border>
+
             </Grid>
 
-            <!-- Detalles del Cliente -->
-            <Grid x:Name="ClientDetailsGrid" Visibility="Visible">
+            <!-- Datos -->
+            <Grid x:Name="ClientDetailsGrid" Visibility="Collapsed">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <!-- Cabecera con botón volver -->
-                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,20">
-                    <Button Style="{StaticResource RoundedButtonStyle}" Background="#40FFFFFF" Foreground="White" Margin="0,0,20,0">
+                <Grid Grid.Row="0" Margin="0,0,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button Grid.Column="0" 
+                            Style="{StaticResource RoundedButtonStyle}" 
+                            Background="#40FFFFFF" 
+                            Foreground="White" 
+                            Margin="0,0,20,0"
+                            Height="60"
+                            Width="100"
+                            Click="atras">
                         <StackPanel Orientation="Horizontal">
-                            <Path Data="M20,0 L4,10 L20,20" Stroke="White" StrokeThickness="2" Width="20" Height="20" Stretch="Fill"/>
-                            <TextBlock Text="Volver" Margin="10,0,0,0"/>
+                            <Image x:Name="volver" Source="/TFG V0.01;component/Recursos/Iconos/volver.png" 
+                                   Width="24" 
+                                   Height="24" 
+                                   VerticalAlignment="Center"/>
+                            <TextBlock Text="Volver" 
+                                       Margin="10,0,0,0" 
+                                       VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
-                    <TextBlock x:Name="ClienteNombreHeader" Text="Nombre del Cliente" FontSize="24" Foreground="White" VerticalAlignment="Center"/>
-                </StackPanel>
+
+                    <TextBlock Grid.Column="1" 
+                               x:Name="ClienteNombreHeader" 
+                               Text="{Binding SelectedCliente.nombre_cliente}"
+                               FontSize="24" 
+                               Foreground="White" 
+                               VerticalAlignment="Center"
+                               TextWrapping="Wrap"/>
+                </Grid>
+                
                 <!-- Contenido de los detalles -->
-                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="0,20,0,0">
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="20"/>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="40"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="5"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="5"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
                         <!-- Columna Izquierda -->
-                        <StackPanel Grid.Column="0">
-                            <!-- Información Personal -->
-                            <Border Style="{StaticResource CardStyle}">
-                                <Grid>
-                                    <!-- Vista normal (no edición) -->
-                                    <StackPanel x:Name="PersonalInfoPanel"
+                        <!-- Información Personal -->
+                        <Border Style="{StaticResource CardStyle}" Grid.Column="0" Grid.Row="0" Margin="0,0,0,10">
+                            <Border.Effect>
+                                <DropShadowEffect ShadowDepth="2" Direction="270" Color="#66000000" BlurRadius="10" Opacity="0.3"/>
+                            </Border.Effect>
+                            <Grid>
+                                <!-- Vista normal (no edición) -->
+                                <StackPanel x:Name="PersonalInfoPanel"
                                                 Visibility="{Binding IsEditPersonalInfoVisible, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                                        <TextBlock Text="{Binding SelectedCliente.fecha_contrato, StringFormat='Fecha de contrato: {0:dd/MM/yyyy}'}"
+                                    <TextBlock Text="{Binding SelectedCliente.fecha_contrato, StringFormat='Fecha de contrato: {0:dd/MM/yyyy}'}"
                                                    FontWeight="Bold"
                                                    Foreground="White"
                                                    FontSize="16"
                                                    Margin="0,0,0,10"/>
-                                        <TextBlock Text="{Binding SelectedCliente.nombre_cliente}" Foreground="White" FontSize="16" Margin="0,0,0,10"/>
-                                        <TextBlock Text="DNI:" Foreground="#CCFFFFFF" Margin="0,0,0,2"/>
-                                        <TextBlock Text="{Binding SelectedCliente.id}" Foreground="White" Margin="0,0,0,8"/>
-                                        <TextBlock Text="Teléfono 1:" Foreground="#CCFFFFFF" Margin="0,0,0,2"/>
-                                        <TextBlock Text="{Binding SelectedCliente.telf1}" Foreground="White" Margin="0,0,0,8"/>
-                                        <TextBlock Text="Teléfono 2:" Foreground="#CCFFFFFF" Margin="0,0,0,2"/>
-                                        <TextBlock Text="{Binding SelectedCliente.telf2}" Foreground="White" Margin="0,0,0,8"/>
-                                        <TextBlock Text="Email 1:" Foreground="#CCFFFFFF" Margin="0,0,0,2"/>
-                                        <TextBlock Text="{Binding SelectedCliente.email1}" Foreground="White" Margin="0,0,0,8"/>
-                                        <TextBlock Text="Email 2:" Foreground="#CCFFFFFF" Margin="0,0,0,2"/>
-                                        <TextBlock Text="{Binding SelectedCliente.email2}" Foreground="White" Margin="0,0,0,8"/>
-                                        <TextBlock Text="Dirección:" Foreground="#CCFFFFFF" Margin="0,0,0,2"/>
-                                        <TextBlock Text="{Binding SelectedCliente.direccion}" Foreground="White" TextWrapping="Wrap" Margin="0,0,0,8"/>
-                                        <Button Content="Editar Información"
+                                    <TextBlock Text="{Binding SelectedCliente.nombre_cliente}" Foreground="White" FontSize="16" Margin="0,0,0,10"/>
+                                    <TextBlock Text="DNI:" Foreground="#CCFFFFFF" Margin="0,0,0,2"/>
+                                    <TextBlock Text="{Binding SelectedCliente.id}" Foreground="White" Margin="0,0,0,8"/>
+                                    <TextBlock Text="Teléfono 1:" Foreground="#CCFFFFFF" Margin="0,0,0,2"/>
+                                    <TextBlock Text="{Binding SelectedCliente.telf1}" Foreground="White" Margin="0,0,0,8"/>
+                                    <TextBlock Text="Teléfono 2:" Foreground="#CCFFFFFF" Margin="0,0,0,2"/>
+                                    <TextBlock Text="{Binding SelectedCliente.telf2}" Foreground="White" Margin="0,0,0,8"/>
+                                    <TextBlock Text="Email 1:" Foreground="#CCFFFFFF" Margin="0,0,0,2"/>
+                                    <TextBlock Text="{Binding SelectedCliente.email1}" Foreground="White" Margin="0,0,0,8"/>
+                                    <TextBlock Text="Email 2:" Foreground="#CCFFFFFF" Margin="0,0,0,2"/>
+                                    <TextBlock Text="{Binding SelectedCliente.email2}" Foreground="White" Margin="0,0,0,8"/>
+                                    <TextBlock Text="Dirección:" Foreground="#CCFFFFFF" Margin="0,0,0,2"/>
+                                    <TextBlock Text="{Binding SelectedCliente.direccion}" Foreground="White" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                    <Button Content="Editar Información"
                                                 Style="{StaticResource RoundedButtonStyle}"
                                                 Background="#40FFFFFF"
                                                 Foreground="White"
                                                 HorizontalAlignment="Right"
                                                 Margin="0,10,0,0"
-                                                Click="EditarInformacion_Click"/>
-                                    </StackPanel>
+                                                Click="EditarInformacion_Click" Height="45" Width="150"/>
+                                </StackPanel>
 
-                                    <!-- Panel de edición -->
-                                    <Border x:Name="EditPersonalInfoPanel"
+                                <!-- Panel de edición -->
+                                <Border x:Name="EditPersonalInfoPanel"
                                             Background="#CC222222"
                                             CornerRadius="15"
                                             Padding="20"
@@ -417,122 +468,73 @@
                                             VerticalAlignment="Stretch"
                                             HorizontalAlignment="Stretch"
                                             Opacity="0.97">
-                                        <StackPanel>
-                                            <TextBlock Text="{Binding EditFechaContrato, StringFormat='Fecha de contrato: {0:dd/MM/yyyy}'}"
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding EditFechaContrato, StringFormat='Fecha de contrato: {0:dd/MM/yyyy}'}"
                                                        FontWeight="Bold"
                                                        Foreground="White"
                                                        FontSize="16"
                                                        Margin="0,0,0,10"/>
-                                            <TextBlock Text="Nombre:" Foreground="#CCFFFFFF" Margin="0,0,0,5"/>
-                                            <TextBox Text="{Binding EditNombre, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
-                                            <TextBlock Text="Primer Apellido:" Foreground="#CCFFFFFF" Margin="0,0,0,5"/>
-                                            <TextBox Text="{Binding EditApellido1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
-                                            <TextBlock Text="Segundo Apellido:" Foreground="#CCFFFFFF" Margin="0,0,0,5"/>
-                                            <TextBox Text="{Binding EditApellido2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
-                                            <TextBlock Text="DNI:" Foreground="#CCFFFFFF" Margin="0,0,0,5"/>
-                                            <TextBox Text="{Binding EditDNI, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
-                                            <TextBlock Text="Teléfono 1:" Foreground="#CCFFFFFF" Margin="0,0,0,5"/>
-                                            <TextBox Text="{Binding EditTelefono1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
-                                            <TextBlock Text="Teléfono 2:" Foreground="#CCFFFFFF" Margin="0,0,0,5"/>
-                                            <TextBox Text="{Binding EditTelefono2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
-                                            <TextBlock Text="Email 1:" Foreground="#CCFFFFFF" Margin="0,0,0,5"/>
-                                            <TextBox Text="{Binding EditEmail1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
-                                            <TextBlock Text="Email 2:" Foreground="#CCFFFFFF" Margin="0,0,0,5"/>
-                                            <TextBox Text="{Binding EditEmail2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
-                                            <TextBlock Text="Dirección:" Foreground="#CCFFFFFF" Margin="0,0,0,5"/>
-                                            <TextBox Text="{Binding EditDireccion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" Margin="0,0,0,10"/>
-                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                                <Button Content="Guardar" Margin="0,10,10,0" Click="GuardarInformacion_Click"/>
-                                                <Button Content="Cancelar" Margin="0,10,0,0" Click="CancelarInformacion_Click"/>
-                                            </StackPanel>
+                                        <TextBlock Text="Nombre:" Foreground="#CCFFFFFF" Margin="0,0,0,5"/>
+                                        <TextBox Text="{Binding EditNombre, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
+                                        <TextBlock Text="Primer Apellido:" Foreground="#CCFFFFFF" Margin="0,0,0,5"/>
+                                        <TextBox Text="{Binding EditApellido1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
+                                        <TextBlock Text="Segundo Apellido:" Foreground="#CCFFFFFF" Margin="0,0,0,5"/>
+                                        <TextBox Text="{Binding EditApellido2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
+                                        <TextBlock Text="DNI:" Foreground="#CCFFFFFF" Margin="0,0,0,5"/>
+                                        <TextBox Text="{Binding EditDNI, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
+                                        <TextBlock Text="Teléfono 1:" Foreground="#CCFFFFFF" Margin="0,0,0,5"/>
+                                        <TextBox Text="{Binding EditTelefono1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
+                                        <TextBlock Text="Teléfono 2:" Foreground="#CCFFFFFF" Margin="0,0,0,5"/>
+                                        <TextBox Text="{Binding EditTelefono2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
+                                        <TextBlock Text="Email 1:" Foreground="#CCFFFFFF" Margin="0,0,0,5"/>
+                                        <TextBox Text="{Binding EditEmail1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
+                                        <TextBlock Text="Email 2:" Foreground="#CCFFFFFF" Margin="0,0,0,5"/>
+                                        <TextBox Text="{Binding EditEmail2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
+                                        <TextBlock Text="Dirección:" Foreground="#CCFFFFFF" Margin="0,0,0,5"/>
+                                        <TextBox Text="{Binding EditDireccion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                            <Button Content="Guardar" Margin="0,10,10,0" Click="GuardarInformacion_Click"/>
+                                            <Button Content="Cancelar" Margin="0,10,0,0" Click="CancelarInformacion_Click"/>
                                         </StackPanel>
-                                    </Border>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                        <!-- Casos Activos -->
+                        <Border Style="{StaticResource CardStyle}" Grid.Column="0" Grid.Row="2" Margin="0,0,0,10">
+                            <Border.Effect>
+                                <DropShadowEffect ShadowDepth="2" Direction="270" Color="#66000000" BlurRadius="10" Opacity="0.3"/>
+                            </Border.Effect>
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Casos Activos" FontSize="20" Foreground="White" VerticalAlignment="Center"/>
+                                    <Button Grid.Column="1" Content="Nuevo Caso" Style="{StaticResource RoundedButtonStyle}" Background="#40FFFFFF" Foreground="White" Height="45" Width="120" Padding="15,0"/>
                                 </Grid>
-                            </Border>
-                            <!-- Casos Activos -->
-                            <Border Style="{StaticResource CardStyle}">
-                                <StackPanel>
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Text="Casos Activos" FontSize="20" Foreground="White" VerticalAlignment="Center"/>
-                                        <Button Grid.Column="1" Content="Nuevo Caso" Style="{StaticResource RoundedButtonStyle}" Background="#40FFFFFF" Foreground="White" Height="35" Padding="15,0"/>
-                                    </Grid>
-                                    <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="300">
-                                        <ListView x:Name="CasosActivosList"
+                                <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="300" Margin="0,10,0,0">
+                                    <ListView x:Name="CasosActivosList"
                                                   Background="Transparent"
                                                   BorderThickness="0"
                                                   Margin="0,15,0,0"
                                                   ItemsSource="{Binding CasosActivos}"
                                                   ItemContainerStyle="{StaticResource StretchingListViewItemStyle}">
-                                            <ListView.ItemTemplate>
-                                                <DataTemplate>
-                                                    <Border Background="#50FFFFFF"
+                                        <ListView.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Background="#50FFFFFF"
                                                             CornerRadius="16"
                                                             Padding="18"
                                                             Margin="0,8"
                                                             Effect="{StaticResource DropShadowEffect}"
                                                             HorizontalAlignment="Stretch">
-                                                        <Grid>
-                                                            <Grid.ColumnDefinitions>
-                                                                <ColumnDefinition Width="Auto"/>
-                                                                <ColumnDefinition Width="*"/>
-                                                                <ColumnDefinition Width="Auto"/>
-                                                            </Grid.ColumnDefinitions>
-                                                            <!-- Círculo de estado -->
-                                                            <Ellipse Width="18" Height="18" Margin="0,0,12,0" Grid.Column="0">
-                                                                <Ellipse.Fill>
-                                                                    <Binding Path="Estado.nombre" Converter="{StaticResource EstadoToColorConverter}"/>
-                                                                </Ellipse.Fill>
-                                                            </Ellipse>
-                                                            <!-- Info del caso -->
-                                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                                                <TextBlock Text="{Binding titulo}" Foreground="White" FontWeight="Bold" FontSize="16"/>
-                                                                <TextBlock Text="{Binding Estado.nombre}" Foreground="#FFD6D6D6" FontSize="13" Margin="0,2,0,0"/>
-                                                            </StackPanel>
-                                                            <!-- Botón detalles -->
-                                                            <Button Grid.Column="2"
-                                                                    Content="Ver Detalles"
-                                                                    Style="{StaticResource ModernDetailsButtonStyle}"
-                                                                    Command="{Binding DataContext.VerDetallesCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                                    CommandParameter="{Binding}"
-                                                                    VerticalAlignment="Center"
-                                                                    Margin="12,0,0,0"/>
-                                                        </Grid>
-                                                    </Border>
-                                                </DataTemplate>
-                                            </ListView.ItemTemplate>
-                                        </ListView>
-                                    </ScrollViewer>
-                                </StackPanel>
-                            </Border>
-                        </StackPanel>
-                        <!-- Columna Derecha -->
-                        <StackPanel Grid.Column="2">
-                            <!-- Historial de Casos -->
-                            <Border Style="{StaticResource CardStyle}">
-                                <StackPanel>
-                                    <TextBlock Text="Historial de Casos" FontSize="20" Foreground="White" Margin="0,0,0,15"/>
-                                    <ListView x:Name="HistorialCasosList"
-                                              Background="Transparent"
-                                              BorderThickness="0"
-                                              MaxHeight="300"
-                                              ItemsSource="{Binding HistorialCasos}"
-                                              ItemContainerStyle="{StaticResource StretchingListViewItemStyle}">
-                                        <ListView.ItemTemplate>
-                                            <DataTemplate>
-                                                <Border Background="#50FFFFFF"
-                                                        CornerRadius="16"
-                                                        Padding="18"
-                                                        Margin="0,8"
-                                                        Effect="{StaticResource DropShadowEffect}"
-                                                        HorizontalAlignment="Stretch">
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="Auto"/>
                                                             <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
                                                         </Grid.ColumnDefinitions>
                                                         <!-- Círculo de estado -->
                                                         <Ellipse Width="18" Height="18" Margin="0,0,12,0" Grid.Column="0">
@@ -545,56 +547,115 @@
                                                             <TextBlock Text="{Binding titulo}" Foreground="White" FontWeight="Bold" FontSize="16"/>
                                                             <TextBlock Text="{Binding Estado.nombre}" Foreground="#FFD6D6D6" FontSize="13" Margin="0,2,0,0"/>
                                                         </StackPanel>
+                                                        <!-- Botón detalles -->
+                                                        <Button Grid.Column="2"
+                                                                    Content="Ver Detalles"
+                                                                    Style="{StaticResource ModernDetailsButtonStyle}"
+                                                                    Command="{Binding DataContext.VerDetallesCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                    CommandParameter="{Binding}"
+                                                                    VerticalAlignment="Center"
+                                                                    Margin="12,0,0,0" Height="45" Width="120"/>
                                                     </Grid>
                                                 </Border>
                                             </DataTemplate>
                                         </ListView.ItemTemplate>
                                     </ListView>
-                                </StackPanel>
-                            </Border>
-                            <!-- Documentos del Cliente -->
-                            <Border Style="{StaticResource CardStyle}">
-                                <StackPanel>
-                                    <TextBlock Text="Documentos del Cliente" FontSize="20" Foreground="White" Margin="0,0,0,15"/>
-                                    <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="300">
-                                        <ListView x:Name="DocumentosClienteList"
+                                </ScrollViewer>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Historial de Casos -->
+                        <Border Style="{StaticResource CardStyle}" Grid.Column="0" Grid.Row="4" Margin="0,0,0,10">
+                            <Border.Effect>
+                                <DropShadowEffect ShadowDepth="2" Direction="270" Color="#66000000" BlurRadius="10" Opacity="0.3"/>
+                            </Border.Effect>
+                            <StackPanel>
+                                <TextBlock Text="Historial de Casos" FontSize="20" Foreground="White" Margin="0,0,0,15"/>
+                                <ListView x:Name="HistorialCasosList"
+                                              Background="Transparent"
+                                              BorderThickness="0"
+                                              MaxHeight="300"
+                                              ItemsSource="{Binding HistorialCasos}"
+                                              ItemContainerStyle="{StaticResource StretchingListViewItemStyle}">
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="#50FFFFFF"
+                                                        CornerRadius="16"
+                                                        Padding="18"
+                                                        Margin="0,8"
+                                                        Effect="{StaticResource DropShadowEffect}"
+                                                        HorizontalAlignment="Stretch">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <!-- Círculo de estado -->
+                                                    <Ellipse Width="18" Height="18" Margin="0,0,12,0" Grid.Column="0">
+                                                        <Ellipse.Fill>
+                                                            <Binding Path="Estado.nombre" Converter="{StaticResource EstadoToColorConverter}"/>
+                                                        </Ellipse.Fill>
+                                                    </Ellipse>
+                                                    <!-- Info del caso -->
+                                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding titulo}" Foreground="White" FontWeight="Bold" FontSize="16"/>
+                                                        <TextBlock Text="{Binding Estado.nombre}" Foreground="#FFD6D6D6" FontSize="13" Margin="0,2,0,0"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
+                            </StackPanel>
+                        </Border>
+
+                        <!--columna izquierda-->
+                        <!-- Documentos del Cliente -->
+                        <Border Style="{StaticResource CardStyle}" Grid.Column="2" Grid.Row="0" Grid.RowSpan="5" Margin="0,0,0,10">
+                            <Border.Effect>
+                                <DropShadowEffect ShadowDepth="2" Direction="270" Color="#66000000" BlurRadius="10" Opacity="0.3"/>
+                            </Border.Effect>
+                            <StackPanel>
+                                <TextBlock Text="Documentos del Cliente" FontSize="20" Foreground="White" Margin="0,0,0,15"/>
+                                <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="1150">
+                                    <ListView x:Name="DocumentosClienteList"
                                                   Background="Transparent"
                                                   BorderThickness="0"
                                                   ItemsSource="{Binding DocumentosCliente}"
                                                   ItemContainerStyle="{StaticResource StretchingListViewItemStyle}">
-                                            <ListView.ItemTemplate>
-                                                <DataTemplate>
-                                                    <Border Background="#50FFFFFF"
+                                        <ListView.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Background="#50FFFFFF"
                                                             CornerRadius="16"
                                                             Padding="18"
                                                             Margin="0,8"
                                                             Effect="{StaticResource DropShadowEffect}"
                                                             HorizontalAlignment="Stretch">
-                                                        <Grid>
-                                                            <Grid.ColumnDefinitions>
-                                                                <ColumnDefinition Width="*"/>
-                                                                <ColumnDefinition Width="Auto"/>
-                                                                <ColumnDefinition Width="Auto"/>
-                                                            </Grid.ColumnDefinitions>
-                                                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                                                                <TextBlock Text="{Binding nombre}" Foreground="White" FontWeight="Bold" FontSize="15"/>
-                                                                <TextBlock Text="{Binding fecha_subid, StringFormat='Subido: {0:dd/MM/yyyy}'}" Foreground="#FFD6D6D6" FontSize="12"/>
-                                                                <TextBlock Text="{Binding tipo_documento}" Foreground="#FFD6D6D6" FontSize="12"/>
-                                                            </StackPanel>
-                                                            <Button Grid.Column="1" Content="Ver" Style="{StaticResource ModernDetailsButtonStyle}" Height="28" Width="55" FontSize="12" Margin="8,0,0,0" Click="VerDocumento_Click"/>
-                                                            <Button Grid.Column="2" Content="Descargar" Style="{StaticResource ModernDetailsButtonStyle}" Height="28" Width="85" FontSize="12" Margin="8,0,0,0" Click="DescargarDocumento_Click"/>
-                                                        </Grid>
-                                                    </Border>
-                                                </DataTemplate>
-                                            </ListView.ItemTemplate>
-                                        </ListView>
-                                    </ScrollViewer>
-                                </StackPanel>
-                            </Border>
-                        </StackPanel>
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                                            <TextBlock Text="{Binding nombre}" Foreground="White" FontWeight="Bold" FontSize="15"/>
+                                                            <TextBlock Text="{Binding fecha_subid, StringFormat='Subido: {0:dd/MM/yyyy}'}" Foreground="#FFD6D6D6" FontSize="12"/>
+                                                            <TextBlock Text="{Binding tipo_documento}" Foreground="#FFD6D6D6" FontSize="12"/>
+                                                        </StackPanel>
+                                                        <Button Grid.Column="1" Content="Ver" Style="{StaticResource ModernDetailsButtonStyle}" Height="45" Width="100" FontSize="12" Margin="8,0,0,0" Click="VerDocumento_Click"/>
+                                                        <Button Grid.Column="2" Content="Descargar" Style="{StaticResource ModernDetailsButtonStyle}" Height="45" Width="100" FontSize="12" Margin="8,0,0,0" Click="DescargarDocumento_Click"/>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ListView.ItemTemplate>
+                                    </ListView>
+                                </ScrollViewer>
+                            </StackPanel>
+                        </Border>
                     </Grid>
                 </ScrollViewer>
             </Grid>
+
         </Grid>
     </Grid>
 </Window>

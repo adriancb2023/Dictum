@@ -653,5 +653,45 @@ namespace TFG_V0._01.Ventanas
                 }
             }
         }
+
+
+        private void ClientesComboBox_DropDownOpened(object sender, EventArgs e)
+        {
+            ExpandComboBoxContainer();
+        }
+
+        private void ClientesComboBox_DropDownClosed(object sender, EventArgs e)
+        {
+            CollapseComboBoxContainer();
+        }
+
+        private void ExpandComboBoxContainer()
+        {
+            var anim = new DoubleAnimation
+            {
+                To = 300, // altura expandida
+                Duration = TimeSpan.FromMilliseconds(200)
+            };
+            ComboBoxContainer.BeginAnimation(HeightProperty, anim);
+        }
+
+        private void CollapseComboBoxContainer()
+        {
+            var anim = new DoubleAnimation
+            {
+                To = 40, // altura contraída
+                Duration = TimeSpan.FromMilliseconds(200)
+            };
+            ComboBoxContainer.BeginAnimation(HeightProperty, anim);
+        }
+
+        private void atras(object sender, RoutedEventArgs e)
+        {
+            ClientDetailsGrid.Visibility = Visibility.Collapsed;
+            ClientesComboBox.SelectedItem = -1;
+            ClientesComboBox.SelectedItem = null;
+            ClientSelectorGrid.Visibility = Visibility.Visible;
+
+        }
     }
 }

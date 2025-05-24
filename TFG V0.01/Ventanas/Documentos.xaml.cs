@@ -172,6 +172,124 @@ namespace TFG_V0._01.Ventanas
             PanelFiltros.Visibility = isFiltrosPanelVisible ? Visibility.Visible : Visibility.Collapsed;
         }
 
+        private void ComboClientes_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            // TODO: Implement client selection change logic
+            var selectedClient = ComboClientes.SelectedItem;
+            if (selectedClient != null)
+            {
+                // Update cases list based on selected client
+                // Update documents list based on selected client
+            }
+        }
+
+        private void ComboCasos_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            // TODO: Implement case selection change logic
+            var selectedCase = ComboCasos.SelectedItem;
+            if (selectedCase != null)
+            {
+                // Update documents list based on selected case
+            }
+        }
+
+        private void FiltroFecha_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        {
+            // TODO: Implement date filter change logic
+            var selectedDate = FiltroFecha.SelectedDate;
+            if (selectedDate.HasValue)
+            {
+                // Filter documents based on selected date
+            }
+        }
+
+        private void DropZone_DragOver(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effects = DragDropEffects.Copy;
+            }
+            else
+            {
+                e.Effects = DragDropEffects.None;
+            }
+            e.Handled = true;
+        }
+
+        private void DropZone_Drop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                // TODO: Handle dropped files
+                // ProcessFiles(files);
+            }
+        }
+
+        private void SelectFiles_Click(object sender, RoutedEventArgs e)
+        {
+            var openFileDialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Multiselect = true,
+                Filter = "All Files|*.*|PDF Files|*.pdf|Image Files|*.jpg;*.jpeg;*.png;*.gif|Video Files|*.mp4;*.avi;*.mov|Audio Files|*.mp3;*.wav"
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                // TODO: Handle selected files
+                // ProcessFiles(openFileDialog.FileNames);
+            }
+        }
+
+        private void OpenFile_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var file = button?.DataContext as DocumentFile;
+            if (file != null)
+            {
+                try
+                {
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = file.Path,
+                        UseShellExecute = true
+                    });
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error al abrir el archivo: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void DeleteFile_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var file = button?.DataContext as DocumentFile;
+            if (file != null)
+            {
+                var result = MessageBox.Show(
+                    $"¿Estás seguro de que deseas eliminar el archivo '{file.Name}'?",
+                    "Confirmar eliminación",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        // TODO: Implement file deletion logic
+                        // DeleteFile(file);
+                        // Update UI
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Error al eliminar el archivo: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
+        }
+
         private void TipoDocumento_Changed(object sender, RoutedEventArgs e)
         {
             var checkbox = sender as CheckBox;

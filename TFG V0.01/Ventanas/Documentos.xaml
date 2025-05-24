@@ -234,7 +234,7 @@
             <!-- Zona de Drop -->
             <Border Grid.Row="2" Style="{StaticResource DropZoneStyle}"
                     AllowDrop="True" Drop="DropZone_Drop" DragOver="DropZone_DragOver">
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20">
                     <Image Source="/TFG V0.01;component/Recursos/Iconos/upload.png" Width="32" Height="32" Margin="0,0,0,10"/>
                     <TextBlock Text="Arrastra archivos aquí o haz clic para seleccionar" 
                                Foreground="White" TextAlignment="Center"/>
@@ -246,7 +246,7 @@
             </Border>
 
             <!-- Paneles de Documentos -->
-            <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
+            <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto" >
                 <ItemsControl x:Name="DocumentPanels" ItemsSource="{Binding DocumentPanelsCollection}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>

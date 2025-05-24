@@ -231,6 +231,93 @@ namespace TFG_V0._01.Ventanas
             }
         }
         #endregion
+
+        private void DropZone_DragOver(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effects = DragDropEffects.Copy;
+            }
+            e.Handled = true;
+        }
+
+        private void DropZone_Drop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                // TODO: Implement file handling logic
+            }
+        }
+
+        private void SelectFiles_Click(object sender, RoutedEventArgs e)
+        {
+            var openFileDialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Multiselect = true,
+                Filter = "All Files|*.*|PDF Files|*.pdf|Image Files|*.jpg;*.jpeg;*.png|Audio Files|*.mp3;*.wav|Video Files|*.mp4;*.avi"
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                // TODO: Implement file selection handling
+            }
+        }
+
+        private void OpenFile_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            if (button?.Tag is string filePath)
+            {
+                try
+                {
+                    System.Diagnostics.Process.Start(filePath);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error al abrir el archivo: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void DeleteFile_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            if (button?.Tag is string filePath)
+            {
+                var result = MessageBox.Show("¿Está seguro de que desea eliminar este archivo?", 
+                    "Confirmar eliminación", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                
+                if (result == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        System.IO.File.Delete(filePath);
+                        // TODO: Update UI to reflect deletion
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Error al eliminar el archivo: {ex.Message}", 
+                            "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
+        }
+
+        private void ComboClientes_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            // TODO: Implement client selection change logic
+        }
+
+        private void ComboCasos_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            // TODO: Implement case selection change logic
+        }
+
+        private void FiltroFecha_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        {
+            // TODO: Implement date filter change logic
+        }
     }
 
     public class DocumentPanel : INotifyPropertyChanged
@@ -310,10 +397,6 @@ namespace TFG_V0._01.Ventanas
             {
                 e.Effects = DragDropEffects.Copy;
             }
-            else
-            {
-                e.Effects = DragDropEffects.None;
-            }
             e.Handled = true;
         }
 
@@ -321,38 +404,78 @@ namespace TFG_V0._01.Ventanas
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
-                MessageBox.Show("Función de subida de archivos pendiente de implementación", "Información", MessageBoxButton.OK, MessageBoxImage.Information);
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                // TODO: Implement file handling logic
             }
         }
 
         private void SelectFiles_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Función de selección de archivos pendiente de implementación", "Información", MessageBoxButton.OK, MessageBoxImage.Information);
+            var openFileDialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Multiselect = true,
+                Filter = "All Files|*.*|PDF Files|*.pdf|Image Files|*.jpg;*.jpeg;*.png|Audio Files|*.mp3;*.wav|Video Files|*.mp4;*.avi"
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                // TODO: Implement file selection handling
+            }
         }
 
         private void OpenFile_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Función de apertura de archivos pendiente de implementación", "Información", MessageBoxButton.OK, MessageBoxImage.Information);
+            var button = sender as Button;
+            if (button?.Tag is string filePath)
+            {
+                try
+                {
+                    System.Diagnostics.Process.Start(filePath);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error al abrir el archivo: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
         }
 
         private void DeleteFile_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Función de eliminación de archivos pendiente de implementación", "Información", MessageBoxButton.OK, MessageBoxImage.Information);
+            var button = sender as Button;
+            if (button?.Tag is string filePath)
+            {
+                var result = MessageBox.Show("¿Está seguro de que desea eliminar este archivo?", 
+                    "Confirmar eliminación", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                
+                if (result == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        System.IO.File.Delete(filePath);
+                        // TODO: Update UI to reflect deletion
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Error al eliminar el archivo: {ex.Message}", 
+                            "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
         }
 
         private void ComboClientes_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            MessageBox.Show("Función de filtrado por cliente pendiente de implementación", "Información", MessageBoxButton.OK, MessageBoxImage.Information);
+            // TODO: Implement client selection change logic
         }
 
         private void ComboCasos_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            MessageBox.Show("Función de filtrado por caso pendiente de implementación", "Información", MessageBoxButton.OK, MessageBoxImage.Information);
+            // TODO: Implement case selection change logic
         }
 
         private void FiltroFecha_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
         {
-            MessageBox.Show("Función de filtrado por fecha pendiente de implementación", "Información", MessageBoxButton.OK, MessageBoxImage.Information);
+            // TODO: Implement date filter change logic
         }
         #endregion
     }

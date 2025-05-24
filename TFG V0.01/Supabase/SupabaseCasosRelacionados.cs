@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Supabase;
 using TFG_V0._01.Supabase.Models;
@@ -15,13 +12,10 @@ namespace TFG_V0._01.Supabase
 
         public SupabaseCasosRelacionados()
         {
-            _client = new Client(Credenciales.SupabaseUrl, Credenciales.AnonKey);
+            _client = new(Credenciales.SupabaseUrl, Credenciales.AnonKey);
         }
 
-        public async Task InicializarAsync()
-        {
-            await _client.InitializeAsync();
-        }
+        public Task InicializarAsync() => _client.InitializeAsync();
 
         public async Task<List<CasoRelacionado>> ObtenerTodosAsync()
         {
@@ -29,19 +23,13 @@ namespace TFG_V0._01.Supabase
             return result.Models;
         }
 
-        public async Task InsertarAsync(CasoRelacionado entidad)
-        {
-            await _client.From<CasoRelacionado>().Insert(entidad);
-        }
+        public Task InsertarAsync(CasoRelacionado entidad) =>
+            _client.From<CasoRelacionado>().Insert(entidad);
 
-        public async Task ActualizarAsync(CasoRelacionado entidad)
-        {
-            await _client.From<CasoRelacionado>().Update(entidad);
-        }
+        public Task ActualizarAsync(CasoRelacionado entidad) =>
+            _client.From<CasoRelacionado>().Update(entidad);
 
-        public async Task EliminarAsync(int id)
-        {
-            await _client.From<CasoRelacionado>().Where(x => x.id == id).Delete();
-        }
+        public Task EliminarAsync(int id) =>
+            _client.From<CasoRelacionado>().Where(x => x.id == id).Delete();
     }
 }

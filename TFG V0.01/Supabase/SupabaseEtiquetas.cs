@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Supabase;
 using TFG_V0._01.Supabase.Models;
@@ -18,10 +15,7 @@ namespace TFG_V0._01.Supabase
             _client = new Client(Credenciales.SupabaseUrl, Credenciales.AnonKey);
         }
 
-        public async Task InicializarAsync()
-        {
-            await _client.InitializeAsync();
-        }
+        public Task InicializarAsync() => _client.InitializeAsync();
 
         public async Task<List<Etiqueta>> ObtenerTodosAsync()
         {
@@ -29,19 +23,13 @@ namespace TFG_V0._01.Supabase
             return result.Models;
         }
 
-        public async Task InsertarAsync(Etiqueta entidad)
-        {
-            await _client.From<Etiqueta>().Insert(entidad);
-        }
+        public Task InsertarAsync(Etiqueta entidad) =>
+            _client.From<Etiqueta>().Insert(entidad);
 
-        public async Task ActualizarAsync(Etiqueta entidad)
-        {
-            await _client.From<Etiqueta>().Update(entidad);
-        }
+        public Task ActualizarAsync(Etiqueta entidad) =>
+            _client.From<Etiqueta>().Update(entidad);
 
-        public async Task EliminarAsync(int id)
-        {
-            await _client.From<Etiqueta>().Where(x => x.id == id).Delete();
-        }
+        public Task EliminarAsync(int id) =>
+            _client.From<Etiqueta>().Where(x => x.id == id).Delete();
     }
 }

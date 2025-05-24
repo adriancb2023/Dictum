@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -7,7 +6,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using TFG_V0._01.Supabase;
-using DrawingBrushes = System.Drawing.Brushes;
+using TFG_V0._01.Ventanas.SubVentanas;
 using WpfBrushes = System.Windows.Media.Brushes;
 using WpfImage = System.Windows.Controls.Image;
 
@@ -16,9 +15,12 @@ namespace TFG_V0._01.Ventanas
     public partial class Login : Window
     {
         #region variables
-        private SupabaseAutentificacion _authService;
+        private readonly SupabaseAutentificacion _authService;
         private Storyboard fadeInStoryboard;
         private Storyboard shakeStoryboard;
+
+        private const string ErrorCamposVacios = "Por favor, complete todos los campos";
+        private const string ErrorCredenciales = "Email o contraseña incorrectos";
         #endregion
 
         #region InitializeComponent
@@ -26,13 +28,9 @@ namespace TFG_V0._01.Ventanas
         {
             InitializeComponent();
             _authService = new SupabaseAutentificacion();
-            // Inicializar animaciones
+            CargarIdioma(MainWindow.idioma);
             InitializeAnimations();
-
-            // Aplicar tema
-            AplicarModoSistema();
-
-            // Animar entrada
+            AplicarTema();
             BeginFadeInAnimation();
         }
         #endregion
@@ -40,30 +38,38 @@ namespace TFG_V0._01.Ventanas
         #region Animaciones
         private void InitializeAnimations()
         {
-            // Animación de entrada con fade
             fadeInStoryboard = new Storyboard();
-            DoubleAnimation fadeIn = new DoubleAnimation
-            {
-                From = 0,
-                To = 1,
-                Duration = TimeSpan.FromSeconds(0.5)
-            };
+            var fadeIn = CrearFadeAnimation(0, 1, 0.5);
             Storyboard.SetTarget(fadeIn, this);
-            Storyboard.SetTargetProperty(fadeIn, new PropertyPath("Opacity"));
+            Storyboard.SetTargetProperty(fadeIn, new PropertyPath(nameof(Opacity)));
             fadeInStoryboard.Children.Add(fadeIn);
 
-            // Animación de shake para error
             shakeStoryboard = new Storyboard();
-            DoubleAnimation shakeAnimation = new DoubleAnimation
+            var shakeAnimation = CrearShakeAnimation();
+            shakeStoryboard.Children.Add(shakeAnimation);
+        }
+
+        private DoubleAnimation CrearFadeAnimation(double from, double to, double durationSeconds, bool autoReverse = false)
+        {
+            return new DoubleAnimation
+            {
+                From = from,
+                To = to,
+                Duration = TimeSpan.FromSeconds(durationSeconds),
+                AutoReverse = autoReverse
+            };
+        }
+
+        private DoubleAnimation CrearShakeAnimation()
+        {
+            return new DoubleAnimation
             {
                 From = 0,
-                To = 1,
+                To = 5,
                 AutoReverse = true,
                 RepeatBehavior = new RepeatBehavior(3),
                 Duration = TimeSpan.FromSeconds(0.05)
             };
-
-            shakeStoryboard.Children.Add(shakeAnimation);
         }
 
         private void BeginFadeInAnimation()
@@ -74,75 +80,40 @@ namespace TFG_V0._01.Ventanas
 
         private void ShakeElement(FrameworkElement element)
         {
-            TranslateTransform trans = new TranslateTransform();
+            var trans = new TranslateTransform();
             element.RenderTransform = trans;
-
-            DoubleAnimation anim = new DoubleAnimation
-            {
-                From = 0,
-                To = 5,
-                AutoReverse = true,
-                RepeatBehavior = new RepeatBehavior(3),
-                Duration = TimeSpan.FromSeconds(0.05)
-            };
-
-            trans.BeginAnimation(TranslateTransform.XProperty, anim);
+            trans.BeginAnimation(TranslateTransform.XProperty, CrearShakeAnimation());
         }
         #endregion
 
-        #region Aplicar modo oscuro/claro cargado por sistema
-        private void AplicarModoSistema()
+        #region Tema oscuro/claro
+        private void AplicarTema()
         {
             var button = this.FindName("ThemeButton") as Button;
             var icon = button?.Template.FindName("ThemeIcon", button) as WpfImage;
 
             if (MainWindow.isDarkTheme)
             {
-                // Aplicar modo oscuro
                 if (icon != null)
-                {
                     icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/sol.png", UriKind.Relative));
-                }
-                backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString("pack://application:,,,/TFG V0.01;component/Recursos/Background/oscuro/main.png") as ImageSource;
+                backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString(
+                    "pack://application:,,,/TFG V0.01;component/Recursos/Background/oscuro/main.png") as ImageSource;
             }
             else
             {
-                // Aplicar modo claro
                 if (icon != null)
-                {
-                    icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/luna2.png", UriKind.Relative));
-                }
-                backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString("pack://application:,,,/TFG V0.01;component/Recursos/Background/claro/main.png") as ImageSource;
+                    icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/luna.png", UriKind.Relative));
+                backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString(
+                    "pack://application:,,,/TFG V0.01;component/Recursos/Background/claro/main.png") as ImageSource;
             }
         }
-        #endregion
 
-        #region modo oscuro/claro
         private void ThemeButton_Click(object sender, RoutedEventArgs e)
         {
             MainWindow.isDarkTheme = !MainWindow.isDarkTheme;
-            var button = sender as Button;
-            var icon = button.Template.FindName("ThemeIcon", button) as WpfImage;
+            AplicarTema();
 
-            if (MainWindow.isDarkTheme)
-            {
-                icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/sol.png", UriKind.Relative));
-                backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString("pack://application:,,,/TFG V0.01;component/Recursos/Background/oscuro/main.png") as ImageSource;
-            }
-            else
-            {
-                icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/luna2.png", UriKind.Relative)); 
-                backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString("pack://application:,,,/TFG V0.01;component/Recursos/Background/claro/main.png") as ImageSource;
-            }
-
-            // Animación de transición
-            DoubleAnimation fadeAnimation = new DoubleAnimation
-            {
-                From = 0.7,
-                To = 0.9,
-                AutoReverse = true,
-                Duration = TimeSpan.FromSeconds(0.3)
-            };
+            var fadeAnimation = CrearFadeAnimation(0.7, 0.9, 0.3, true);
             backgroundFondo.BeginAnimation(OpacityProperty, fadeAnimation);
         }
         #endregion
@@ -153,50 +124,41 @@ namespace TFG_V0._01.Ventanas
             string email = UsernameTextBox.Text;
             string password = PasswordBox.Password;
 
-            // Validación básica
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
             {
-                MostrarError("Por favor, complete todos los campos");
+                MostrarError(ErrorCamposVacios);
                 return;
             }
 
             try
             {
-                // Animación de carga (cambiar el cursor)
                 Mouse.OverrideCursor = Cursors.Wait;
-
                 var resultado = await _authService.SignInAsync(email, password);
-
-                // Restaurar cursor
                 Mouse.OverrideCursor = null;
 
-                // Animación de éxito
-                DoubleAnimation successAnim = new DoubleAnimation
+                if (resultado.User != null && resultado.User.Email == "root@root.com")
                 {
-                    From = 1,
-                    To = 0,
-                    Duration = TimeSpan.FromSeconds(0.3)
-                };
-
-                successAnim.Completed += (s, args) =>
-                {
-                    var home = new Home();
-                    home.Show();
+                    var eleccionBBDD = new EleccionBBDD();
+                    eleccionBBDD.Show();
                     this.Close();
-                };
-
-                this.BeginAnimation(OpacityProperty, successAnim);
+                }
+                else
+                {
+                    var fadeOut = CrearFadeAnimation(1, 0, 0.3);
+                    fadeOut.Completed += (s, args) =>
+                    {
+                        var home = new Home();
+                        home.Show();
+                        this.Close();
+                    };
+                    this.BeginAnimation(OpacityProperty, fadeOut);
+                }
             }
-            catch (Exception ex)
+            catch
             {
-                // Restaurar cursor
                 Mouse.OverrideCursor = null;
-
-                // Limpiar campos y mostrar error
                 PasswordBox.Clear();
-                MostrarError("Email o contraseña incorrectos");
-
-                // Animar elementos con error
+                MostrarError(ErrorCredenciales);
                 ShakeElement(UsernameTextBox);
                 ShakeElement(PasswordBox);
             }
@@ -206,17 +168,7 @@ namespace TFG_V0._01.Ventanas
         {
             errorLogin.Text = mensaje;
             errorLogin.Visibility = Visibility.Visible;
-
-            // Animación de aparición del error
-            DoubleAnimation fadeIn = new DoubleAnimation
-            {
-                From = 0,
-                To = 1,
-                Duration = TimeSpan.FromSeconds(0.3)
-            };
-            errorLogin.BeginAnimation(OpacityProperty, fadeIn);
-
-            // Cambiar bordes a rojo
+            errorLogin.BeginAnimation(OpacityProperty, CrearFadeAnimation(0, 1, 0.3));
             UsernameTextBox.BorderBrush = WpfBrushes.Red;
             UsernameTextBox.BorderThickness = new Thickness(1);
             PasswordBox.BorderBrush = WpfBrushes.Red;
@@ -227,21 +179,13 @@ namespace TFG_V0._01.Ventanas
         #region Registro
         private void irRegistrarse(object sender, RoutedEventArgs e)
         {
-            // Animación de salida
-            DoubleAnimation fadeOut = new DoubleAnimation
-            {
-                From = 1,
-                To = 0,
-                Duration = TimeSpan.FromSeconds(0.3)
-            };
-
+            var fadeOut = CrearFadeAnimation(1, 0, 0.3);
             fadeOut.Completed += (s, args) =>
             {
-                Registro registro = new Registro();
+                var registro = new Registro();
                 registro.Show();
                 this.Close();
             };
-
             this.BeginAnimation(OpacityProperty, fadeOut);
         }
         #endregion
@@ -254,36 +198,31 @@ namespace TFG_V0._01.Ventanas
 
             try
             {
-                // Animación de carga
                 Mouse.OverrideCursor = Cursors.Wait;
-
                 var resultado = await _authService.SignInAsync(email, password);
-
-                // Restaurar cursor
                 Mouse.OverrideCursor = null;
 
-                // Animación de salida
-                DoubleAnimation fadeOut = new DoubleAnimation
+                if (resultado.User != null && resultado.User.Email == "root@root.com")
                 {
-                    From = 1,
-                    To = 0,
-                    Duration = TimeSpan.FromSeconds(0.3)
-                };
-
-                fadeOut.Completed += (s, args) =>
-                {
-                    var home = new Home();
-                    home.Show();
+                    var eleccionBBDD = new EleccionBBDD();
+                    eleccionBBDD.Show();
                     this.Close();
-                };
-
-                this.BeginAnimation(OpacityProperty, fadeOut);
+                }
+                else
+                {
+                    var fadeOut = CrearFadeAnimation(1, 0, 0.3);
+                    fadeOut.Completed += (s, args) =>
+                    {
+                        var home = new Home();
+                        home.Show();
+                        this.Close();
+                    };
+                    this.BeginAnimation(OpacityProperty, fadeOut);
+                }
             }
             catch (Exception ex)
             {
-                // Restaurar cursor
                 Mouse.OverrideCursor = null;
-
                 MessageBox.Show($"Error al iniciar sesión:\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -341,6 +280,33 @@ namespace TFG_V0._01.Ventanas
         private void PasswordBox_LostFocus(object sender, RoutedEventArgs e)
         {
             // Puedes agregar validación aquí si es necesario
+        }
+        #endregion
+
+        #region Idiomas
+        private void CargarIdioma(int idioma)
+        {
+            var idiomas = new (string IniciarSesion, string Registrarse, string Titulo, string SubTitulo, string Correo, string Pass, string Error)[]
+            {
+                ("Iniciar Sesión", "Registrarse", "Bienvenido", "Inicia sesión para continuar", "Email", "Contraseña", "Email o contraseña incorrectos."), // Español
+                ("Log In", "Sign Up", "Welcome", "Log in to continue", "Email", "Password", "Incorrect email or password."), // Inglés
+                ("Inicia Sessió", "Registra’t", "Benvingut", "Inicia sessió per continuar", "Correu electrònic", "Contrasenya", "Correu o contrasenya incorrectes."), // Catalán
+                ("Iniciar sesión", "Rexistrarse", "Benvido", "Inicia sesión para continuar", "Correo electrónico", "Contrasinal", "Correo ou contrasinal incorrectos."), // Gallego
+                ("Saioa hasi", "Erregistratu", "Ongi etorri", "Jarraitzeko hasi saioa", "Posta elektronikoa", "Pasahitza", "Posta edo pasahitz okerra.") // Euskera
+            };
+
+            if (idioma < 0 || idioma >= idiomas.Length)
+                idioma = 0;
+
+            var textos = idiomas[idioma];
+
+            btnIniciarSecion.Content = textos.IniciarSesion;
+            btnRegistrarse.Content = textos.Registrarse;
+            Titulo.Text = textos.Titulo;
+            subTitulo.Text = textos.SubTitulo;
+            Correo.Text = textos.Correo;
+            Pass.Text = textos.Pass;
+            errorLogin.Text = textos.Error;
         }
         #endregion
     }

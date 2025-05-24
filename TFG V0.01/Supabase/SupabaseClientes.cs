@@ -1,55 +1,88 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Supabase;
-using Supabase.Postgrest;
 using TFG_V0._01.Supabase.Models;
 using Client = Supabase.Client;
-
+using System.Net.Http;
+using System.Net.Http.Headers;
+using Newtonsoft.Json;
+using Microsoft.Extensions.Configuration;
 
 namespace TFG_V0._01.Supabase
 {
     public class SupabaseClientes
     {
-        private readonly Client _client;
+        private static Client _client;
+        private static Lazy<Task> _initTask;
 
         public SupabaseClientes()
         {
-            _client = new Client(Credenciales.SupabaseUrl, Credenciales.AnonKey);
+            _initTask = new Lazy<Task>(() => InicializarAsync());
         }
 
-        public async Task InicializarAsync()
-        {
-            await _client.InitializeAsync();
-        }
+        private async Task EnsureInitializedAsync() => await _initTask.Value;
 
-        public async Task<List<Cliente>> ObtenerClientesAsync()
+        public async Task<List<Cliente>> ObtenerClientesAsync(int limite = 1000)
         {
-            var result = await _client.From<Cliente>().Limit(50000).Get();
+            await EnsureInitializedAsync();
+            var result = await _client.From<Cliente>().Limit(limite).Get();
             return result.Models;
         }
 
-        public async Task<Cliente> ObtenerClientePorIdAsync(int id)
+        public async Task<Cliente?> ObtenerClientePorIdAsync(int id)
         {
+            await EnsureInitializedAsync();
             var result = await _client.From<Cliente>().Where(x => x.id == id).Single();
             return result;
         }
 
         public async Task InsertarClienteAsync(Cliente cliente)
-         {
+        {
+            await EnsureInitializedAsync();
             await _client.From<Cliente>().Insert(cliente);
         }
 
         public async Task ActualizarClienteAsync(Cliente cliente)
         {
+            await EnsureInitializedAsync();
             await _client.From<Cliente>().Update(cliente);
         }
 
         public async Task EliminarClienteAsync(int id)
         {
+            await EnsureInitializedAsync();
             await _client.From<Cliente>().Where(c => c.id == id).Delete();
+        }
+
+        #region ☁ SUPABASE
+        public async Task InicializarAsync()
+        {
+            if (_client == null)
+            {
+                _client = new Client(Credenciales.SupabaseUrl, Credenciales.AnonKey);
+                await _client.InitializeAsync();
+            }
+        }
+        #endregion
+
+        public async Task<List<Cliente>> ObtenerTodosClientesManualAsync()
+        {
+            var config = ConfigHelper.GetConfiguration();
+            var url = config["Supabase:Url"] + "/rest/v1/clientes";
+            var apiKey = config["Supabase:AnonKey"];
+
+            using var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("apikey", apiKey);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+            client.DefaultRequestHeaders.TryAddWithoutValidation("Range-Unit", "items");
+            client.DefaultRequestHeaders.TryAddWithoutValidation("Range", "0-49999");
+
+            var response = await client.GetAsync(url).ConfigureAwait(false);
+            response.EnsureSuccessStatusCode();
+
+            var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            return JsonConvert.DeserializeObject<List<Cliente>>(json);
         }
     }
 }

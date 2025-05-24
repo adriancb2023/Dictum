@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Supabase;
 using TFG_V0._01.Supabase.Models;
@@ -11,37 +8,23 @@ namespace TFG_V0._01.Supabase
 {
     public class SupabaseCasoEtiquetas
     {
-        private readonly Client _client;
+        private readonly Client _client = new(Credenciales.SupabaseUrl, Credenciales.AnonKey);
 
-        public SupabaseCasoEtiquetas()
-        {
-            _client = new Client(Credenciales.SupabaseUrl, Credenciales.AnonKey);
-        }
-
-        public async Task InicializarAsync()
-        {
-            await _client.InitializeAsync();
-        }
+        public Task InicializarAsync() => _client.InitializeAsync();
 
         public async Task<List<CasoEtiqueta>> ObtenerTodosAsync()
         {
-            var result = await _client.From<CasoEtiqueta>().Limit(50000).Get();
+            var result = await _client.From<CasoEtiqueta>().Limit(50000).Get().ConfigureAwait(false);
             return result.Models;
         }
 
-        public async Task InsertarAsync(CasoEtiqueta entidad)
-        {
-            await _client.From<CasoEtiqueta>().Insert(entidad);
-        }
+        public Task InsertarAsync(CasoEtiqueta entidad) =>
+            _client.From<CasoEtiqueta>().Insert(entidad);
 
-        public async Task ActualizarAsync(CasoEtiqueta entidad)
-        {
-            await _client.From<CasoEtiqueta>().Update(entidad);
-        }
+        public Task ActualizarAsync(CasoEtiqueta entidad) =>
+            _client.From<CasoEtiqueta>().Update(entidad);
 
-        public async Task EliminarAsync(int id)
-        {
-            await _client.From<CasoEtiqueta>().Where(x => x.id == id).Delete();
-        }
+        public Task EliminarAsync(int id) =>
+            _client.From<CasoEtiqueta>().Where(x => x.id == id).Delete();
     }
 }

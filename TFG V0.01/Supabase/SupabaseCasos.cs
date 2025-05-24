@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Supabase;
 using TFG_V0._01.Supabase.Models;
@@ -11,6 +11,7 @@ using System.Net.Http.Headers;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Configuration;
 using System.IO;
+using System.Windows;
 
 namespace TFG_V0._01.Supabase
 {
@@ -20,6 +21,9 @@ namespace TFG_V0._01.Supabase
         private readonly SupabaseClientes _clientesService;
         public readonly SupabaseEstados _estadosService;
         public readonly SupabaseTiposCaso _tiposCasoService;
+
+        private bool _inicializado = false;
+        private readonly SemaphoreSlim _initSemaphore = new(1, 1);
 
         public SupabaseCasos()
         {
@@ -31,30 +35,54 @@ namespace TFG_V0._01.Supabase
 
         public async Task InicializarAsync()
         {
-            await _client.InitializeAsync();
-            await _clientesService.InicializarAsync();
-            await _estadosService.InicializarAsync();
-            await _tiposCasoService.InicializarAsync();
+            if (_inicializado) return;
+            await _initSemaphore.WaitAsync().ConfigureAwait(false);
+            try
+            {
+                if (_inicializado) return;
+                await _client.InitializeAsync().ConfigureAwait(false);
+                await Task.WhenAll(
+                    _estadosService.InicializarAsync(),
+                    _tiposCasoService.InicializarAsync()
+                ).ConfigureAwait(false);
+                _inicializado = true;
+            }
+            finally
+            {
+                _initSemaphore.Release();
+            }
         }
 
         public async Task<List<Caso>> ObtenerTodosAsync()
         {
-            var allCasos = new List<Caso>();
-            int pageSize = 50000;
-            int offset = 0;
-            while (true)
-            {
-                var casos = await _client.From<Caso>().Range(offset, offset + pageSize - 1).Get();
-                if (casos.Models.Count == 0)
-                    break;
-                allCasos.AddRange(casos.Models);
-                if (casos.Models.Count < pageSize)
-                    break;
-                offset += pageSize;
-            }
-            var clientes = await _clientesService.ObtenerClientesAsync();
-            var estados = await _estadosService.ObtenerTodosAsync();
-            var tipos = await _tiposCasoService.ObtenerTodosAsync();
+            await InicializarAsync().ConfigureAwait(false);
+
+            // --- PETICIÓN MANUAL PARA OBTENER TODOS LOS CASOS (RANGO AMPLIO) ---
+            var config = ConfigHelper.GetConfiguration();
+            var url = config["Supabase:Url"] + "/rest/v1/casos";
+            var apiKey = config["Supabase:AnonKey"];
+
+            using var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("apikey", apiKey);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+            client.DefaultRequestHeaders.TryAddWithoutValidation("Range-Unit", "items");
+            client.DefaultRequestHeaders.TryAddWithoutValidation("Range", "0-49999");
+
+            var response = await client.GetAsync(url).ConfigureAwait(false);
+            response.EnsureSuccessStatusCode();
+
+            var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            var allCasos = JsonConvert.DeserializeObject<List<Caso>>(json);
+
+            // --- Mapeo de datos relacionados (profesional) ---
+            var clientesTask = _clientesService.ObtenerClientesAsync();
+            var estadosTask = _estadosService.ObtenerTodosAsync();
+            var tiposTask = _tiposCasoService.ObtenerTodosAsync();
+            await Task.WhenAll(clientesTask, estadosTask, tiposTask).ConfigureAwait(false);
+
+            var clientes = await clientesTask.ConfigureAwait(false);
+            var estados = await estadosTask.ConfigureAwait(false);
+            var tipos = await tiposTask.ConfigureAwait(false);
 
             foreach (var caso in allCasos)
             {
@@ -68,23 +96,32 @@ namespace TFG_V0._01.Supabase
 
         public async Task<Caso> ObtenerPorIdAsync(int id)
         {
-            var caso = await _client.From<Caso>().Where(x => x.id == id).Single();
+            await InicializarAsync().ConfigureAwait(false);
+
+            var caso = await _client.From<Caso>().Where(x => x.id == id).Single().ConfigureAwait(false);
             if (caso != null)
             {
-                caso.Cliente = await _clientesService.ObtenerClientePorIdAsync(caso.id_cliente);
-                caso.Estado = await _estadosService.ObtenerPorIdAsync(caso.id_estado);
-                caso.TipoCaso = await _tiposCasoService.ObtenerPorIdAsync(caso.id_tipo_caso);
+                var clienteTask = _clientesService.ObtenerClientePorIdAsync(caso.id_cliente);
+                var estadoTask = _estadosService.ObtenerPorIdAsync(caso.id_estado);
+                var tipoTask = _tiposCasoService.ObtenerPorIdAsync(caso.id_tipo_caso);
+                await Task.WhenAll(clienteTask, estadoTask, tipoTask).ConfigureAwait(false);
+
+                caso.Cliente = await clienteTask.ConfigureAwait(false);
+                caso.Estado = await estadoTask.ConfigureAwait(false);
+                caso.TipoCaso = await tipoTask.ConfigureAwait(false);
             }
             return caso;
         }
 
         public async Task InsertarAsync(Caso caso)
         {
-            await _client.From<Caso>().Insert(caso);
+            await InicializarAsync().ConfigureAwait(false);
+            await _client.From<Caso>().Insert(caso).ConfigureAwait(false);
         }
 
         public async Task ActualizarAsync(Caso caso)
         {
+            await InicializarAsync().ConfigureAwait(false);
             await _client.From<Caso>()
                 .Where(x => x.id == caso.id)
                 .Set(x => x.titulo, caso.titulo)
@@ -94,12 +131,13 @@ namespace TFG_V0._01.Supabase
                 .Set(x => x.id_cliente, caso.id_cliente)
                 .Set(x => x.id_tipo_caso, caso.id_tipo_caso)
                 .Set(x => x.referencia, caso.referencia)
-                .Update();
+                .Update().ConfigureAwait(false);
         }
 
         public async Task EliminarAsync(int id)
         {
-            await _client.From<Caso>().Where(x => x.id == id).Delete();
+            await InicializarAsync().ConfigureAwait(false);
+            await _client.From<Caso>().Where(x => x.id == id).Delete().ConfigureAwait(false);
         }
 
         public async Task<List<Caso>> ObtenerTodosCasosManualAsync()
@@ -108,20 +146,51 @@ namespace TFG_V0._01.Supabase
             var url = config["Supabase:Url"] + "/rest/v1/casos";
             var apiKey = config["Supabase:AnonKey"];
 
-            using (var client = new HttpClient())
+            using var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("apikey", apiKey);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+            client.DefaultRequestHeaders.TryAddWithoutValidation("Range-Unit", "items");
+            client.DefaultRequestHeaders.TryAddWithoutValidation("Range", "0-49999");
+
+            var response = await client.GetAsync(url).ConfigureAwait(false);
+            response.EnsureSuccessStatusCode();
+
+            var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            return JsonConvert.DeserializeObject<List<Caso>>(json);
+        }
+
+        public async Task<List<Caso>> ObtenerCasosActivosPorRangoFechasAsync(DateTime fechaInicio, DateTime fechaFin)
+        {
+            await InicializarAsync().ConfigureAwait(false);
+
+            var estados = await _estadosService.ObtenerTodosAsync().ConfigureAwait(false);
+            var idsEstadosActivos = estados
+                .Where(e => e.nombre.Equals("abierto", StringComparison.OrdinalIgnoreCase) ||
+                            e.nombre.Equals("en proceso", StringComparison.OrdinalIgnoreCase))
+                .Select(e => e.id)
+                .ToList();
+
+            var casos = await _client.From<Caso>()
+                .Where(x => idsEstadosActivos.Contains(x.id_estado) &&
+                            x.fecha_inicio >= fechaInicio &&
+                            x.fecha_inicio < fechaFin)
+                .Get().ConfigureAwait(false);
+
+            var clientesTask = _clientesService.ObtenerClientesAsync();
+            var tiposTask = _tiposCasoService.ObtenerTodosAsync();
+            await Task.WhenAll(clientesTask, tiposTask).ConfigureAwait(false);
+
+            var clientes = await clientesTask.ConfigureAwait(false);
+            var tipos = await tiposTask.ConfigureAwait(false);
+
+            foreach (var caso in casos.Models)
             {
-                client.DefaultRequestHeaders.Add("apikey", apiKey);
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
-                client.DefaultRequestHeaders.TryAddWithoutValidation("Range-Unit", "items");
-                client.DefaultRequestHeaders.TryAddWithoutValidation("Range", "0-49999");
-
-                var response = await client.GetAsync(url);
-                response.EnsureSuccessStatusCode();
-
-                var json = await response.Content.ReadAsStringAsync();
-                var casos = JsonConvert.DeserializeObject<List<Caso>>(json);
-                return casos;
+                caso.Cliente = clientes.FirstOrDefault(c => c.id == caso.id_cliente);
+                caso.Estado = estados.FirstOrDefault(e => e.id == caso.id_estado);
+                caso.TipoCaso = tipos.FirstOrDefault(t => t.id == caso.id_tipo_caso);
             }
+
+            return casos.Models;
         }
     }
 
@@ -136,7 +205,6 @@ namespace TFG_V0._01.Supabase
         public string referencia { get; set; }
     }
 
-    // Clase auxiliar para leer la configuración desde appsettings.json
     public static class ConfigHelper
     {
         public static IConfigurationRoot GetConfiguration()

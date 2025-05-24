@@ -5,6 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TFG_V0._01.Ventanas"
         xmlns:conv="clr-namespace:TFG_V0._01.Converters"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:controls="clr-namespace:TFG_V0._01.Controladores"
         mc:Ignorable="d"
         Title="Casos" Height="850" Width="1200"
         WindowStartupLocation="CenterScreen">
@@ -77,7 +79,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        
+
         <!-- ModernComboBoxStyle de Clientes.xaml -->
         <Style x:Key="ModernComboBoxStyle" TargetType="{x:Type ComboBox}">
             <Setter Property="Background" Value="#30FFFFFF"/>
@@ -163,8 +165,13 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        <local:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+        <conv:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
         <conv:EstadoToColorConverter x:Key="EstadoToColorConverter" />
+        <conv:EventoColorDotConverter x:Key="EventoColorDotConverter" />
+        <conv:StringToVisibilityConverter x:Key="StringToVisibilityConverter" />
+        <conv:CountToVisibilityConverter x:Key="CountToVisibilityConverter" />
+        <conv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <conv:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
         <Style x:Key="ComboBoxWithClearStyle" TargetType="ComboBox" BasedOn="{StaticResource ModernComboBoxStyle}">
             <Setter Property="Width" Value="400"/>
             <Setter Property="IsEditable" Value="True"/>
@@ -259,63 +266,8 @@
         <Grid.Background>
             <ImageBrush x:Name="backgroundFondo" ImageSource="/TFG V0.01;component/Recursos/Background/oscuro/main.png"/>
         </Grid.Background>
-        <!-- Navbar (idéntico a Home.xaml) -->
-        <Grid x:Name="menu" Grid.Column="0" Visibility="Visible" MouseEnter="Menu_MouseEnter" MouseLeave="Menu_MouseLeave">
-            <Border x:Name="backgroun_menu" BorderBrush="#454545" BorderThickness="0" Margin="0,0,0,0" CornerRadius="15" Background="#30FFFFFF" VerticalAlignment="Center">
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="15" Direction="-90" RenderingBias="Quality" ShadowDepth="2" Color="#20000000"/>
-                </Border.Effect>
-                <StackPanel VerticalAlignment="Center">
-                    <Button x:Name="btnHome" Margin="10" Style="{StaticResource RoundedButtonStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="Transparent" Click="irHome">
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0">
-                            <Image x:Name="imagenHome2" Source="/TFG V0.01;component/Recursos/Iconos/home.png" Width="25" Height="25"/>
-                            <TextBlock x:Name="inicio" Visibility="Collapsed" Text="Inicio" VerticalAlignment="Center" Margin="10,0"/>
-                        </StackPanel>
-                    </Button>
-                    <Button x:Name="btnBuscar" Margin="10" Style="{StaticResource RoundedButtonStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="Transparent" BorderBrush="Transparent">
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0">
-                            <Image x:Name="imagenBuscar2" Source="/TFG V0.01;component/Recursos/Iconos/buscar.png" Width="25" Height="25"/>
-                            <TextBlock x:Name="buscar" Visibility="Collapsed" Text="Buscar Jurisprudencia" VerticalAlignment="Center" Margin="10,0"/>
-                        </StackPanel>
-                    </Button>
-                    <Button x:Name="btnAgenda" Margin="10" Style="{StaticResource RoundedButtonStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="Transparent" Click="irAgenda">
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0" Background="Transparent">
-                            <Image x:Name="imagenAgenda2" Source="/TFG V0.01;component/Recursos/Iconos/agenda.png" Width="25" Height="25"/>
-                            <TextBlock x:Name="agenda" Visibility="Collapsed" Text="Agenda" VerticalAlignment="Center" Margin="10,0"/>
-                        </StackPanel>
-                    </Button>
-                    <Button x:Name="btnCasos" Margin="10" Style="{StaticResource RoundedButtonStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="Transparent" Click="irCasos">
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0">
-                            <Image x:Name="imagenCasos2" Source="/TFG V0.01;component/Recursos/Iconos/casos.png" Width="25" Height="25"/>
-                            <TextBlock x:Name="casos" Visibility="Collapsed" Text="Casos" VerticalAlignment="Center" Margin="10,0"/>
-                        </StackPanel>
-                    </Button>
-                    <Button x:Name="btnClientes" Margin="10" Style="{StaticResource RoundedButtonStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="Transparent" Click="irClientes">
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0">
-                            <Image x:Name="imagenClientes2" Source="/TFG V0.01;component/Recursos/Iconos/clientes.png" Width="25" Height="25"/>
-                            <TextBlock x:Name="clientes" Visibility="Collapsed" Text="Clientes" VerticalAlignment="Center" Margin="10,0"/>
-                        </StackPanel>
-                    </Button>
-                    <Button x:Name="btnDocumentos" Margin="10" Style="{StaticResource RoundedButtonStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="Transparent" Click="irDocumentos">
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0">
-                            <Image x:Name="imagenDocumentos2" Source="/TFG V0.01;component/Recursos/Iconos/documentos.png" Width="25" Height="25"/>
-                            <TextBlock x:Name="documentos" Visibility="Collapsed" Text="Documentos" VerticalAlignment="Center" Margin="10,0"/>
-                        </StackPanel>
-                    </Button>
-                    <Button x:Name="btnAjustes" Margin="10" Style="{StaticResource RoundedButtonStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="Transparent" Click="irAjustes">
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0">
-                            <Image x:Name="imagenAjustes2" Source="/TFG V0.01;component/Recursos/Iconos/ajustes.png" Width="25" Height="25"/>
-                            <TextBlock x:Name="ajustes" Visibility="Collapsed" Text="Ajustes" VerticalAlignment="Center" Margin="10,0"/>
-                        </StackPanel>
-                    </Button>
-                    <Button x:Name="btnAyuda" Margin="10" Style="{StaticResource RoundedButtonStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="Transparent" BorderBrush="Transparent" Click="irAyuda">
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0">
-                            <Image x:Name="imagenAyuda2" Source="/TFG V0.01;component/Recursos/Iconos/ayuda.png" Width="25" Height="25"/>
-                        </StackPanel>
-                    </Button>
-                </StackPanel>
-            </Border>
-        </Grid>
+        <!--Navbar-->
+        <controls:NavbarControl x:Name="navbar" Grid.Column="0" />
         <!-- Botón de tema claro/oscuro -->
         <Button x:Name="ThemeButton" Width="35" Height="35" Margin="0" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="ThemeButton_Click" Style="{StaticResource ThemeButtonStyle}" Grid.Column="2"/>
 
@@ -379,7 +331,7 @@
                                                     </Ellipse.Fill>
                                                 </Ellipse>
                                                 <TextBlock Text="{Binding titulo}" Foreground="White" FontWeight="Bold" FontSize="15"/>
-                                                <TextBlock Text="{Binding Estado.nombre, TargetNullValue='Sin estado'}" Foreground="#FFD6D6D6" FontSize="13" Margin="8,0,0,0"/>
+                                                <TextBlock Text="{Binding descripcion}" Foreground="#FFD6D6D6" FontSize="13" Margin="8,0,0,0"/>
                                             </StackPanel>
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
@@ -411,7 +363,7 @@
                                             <StackPanel Orientation="Horizontal" Margin="5">
                                                 <TextBlock Text="{Binding referencia}" Foreground="White" FontWeight="Bold" Margin="0,0,10,0"/>
                                                 <TextBlock Text="{Binding titulo}" Foreground="White" Margin="0,0,10,0"/>
-                                                <TextBlock Text="{Binding Estado.nombre, TargetNullValue='Sin estado'}" Foreground="#CCFFFFFF"/>
+                                                <TextBlock Text="{Binding descripcion}" Foreground="#CCFFFFFF"/>
                                             </StackPanel>
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
@@ -448,7 +400,34 @@
                                 </Grid.ColumnDefinitions>
 
                                 <!-- Calendario -->
-                                <Calendar Grid.Column="0" Margin="0,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                <Calendar x:Name="calendar"
+                                         Grid.Column="0" 
+                                         Margin="0,0,10,0" 
+                                         VerticalAlignment="Center" 
+                                         HorizontalAlignment="Center"
+                                         SelectedDatesChanged="Calendar_SelectedDatesChanged">
+                                    <Calendar.Resources>
+                                        <Style TargetType="CalendarDayButton">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="CalendarDayButton">
+                                                        <Grid>
+                                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                            <Ellipse x:Name="EventDot" Width="8" Height="8" VerticalAlignment="Bottom" Margin="0,0,0,4">
+                                                                <Ellipse.Fill>
+                                                                    <MultiBinding Converter="{StaticResource EventoColorDotConverter}">
+                                                                        <Binding Path="DataContext" RelativeSource="{RelativeSource AncestorType=Window}"/>
+                                                                        <Binding Path="Date" RelativeSource="{RelativeSource Self}"/>
+                                                                    </MultiBinding>
+                                                                </Ellipse.Fill>
+                                                            </Ellipse>
+                                                        </Grid>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </Calendar.Resources>
+                                </Calendar>
 
                                 <!-- Sección de eventos -->
                                 <Grid Grid.Column="1">
@@ -459,26 +438,45 @@
                                     </Grid.RowDefinitions>
 
                                     <!-- Título -->
-                                    <TextBlock Text="Eventos y Citas" FontSize="24" FontWeight="Bold" Foreground="White" Margin="0,0,0,10" Grid.Row="0"/>
+                                    <TextBlock x:Name="TituloEventos" Text="Eventos del día" FontSize="24" FontWeight="Bold" Foreground="White" Margin="0,0,0,10" Grid.Row="0"/>
 
                                     <!-- Lista de eventos -->
                                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                                        <ListView x:Name="EventosList" Background="Transparent" BorderThickness="0" Foreground="White" ItemsSource="{Binding}">
+                                        <ListView x:Name="EventosList"
+                                                  Background="Transparent"
+                                                  BorderThickness="0"
+                                                  Margin="0,0,0,0"
+                                                  HorizontalContentAlignment="Stretch">
                                             <ListView.ItemTemplate>
                                                 <DataTemplate>
-                                                    <Border Background="{Binding Color}" CornerRadius="12" Padding="12" Margin="0,5,0,5">
+                                                    <Border Background="#50FFFFFF"
+                                                            CornerRadius="16"
+                                                            Padding="18"
+                                                            Margin="0,8"
+                                                            Effect="{StaticResource DropShadowEffect}"
+                                                            HorizontalAlignment="Stretch">
                                                         <Grid>
                                                             <Grid.ColumnDefinitions>
                                                                 <ColumnDefinition Width="Auto"/>
                                                                 <ColumnDefinition Width="*"/>
                                                             </Grid.ColumnDefinitions>
-                                                            <Border Background="#40FFFFFF" CornerRadius="6" Padding="10" Margin="0,0,12,0" VerticalAlignment="Center">
-                                                                <TextBlock Text="{Binding FechaDia}" FontWeight="Bold" FontSize="14" Foreground="White"/>
-                                                            </Border>
-                                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                                                <TextBlock Text="{Binding Titulo}" FontWeight="Bold" FontSize="15" Foreground="White"/>
-                                                                <TextBlock Text="{Binding Descripcion}" Foreground="#DDFFFFFF" FontSize="13"/>
-                                                                <TextBlock Text="{Binding Estado}" Foreground="#AAFFFFFF" FontSize="11" FontStyle="Italic"/>
+                                                            <!-- Círculo de estado -->
+                                                            <Ellipse Width="18" Height="18" Margin="0,0,12,0" Grid.Column="0">
+                                                                <Ellipse.Fill>
+                                                                    <SolidColorBrush Color="{Binding EstadoColor}"/>
+                                                                </Ellipse.Fill>
+                                                            </Ellipse>
+                                                            <!-- Info del evento -->
+                                                            <StackPanel Grid.Column="1">
+                                                                <TextBlock Text="{Binding titulo}" 
+                                                                           Foreground="White" 
+                                                                           FontWeight="SemiBold"/>
+                                                                <TextBlock Text="{Binding descripcion}" 
+                                                                           Foreground="#CCFFFFFF" 
+                                                                           FontSize="12"/>
+                                                                <TextBlock Text="{Binding estado_nombre}" 
+                                                                           Foreground="#CCFFFFFF" 
+                                                                           FontSize="12"/>
                                                             </StackPanel>
                                                         </Grid>
                                                     </Border>
@@ -489,9 +487,9 @@
 
                                     <!-- Botones -->
                                     <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
-                                        <Button Content="➕ Añadir" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0"/>
-                                        <Button Content="✏️ Modificar" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0"/>
-                                        <Button Content="🗑 Eliminar" Style="{StaticResource RoundedButtonStyle}"/>
+                                        <Button Content="➕ Añadir" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0" Click="AñadirEvento_Click"/>
+                                        <Button Content="✏️ Modificar" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0" Click="ModificarEvento_Click"/>
+                                        <Button Content="🗑 Eliminar" Style="{StaticResource RoundedButtonStyle}" Click="EliminarEvento_Click"/>
                                     </StackPanel>
                                 </Grid>
                             </Grid>
@@ -505,17 +503,47 @@
                                     <RowDefinition Height="*"/>
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
-                                
+
                                 <TextBlock Text="Notas" FontSize="16" FontWeight="Bold" Foreground="White" Margin="0,0,0,10"/>
-                                
+
+                                <!-- Lista de notas -->
                                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                                    <ListBox x:Name="NotasList" Background="Transparent" BorderThickness="0" Foreground="White"/>
+                                    <ListView x:Name="NotasList" 
+                                           Background="Transparent" 
+                                           BorderThickness="0" 
+                                           Foreground="White"
+                                           HorizontalContentAlignment="Stretch"
+                                           SelectionChanged="NotasList_SelectionChanged">
+                                        <ListView.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Background="#50FFFFFF"
+                                                        CornerRadius="16"
+                                                        Padding="18"
+                                                        Margin="0,8"
+                                                        Effect="{StaticResource DropShadowEffect}"
+                                                        HorizontalAlignment="Stretch">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <!-- Info de la nota -->
+                                                        <StackPanel Grid.Column="1">
+                                                            <TextBlock Text="{Binding Nombre}" Foreground="White" FontWeight="SemiBold"/>
+                                                            <TextBlock Text="{Binding Descripcion}" Foreground="#CCFFFFFF" FontSize="12"/>
+                                                            <TextBlock Text="{Binding FechaCreacion, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" Foreground="#CCFFFFFF" FontSize="12"/>
+                                                        </StackPanel>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ListView.ItemTemplate>
+                                    </ListView>
                                 </ScrollViewer>
-                                
+
                                 <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
-                                    <Button Content="Añadir" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0"/>
-                                    <Button Content="Modificar" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0"/>
-                                    <Button Content="Eliminar" Style="{StaticResource RoundedButtonStyle}"/>
+                                    <Button x:Name="btnAgregarNota" Content="➕ Añadir" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0" Click="AgregarNota_Click"/>
+                                    <Button x:Name="btnModificarNota" Content="✏️ Modificar" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0" Click="ModificarNota_Click"/>
+                                    <Button x:Name="btnEliminarNota" Content="🗑 Eliminar" Style="{StaticResource RoundedButtonStyle}" Click="EliminarNota_Click"/>
                                 </StackPanel>
                             </Grid>
                         </Border>
@@ -528,16 +556,52 @@
                                     <RowDefinition Height="*"/>
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
-                                
+
                                 <TextBlock Text="Documentos del Caso" FontSize="16" FontWeight="Bold" Foreground="White" Margin="0,0,0,10"/>
-                                
+
                                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                                    <ListBox x:Name="DocumentosList" Background="Transparent" BorderThickness="0" Foreground="White"/>
+                                    <ListView x:Name="DocumentosList" 
+                                           Background="Transparent" 
+                                           BorderThickness="0" 
+                                           Foreground="White"
+                                           HorizontalContentAlignment="Stretch"
+                                           SelectionChanged="DocumentosList_SelectionChanged">
+                                        <ListView.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Background="#50FFFFFF"
+                                                        CornerRadius="16"
+                                                        Padding="18"
+                                                        Margin="0,8"
+                                                        Effect="{StaticResource DropShadowEffect}"
+                                                        HorizontalAlignment="Stretch">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <!-- Info del documento -->
+                                                        <StackPanel Grid.Column="1">
+                                                            <TextBlock Text="{Binding nombre}" 
+                                                                       Foreground="White" 
+                                                                       FontWeight="SemiBold"/>
+                                                            <TextBlock Text="{Binding descripcion}" 
+                                                                       Foreground="#CCFFFFFF" 
+                                                                       FontSize="12"/>
+                                                            <TextBlock Text="{Binding tipo_documento}" 
+                                                                       Foreground="#CCFFFFFF" 
+                                                                       FontSize="12"/>
+                                                        </StackPanel>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ListView.ItemTemplate>
+                                    </ListView>
                                 </ScrollViewer>
-                                
+
                                 <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
-                                    <Button Content="Añadir" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0"/>
-                                    <Button Content="Eliminar" Style="{StaticResource RoundedButtonStyle}"/>
+                                    <Button x:Name="btnAgregarDocumento" Content="➕ Añadir" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0" Click="AgregarDocumento_Click"/>
+                                    <Button x:Name="btnModificarDocumento" Content="✏️ Modificar" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0" Click="ModificarDocumento_Click"/>
+                                    <Button x:Name="btnEliminarDocumento" Content="🗑 Eliminar" Style="{StaticResource RoundedButtonStyle}" Click="EliminarDocumento_Click"/>
                                 </StackPanel>
                             </Grid>
                         </Border>
@@ -555,14 +619,57 @@
                             <TextBlock Text="Tareas Pendientes" FontSize="16" FontWeight="Bold" Foreground="White" Margin="0,0,0,10"/>
 
                             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                                <ListBox x:Name="TareasList" Background="Transparent" BorderThickness="0" Foreground="White"
-                                      HorizontalContentAlignment="Stretch"/>
+                                <ListView x:Name="TareasList" 
+                                       Background="Transparent" 
+                                       BorderThickness="0" 
+                                       Foreground="White"
+                                       HorizontalContentAlignment="Stretch"
+                                       SelectionChanged="TareasList_SelectionChanged">
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="#50FFFFFF"
+                                                    CornerRadius="16"
+                                                    Padding="18"
+                                                    Margin="0,8"
+                                                    Effect="{StaticResource DropShadowEffect}"
+                                                    HorizontalAlignment="Stretch">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <!-- Checkbox de tarea -->
+                                                    <CheckBox Grid.Column="0" 
+                                                            IsChecked="{Binding completada}"
+                                                            Click="TareaCheckBox_Click"
+                                                            Margin="0,0,12,0"/>
+                                                    <!-- Info de la tarea -->
+                                                    <StackPanel Grid.Column="1">
+                                                        <TextBlock Text="{Binding titulo}" 
+                                                                   Foreground="White" 
+                                                                   FontWeight="SemiBold"/>
+                                                        <TextBlock Text="{Binding descripcion}" 
+                                                                   Foreground="#CCFFFFFF" 
+                                                                   FontSize="12"/>
+                                                        <TextBlock Text="{Binding fecha_vencimiento, StringFormat='Vence: {0:dd/MM/yyyy}'}" 
+                                                                   Foreground="#CCFFFFFF" 
+                                                                   FontSize="12"/>
+                                                        <TextBlock Text="{Binding prioridad}" 
+                                                                   Foreground="#CCFFFFFF" 
+                                                                   FontSize="12"/>
+                                                        <TextBlock Text="{Binding TiempoRestante}" Foreground="Orange" FontSize="12"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
                             </ScrollViewer>
 
                             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
-                                <Button Content="Añadir" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0"/>
-                                <Button Content="Modificar" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0"/>
-                                <Button Content="Eliminar" Style="{StaticResource RoundedButtonStyle}"/>
+                                <Button x:Name="btnAgregarTarea" Content="➕ Añadir" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0" Click="AgregarTarea_Click"/>
+                                <Button x:Name="btnModificarTarea" Content="✏️ Modificar" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0" Click="ModificarTarea_Click"/>
+                                <Button x:Name="btnEliminarTarea" Content="🗑 Eliminar" Style="{StaticResource RoundedButtonStyle}" Click="EliminarTarea_Click"/>
                             </StackPanel>
                         </Grid>
                     </Border>

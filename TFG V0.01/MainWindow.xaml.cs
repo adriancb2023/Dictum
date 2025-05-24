@@ -1,4 +1,4 @@
-﻿using Microsoft.Win32;
+﻿ using Microsoft.Win32;
 using System;
 using System.Windows;
 using System.Windows.Input;
@@ -16,7 +16,6 @@ namespace TFG_V0._01
         private DateTime startTime;
         private readonly TimeSpan duration = TimeSpan.FromSeconds(2.0);
         public static bool isDarkTheme;
-
         public static bool tipoBBDD;
         public static int idioma;
         #endregion
@@ -27,6 +26,7 @@ namespace TFG_V0._01
             DetectarModo();
             ReadConfiguration();
             InitializeComponent();
+            cargarIdioma(idioma);
             StartLoadingAnimation();
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
 
@@ -189,6 +189,33 @@ namespace TFG_V0._01
             catch (Exception ex)
             {
                 MessageBox.Show("Error al leer la configuración: " + ex.Message);
+            }
+        }
+        #endregion
+
+        #region Idioma
+        private void cargarIdioma(int idioma)
+        {
+            switch (idioma)
+            {
+                case 0:
+                    cargando.Text = "Cargando";
+                    break;
+                case 1:
+                    cargando.Text = "Loading";
+                    break;
+                case 2:
+                    cargando.Text = "Carregant";
+                    break;
+                case 3:
+                    cargando.Text = "Cargando";
+                    break;
+                case 4:
+                    cargando.Text = "Kargatzen";
+                    break;
+                default:
+                    cargando.Text = "Cargando";
+                    break;
             }
         }
         #endregion

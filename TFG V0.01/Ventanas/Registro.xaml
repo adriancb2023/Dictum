@@ -239,8 +239,8 @@
                                    Margin="5,0,0,0" Visibility="Collapsed" Foreground="#FFFF5252" FontSize="13"/>
 
                         <!-- Botones -->
-                        <Button Content="Registrarse" Style="{StaticResource ModernButton}" Margin="0,10,0,0" Click="RegistrarUser"/>
-                        <Button Content="Volver" Style="{StaticResource SecondaryButton}" Margin="0,5,0,0" Click="VolverLogin"/>
+                        <Button x:Name="btnRegistrarse" Content="Registrarse" Style="{StaticResource ModernButton}" Margin="0,10,0,0" Click="RegistrarUser"/>
+                        <Button x:Name="btnVolver" Content="Volver" Style="{StaticResource SecondaryButton}" Margin="0,5,0,0" Click="VolverLogin"/>
                     </StackPanel>
                 </Grid>
             </Border>

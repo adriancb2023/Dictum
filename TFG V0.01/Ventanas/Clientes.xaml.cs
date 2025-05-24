@@ -19,6 +19,7 @@ using TFG_V0._01.Supabase.Models;
 using System.Globalization;
 using System.ComponentModel;
 using TFG_V0._01.Helpers;
+using System.IO;
 
 namespace TFG_V0._01.Ventanas
 {
@@ -30,11 +31,24 @@ namespace TFG_V0._01.Ventanas
         #endregion
 
         #region variables
-        private SupabaseClientes _supabaseClientes;
+        private readonly SupabaseClientes _supabaseClientes;
+        private readonly SupabaseCasos _supabaseCasos;
+        private readonly SupabaseCasoEtiquetas _supabaseCasoEtiquetas;
+        private readonly SupabaseEstados _supabaseEstados;
+        private readonly SupabaseDocumentos _supabaseDocumentos;
         public ObservableCollection<Cliente> ListaClientes { get; set; } = new ObservableCollection<Cliente>();
         private Cliente _selectedCliente;
         public ObservableCollection<Documento> DocumentosCliente { get; set; } = new ObservableCollection<Documento>();
         public ObservableCollection<Caso> HistorialCasos { get; set; } = new ObservableCollection<Caso>();
+        public ObservableCollection<Caso> CasosActivos
+        {
+            get { return _casosActivos; }
+            set
+            {
+                _casosActivos = value;
+                OnPropertyChanged(nameof(CasosActivos));
+            }
+        }
         public Cliente SelectedCliente
         {
             get => _selectedCliente;
@@ -73,21 +87,8 @@ namespace TFG_V0._01.Ventanas
             }
         }
         private ObservableCollection<Caso> _casosActivos;
-        
-        public ObservableCollection<Caso> CasosActivos
-        {
-            get { return _casosActivos; }
-            set
-            {
-                _casosActivos = value;
-                OnPropertyChanged(nameof(CasosActivos));
-            }
-        }
-        private SupabaseCasos _supabaseCasos = new SupabaseCasos();
-        private SupabaseCasoEtiquetas _supabaseCasoEtiquetas = new SupabaseCasoEtiquetas();
-        private SupabaseEstados _supabaseEstados = new SupabaseEstados();
-        public ICommand VerDetallesCommand { get; }
         private ObservableCollection<Estado> _estadosDisponibles = new ObservableCollection<Estado>();
+        public ICommand VerDetallesCommand { get; }
         private ICollectionView _clientesView;
         private string _textoComboCliente;
         public string TextoComboCliente
@@ -102,9 +103,13 @@ namespace TFG_V0._01.Ventanas
         {
             InitializeComponent();
             _supabaseClientes = new SupabaseClientes();
+            _supabaseCasos = new SupabaseCasos();
+            _supabaseCasoEtiquetas = new SupabaseCasoEtiquetas();
+            _supabaseEstados = new SupabaseEstados();
+            _supabaseDocumentos = new SupabaseDocumentos();
             AplicarModoSistema();
             InitializeAnimations();
-            CargarClientes();
+            _ = CargarClientesAsync();
             this.DataContext = this;
             _casosActivos = new ObservableCollection<Caso>();
             _ = CargarCasosActivosAsync();
@@ -114,7 +119,7 @@ namespace TFG_V0._01.Ventanas
         #endregion
 
         #region Eventos
-        private async void CargarClientes()
+        private async Task CargarClientesAsync()
         {
             try
             {
@@ -130,12 +135,13 @@ namespace TFG_V0._01.Ventanas
             }
         }
 
-        private async void AgregarCliente(Cliente nuevoCliente)
+        private async Task AgregarClienteAsync(Cliente nuevoCliente)
         {
             try
             {
+                await _supabaseClientes.InicializarAsync();
                 await _supabaseClientes.InsertarClienteAsync(nuevoCliente);
-                CargarClientes();
+                await CargarClientesAsync();
             }
             catch (Exception ex)
             {
@@ -143,12 +149,13 @@ namespace TFG_V0._01.Ventanas
             }
         }
 
-        private async void ActualizarCliente(Cliente cliente)
+        private async Task ActualizarClienteAsync(Cliente cliente)
         {
             try
             {
+                await _supabaseClientes.InicializarAsync();
                 await _supabaseClientes.ActualizarClienteAsync(cliente);
-                CargarClientes();
+                await CargarClientesAsync();
             }
             catch (Exception ex)
             {
@@ -156,12 +163,13 @@ namespace TFG_V0._01.Ventanas
             }
         }
 
-        private async void EliminarCliente(int id)
+        private async Task EliminarClienteAsync(int id)
         {
             try
             {
+                await _supabaseClientes.InicializarAsync();
                 await _supabaseClientes.EliminarClienteAsync(id);
-                CargarClientes();
+                await CargarClientesAsync();
             }
             catch (Exception ex)
             {
@@ -223,8 +231,7 @@ namespace TFG_V0._01.Ventanas
                 SelectedCliente.id = nuevoId;
 
             IsEditPersonalInfoVisible = false;
-            await _supabaseClientes.ActualizarClienteAsync(SelectedCliente);
-            CargarClientes();
+            await ActualizarClienteAsync(SelectedCliente);
         }
 
         private void CancelarInformacion_Click(object sender, RoutedEventArgs e)
@@ -249,13 +256,13 @@ namespace TFG_V0._01.Ventanas
         {
             try
             {
-                // Suponiendo que tienes un servicio SupabaseDocumentos
-                var supabaseDocumentos = new SupabaseDocumentos();
-                await supabaseDocumentos.InicializarAsync();
-                var docs = await supabaseDocumentos.ObtenerPorClienteAsync(clienteId);
+                await _supabaseDocumentos.InicializarAsync();
+                var documentos = await _supabaseDocumentos.ObtenerDocumentosPorClienteAsync(clienteId);
                 DocumentosCliente.Clear();
-                foreach (var doc in docs)
-                    DocumentosCliente.Add(doc);
+                foreach (var documento in documentos)
+                {
+                    DocumentosCliente.Add(documento);
+                }
             }
             catch (Exception ex)
             {
@@ -279,9 +286,7 @@ namespace TFG_V0._01.Ventanas
                     icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/sol.png", UriKind.Relative));
                 }
                 backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString("pack://application:,,,/TFG V0.01;component/Recursos/Background/oscuro/main.png") as ImageSource;
-                CambiarIconosAClaros();
-                CambiarTextosBlanco();
-                backgroun_menu.Background = new SolidColorBrush(Color.FromArgb(48, 255, 255, 255)); // Fondo semitransparente
+                navbar.ActualizarTema(true);
             }
             else
             {
@@ -291,105 +296,18 @@ namespace TFG_V0._01.Ventanas
                     icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/luna.png", UriKind.Relative));
                 }
                 backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString("pack://application:,,,/TFG V0.01;component/Recursos/Background/claro/main.png") as ImageSource;
-                CambiarIconosAOscuros();
-                CambiarTextosNegro();
-                backgroun_menu.Background = new SolidColorBrush(Color.FromArgb(48, 128, 128, 128)); // Gris semitransparente
-
+                navbar.ActualizarTema(false);
             }
         }
         #endregion
 
         #region modo oscuro/claro + navbar
-        private void CambiarIconosAOscuros()
-        {
-            CambiarIcono("imagenHome2", "/TFG V0.01;component/Recursos/Iconos/home.png");
-            CambiarIcono("imagenDocumentos2", "/TFG V0.01;component/Recursos/Iconos/documentos.png");
-            CambiarIcono("imagenClientes2", "/TFG V0.01;component/Recursos/Iconos/clientes.png");
-            CambiarIcono("imagenCasos2", "/TFG V0.01;component/Recursos/Iconos/casos.png");
-            CambiarIcono("imagenAyuda2", "/TFG V0.01;component/Recursos/Iconos/ayuda.png");
-            CambiarIcono("imagenAgenda2", "/TFG V0.01;component/Recursos/Iconos/agenda.png");
-            CambiarIcono("imagenAjustes2", "/TFG V0.01;component/Recursos/Iconos/ajustes.png");
-            CambiarIcono("imagenBuscar2", "/TFG V0.01;component/Recursos/Iconos/buscar.png");
-        }
 
-        private void CambiarIconosAClaros()
-        {
-            CambiarIcono("imagenHome2", "/TFG V0.01;component/Recursos/Iconos/home2.png");
-            CambiarIcono("imagenDocumentos2", "/TFG V0.01;component/Recursos/Iconos/documentos2.png");
-            CambiarIcono("imagenClientes2", "/TFG V0.01;component/Recursos/Iconos/clientes2.png");
-            CambiarIcono("imagenCasos2", "/TFG V0.01;component/Recursos/Iconos/casos2.png");
-            CambiarIcono("imagenAyuda2", "/TFG V0.01;component/Recursos/Iconos/ayuda2.png");
-            CambiarIcono("imagenAgenda2", "/TFG V0.01;component/Recursos/Iconos/agenda2.png");
-            CambiarIcono("imagenAjustes2", "/TFG V0.01;component/Recursos/Iconos/ajustes2.png");
-            CambiarIcono("imagenBuscar2", "/TFG V0.01;component/Recursos/Iconos/buscar2.png");
-        }
 
-        private void CambiarIcono(string nombreElemento, string rutaIcono)
-        {
-            var imagen = this.FindName(nombreElemento) as Image;
-            if (imagen != null)
-            {
-                imagen.Source = new BitmapImage(new Uri(rutaIcono, UriKind.Relative));
-            }
-        }
 
-        private void CambiarTextosNegro()
-        {
-            CambiarColorTexto("btnAgenda", Colors.Black);
-            CambiarColorTexto("btnAjustes", Colors.Black);
-            CambiarColorTexto("btnAyuda", Colors.Black);
-            CambiarColorTexto("btnCasos", Colors.Black);
-            CambiarColorTexto("btnClientes", Colors.Black);
-            CambiarColorTexto("btnDocumentos", Colors.Black);
-            CambiarColorTexto("btnHome", Colors.Black);
-            CambiarColorTexto("btnBuscar", Colors.Black);
-        }
-
-        private void CambiarTextosBlanco()
-        {
-            CambiarColorTexto("btnAgenda", Colors.White);
-            CambiarColorTexto("btnAjustes", Colors.White);
-            CambiarColorTexto("btnAyuda", Colors.White);
-            CambiarColorTexto("btnCasos", Colors.White);
-            CambiarColorTexto("btnClientes", Colors.White);
-            CambiarColorTexto("btnDocumentos", Colors.White);
-            CambiarColorTexto("btnHome", Colors.White);
-            CambiarColorTexto("btnBuscar", Colors.White);
-        }
-
-        private void CambiarColorTexto(string nombreElemento, Color color)
-        {
-            var boton = this.FindName(nombreElemento) as Button;
-            if (boton != null)
-            {
-                boton.Foreground = new SolidColorBrush(color);
-            }
-        }
         #endregion
 
-        #region navbar animacion
-        private void Menu_MouseEnter(object sender, MouseEventArgs e)
-        {
-            inicio.Visibility = Visibility.Visible;
-            buscar.Visibility = Visibility.Visible;
-            documentos.Visibility = Visibility.Visible;
-            clientes.Visibility = Visibility.Visible;
-            casos.Visibility = Visibility.Visible;
-            agenda.Visibility = Visibility.Visible;
-            ajustes.Visibility = Visibility.Visible;
-        }
 
-        private void Menu_MouseLeave(object sender, MouseEventArgs e)
-        {
-            inicio.Visibility = Visibility.Collapsed;
-            buscar.Visibility = Visibility.Collapsed;
-            documentos.Visibility = Visibility.Collapsed;
-            clientes.Visibility = Visibility.Collapsed;
-            casos.Visibility = Visibility.Collapsed;
-            agenda.Visibility = Visibility.Collapsed;
-            ajustes.Visibility = Visibility.Collapsed;
-        }
-        #endregion
 
         #region boton cambiar tema
         private void ThemeButton_Click(object sender, RoutedEventArgs e)
@@ -410,11 +328,9 @@ namespace TFG_V0._01.Ventanas
                 }
 
                 backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString(
-                    @"C:\Users\Harvie\Documents\TFG\V 0.1\TFG\TFG V0.01\Recursos\Background\oscuro\main.png") as ImageSource;
+                    "pack://application:,,,/TFG V0.01;component/Recursos/Background/oscuro/main.png") as ImageSource;
 
-                CambiarIconosAClaros();
-                CambiarTextosBlanco();
-                backgroun_menu.Background = new SolidColorBrush(Color.FromArgb(48, 255, 255, 255)); // Fondo semitransparente
+                navbar.ActualizarTema(true);
             }
             else
             {
@@ -425,11 +341,9 @@ namespace TFG_V0._01.Ventanas
                 }
 
                 backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString(
-                    @"C:\Users\Harvie\Documents\TFG\V 0.1\TFG\TFG V0.01\Recursos\Background\claro\main.png") as ImageSource;
+                    "pack://application:,,,/TFG V0.01;component/Recursos/Background/claro/main.png") as ImageSource;
 
-                CambiarIconosAOscuros();
-                CambiarTextosNegro();
-                backgroun_menu.Background = new SolidColorBrush(Color.FromArgb(48, 128, 128, 128)); // Gris semitransparente
+                navbar.ActualizarTema(false);
             }
         }
 
@@ -471,71 +385,9 @@ namespace TFG_V0._01.Ventanas
         #endregion
 
         #region Navbar botones
-        private void irHome(object sender, RoutedEventArgs e)
-        {
-            Home home = new Home();
-            InitializeAnimations();
-            home.Show();
-            BeginFadeInAnimation();
-            this.Close();
-        }
 
-        private void irJurisprudencia(object sender, RoutedEventArgs e)
-        {
-            BusquedaJurisprudencia busquedaJurisprudencia = new BusquedaJurisprudencia();
-            busquedaJurisprudencia.Show();
-            BeginFadeInAnimation();
-            this.Close();
-        }
 
-        private void irDocumentos(object sender, RoutedEventArgs e)
-        {
-            Documentos documentos = new Documentos();
 
-            documentos.Show();
-            BeginFadeInAnimation();
-            this.Close();
-        }
-
-        private void irClientes(object sender, RoutedEventArgs e)
-        {
-            Clientes clientes = new Clientes();
-            clientes.Show();
-            BeginFadeInAnimation();
-            this.Close();
-        }
-
-        private void irCasos(object sender, RoutedEventArgs e)
-        {
-            Casos casos = new Casos();
-            casos.Show();
-            BeginFadeInAnimation();
-            this.Close();
-        }
-
-        private void irAyuda(object sender, RoutedEventArgs e)
-        {
-            Ayuda ayuda = new Ayuda();
-            ayuda.Show();
-            BeginFadeInAnimation();
-            this.Close();
-        }
-
-        private void irAgenda(object sender, RoutedEventArgs e)
-        {
-            Agenda agenda = new Agenda();
-            agenda.Show();
-            BeginFadeInAnimation();
-            this.Close();
-        }
-
-        private void irAjustes(object sender, RoutedEventArgs e)
-        {
-            Ajustes ajustes = new Ajustes();
-            ajustes.Show();
-            BeginFadeInAnimation();
-            this.Close();
-        }
         #endregion
 
         #region Animaciones
@@ -604,21 +456,23 @@ namespace TFG_V0._01.Ventanas
             if (SelectedCliente == null)
                 return;
 
-            // Inicializar servicios
-            await _supabaseCasos.InicializarAsync();
+            try
+            {
+                await _supabaseCasos.InicializarAsync();
+                var todosLosCasos = (await _supabaseCasos.ObtenerTodosAsync())
+                    .Where(c => c.id_cliente == SelectedCliente.id)
+                    .ToList();
 
-            // Obtener todos los casos del cliente seleccionado
-            var todosLosCasos = (await _supabaseCasos.ObtenerTodosAsync())
-                .Where(c => c.id_cliente == SelectedCliente.id)
-                .ToList();
+                var casosActivos = todosLosCasos
+                    .Where(caso => caso.Estado != null && !string.Equals(caso.Estado.nombre, "Cerrado", StringComparison.OrdinalIgnoreCase))
+                    .ToList();
 
-            // Filtrar los casos cuyo Estado NO sea "Cerrado"
-            var casosActivos = todosLosCasos
-                .Where(caso => caso.Estado != null && !string.Equals(caso.Estado.nombre, "Cerrado", StringComparison.OrdinalIgnoreCase))
-                .ToList();
-
-            // Actualizar la colección observable
-            CasosActivos = new ObservableCollection<Caso>(casosActivos);
+                CasosActivos = new ObservableCollection<Caso>(casosActivos);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar casos activos: {ex.Message}");
+            }
         }
 
         private async Task CargarHistorialCasosAsync()
@@ -626,22 +480,29 @@ namespace TFG_V0._01.Ventanas
             if (SelectedCliente == null)
                 return;
 
-            await _supabaseCasos.InicializarAsync();
+            try
+            {
+                await _supabaseCasos.InicializarAsync();
+                var todosLosCasos = (await _supabaseCasos.ObtenerTodosAsync())
+                    .Where(c => c.id_cliente == SelectedCliente.id)
+                    .ToList();
 
-            var todosLosCasos = (await _supabaseCasos.ObtenerTodosAsync())
-                .Where(c => c.id_cliente == SelectedCliente.id)
-                .ToList();
-
-            HistorialCasos = new ObservableCollection<Caso>(todosLosCasos);
-            OnPropertyChanged(nameof(HistorialCasos));
+                HistorialCasos = new ObservableCollection<Caso>(todosLosCasos);
+                OnPropertyChanged(nameof(HistorialCasos));
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar historial de casos: {ex.Message}");
+            }
         }
 
         private void VerDetalles(Caso caso)
         {
-            var ventana = new EditarCasoWindow(caso, _estadosDisponibles)
-            {
-                Owner = this
-            };
+            // Asegura que la referencia de Estado sea la misma que la de la lista
+            var estadoCorrecto = _estadosDisponibles.FirstOrDefault(e => e.id == caso.id_estado);
+            caso.Estado = estadoCorrecto;
+
+            var ventana = new EditarCasoWindow(caso, _estadosDisponibles);
             if (ventana.ShowDialog() == true)
             {
                 // Aquí puedes guardar el caso actualizado en la base de datos
@@ -721,6 +582,116 @@ namespace TFG_V0._01.Ventanas
             {
                 combo.SelectedItem = null;
             }
+        }
+
+        // Evento para ver documento
+        private void VerDocumento_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (sender is Button btn && btn.DataContext is Documento doc)
+                {
+                    var detallesWindow = new SubVentanas.DetallesDocumentoWindow(doc)
+                    {
+                        Owner = this
+                    };
+                    detallesWindow.ShowDialog();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error al abrir detalles: " + ex.Message);
+            }
+        }
+
+        // Evento para descargar documento
+        private async void DescargarDocumento_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.DataContext is Documento doc)
+            {
+                try
+                {
+                    var saveFileDialog = new Microsoft.Win32.SaveFileDialog
+                    {
+                        FileName = doc.nombre,
+                        Filter = "Todos los archivos|*.*",
+                        Title = "Guardar documento"
+                    };
+
+                    if (saveFileDialog.ShowDialog() == true)
+                    {
+                        // Verificar si el archivo existe
+                        if (!File.Exists(doc.ruta))
+                        {
+                            MessageBox.Show("El archivo original no se encuentra disponible.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                            return;
+                        }
+
+                        // Verificar si el directorio de destino existe
+                        var directory = System.IO.Path.GetDirectoryName(saveFileDialog.FileName);
+                        if (!Directory.Exists(directory))
+                        {
+                            Directory.CreateDirectory(directory);
+                        }
+
+                        // Copiar el archivo
+                        File.Copy(doc.ruta, saveFileDialog.FileName, true);
+                        MessageBox.Show("Documento descargado correctamente.", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    MessageBox.Show("No tiene permisos para guardar el archivo en la ubicación seleccionada.", "Error de permisos", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                catch (IOException ex)
+                {
+                    MessageBox.Show($"Error al acceder al archivo: {ex.Message}", "Error de E/S", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error al descargar el documento: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+
+        private void ClientesComboBox_DropDownOpened(object sender, EventArgs e)
+        {
+            ExpandComboBoxContainer();
+        }
+
+        private void ClientesComboBox_DropDownClosed(object sender, EventArgs e)
+        {
+            CollapseComboBoxContainer();
+        }
+
+        private void ExpandComboBoxContainer()
+        {
+            var anim = new DoubleAnimation
+            {
+                To = 300, // altura expandida
+                Duration = TimeSpan.FromMilliseconds(200)
+            };
+            ComboBoxContainer.BeginAnimation(HeightProperty, anim);
+        }
+
+        private void CollapseComboBoxContainer()
+        {
+            var anim = new DoubleAnimation
+            {
+                To = 40, // altura contraída
+                Duration = TimeSpan.FromMilliseconds(200)
+            };
+            ComboBoxContainer.BeginAnimation(HeightProperty, anim);
+        }
+
+        private void atras(object sender, RoutedEventArgs e)
+        {
+            ClientDetailsGrid.Visibility = Visibility.Collapsed;
+            ClientesComboBox.SelectedItem = -1;
+            ClientesComboBox.SelectedItem = null;
+            ClientSelectorGrid.Visibility = Visibility.Visible;
+
         }
     }
 }

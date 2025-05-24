@@ -41,18 +41,7 @@ namespace TFG_V0._01.Ventanas
         public string Descripcion { get => _descripcion; set { _descripcion = value; OnPropertyChanged(nameof(Descripcion)); } }
         private string _descripcion;
 
-        private ObservableCollection<Estado> _estadosDisponibles;
-        public ObservableCollection<Estado> EstadosDisponibles 
-        { 
-            get => _estadosDisponibles;
-            set 
-            { 
-                _estadosDisponibles = value;
-                OnPropertyChanged(nameof(EstadosDisponibles));
-            }
-        }
-        public Estado EstadoSeleccionado { get => _estadoSeleccionado; set { _estadoSeleccionado = value; OnPropertyChanged(nameof(EstadoSeleccionado)); } }
-        private Estado _estadoSeleccionado;
+        public string Referencia { get; set; }
 
         public string MensajeError { get => _mensajeError; set { _mensajeError = value; OnPropertyChanged(nameof(MensajeError)); } }
         private string _mensajeError;
@@ -65,19 +54,43 @@ namespace TFG_V0._01.Ventanas
         public ICommand DescargarDocumentoCommand { get; }
         private readonly SupabaseDocumentos _supabaseDocumentos = new SupabaseDocumentos();
 
+        public Caso CasoActual { get; set; }
+
+        public ObservableCollection<Estado> EstadosDisponibles { get; set; }
+        private Estado _estadoSeleccionado;
+        public Estado EstadoSeleccionado
+        {
+            get => _estadoSeleccionado;
+            set
+            {
+                if (_estadoSeleccionado != value)
+                {
+                    _estadoSeleccionado = value;
+                    if (CasoActual != null)
+                    {
+                        CasoActual.Estado = value;
+                        CasoActual.id_estado = value?.id ?? 0;
+                    }
+                    OnPropertyChanged(nameof(EstadoSeleccionado));
+                }
+            }
+        }
+
         public EditarCasoWindow(Caso caso, ObservableCollection<Estado> estadosDisponibles)
         {
             InitializeComponent();
-            DataContext = this;
-            this.Opacity = 0;
-
             _casoOriginal = caso;
-            FechaInicio = caso.fecha_inicio;
-            Titulo = caso.titulo;
-            Descripcion = caso.descripcion;
-            EstadosDisponibles = new ObservableCollection<Estado>(estadosDisponibles);
-            EstadoSeleccionado = EstadosDisponibles.FirstOrDefault(e => e.id == caso.id_estado);
-
+            CasoActual = caso;
+            EstadosDisponibles = estadosDisponibles;
+            
+            // Asignar el estado de la misma manera que en Casos.xaml.cs
+            if (caso.id_estado > 0)
+            {
+                EstadoSeleccionado = estadosDisponibles.FirstOrDefault(e => e.id == caso.id_estado);
+                CasoActual.Estado = EstadoSeleccionado;
+            }
+            
+            DataContext = this;
             VerDocumentoCommand = new RelayCommand<Documento>(VerDocumento);
             DescargarDocumentoCommand = new RelayCommand<Documento>(DescargarDocumento);
             _ = CargarDocumentosDelCasoAsync(caso.id);
@@ -144,12 +157,12 @@ namespace TFG_V0._01.Ventanas
         {
             if (Validar())
             {
+                CasoActual.id_estado = EstadoSeleccionado?.id ?? 0;
                 // Actualiza el caso original
                 _casoOriginal.fecha_inicio = FechaInicio ?? DateTime.Now;
                 _casoOriginal.titulo = Titulo;
                 _casoOriginal.descripcion = Descripcion;
                 _casoOriginal.Estado = EstadoSeleccionado;
-                _casoOriginal.id_estado = EstadoSeleccionado?.id ?? 0;
 
                 // Guarda en la base de datos
                 await _supabaseCasos.InicializarAsync();
@@ -193,6 +206,24 @@ namespace TFG_V0._01.Ventanas
         {
             if (e.LeftButton == MouseButtonState.Pressed)
                 this.DragMove();
+        }
+
+        private void btnMinimize_Click(object sender, RoutedEventArgs e)
+        {
+            this.WindowState = WindowState.Minimized;
+        }
+
+        private void btnMaximize_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.WindowState == WindowState.Maximized)
+                this.WindowState = WindowState.Normal;
+            else
+                this.WindowState = WindowState.Maximized;
+        }
+
+        private void btnClose_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
         }
     }
 }

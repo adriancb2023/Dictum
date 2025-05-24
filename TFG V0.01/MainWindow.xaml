@@ -8,21 +8,40 @@
         Title="TFG Application" Height="300" Width="300"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
-<!--a-->
-    <!-- Contenedor principal con fondo translúcido -->
-    <Border CornerRadius="150" MouseDown="Border_MouseDown">
+
+    <Window.Resources>
+        <!-- Efecto de sombra para el glassmorphism -->
+        <DropShadowEffect x:Key="GlassShadow" BlurRadius="15" Direction="-90" 
+                          RenderingBias="Quality" ShadowDepth="2" Color="#40000000"/>
+
+        <!-- Animaciones para el botón de cerrar -->
+        <Storyboard x:Key="CloseButtonHover">
+            <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)"
+                            To="#80FF0000" Duration="0:0:0.2"/>
+        </Storyboard>
+    </Window.Resources>
+
+    <!-- Contenedor principal totalmente transparente -->
+    <Border CornerRadius="150" MouseDown="Border_MouseDown"
+            Background="Transparent">
         <Grid>
-            <!-- Círculo de carga -->
+            <!-- Círculo de carga con efecto de brillo -->
             <Grid Width="200" Height="200">
-                <!-- Arco de progreso dinámico -->
-                <Path x:Name="ProgressPath" StrokeThickness="10" 
+                <!-- Arco de progreso dinámico con gradiente mejorado -->
+                <Path x:Name="ProgressPath" StrokeThickness="8" 
                       StrokeStartLineCap="Round" StrokeEndLineCap="Round">
                     <Path.Stroke>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                            <GradientStop Color="#d4179f" Offset="0"/>
-                            <GradientStop Color="#5b49c9" Offset="1"/>
+                            <GradientStop Color="#f90126" Offset="0"/>
+                            <GradientStop Color="#ee0066" Offset="0.25"/>
+                            <GradientStop Color="#c61698" Offset="0.5"/>
+                            <GradientStop Color="#8445b5" Offset="0.75"/>
+                            <GradientStop Color="#1457b7" Offset="1"/>
                         </LinearGradientBrush>
                     </Path.Stroke>
+                    <Path.Effect>
+                        <BlurEffect Radius="1"/>
+                    </Path.Effect>
                     <Path.Data>
                         <PathGeometry>
                             <PathFigure x:Name="ProgressFigure" StartPoint="100,20">
@@ -33,45 +52,31 @@
                         </PathGeometry>
                     </Path.Data>
                 </Path>
-                <!-- Panel de fondo para el texto para mejorar legibilidad -->
-                <Border Width="120" Height="120" CornerRadius="60" 
-                        Background="#80000000" Opacity="0.5"/>
-                <!-- Porcentaje de carga -->
+                <!-- Panel central transparente -->
+                <Border Width="130" Height="130" CornerRadius="65"
+                        Background="Transparent">
+                </Border>
+
+                <!-- Contenedor del texto con animación suave -->
                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                    <TextBlock x:Name="PercentageText" Text="0%" FontSize="36" 
-                               Foreground="White" HorizontalAlignment="Center" 
-                               FontWeight="SemiBold"/>
-                    <TextBlock Text="Cargando" FontSize="14" Foreground="#EEFFFFFF" 
-                               HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                    <TextBlock x:Name="PercentageText" Text="0%" FontSize="42"
+                               Foreground="#FFFFFF" HorizontalAlignment="Center"
+                               FontWeight="Light" FontFamily="Segoe UI">
+                        <TextBlock.Effect>
+                            <DropShadowEffect BlurRadius="3" ShadowDepth="1" 
+                                              Color="#40000000"/>
+                        </TextBlock.Effect>
+                    </TextBlock>
+                    <TextBlock x:Name="cargando" Text="Cargando" FontSize="16"
+                               Foreground="#CCFFFFFF" HorizontalAlignment="Center"
+                               Margin="0,5,0,0" FontFamily="Segoe UI Light">
+                        <TextBlock.Effect>
+                            <DropShadowEffect BlurRadius="2" ShadowDepth="1"
+                                              Color="#40000000"/>
+                        </TextBlock.Effect>
+                    </TextBlock>
                 </StackPanel>
             </Grid>
-            <!-- Botón de cerrar -->
-            <Button Content="×" FontSize="16" Width="24" Height="24" 
-                    HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,20,20,0"
-                    Background="#40000000" Foreground="White" BorderThickness="0"
-                    Click="CloseButton_Click" Cursor="Hand">
-                <Button.Style>
-                    <Style TargetType="Button">
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="Button">
-                                    <Border Background="{TemplateBinding Background}" 
-                                            CornerRadius="12">
-                                        <ContentPresenter HorizontalAlignment="Center" 
-                                                          VerticalAlignment="Center"/>
-                                    </Border>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                        <Style.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#80000000"/>
-                                <Setter Property="Foreground" Value="White"/>
-                            </Trigger>
-                        </Style.Triggers>
-                    </Style>
-                </Button.Style>
-            </Button>
         </Grid>
     </Border>
 </Window>

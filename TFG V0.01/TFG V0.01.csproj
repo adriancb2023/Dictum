@@ -133,6 +133,7 @@
 
   <ItemGroup>
     <Folder Include="Recursos\ER BBDD\" />
+    <Folder Include="TFG V0.01\Ventanas\SubVentanas\" />
   </ItemGroup>
 
   <ItemGroup>

@@ -228,180 +228,26 @@ namespace TFG_V0._01.Ventanas
         #region Aplicar modo oscuro/claro cargado por sistema
         private void AplicarModoSistema()
         {
-            var button = this.FindName("ThemeButton") as Button;
-            var icon = button?.Template.FindName("ThemeIcon", button) as System.Windows.Controls.Image;
-
             if (MainWindow.isDarkTheme)
             {
-                // Aplicar modo oscuro
-                if (icon != null)
-                {
-                    icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/sol.png", UriKind.Relative));
-                }
                 backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString("pack://application:,,,/TFG V0.01;component/Recursos/Background/oscuro/main.png") as ImageSource;
-                CambiarIconosAClaros();
-                CambiarTextosBlanco();
-                backgroun_menu.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(48, 255, 255, 255)); // Fondo semitransparente
+                navbar.ActualizarTema(true);
             }
             else
             {
-                // Aplicar modo claro
-                if (icon != null)
-                {
-                    icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/luna.png", UriKind.Relative));
-                }
                 backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString("pack://application:,,,/TFG V0.01;component/Recursos/Background/claro/main.png") as ImageSource;
-                CambiarIconosAOscuros();
-                CambiarTextosNegro();
-                backgroun_menu.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(48, 128, 128, 128)); // Gris semitransparente
+                navbar.ActualizarTema(false);
             }
         }
         #endregion
 
-        #region modo oscuro/claro + navbar
-        private void CambiarIconosAOscuros()
-        {
-            CambiarIcono("imagenHome2", "/TFG V0.01;component/Recursos/Iconos/home.png");
-            CambiarIcono("imagenDocumentos2", "/TFG V0.01;component/Recursos/Iconos/documentos.png");
-            CambiarIcono("imagenClientes2", "/TFG V0.01;component/Recursos/Iconos/clientes.png");
-            CambiarIcono("imagenCasos2", "/TFG V0.01;component/Recursos/Iconos/casos.png");
-            CambiarIcono("imagenAyuda2", "/TFG V0.01;component/Recursos/Iconos/ayuda.png");
-            CambiarIcono("imagenAgenda2", "/TFG V0.01;component/Recursos/Iconos/agenda.png");
-            CambiarIcono("imagenAjustes2", "/TFG V0.01;component/Recursos/Iconos/ajustes.png");
-            CambiarIcono("imagenBuscar2", "/TFG V0.01;component/Recursos/Iconos/buscar.png");
-        }
 
-        private void CambiarIconosAClaros()
-        {
-            CambiarIcono("imagenHome2", "/TFG V0.01;component/Recursos/Iconos/home2.png");
-            CambiarIcono("imagenDocumentos2", "/TFG V0.01;component/Recursos/Iconos/documentos2.png");
-            CambiarIcono("imagenClientes2", "/TFG V0.01;component/Recursos/Iconos/clientes2.png");
-            CambiarIcono("imagenCasos2", "/TFG V0.01;component/Recursos/Iconos/casos2.png");
-            CambiarIcono("imagenAyuda2", "/TFG V0.01;component/Recursos/Iconos/ayuda2.png");
-            CambiarIcono("imagenAgenda2", "/TFG V0.01;component/Recursos/Iconos/agenda2.png");
-            CambiarIcono("imagenAjustes2", "/TFG V0.01;component/Recursos/Iconos/ajustes2.png");
-            CambiarIcono("imagenBuscar2", "/TFG V0.01;component/Recursos/Iconos/buscar2.png");
-        }
-
-        private void CambiarIcono(string nombreElemento, string rutaIcono)
-        {
-            var imagen = this.FindName(nombreElemento) as System.Windows.Controls.Image;
-            if (imagen != null)
-            {
-                imagen.Source = new BitmapImage(new Uri(rutaIcono, UriKind.Relative));
-            }
-        }
-
-        private void CambiarTextosNegro()
-        {
-            CambiarColorTexto("btnAgenda", System.Windows.Media.Colors.Black);
-            CambiarColorTexto("btnAjustes", System.Windows.Media.Colors.Black);
-            CambiarColorTexto("btnAyuda", System.Windows.Media.Colors.Black);
-            CambiarColorTexto("btnCasos", System.Windows.Media.Colors.Black);
-            CambiarColorTexto("btnClientes", System.Windows.Media.Colors.Black);
-            CambiarColorTexto("btnDocumentos", System.Windows.Media.Colors.Black);
-            CambiarColorTexto("btnHome", System.Windows.Media.Colors.Black);
-            CambiarColorTexto("btnBuscar", System.Windows.Media.Colors.Black);
-
-            CambiarColorTexto("titulo", System.Windows.Media.Colors.Black);
-            CambiarColorTexto("subtitulo", System.Windows.Media.Colors.Black);
-            CambiarColorTexto("selecCliente", System.Windows.Media.Colors.Black);
-            CambiarColorTexto("selecCaso", System.Windows.Media.Colors.Black);
-            CambiarColorTexto("documentos1", System.Windows.Media.Colors.Black);
-        }
-
-        private void CambiarTextosBlanco()
-        {
-            CambiarColorTexto("btnAgenda", System.Windows.Media.Colors.White);
-            CambiarColorTexto("btnAjustes", System.Windows.Media.Colors.White);
-            CambiarColorTexto("btnAyuda", System.Windows.Media.Colors.White);
-            CambiarColorTexto("btnCasos", System.Windows.Media.Colors.White);
-            CambiarColorTexto("btnClientes", System.Windows.Media.Colors.White);
-            CambiarColorTexto("btnDocumentos", System.Windows.Media.Colors.White);
-            CambiarColorTexto("btnHome", System.Windows.Media.Colors.White);
-            CambiarColorTexto("btnBuscar", System.Windows.Media.Colors.White);
-
-            CambiarColorTexto("titulo", System.Windows.Media.Colors.White);
-            CambiarColorTexto("subtitulo", System.Windows.Media.Colors.White);
-            CambiarColorTexto("selecCliente", System.Windows.Media.Colors.White);
-            CambiarColorTexto("selecCaso", System.Windows.Media.Colors.White);
-            CambiarColorTexto("documentos1", System.Windows.Media.Colors.White);
-        }
-
-        private void CambiarColorTexto(string nombreElemento, System.Windows.Media.Color color)
-        {
-            var boton = this.FindName(nombreElemento) as Button;
-            if (boton != null)
-            {
-                boton.Foreground = new SolidColorBrush(color);
-            }
-        }
-        #endregion
-
-        #region navbar animacion
-        private void Menu_MouseEnter(object sender, MouseEventArgs e)
-        {
-            inicio.Visibility = Visibility.Visible;
-            buscar.Visibility = Visibility.Visible;
-            documentos.Visibility = Visibility.Visible;
-            clientes.Visibility = Visibility.Visible;
-            casos.Visibility = Visibility.Visible;
-            agenda.Visibility = Visibility.Visible;
-            ajustes.Visibility = Visibility.Visible;
-        }
-
-        private void Menu_MouseLeave(object sender, MouseEventArgs e)
-        {
-            inicio.Visibility = Visibility.Collapsed;
-            buscar.Visibility = Visibility.Collapsed;
-            documentos.Visibility = Visibility.Collapsed;
-            clientes.Visibility = Visibility.Collapsed;
-            casos.Visibility = Visibility.Collapsed;
-            agenda.Visibility = Visibility.Collapsed;
-            ajustes.Visibility = Visibility.Collapsed;
-        }
-        #endregion
 
         #region boton cambiar tema
         private void ThemeButton_Click(object sender, RoutedEventArgs e)
         {
-            // Alternar el estado del tema
             MainWindow.isDarkTheme = !MainWindow.isDarkTheme;
-
-            // Obtener el botón y el icono
-            var button = sender as Button;
-            var icon = button?.Template.FindName("ThemeIcon", button) as System.Windows.Controls.Image;
-
-            if (MainWindow.isDarkTheme)
-            {
-                // Cambiar a modo oscuro
-                if (icon != null)
-                {
-                    icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/sol.png", UriKind.Relative));
-                }
-
-                backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString(
-                    @"C:\Users\Harvie\Documents\TFG\V 0.1\TFG\TFG V0.01\Recursos\Background\oscuro\main.png") as ImageSource;
-
-                CambiarIconosAClaros();
-                CambiarTextosBlanco();
-                backgroun_menu.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(48, 255, 255, 255)); // Fondo semitransparente
-            }
-            else
-            {
-                // Cambiar a modo claro
-                if (icon != null)
-                {
-                    icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/luna.png", UriKind.Relative));
-                }
-
-                backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString(
-                    @"C:\Users\Harvie\Documents\TFG\V 0.1\TFG\TFG V0.01\Recursos\Background\claro\main.png") as ImageSource;
-
-                CambiarIconosAOscuros();
-                CambiarTextosNegro();
-                backgroun_menu.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(48, 128, 128, 128)); // Gris semitransparente
-            }
+            AplicarModoSistema();
         }
         #endregion
 

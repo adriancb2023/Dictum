@@ -100,11 +100,11 @@ namespace TFG_V0._01.Ventanas.SubVentanas
         private void CargarIdioma(int idioma)
         {
             var idiomas = new (string SeleccionBBDD, string InfoSeleccion, string Local, string Nube, string BtnAceptar)[] {
-        ("Selecciona el tipo de Base de Datos", "La base de datos seleccionada anteriormente está marcada con un icono ", "Local", "Nube", "Aceptar"),
-        ("Select the type of Database", "The previously selected database is marked with an icon ", "Local", "Cloud", "Accept"),
-        ("Selecciona el tipus de Base de Dades", "La base de dades seleccionada anteriorment està marcada amb una icona ", "Local", "Núvol", "Acceptar"),
-        ("Selecciona o tipo de Base de Datos", "A base de datos seleccionada anteriormente está marcada cunha icona ", "Local", "Nube", "Aceptar"),
-        ("Aukeratu Datu Base mota", "Aurrekoan hautatutako datu-basea ikono batekin markatuta dago ", "Lokala", "Hodeia", "Onartu")
+        ("Selecciona el tipo de Base de Datos", "La base de datos seleccionada anteriormente está marcada con un icono ", "Test", "Nube", "Aceptar"),
+        ("Select the type of Database", "The previously selected database is marked with an icon ", "Test", "Cloud", "Accept"),
+        ("Selecciona el tipus de Base de Dades", "La base de dades seleccionada anteriorment està marcada amb una icona ", "Test", "Núvol", "Acceptar"),
+        ("Selecciona o tipo de Base de Datos", "A base de datos seleccionada anteriormente está marcada cunha icona ", "Test", "Nube", "Aceptar"),
+        ("Aukeratu Datu Base mota", "Aurrekoan hautatutako datu-basea ikono batekin markatuta dago ", "Test", "Hodeia", "Onartu")
     };
 
             if (idioma < 0 || idioma >= idiomas.Length)

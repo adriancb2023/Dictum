@@ -1,7 +1,14 @@
-﻿using System;
+﻿using JurisprudenciaApi.Controllers;
+using JurisprudenciaApi.Models;
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel; // Para ObservableCollection
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -12,14 +19,8 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using JurisprudenciaApi.Models;
-using JurisprudenciaApi.Controllers;
-using System.Collections.ObjectModel; // Para ObservableCollection
 using TFG_V0._01.Supabase;
+using TFG_V0._01.Supabase.Models;
 
 namespace TFG_V0._01.Ventanas
 {
@@ -103,9 +104,7 @@ namespace TFG_V0._01.Ventanas
                     icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/sol.png", UriKind.Relative));
                 }
                 backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString("pack://application:,,,/TFG V0.01;component/Recursos/Background/oscuro/main.png") as ImageSource;
-                CambiarIconosAClaros();
-                CambiarTextosBlanco();
-                backgroun_menu.Background = new SolidColorBrush(Color.FromArgb(48, 255, 255, 255)); // Fondo semitransparente
+                navbar.ActualizarTema(true);
             }
             else
             {
@@ -115,104 +114,11 @@ namespace TFG_V0._01.Ventanas
                     icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/luna.png", UriKind.Relative));
                 }
                 backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString("pack://application:,,,/TFG V0.01;component/Recursos/Background/claro/main.png") as ImageSource;
-                CambiarIconosAOscuros();
-                CambiarTextosNegro();
-                backgroun_menu.Background = new SolidColorBrush(Color.FromArgb(48, 128, 128, 128)); // Gris semitransparente
+                navbar.ActualizarTema(false);
             }
         }
         #endregion
 
-        #region modo oscuro/claro + navbar
-        private void CambiarIconosAOscuros()
-        {
-            CambiarIcono("imagenHome2", "/TFG V0.01;component/Recursos/Iconos/home.png");
-            CambiarIcono("imagenDocumentos2", "/TFG V0.01;component/Recursos/Iconos/documentos.png");
-            CambiarIcono("imagenClientes2", "/TFG V0.01;component/Recursos/Iconos/clientes.png");
-            CambiarIcono("imagenCasos2", "/TFG V0.01;component/Recursos/Iconos/casos.png");
-            CambiarIcono("imagenAyuda2", "/TFG V0.01;component/Recursos/Iconos/ayuda.png");
-            CambiarIcono("imagenAgenda2", "/TFG V0.01;component/Recursos/Iconos/agenda.png");
-            CambiarIcono("imagenAjustes2", "/TFG V0.01;component/Recursos/Iconos/ajustes.png");
-            CambiarIcono("imagenBuscar2", "/TFG V0.01;component/Recursos/Iconos/buscar.png");
-        }
-
-        private void CambiarIconosAClaros()
-        {
-            CambiarIcono("imagenHome2", "/TFG V0.01;component/Recursos/Iconos/home2.png");
-            CambiarIcono("imagenDocumentos2", "/TFG V0.01;component/Recursos/Iconos/documentos2.png");
-            CambiarIcono("imagenClientes2", "/TFG V0.01;component/Recursos/Iconos/clientes2.png");
-            CambiarIcono("imagenCasos2", "/TFG V0.01;component/Recursos/Iconos/casos2.png");
-            CambiarIcono("imagenAyuda2", "/TFG V0.01;component/Recursos/Iconos/ayuda2.png");
-            CambiarIcono("imagenAgenda2", "/TFG V0.01;component/Recursos/Iconos/agenda2.png");
-            CambiarIcono("imagenAjustes2", "/TFG V0.01;component/Recursos/Iconos/ajustes2.png");
-            CambiarIcono("imagenBuscar2", "/TFG V0.01;component/Recursos/Iconos/buscar2.png");
-        }
-
-        private void CambiarIcono(string nombreElemento, string rutaIcono)
-        {
-            var imagen = this.FindName(nombreElemento) as Image;
-            if (imagen != null)
-            {
-                imagen.Source = new BitmapImage(new Uri(rutaIcono, UriKind.Relative));
-            }
-        }
-
-        private void CambiarTextosNegro()
-        {
-            CambiarColorTexto("btnAgenda", Colors.Black);
-            CambiarColorTexto("btnAjustes", Colors.Black);
-            CambiarColorTexto("btnAyuda", Colors.Black);
-            CambiarColorTexto("btnCasos", Colors.Black);
-            CambiarColorTexto("btnClientes", Colors.Black);
-            CambiarColorTexto("btnDocumentos", Colors.Black);
-            CambiarColorTexto("btnHome", Colors.Black);
-            CambiarColorTexto("btnBuscar", Colors.Black);
-        }
-
-        private void CambiarTextosBlanco()
-        {
-            CambiarColorTexto("btnAgenda", Colors.White);
-            CambiarColorTexto("btnAjustes", Colors.White);
-            CambiarColorTexto("btnAyuda", Colors.White);
-            CambiarColorTexto("btnCasos", Colors.White);
-            CambiarColorTexto("btnClientes", Colors.White);
-            CambiarColorTexto("btnDocumentos", Colors.White);
-            CambiarColorTexto("btnHome", Colors.White);
-            CambiarColorTexto("btnBuscar", Colors.White);
-        }
-
-        private void CambiarColorTexto(string nombreElemento, Color color)
-        {
-            var boton = this.FindName(nombreElemento) as Button;
-            if (boton != null)
-            {
-                boton.Foreground = new SolidColorBrush(color);
-            }
-        }
-        #endregion
-
-        #region navbar animacion
-        private void Menu_MouseEnter(object sender, MouseEventArgs e)
-        {
-            inicio.Visibility = Visibility.Visible;
-            buscar.Visibility = Visibility.Visible;
-            documentos.Visibility = Visibility.Visible;
-            clientes.Visibility = Visibility.Visible;
-            casos.Visibility = Visibility.Visible;
-            agenda.Visibility = Visibility.Visible;
-            ajustes.Visibility = Visibility.Visible;
-        }
-
-        private void Menu_MouseLeave(object sender, MouseEventArgs e)
-        {
-            inicio.Visibility = Visibility.Collapsed;
-            buscar.Visibility = Visibility.Collapsed;
-            documentos.Visibility = Visibility.Collapsed;
-            clientes.Visibility = Visibility.Collapsed;
-            casos.Visibility = Visibility.Collapsed;
-            agenda.Visibility = Visibility.Collapsed;
-            ajustes.Visibility = Visibility.Collapsed;
-        }
-        #endregion
 
         #region boton cambiar tema
         private void ThemeButton_Click(object sender, RoutedEventArgs e)
@@ -235,9 +141,7 @@ namespace TFG_V0._01.Ventanas
                 backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString(
                     "pack://application:,,,/TFG V0.01;component/Recursos/Background/oscuro/main.png") as ImageSource;
 
-                CambiarIconosAClaros();
-                CambiarTextosBlanco();
-                backgroun_menu.Background = new SolidColorBrush(Color.FromArgb(48, 255, 255, 255)); // Fondo semitransparente
+                navbar.ActualizarTema(true);
             }
             else
             {
@@ -250,9 +154,7 @@ namespace TFG_V0._01.Ventanas
                 backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString(
                     "pack://application:,,,/TFG V0.01;component/Recursos/Background/claro/main.png") as ImageSource;
 
-                CambiarIconosAOscuros();
-                CambiarTextosNegro();
-                backgroun_menu.Background = new SolidColorBrush(Color.FromArgb(48, 128, 128, 128)); // Gris semitransparente
+                navbar.ActualizarTema(false);
             }
         }
 
@@ -352,64 +254,6 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
-        #region Navbar botones
-        private void irHome(object sender, RoutedEventArgs e)
-        {
-            Home home = new Home();
-            home.Show();
-            this.Close();
-        }
-
-        private void irJurisprudencia(object sender, RoutedEventArgs e)
-        {
-            BusquedaJurisprudencia busquedaJurisprudencia = new BusquedaJurisprudencia();
-            busquedaJurisprudencia.Show();
-            this.Close();
-        }
-
-        private void irDocumentos(object sender, RoutedEventArgs e)
-        {
-            Documentos documentos = new Documentos();
-            documentos.Show();
-            this.Close();
-        }
-
-        private void irClientes(object sender, RoutedEventArgs e)
-        {
-            Clientes clientes = new Clientes();
-            clientes.Show();
-            this.Close();
-        }
-
-        private void irCasos(object sender, RoutedEventArgs e)
-        {
-            Casos casos = new Casos();
-            casos.Show();
-            this.Close();
-        }
-
-        private void irAyuda(object sender, RoutedEventArgs e)
-        {
-            Ayuda ayuda = new Ayuda();
-            ayuda.Show();
-            this.Close();
-        }
-
-        private void irAgenda(object sender, RoutedEventArgs e)
-        {
-            Agenda agenda = new Agenda();
-            agenda.Show();
-            this.Close();
-        }
-
-        private void irAjustes(object sender, RoutedEventArgs e)
-        {
-            Ajustes ajustes = new Ajustes();
-            ajustes.Show();
-            this.Close();
-        }
-        #endregion
-
         #region API Interaction
         private async void BuscarButton_Click(object sender, RoutedEventArgs e)
         {
@@ -420,7 +264,7 @@ namespace TFG_V0._01.Ventanas
             _lastSearchParameters = GetSearchParametersFromUI(); // Guardar los parámetros actuales
             _lastSearchParameters.PaginaActual = _paginaActual;
             _lastSearchParameters.RegistrosPorPagina = RegistrosPorPaginaConst;
-            
+
             await RealizarBusquedaAsync(_lastSearchParameters);
         }
 
@@ -429,9 +273,9 @@ namespace TFG_V0._01.Ventanas
             if (_isLoading || _lastSearchParameters == null) return; // No cargar si ya está cargando o no hay búsqueda previa
 
             _paginaActual++;
-            _lastSearchParameters.PaginaActual = _paginaActual; 
+            _lastSearchParameters.PaginaActual = _paginaActual;
             // _lastSearchParameters.RegistrosPorPagina ya está establecido
-            
+
             await RealizarBusquedaAsync(_lastSearchParameters, esCargaAdicional: true);
         }
 
@@ -442,7 +286,7 @@ namespace TFG_V0._01.Ventanas
             _isLoading = true;
             // Opcional: Deshabilitar botones para evitar clics múltiples
             BuscarButton.IsEnabled = false;
-            CargarMasButton.IsEnabled = false; 
+            CargarMasButton.IsEnabled = false;
             // Opcional: Mostrar un indicador de carga
             // ResultadosTextBlock.Text = "Cargando..."; 
             // ResultadosTextBlock.Visibility = Visibility.Visible;
@@ -632,7 +476,6 @@ namespace TFG_V0._01.Ventanas
             }
         }
         #endregion
-
 
     }
 }

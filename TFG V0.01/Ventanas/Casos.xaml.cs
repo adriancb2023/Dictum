@@ -145,13 +145,13 @@ namespace TFG_V0._01.Ventanas
             this.DataContext = this;
             InitializeAnimations();
             AplicarModoSistema();
-            
+
             _clientesService = new SupabaseClientes();
             _casosService = new SupabaseCasos();
             _eventosCitasService = new SupabaseEventosCitas();
             _estadosEventosService = new SupabaseEstadosEventos();
             _notasService = new SupabaseNotas();
-            
+
             Clientes = new ObservableCollection<Cliente>();
             TodosLosCasos = new ObservableCollection<Caso>();
             CasosFiltrados = new ObservableCollection<Caso>();
@@ -174,8 +174,6 @@ namespace TFG_V0._01.Ventanas
             // Lógica para cargar y mostrar el caso directamente
             MostrarCasoPorId(idCaso);
         }
-
-       
 
         private async void CargarDatosIniciales()
         {
@@ -250,6 +248,7 @@ namespace TFG_V0._01.Ventanas
                 combo.IsTextSearchEnabled = false;
             }
         }
+       
         private void ComboClientes_KeyUp(object sender, KeyEventArgs e)
         {
             var combo = sender as ComboBox;
@@ -267,12 +266,13 @@ namespace TFG_V0._01.Ventanas
             _clientesView.Refresh();
             combo.IsDropDownOpen = true;
         }
+       
         private void ComboClientes_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var combo = sender as ComboBox;
             if (combo == null || _clientesView == null) return;
 
-            
+
             if (combo.SelectedItem is Cliente cliente)
             {
                 TextoComboCliente = cliente.nombre_cliente;
@@ -287,9 +287,10 @@ namespace TFG_V0._01.Ventanas
             if (combo != null)
             {
                 combo.IsTextSearchEnabled = false;
-                
+
             }
         }
+       
         private void ComboCasosFiltrados_KeyUp(object sender, KeyEventArgs e)
         {
             var combo = sender as ComboBox;
@@ -308,6 +309,7 @@ namespace TFG_V0._01.Ventanas
             _casosFiltradosView.Refresh();
             combo.IsDropDownOpen = true;
         }
+       
         private void ComboCasosFiltrados_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var combo = sender as ComboBox;
@@ -333,6 +335,7 @@ namespace TFG_V0._01.Ventanas
                 combo.IsTextSearchEnabled = false;
             }
         }
+      
         private void ComboTodosLosCasos_KeyUp(object sender, KeyEventArgs e)
         {
             var combo = sender as ComboBox;
@@ -351,6 +354,7 @@ namespace TFG_V0._01.Ventanas
             _todosLosCasosView.Refresh();
             combo.IsDropDownOpen = true;
         }
+      
         private void ComboTodosLosCasos_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var combo = sender as ComboBox;
@@ -473,7 +477,6 @@ namespace TFG_V0._01.Ventanas
             var button = this.FindName("ThemeButton") as Button;
             var icon = button?.Template.FindName("ThemeIcon", button) as System.Windows.Controls.Image;
             var backgroundFondo = this.FindName("backgroundFondo") as ImageBrush;
-            var backgroun_menu = this.FindName("backgroun_menu") as Border;
 
             if (MainWindow.isDarkTheme)
             {
@@ -484,10 +487,7 @@ namespace TFG_V0._01.Ventanas
                 }
                 if (backgroundFondo != null)
                     backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString("pack://application:,,,/TFG V0.01;component/Recursos/Background/oscuro/main.png") as ImageSource;
-                CambiarIconosAClaros();
-                CambiarTextosBlanco();
-                if (backgroun_menu != null)
-                    backgroun_menu.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(48, 255, 255, 255)); // Fondo semitransparente
+                navbar.ActualizarTema(true);
             }
             else
             {
@@ -498,129 +498,8 @@ namespace TFG_V0._01.Ventanas
                 }
                 if (backgroundFondo != null)
                     backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString("pack://application:,,,/TFG V0.01;component/Recursos/Background/claro/main.png") as ImageSource;
-                CambiarIconosAOscuros();
-                CambiarTextosNegro();
-                if (backgroun_menu != null)
-                    backgroun_menu.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(48, 128, 128, 128)); // Gris semitransparente
+                navbar.ActualizarTema(false);
             }
-        }
-        #endregion
-
-        #region modo oscuro/claro + navbar
-        private void CambiarIconosAOscuros()
-        {
-            CambiarIcono("imagenHome2", "/TFG V0.01;component/Recursos/Iconos/home.png");
-            CambiarIcono("imagenDocumentos2", "/TFG V0.01;component/Recursos/Iconos/documentos.png");
-            CambiarIcono("imagenClientes2", "/TFG V0.01;component/Recursos/Iconos/clientes.png");
-            CambiarIcono("imagenCasos2", "/TFG V0.01;component/Recursos/Iconos/casos.png");
-            CambiarIcono("imagenAyuda2", "/TFG V0.01;component/Recursos/Iconos/ayuda.png");
-            CambiarIcono("imagenAgenda2", "/TFG V0.01;component/Recursos/Iconos/agenda.png");
-            CambiarIcono("imagenAjustes2", "/TFG V0.01;component/Recursos/Iconos/ajustes.png");
-            CambiarIcono("imagenBuscar2", "/TFG V0.01;component/Recursos/Iconos/buscar.png");
-        }
-
-        private void CambiarIconosAClaros()
-        {
-            CambiarIcono("imagenHome2", "/TFG V0.01;component/Recursos/Iconos/home2.png");
-            CambiarIcono("imagenDocumentos2", "/TFG V0.01;component/Recursos/Iconos/documentos2.png");
-            CambiarIcono("imagenClientes2", "/TFG V0.01;component/Recursos/Iconos/clientes2.png");
-            CambiarIcono("imagenCasos2", "/TFG V0.01;component/Recursos/Iconos/casos2.png");
-            CambiarIcono("imagenAyuda2", "/TFG V0.01;component/Recursos/Iconos/ayuda2.png");
-            CambiarIcono("imagenAgenda2", "/TFG V0.01;component/Recursos/Iconos/agenda2.png");
-            CambiarIcono("imagenAjustes2", "/TFG V0.01;component/Recursos/Iconos/ajustes2.png");
-            CambiarIcono("imagenBuscar2", "/TFG V0.01;component/Recursos/Iconos/buscar2.png");
-        }
-
-        private void CambiarIcono(string nombreElemento, string rutaIcono)
-        {
-            var imagen = this.FindName(nombreElemento) as System.Windows.Controls.Image;
-            if (imagen != null)
-            {
-                imagen.Source = new BitmapImage(new Uri(rutaIcono, UriKind.Relative));
-            }
-        }
-
-        private void CambiarTextosNegro()
-        {
-            CambiarColorTexto("btnAgenda", System.Windows.Media.Colors.Black);
-            CambiarColorTexto("btnAjustes", System.Windows.Media.Colors.Black);
-            CambiarColorTexto("btnAyuda", System.Windows.Media.Colors.Black);
-            CambiarColorTexto("btnCasos", System.Windows.Media.Colors.Black);
-            CambiarColorTexto("btnClientes", System.Windows.Media.Colors.Black);
-            CambiarColorTexto("btnDocumentos", System.Windows.Media.Colors.Black);
-            CambiarColorTexto("btnHome", System.Windows.Media.Colors.Black);
-            CambiarColorTexto("btnBuscar", System.Windows.Media.Colors.Black);
-
-            CambiarColorTexto("titulo", System.Windows.Media.Colors.Black);
-            CambiarColorTexto("subtitulo", System.Windows.Media.Colors.Black);
-            CambiarColorTexto("selecCliente", System.Windows.Media.Colors.Black);
-            CambiarColorTexto("selecCaso", System.Windows.Media.Colors.Black);
-            CambiarColorTexto("documentos1", System.Windows.Media.Colors.Black);
-        }
-
-        private void CambiarTextosBlanco()
-        {
-            CambiarColorTexto("btnAgenda", System.Windows.Media.Colors.White);
-            CambiarColorTexto("btnAjustes", System.Windows.Media.Colors.White);
-            CambiarColorTexto("btnAyuda", System.Windows.Media.Colors.White);
-            CambiarColorTexto("btnCasos", System.Windows.Media.Colors.White);
-            CambiarColorTexto("btnClientes", System.Windows.Media.Colors.White);
-            CambiarColorTexto("btnDocumentos", System.Windows.Media.Colors.White);
-            CambiarColorTexto("btnHome", System.Windows.Media.Colors.White);
-            CambiarColorTexto("btnBuscar", System.Windows.Media.Colors.White);
-
-            CambiarColorTexto("titulo", System.Windows.Media.Colors.White);
-            CambiarColorTexto("subtitulo", System.Windows.Media.Colors.White);
-            CambiarColorTexto("selecCliente", System.Windows.Media.Colors.White);
-            CambiarColorTexto("selecCaso", System.Windows.Media.Colors.White);
-            CambiarColorTexto("documentos1", System.Windows.Media.Colors.White);
-        }
-
-        private void CambiarColorTexto(string nombreElemento, System.Windows.Media.Color color)
-        {
-            var boton = this.FindName(nombreElemento) as Button;
-            if (boton != null)
-            {
-                boton.Foreground = new SolidColorBrush(color);
-            }
-        }
-        #endregion
-
-        #region navbar animacion
-        private void Menu_MouseEnter(object sender, MouseEventArgs e)
-        {
-            var inicio = this.FindName("inicio") as UIElement;
-            var buscar = this.FindName("buscar") as UIElement;
-            var documentos = this.FindName("documentos") as UIElement;
-            var clientes = this.FindName("clientes") as UIElement;
-            var casos = this.FindName("casos") as UIElement;
-            var agenda = this.FindName("agenda") as UIElement;
-            var ajustes = this.FindName("ajustes") as UIElement;
-            if (inicio != null) inicio.Visibility = Visibility.Visible;
-            if (buscar != null) buscar.Visibility = Visibility.Visible;
-            if (documentos != null) documentos.Visibility = Visibility.Visible;
-            if (clientes != null) clientes.Visibility = Visibility.Visible;
-            if (casos != null) casos.Visibility = Visibility.Visible;
-            if (agenda != null) agenda.Visibility = Visibility.Visible;
-            if (ajustes != null) ajustes.Visibility = Visibility.Visible;
-        }
-
-        private void Menu_MouseLeave(object sender, MouseEventArgs e)
-        {
-            var inicio = this.FindName("inicio") as UIElement;
-            var buscar = this.FindName("buscar") as UIElement;
-            var documentos = this.FindName("documentos") as UIElement;
-            var clientes = this.FindName("clientes") as UIElement;
-            var casos = this.FindName("casos") as UIElement;
-            var agenda = this.FindName("agenda") as UIElement;
-            var ajustes = this.FindName("ajustes") as UIElement;
-            if (inicio != null) inicio.Visibility = Visibility.Collapsed;
-            if (buscar != null) buscar.Visibility = Visibility.Collapsed;
-            if (documentos != null) documentos.Visibility = Visibility.Collapsed;
-            if (clientes != null) clientes.Visibility = Visibility.Collapsed;
-            if (casos != null) casos.Visibility = Visibility.Collapsed;
-            if (agenda != null) agenda.Visibility = Visibility.Collapsed;
-            if (ajustes != null) ajustes.Visibility = Visibility.Collapsed;
         }
         #endregion
 
@@ -721,64 +600,6 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
-        #region Navbar botones
-        private void irHome(object sender, RoutedEventArgs e)
-        {
-            Home home = new Home();
-            home.Show();
-            this.Close();
-        }
-
-        private void irJurisprudencia(object sender, RoutedEventArgs e)
-        {
-            BusquedaJurisprudencia busquedaJurisprudencia = new BusquedaJurisprudencia();
-            busquedaJurisprudencia.Show();
-            this.Close();
-        }
-
-        private void irDocumentos(object sender, RoutedEventArgs e)
-        {
-            Documentos documentos = new Documentos();
-            documentos.Show();
-            this.Close();
-        }
-
-        private void irClientes(object sender, RoutedEventArgs e)
-        {
-            Clientes clientes = new Clientes();
-            clientes.Show();
-            this.Close();
-        }
-
-        private void irCasos(object sender, RoutedEventArgs e)
-        {
-            Casos casos = new Casos();
-            casos.Show();
-            this.Close();
-        }
-
-        private void irAyuda(object sender, RoutedEventArgs e)
-        {
-            Ayuda ayuda = new Ayuda();
-            ayuda.Show();
-            this.Close();
-        }
-
-        private void irAgenda(object sender, RoutedEventArgs e)
-        {
-            Agenda agenda = new Agenda();
-            agenda.Show();
-            this.Close();
-        }
-
-        private void irAjustes(object sender, RoutedEventArgs e)
-        {
-            Ajustes ajustes = new Ajustes();
-            ajustes.Show();
-            this.Close();
-        }
-        #endregion
-
         #region Cargar Tareas
         private async Task CargarTareasDelCaso(int casoId)
         {
@@ -797,6 +618,7 @@ namespace TFG_V0._01.Ventanas
         #endregion
 
         public event PropertyChangedEventHandler PropertyChanged;
+       
         protected void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -880,7 +702,7 @@ namespace TFG_V0._01.Ventanas
                 var tituloEventos = this.FindName("TituloEventos") as TextBlock;
                 if (tituloEventos != null)
                     tituloEventos.Text = $"Eventos del {_fechaSeleccionada:dd/MM/yyyy}";
-                
+
                 // Forzar refresco visual del calendario
                 var calendar = this.FindName("calendar") as CalendarControl;
                 if (calendar != null)
@@ -951,13 +773,13 @@ namespace TFG_V0._01.Ventanas
                 {
                     evento.Titulo = ventana.TituloEvento;
                     evento.Descripcion = ventana.DescripcionEvento;
-                    
+
                     // Get the selected time or use current time as fallback
                     var selectedTime = ventana.HoraMinuto ?? DateTime.Now;
-                    
+
                     // Create a TimeSpan with just the hours and minutes
                     evento.FechaInicio = new TimeSpan(selectedTime.Hour, selectedTime.Minute, 0);
-                    
+
                     evento.IdEstado = ventana.EstadoSeleccionado.Id;
                     await _eventosCitasService.ActualizarEventoCita(evento);
                     await CargarEventosDelDia();
@@ -1092,6 +914,7 @@ namespace TFG_V0._01.Ventanas
             _notaSeleccionada = NotasList.SelectedItem as Nota;
         }
         #endregion
+       
         private async void ModificarDocumento_Click(object sender, RoutedEventArgs e)
         {
             if (_documentoSeleccionado == null)
@@ -1289,7 +1112,7 @@ namespace TFG_V0._01.Ventanas
                 var eventos = await _eventosCitasService.ObtenerEventosCitasPorCaso(casoId);
                 await _estadosEventosService.InicializarAsync();
                 var estados = await _estadosEventosService.ObtenerEstadosEventos();
-                
+
                 var eventosConEstado = eventos.Select(e => new EventoViewModel
                 {
                     Id = e.Id,
@@ -1405,5 +1228,5 @@ namespace TFG_V0._01.Ventanas
         public string estado { get; set; }
         public string estado_color { get; set; }
     }
-    
+
 }

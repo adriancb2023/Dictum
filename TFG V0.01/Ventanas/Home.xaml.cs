@@ -31,43 +31,43 @@ namespace TFG_V0._01.Ventanas
 
         #region 📊 variables
         private readonly SupabaseAutentificacion _authService;
-        
+
         private readonly SupabaseClientes _clientesService;
-        
+
         private readonly SupabaseCasos _supabaseCasos;
-        
+
         private readonly SupabaseEventosCitas _eventosCitasService;
-        
+
         private readonly SupabaseDocumentos _documentosService;
-        
+
         private readonly SupabaseTareas _tareasService;
-        
+
         private readonly SupabaseReciente _recienteService;
 
         public ICommand VerDetallesCommand { get; }
 
         private int _clientCount;
-        
+
         private int _previousClientCount;
-        
+
         private string _clientCountChange;
-        
+
         private int _casosActivos;
-        
+
         private int _documentos;
-        
+
         private int _tareasPendientes;
-        
+
         private int _casosRecientes;
 
         private ObservableCollection<Estado> _estadosDisponibles = new ObservableCollection<Estado>();
-        
+
         public ObservableCollection<SupabaseTarea> TareasPendientesLista { get; set; } = new ObservableCollection<SupabaseTarea>();
-        
+
         public ObservableCollection<string> EstadosDisponibles { get; set; } = new ObservableCollection<string> { "Pendiente", "En progreso", "Finalizado" };
-        
+
         private ObservableCollection<CasoViewModel> _casosRecientesLista;
-        
+
         public ObservableCollection<CasoViewModel> CasosRecientesLista
         {
             get => _casosRecientesLista;
@@ -135,11 +135,9 @@ namespace TFG_V0._01.Ventanas
         private string mesText;
 
         private string anio;
-       
-        private readonly UIElement[] navbarItems;
-        
+
         private int _eventosProximos;
-        
+
         public ObservableCollection<EventoCita> EventosProximosLista { get; set; } = new ObservableCollection<EventoCita>();
 
         public int EventosProximos
@@ -190,10 +188,7 @@ namespace TFG_V0._01.Ventanas
             mesText = string.Empty;
             anio = string.Empty;
 
-            navbarItems = new UIElement[]
-            {
-                inicio, buscar, documentos, clientes, casos, agenda, ajustes
-            };
+
 
             _eventosCitasService = new SupabaseEventosCitas();
             EventosProximos = 0;
@@ -219,7 +214,7 @@ namespace TFG_V0._01.Ventanas
             }
             else
             {
-                
+
             }
         }
         #endregion
@@ -235,18 +230,7 @@ namespace TFG_V0._01.Ventanas
 
             backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString(GetBackgroundPath()) as ImageSource;
 
-            if (MainWindow.isDarkTheme)
-            {
-                CambiarIconosAClaros();
-                CambiarTextosBlanco();
-                backgroun_menu.Background = new SolidColorBrush(Color.FromArgb(48, 255, 255, 255)); // Fondo semitransparente
-            }
-            else
-            {
-                CambiarIconosAOscuros();
-                CambiarTextosNegro();
-                backgroun_menu.Background = new SolidColorBrush(Color.FromArgb(48, 128, 128, 128)); // Gris semitransparente
-            }
+            navbar.ActualizarTema(MainWindow.isDarkTheme);
         }
 
         private string GetIconoTema() =>
@@ -268,109 +252,7 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
-        #region 🌓 modo oscuro/claro + navbar
-        private void CambiarIconosAOscuros()
-        {
-            CambiarIcono("imagenHome2", "/TFG V0.01;component/Recursos/Iconos/home.png");
-            CambiarIcono("imagenDocumentos2", "/TFG V0.01;component/Recursos/Iconos/documentos.png");
-            CambiarIcono("imagenClientes2", "/TFG V0.01;component/Recursos/Iconos/clientes.png");
-            CambiarIcono("imagenCasos2", "/TFG V0.01;component/Recursos/Iconos/casos.png");
-            CambiarIcono("imagenAyuda2", "/TFG V0.01;component/Recursos/Iconos/ayuda.png");
-            CambiarIcono("imagenAgenda2", "/TFG V0.01;component/Recursos/Iconos/agenda.png");
-            CambiarIcono("imagenAjustes2", "/TFG V0.01;component/Recursos/Iconos/ajustes.png");
-            CambiarIcono("imagenBuscar2", "/TFG V0.01;component/Recursos/Iconos/buscar.png");
-        }
 
-        private void CambiarIconosAClaros()
-        {
-            CambiarIcono("imagenHome2", "/TFG V0.01;component/Recursos/Iconos/home2.png");
-            CambiarIcono("imagenDocumentos2", "/TFG V0.01;component/Recursos/Iconos/documentos2.png");
-            CambiarIcono("imagenClientes2", "/TFG V0.01;component/Recursos/Iconos/clientes2.png");
-            CambiarIcono("imagenCasos2", "/TFG V0.01;component/Recursos/Iconos/casos2.png");
-            CambiarIcono("imagenAyuda2", "/TFG V0.01;component/Recursos/Iconos/ayuda2.png");
-            CambiarIcono("imagenAgenda2", "/TFG V0.01;component/Recursos/Iconos/agenda2.png");
-            CambiarIcono("imagenAjustes2", "/TFG V0.01;component/Recursos/Iconos/ajustes2.png");
-            CambiarIcono("imagenBuscar2", "/TFG V0.01;component/Recursos/Iconos/buscar2.png");
-        }
-
-        private void CambiarIcono(string nombreElemento, string rutaIcono)
-        {
-            var imagen = this.FindName(nombreElemento) as Image;
-            if (imagen != null)
-            {
-                imagen.Source = new BitmapImage(new Uri(rutaIcono, UriKind.Relative));
-            }
-        }
-
-        private void CambiarTextosNegro()
-        {
-            CambiarColorTexto("btnAgenda", Colors.Black);
-            CambiarColorTexto("btnAjustes", Colors.Black);
-            CambiarColorTexto("btnAyuda", Colors.Black);
-            CambiarColorTexto("btnCasos", Colors.Black);
-            CambiarColorTexto("btnClientes", Colors.Black);
-            CambiarColorTexto("btnDocumentos", Colors.Black);
-            CambiarColorTexto("btnHome", Colors.Black);
-            CambiarColorTexto("btnBuscar", Colors.Black);
-        }
-
-        private void CambiarTextosBlanco()
-        {
-            CambiarColorTexto("btnAgenda", Colors.White);
-            CambiarColorTexto("btnAjustes", Colors.White);
-            CambiarColorTexto("btnAyuda", Colors.White);
-            CambiarColorTexto("btnCasos", Colors.White);
-            CambiarColorTexto("btnClientes", Colors.White);
-            CambiarColorTexto("btnDocumentos", Colors.White);
-            CambiarColorTexto("btnHome", Colors.White);
-            CambiarColorTexto("btnBuscar", Colors.White);
-        }
-
-        private void CambiarColorTexto(string nombreElemento, Color color)
-        {
-            var boton = this.FindName(nombreElemento) as Button;
-            if (boton != null)
-            {
-                boton.Foreground = new SolidColorBrush(color);
-            }
-        }
-        #endregion
-
-        #region 🔄 navbar animacion
-        private void CambiarVisibilidadNavbar(Visibility visibilidad)
-        {
-            foreach (var item in navbarItems)
-                item.Visibility = visibilidad;
-        }
-
-        private void Menu_MouseEnter(object sender, MouseEventArgs e)
-        {
-            CambiarVisibilidadNavbar(Visibility.Visible);
-        }
-
-        private void Menu_MouseLeave(object sender, MouseEventArgs e)
-        {
-            CambiarVisibilidadNavbar(Visibility.Collapsed);
-        }
-
-        #endregion
-
-        #region 🔄 Navbar botones
-        private void AbrirVentana<T>() where T : Window, new()
-        {
-            var ventana = new T();
-            ventana.Show();
-            this.Close();
-        }
-        private void irHome(object sender, RoutedEventArgs e) => AbrirVentana<Home>();
-        private void irJurisprudencia(object sender, RoutedEventArgs e) => AbrirVentana<BusquedaJurisprudencia>();
-        private void irDocumentos(object sender, RoutedEventArgs e) => AbrirVentana<Documentos>();
-        private void irClientes(object sender, RoutedEventArgs e) => AbrirVentana<Clientes>();
-        private void irCasos(object sender, RoutedEventArgs e) => AbrirVentana<Casos>();
-        private void irAyuda(object sender, RoutedEventArgs e) => AbrirVentana<Ayuda>();
-        private void irAgenda(object sender, RoutedEventArgs e) => AbrirVentana<Agenda>();
-        private void irAjustes(object sender, RoutedEventArgs e) => AbrirVentana<Ajustes>();
-        #endregion
 
         #region 🎬  Animaciones
 
@@ -527,6 +409,8 @@ namespace TFG_V0._01.Ventanas
         #region 🈳 Idioma
         private void CargarIdioma(int idioma)
         {
+            navbar.ActualizarIdioma(idioma);
+
             var idiomas = new (string Titulo, string Subtitulo, string ResumenCasos, string ResumenClientes, string ResumenDocumentos, string ResumenEventos,
                 string Lunes, string Martes, string Miercoles, string Jueves, string Viernes, string Sabado, string Domingo,
                 string ListaTareas, string BtnAñadirTarea, string BtnVerTodosCasos, string CasosRecientes, string NCasos, string CCliente, string CTipo, string CEstado, string CAcciones, string Version, string Hoy)[]
@@ -679,7 +563,7 @@ namespace TFG_V0._01.Ventanas
                 var hoyStr = DateTime.Now.ToString("yyyy-MM-dd");
                 var eventosHoy = eventosCitas
                     .Where(e => e.FechaString == hoyStr)
-                    .Count();                
+                    .Count();
                 EventosProximos = eventosHoy;
                 OnPropertyChanged(nameof(EventosProximos));
 
@@ -812,7 +696,7 @@ namespace TFG_V0._01.Ventanas
         {
             var fechaLimite = DateTime.Now.AddDays(-28);
             int diferencia = _clientCount - _previousClientCount;
-            
+
             // Solo mostrar la diferencia si es reciente (últimos 28 días)
             if (diferencia > 0)
             {
@@ -852,12 +736,12 @@ namespace TFG_V0._01.Ventanas
         {
             return estado?.ToLower() switch
             {
-                "abierto"     => "#2196F3", // Azul
-                "en proceso"  => "#4CAF50", // Verde
-                "cerrado"     => "#F44336", // Rojo
-                "pendiente"   => "#FF9800", // Naranja
-                "revisado"    => "#9E9E9E", // Gris
-                _             => "#9E9E9E"  // Gris por defecto
+                "abierto" => "#2196F3", // Azul
+                "en proceso" => "#4CAF50", // Verde
+                "cerrado" => "#F44336", // Rojo
+                "pendiente" => "#FF9800", // Naranja
+                "revisado" => "#9E9E9E", // Gris
+                _ => "#9E9E9E"  // Gris por defecto
             };
         }
 
@@ -894,7 +778,59 @@ namespace TFG_V0._01.Ventanas
                 this.Close();
             }
         }
+        private async void MostrarDetallesCaso_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.DataContext is CasoViewModel casoVM)
+            {
+                try
+                {
+                    await _supabaseCasos.InicializarAsync();
+                    // Obtener el caso con sus relaciones
+                    var caso = await _supabaseCasos.ObtenerPorIdAsync(casoVM.id);
+                    if (caso == null)
+                    {
+                        MessageBox.Show("El caso no se encontró en la base de datos.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
+                    }
 
+                    // Actualizar la información básica del caso en el popup
+                    PopupTitulo.Text = $"Caso #{caso.referencia}";
+                    PopupDescripcion.Text = caso.descripcion;
+                    PopupCliente.Text = $"Cliente: {caso.Cliente?.nombre ?? "No especificado"}";
+                    PopupTipo.Text = $"Tipo: {caso.TipoCaso?.nombre ?? "No especificado"}";
+                    PopupEstado.Text = $"Estado: {caso.Estado?.nombre ?? "No especificado"}";
+                    PopupFecha.Text = $"Fecha de inicio: {caso.fecha_inicio:dd/MM/yyyy}";
+
+                    // Obtener y mostrar los documentos relacionados
+                    await _documentosService.InicializarAsync();
+                    var documentos = await _documentosService.ObtenerPorCasoAsync(caso.id);
+                    PopupDocumentos.ItemsSource = documentos;
+
+                    // Obtener y filtrar los próximos eventos
+                    await _eventosCitasService.InicializarAsync();
+                    var eventos = await _eventosCitasService.ObtenerEventosCitasPorCaso(caso.id);
+                    var proximosEventos = eventos
+                        .Where(e => e.Fecha >= DateTime.Now)
+                        .OrderBy(e => e.Fecha)
+                        .Take(3)
+                        .Select(e => new
+                        {
+                            titulo = e.Titulo,
+                            fecha = e.Fecha.ToString("dd/MM/yyyy HH:mm"),
+                            descripcion = e.Descripcion
+                        })
+                        .ToList();
+                    PopupEventos.ItemsSource = proximosEventos;
+
+                    // Mostrar el popup
+                    PopupDetallesCaso.IsOpen = true;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error al cargar los detalles del caso: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
         private async void EliminarCaso_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button button && button.DataContext is CasoViewModel caso)
@@ -935,6 +871,19 @@ namespace TFG_V0._01.Ventanas
                 // Refresh the client list if needed
             }
         }
+
+        /*
+        public async Task<Caso> ObtenerPorIdAsync(int id)
+        {
+            return await _context.Casos
+                .Include(c => c.Documentos)
+                .Include(c => c.Cliente)
+                .Include(c => c.Tipo)
+                .Include(c => c.Estado)
+                // Agrega más Includes si tienes más relaciones
+                .FirstOrDefaultAsync(c => c.id == id);
+        }
+        */
 
         #endregion
 

@@ -14,24 +14,28 @@
     <Compile Remove="NewFolder\**" />
     <Compile Remove="Recursos\Imagenes\**" />
     <Compile Remove="Recursos\Raw\**" />
+    <Compile Remove="TFG V0.01\**" />
     <Compile Remove="Ventanas\NewFolder1\**" />
     <Compile Remove="Ventanas\NewFolder2\**" />
     <Compile Remove="Ventanas\NewFolder\**" />
     <EmbeddedResource Remove="NewFolder\**" />
     <EmbeddedResource Remove="Recursos\Imagenes\**" />
     <EmbeddedResource Remove="Recursos\Raw\**" />
+    <EmbeddedResource Remove="TFG V0.01\**" />
     <EmbeddedResource Remove="Ventanas\NewFolder1\**" />
     <EmbeddedResource Remove="Ventanas\NewFolder2\**" />
     <EmbeddedResource Remove="Ventanas\NewFolder\**" />
     <None Remove="NewFolder\**" />
     <None Remove="Recursos\Imagenes\**" />
     <None Remove="Recursos\Raw\**" />
+    <None Remove="TFG V0.01\**" />
     <None Remove="Ventanas\NewFolder1\**" />
     <None Remove="Ventanas\NewFolder2\**" />
     <None Remove="Ventanas\NewFolder\**" />
     <Page Remove="NewFolder\**" />
     <Page Remove="Recursos\Imagenes\**" />
     <Page Remove="Recursos\Raw\**" />
+    <Page Remove="TFG V0.01\**" />
     <Page Remove="Ventanas\NewFolder1\**" />
     <Page Remove="Ventanas\NewFolder2\**" />
     <Page Remove="Ventanas\NewFolder\**" />
@@ -133,7 +137,6 @@
 
   <ItemGroup>
     <Folder Include="Recursos\ER BBDD\" />
-    <Folder Include="TFG V0.01\Ventanas\SubVentanas\" />
   </ItemGroup>
 
   <ItemGroup>

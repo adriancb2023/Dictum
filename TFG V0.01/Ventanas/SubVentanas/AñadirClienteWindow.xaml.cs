@@ -1,14 +1,19 @@
 using System;
 using System.Threading.Tasks;
 using System.Windows;
+using TFG_V0._01.Supabase;
+using TFG_V0._01.Supabase.Models;
 
 namespace TFG_V0._01.Ventanas.SubVentanas
 {
     public partial class AñadirClienteWindow : Window
     {
+        private readonly SupabaseClientes _supabaseClientes;
+
         public AñadirClienteWindow()
         {
             InitializeComponent();
+            _supabaseClientes = new SupabaseClientes();
             Loaded += AñadirClienteWindow_Loaded;
         }
 
@@ -25,14 +30,27 @@ namespace TFG_V0._01.Ventanas.SubVentanas
             }
         }
 
-        private void btnGuardar_Click(object sender, RoutedEventArgs e)
+        private async void btnGuardar_Click(object sender, RoutedEventArgs e)
         {
             try
             {
                 if (!ValidarCampos())
                     return;
 
-                // TODO: Implementar la lógica de guardado cuando tengamos el servicio de Supabase
+                var nuevoCliente = new Cliente
+                {
+                    nombre = txtNombre.Text.Trim(),
+                    apellido1 = txtApellido1.Text.Trim(),
+                    apellido2 = string.IsNullOrWhiteSpace(txtApellido2.Text) ? null : txtApellido2.Text.Trim(),
+                    email1 = txtEmail.Text.Trim(),
+                    email2 = string.IsNullOrWhiteSpace(txtEmail2.Text) ? null : txtEmail2.Text.Trim(),
+                    telf1 = txtTelefono.Text.Trim(),
+                    telf2 = string.IsNullOrWhiteSpace(txtTelefono2.Text) ? null : txtTelefono2.Text.Trim(),
+                    direccion = txtDireccion.Text.Trim(),
+                    fecha_contrato = dpFechaContrato.SelectedDate ?? DateTime.Today
+                };
+
+                await _supabaseClientes.InsertarClienteAsync(nuevoCliente);
                 MessageBox.Show("Cliente añadido correctamente", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
                 DialogResult = true;
                 Close();
@@ -91,6 +109,13 @@ namespace TFG_V0._01.Ventanas.SubVentanas
             {
                 MessageBox.Show("La fecha de contrato es obligatoria", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                 dpFechaContrato.Focus();
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(txtDireccion.Text))
+            {
+                MessageBox.Show("La dirección es obligatoria", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                txtDireccion.Focus();
                 return false;
             }
 

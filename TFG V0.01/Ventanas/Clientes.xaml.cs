@@ -55,9 +55,9 @@ namespace TFG_V0._01.Ventanas
             set
             {
                 _selectedCliente = value;
-                if (_selectedCliente != null)
+                if (_selectedCliente != null && _selectedCliente.id.HasValue)
                 {
-                    CargarDocumentosCliente(_selectedCliente.id);
+                    CargarDocumentosCliente(_selectedCliente.id.Value);
                 }
                 DataContext = null;
                 DataContext = this;
@@ -453,14 +453,14 @@ namespace TFG_V0._01.Ventanas
 
         private async Task CargarCasosActivosAsync()
         {
-            if (SelectedCliente == null)
+            if (SelectedCliente == null || !SelectedCliente.id.HasValue)
                 return;
 
             try
             {
                 await _supabaseCasos.InicializarAsync();
                 var todosLosCasos = (await _supabaseCasos.ObtenerTodosAsync())
-                    .Where(c => c.id_cliente == SelectedCliente.id)
+                    .Where(c => c.id_cliente == SelectedCliente.id.Value)
                     .ToList();
 
                 var casosActivos = todosLosCasos
@@ -477,14 +477,14 @@ namespace TFG_V0._01.Ventanas
 
         private async Task CargarHistorialCasosAsync()
         {
-            if (SelectedCliente == null)
+            if (SelectedCliente == null || !SelectedCliente.id.HasValue)
                 return;
 
             try
             {
                 await _supabaseCasos.InicializarAsync();
                 var todosLosCasos = (await _supabaseCasos.ObtenerTodosAsync())
-                    .Where(c => c.id_cliente == SelectedCliente.id)
+                    .Where(c => c.id_cliente == SelectedCliente.id.Value)
                     .ToList();
 
                 HistorialCasos = new ObservableCollection<Caso>(todosLosCasos);

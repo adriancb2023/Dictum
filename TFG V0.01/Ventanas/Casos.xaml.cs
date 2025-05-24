@@ -121,9 +121,9 @@ namespace TFG_V0._01.Ventanas
             {
                 _clienteSeleccionado = value;
                 OnPropertyChanged(nameof(ClienteSeleccionado));
-                if (value != null)
+                if (value != null && value.id.HasValue)
                 {
-                    CargarCasosDelCliente(value.id);
+                    CargarCasosDelCliente(value.id.Value);
                 }
             }
         }

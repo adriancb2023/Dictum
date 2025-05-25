@@ -37,6 +37,7 @@ namespace TFG_V0._01.Ventanas
         {
             InitializeComponent();
             _supabaseAutentificacion = new SupabaseAutentificacion();
+            this.Tag = MainWindow.isDarkTheme;
             CargarIdioma(MainWindow.idioma);
             InitializeAnimations();
             CrearFondoAnimado();
@@ -51,8 +52,8 @@ namespace TFG_V0._01.Ventanas
                     adornerLayer.Add(new PlaceholderAdorner(
                         UsernameTextBox,
                         _correoPlaceholder,
-                        MainWindow.isDarkTheme ? Brushes.Gray : Brushes.DarkGray,
-                        MainWindow.isDarkTheme ? Brushes.LightGray : Brushes.Gray,
+                        MainWindow.isDarkTheme ? Brushes.White : Brushes.Black,
+                        MainWindow.isDarkTheme ? Brushes.WhiteSmoke : Brushes.DarkSlateGray,
                         14));
                 }
                 adornerLayer = AdornerLayer.GetAdornerLayer(PasswordBox);
@@ -61,8 +62,8 @@ namespace TFG_V0._01.Ventanas
                     adornerLayer.Add(new PlaceholderAdorner(
                         PasswordBox,
                         _passPlaceholder,
-                        MainWindow.isDarkTheme ? Brushes.Gray : Brushes.DarkGray,
-                        MainWindow.isDarkTheme ? Brushes.LightGray : Brushes.Gray,
+                        MainWindow.isDarkTheme ? Brushes.White : Brushes.Black,
+                        MainWindow.isDarkTheme ? Brushes.WhiteSmoke : Brushes.DarkSlateGray,
                         14));
                 }
                 adornerLayer = AdornerLayer.GetAdornerLayer(PasswordBox2);
@@ -71,8 +72,8 @@ namespace TFG_V0._01.Ventanas
                     adornerLayer.Add(new PlaceholderAdorner(
                         PasswordBox2,
                         _pass2Placeholder,
-                        MainWindow.isDarkTheme ? Brushes.Gray : Brushes.DarkGray,
-                        MainWindow.isDarkTheme ? Brushes.LightGray : Brushes.Gray,
+                        MainWindow.isDarkTheme ? Brushes.White : Brushes.Black,
+                        MainWindow.isDarkTheme ? Brushes.WhiteSmoke : Brushes.DarkSlateGray,
                         14));
                 }
                 IniciarAnimacionMesh();
@@ -189,6 +190,7 @@ namespace TFG_V0._01.Ventanas
         #region Aplicar modo oscuro/claro
         private void AplicarTema()
         {
+            this.Tag = MainWindow.isDarkTheme;
             var button = this.FindName("ThemeButton") as Button;
             var icon = button?.Template.FindName("ThemeIcon", button) as WpfImage;
             var closeButton = this.FindName("CloseButton") as Button;
@@ -214,7 +216,9 @@ namespace TFG_V0._01.Ventanas
                 app.Resources["TextBoxBackgroundBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#20FFFFFF"));
                 app.Resources["TextBoxForegroundBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFFFFF"));
                 app.Resources["TextBoxBorderBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#AAFFFFFF"));
-                app.Resources["TextBoxForegroundBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFFFFF"));
+                app.Resources["ButtonBackgroundDark"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFFFFF"));
+                app.Resources["ButtonForegroundDark"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#222222"));
+                app.Resources["ButtonHoverDark"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF333333"));
             }
             else
             {
@@ -236,11 +240,36 @@ namespace TFG_V0._01.Ventanas
                 app.Resources["TextBoxBackgroundBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#20FFFFFF"));
                 app.Resources["TextBoxForegroundBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#222222"));
                 app.Resources["TextBoxBorderBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#AAFFFFFF"));
-                app.Resources["TextBoxForegroundBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#222222"));
+                app.Resources["ButtonBackgroundLight"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFFFFF"));
+                app.Resources["ButtonForegroundLight"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#222222"));
+                app.Resources["ButtonHoverLight"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFEEEEEE"));
             }
+
+            // Aplicar colores a los controles
             UsernameTextBox.Foreground = (Brush)Application.Current.Resources["TextBoxForegroundBrush"];
             PasswordBox.Foreground = (Brush)Application.Current.Resources["TextBoxForegroundBrush"];
             PasswordBox2.Foreground = (Brush)Application.Current.Resources["TextBoxForegroundBrush"];
+
+            // Actualizar los placeholders si existen
+            var adornerLayer = AdornerLayer.GetAdornerLayer(UsernameTextBox);
+            if (adornerLayer != null)
+            {
+                var adorners = adornerLayer.GetAdorners(UsernameTextBox);
+                if (adorners != null)
+                {
+                    foreach (var adorner in adorners)
+                    {
+                        if (adorner is PlaceholderAdorner placeholder)
+                        {
+                            placeholder.UpdateColors(
+                                MainWindow.isDarkTheme ? Brushes.White : Brushes.Black,
+                                MainWindow.isDarkTheme ? Brushes.WhiteSmoke : Brushes.DarkSlateGray
+                            );
+                        }
+                    }
+                }
+            }
+
             IniciarAnimacionMesh();
         }
 

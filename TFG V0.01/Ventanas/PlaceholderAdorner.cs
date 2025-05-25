@@ -15,8 +15,8 @@ namespace TFG_V0._01.Ventanas
         private bool _isUp = false;
         private readonly double _fontSize;
         private readonly string _placeholder;
-        private readonly Brush _placeholderBrush;
-        private readonly Brush _placeholderBrushFocused;
+        private Brush _placeholderBrush;
+        private Brush _placeholderBrushFocused;
 
         public PlaceholderAdorner(Control adornedElement, string placeholder, Brush brush, Brush brushFocused, double fontSize = 14) : base(adornedElement)
         {
@@ -38,6 +38,20 @@ namespace TFG_V0._01.Ventanas
             _visuals = new VisualCollection(this) { _placeholderTextBlock };
             AddHandlers();
             UpdateState();
+        }
+
+        public void UpdateColors(Brush brush, Brush brushFocused)
+        {
+            _placeholderBrush = brush;
+            _placeholderBrushFocused = brushFocused;
+            if (_isUp)
+            {
+                _placeholderTextBlock.Foreground = _placeholderBrushFocused;
+            }
+            else
+            {
+                _placeholderTextBlock.Foreground = _placeholderBrush;
+            }
         }
 
         private void AddHandlers()

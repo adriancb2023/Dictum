@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using TFG_V0._01.Supabase;
 
 namespace TFG_V0._01.Ventanas.SubVentanas
 {
@@ -20,12 +21,26 @@ namespace TFG_V0._01.Ventanas.SubVentanas
     /// </summary>
     public partial class EleccionBBDD : Window
     {
+        private readonly SupabaseAutentificacion _authService;
+        private Storyboard fadeInStoryboard;
+        private Storyboard shakeStoryboard;
+        private Storyboard meshAnimStoryboard;
+
+        // Brushes y fondo animado
+        private RadialGradientBrush mesh1Brush;
+        private RadialGradientBrush mesh2Brush;
+        private DrawingBrush meshGradientBrush;
+
         public EleccionBBDD()
         {
             InitializeComponent();
+            this.Tag = MainWindow.isDarkTheme;
             ReadConfiguration();
             CargarIdioma(MainWindow.idioma);
-            AplicarModoSistema();
+            InitializeAnimations();
+            CrearFondoAnimado();
+            AplicarTema();
+            BeginFadeInAnimation();
         }
 
         #region ⌛ Leer Configuración
@@ -120,44 +135,78 @@ namespace TFG_V0._01.Ventanas.SubVentanas
         }
         #endregion
 
-        #region 🌓 Aplicar modo oscuro/claro cargado por sistema
-        private void AplicarModoSistema()
+        #region 🌓 Aplicar tema
+        private void AplicarTema()
         {
-            // Buscar el botón de tema y su icono
-            if (FindName("ThemeButton") is Button button)
-            {
-                if (button.Template?.FindName("ThemeIcon", button) is Image icon)
-                {
-                    icon.Source = new BitmapImage(new Uri(GetIconoTema(), UriKind.Relative));
-                }
-            }
+            this.Tag = MainWindow.isDarkTheme;
+            var button = this.FindName("ThemeButton") as Button;
+            var icon = button?.Template.FindName("ThemeIcon", button) as Image;
+            var closeButton = this.FindName("CloseButton") as Button;
 
-            // Cambiar el fondo principal
-            if (backgroundFondo != null)
+            if (MainWindow.isDarkTheme)
             {
-                var imageSource = new ImageSourceConverter().ConvertFromString(GetBackgroundPath()) as ImageSource;
-                if (imageSource != null)
-                    backgroundFondo.ImageSource = imageSource;
+                if (icon != null)
+                    icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/sol.png", UriKind.Relative));
+                // Colores mesh oscuro
+                mesh1Brush.GradientStops[0].Color = (Color)ColorConverter.ConvertFromString("#d2cdc6");
+                mesh1Brush.GradientStops[1].Color = (Color)ColorConverter.ConvertFromString("#08a693");
+                mesh2Brush.GradientStops[0].Color = (Color)ColorConverter.ConvertFromString("#3a4d5f");
+                mesh2Brush.GradientStops[1].Color = (Color)ColorConverter.ConvertFromString("#272c3f");
+                OverlayDark.Visibility = Visibility.Visible;
+                txtSeleccionBBDD.Foreground = Brushes.White;
+                txtInfoSeleccion.Foreground = Brushes.White;
+                txtLocal.Foreground = Brushes.White;
+                txtNube.Foreground = Brushes.White;
+                if (closeButton != null)
+                    closeButton.Foreground = (Brush)this.FindResource("CloseButtonForegroundDark");
             }
+            else
+            {
+                if (icon != null)
+                    icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/luna.png", UriKind.Relative));
+                // Colores mesh claro
+                mesh1Brush.GradientStops[0].Color = (Color)ColorConverter.ConvertFromString("#de9cb8");
+                mesh1Brush.GradientStops[1].Color = (Color)ColorConverter.ConvertFromString("#9dcde1");
+                mesh2Brush.GradientStops[0].Color = (Color)ColorConverter.ConvertFromString("#dc8eb8");
+                mesh2Brush.GradientStops[1].Color = (Color)ColorConverter.ConvertFromString("#98d3ec");
+                OverlayDark.Visibility = Visibility.Collapsed;
+                txtSeleccionBBDD.Foreground = Brushes.Black;
+                txtInfoSeleccion.Foreground = Brushes.Black;
+                txtLocal.Foreground = Brushes.Black;
+                txtNube.Foreground = Brushes.Black;
+                if (closeButton != null)
+                    closeButton.Foreground = (Brush)this.FindResource("CloseButtonForegroundLight");
+            }
+            IniciarAnimacionMesh();
         }
-
-        private string GetIconoTema() =>
-            MainWindow.isDarkTheme
-                ? "/TFG V0.01;component/Recursos/Iconos/sol.png"
-                : "/TFG V0.01;component/Recursos/Iconos/luna.png";
-
-        private string GetBackgroundPath() =>
-            MainWindow.isDarkTheme
-                ? "pack://application:,,,/TFG V0.01;component/Recursos/Background/oscuro/main.png"
-                : "pack://application:,,,/TFG V0.01;component/Recursos/Background/claro/main.png";
 
         private void ThemeButton_Click(object sender, RoutedEventArgs e)
         {
             MainWindow.isDarkTheme = !MainWindow.isDarkTheme;
-            AplicarModoSistema();
+            AplicarTema();
             var fadeAnimation = CrearFadeAnimation(0.7, 0.9, 0.3, true);
-            backgroundFondo.BeginAnimation(OpacityProperty, fadeAnimation);
+            MainGrid.BeginAnimation(OpacityProperty, fadeAnimation);
         }
+
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            DoubleAnimation fadeOut = new DoubleAnimation
+            {
+                From = 1,
+                To = 0,
+                Duration = TimeSpan.FromSeconds(0.3)
+            };
+
+            fadeOut.Completed += (s, args) => this.Close();
+            this.BeginAnimation(OpacityProperty, fadeOut);
+        }
+
+        private void Border_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+                this.DragMove();
+        }
+        #endregion
 
         private DoubleAnimation CrearFadeAnimation(double from, double to, double durationSeconds, bool autoReverse = false) =>
             new()
@@ -167,6 +216,75 @@ namespace TFG_V0._01.Ventanas.SubVentanas
                 Duration = TimeSpan.FromSeconds(durationSeconds),
                 AutoReverse = autoReverse
             };
-        #endregion
+
+        private void InitializeAnimations()
+        {
+            fadeInStoryboard = new Storyboard();
+            var fadeIn = CrearFadeAnimation(0, 1, 0.5);
+            Storyboard.SetTarget(fadeIn, this);
+            Storyboard.SetTargetProperty(fadeIn, new PropertyPath(nameof(Opacity)));
+            fadeInStoryboard.Children.Add(fadeIn);
+        }
+
+        private void BeginFadeInAnimation()
+        {
+            this.Opacity = 0;
+            fadeInStoryboard.Begin();
+        }
+
+        private void CrearFondoAnimado()
+        {
+            // Crear los brushes
+            mesh1Brush = new RadialGradientBrush();
+            mesh1Brush.Center = new Point(0.3, 0.3);
+            mesh1Brush.RadiusX = 0.5;
+            mesh1Brush.RadiusY = 0.5;
+            mesh1Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#de9cb8"), 0));
+            mesh1Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#9dcde1"), 1));
+            mesh1Brush.Freeze();
+            mesh1Brush = mesh1Brush.Clone();
+
+            mesh2Brush = new RadialGradientBrush();
+            mesh2Brush.Center = new Point(0.7, 0.7);
+            mesh2Brush.RadiusX = 0.6;
+            mesh2Brush.RadiusY = 0.6;
+            mesh2Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#dc8eb8"), 0));
+            mesh2Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#98d3ec"), 1));
+            mesh2Brush.Freeze();
+            mesh2Brush = mesh2Brush.Clone();
+
+            // Crear el DrawingBrush
+            var drawingGroup = new DrawingGroup();
+            drawingGroup.Children.Add(new GeometryDrawing(mesh1Brush, null, new RectangleGeometry(new Rect(0, 0, 1, 1))));
+            drawingGroup.Children.Add(new GeometryDrawing(mesh2Brush, null, new RectangleGeometry(new Rect(0, 0, 1, 1))));
+            meshGradientBrush = new DrawingBrush(drawingGroup) { Stretch = Stretch.Fill };
+            MainGrid.Background = meshGradientBrush;
+        }
+
+        private void IniciarAnimacionMesh()
+        {
+            // Detener si ya existe
+            meshAnimStoryboard?.Stop();
+            meshAnimStoryboard = new Storyboard();
+            // Animar Center de mesh1
+            var anim1 = new PointAnimationUsingKeyFrames();
+            anim1.KeyFrames.Add(new EasingPointKeyFrame(new Point(0.3, 0.3), KeyTime.FromTimeSpan(TimeSpan.Zero)));
+            anim1.KeyFrames.Add(new EasingPointKeyFrame(new Point(0.7, 0.5), KeyTime.FromTimeSpan(TimeSpan.FromSeconds(4))) { EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut } });
+            anim1.KeyFrames.Add(new EasingPointKeyFrame(new Point(0.3, 0.3), KeyTime.FromTimeSpan(TimeSpan.FromSeconds(8))) { EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut } });
+            anim1.RepeatBehavior = RepeatBehavior.Forever;
+            Storyboard.SetTarget(anim1, mesh1Brush);
+            Storyboard.SetTargetProperty(anim1, new PropertyPath(RadialGradientBrush.CenterProperty));
+            meshAnimStoryboard.Children.Add(anim1);
+            // Animar Center de mesh2
+            var anim2 = new PointAnimationUsingKeyFrames();
+            anim2.KeyFrames.Add(new EasingPointKeyFrame(new Point(0.7, 0.7), KeyTime.FromTimeSpan(TimeSpan.Zero)));
+            anim2.KeyFrames.Add(new EasingPointKeyFrame(new Point(0.4, 0.4), KeyTime.FromTimeSpan(TimeSpan.FromSeconds(4))) { EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut } });
+            anim2.KeyFrames.Add(new EasingPointKeyFrame(new Point(0.7, 0.7), KeyTime.FromTimeSpan(TimeSpan.FromSeconds(8))) { EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut } });
+            anim2.RepeatBehavior = RepeatBehavior.Forever;
+            Storyboard.SetTarget(anim2, mesh2Brush);
+            Storyboard.SetTargetProperty(anim2, new PropertyPath(RadialGradientBrush.CenterProperty));
+            meshAnimStoryboard.Children.Add(anim2);
+            meshAnimStoryboard.Begin();
+        }
     }
 }

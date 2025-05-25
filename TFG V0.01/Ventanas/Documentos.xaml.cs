@@ -1,284 +1,132 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using Supabase;
-using TFG_V0._01.Supabase;
-using Supabase.Storage;
-using System.IO;
-using System.Windows.Media.Animation;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows.Media.Imaging;
 using TFG_V0._01.Supabase.Models;
 
 namespace TFG_V0._01.Ventanas
 {
-    /// <summary>
-    /// Lógica de interacción para Documentos.xaml
-    /// </summary>
     public partial class Documentos : Window, INotifyPropertyChanged
     {
-        #region variables animacion
-        private Storyboard fadeInStoryboard;
-        private Storyboard shakeStoryboard;
+        #region 🎬 variables animacion
+        private Storyboard? fadeInStoryboard;
+        private Storyboard? shakeStoryboard;
         #endregion
 
-        #region ☁ SUPABASE
-        private readonly SupaBaseStorage _supaBaseStorage;
-        private readonly SupabaseClientes _supabaseClientes = new SupabaseClientes();
-        private readonly SupabaseCasos _supabaseCasos = new SupabaseCasos();
-        private readonly SupabaseDocumentos _supabaseDocumentos = new SupabaseDocumentos();
+        #region Propiedades y Variables
+        private bool isDarkMode = true; // CS0414: El campo está asignado pero nunca se usa. Si no lo necesitas, elimínalo.
+        private bool isFiltrosPanelVisible = false;
+        private readonly Duration animationDuration = new Duration(TimeSpan.FromSeconds(0.3));
+        private readonly DoubleAnimation fadeInAnimation;
+        private readonly DoubleAnimation fadeOutAnimation;
+        private readonly DoubleAnimation shakeAnimation;
 
-        public ObservableCollection<Cliente> ListaClientes { get; set; } = new ObservableCollection<Cliente>();
-        public ObservableCollection<Caso> ListaCasosFiltrados { get; set; } = new ObservableCollection<Caso>();
-        private Cliente _selectedCliente;
-        public Cliente SelectedCliente
+        public ObservableCollection<DocumentPanel> DocumentPanelsCollection { get; set; } = new();
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected virtual void OnPropertyChanged(string propertyName)
         {
-            get => _selectedCliente;
-            set
-            {
-                _selectedCliente = value;
-                OnPropertyChanged();
-                CargarCasosFiltrados();
-            }
-        }
-        private Caso _selectedCaso;
-        public Caso SelectedCaso
-        {
-            get => _selectedCaso;
-            set { _selectedCaso = value; OnPropertyChanged(); _ = CargarArchivosPorCasoAsync(); }
-        }
-        private ICollectionView _clientesView;
-        private ICollectionView _casosView;
-        private string _textoComboCliente;
-        public string TextoComboCliente
-        {
-            get => _textoComboCliente;
-            set { _textoComboCliente = value; OnPropertyChanged(); }
-        }
-        private string _textoComboCaso;
-        public string TextoComboCaso
-        {
-            get => _textoComboCaso;
-            set { _textoComboCaso = value; OnPropertyChanged(); }
-        }
-        public ObservableCollection<Documento> ArchivosPdf { get; set; } = new ObservableCollection<Documento>();
-        public ObservableCollection<Documento> ArchivosImagen { get; set; } = new ObservableCollection<Documento>();
-        public ObservableCollection<Documento> ArchivosVideo { get; set; } = new ObservableCollection<Documento>();
-        public ObservableCollection<Documento> ArchivosAudio { get; set; } = new ObservableCollection<Documento>();
-        public ObservableCollection<Documento> ArchivosOtros { get; set; } = new ObservableCollection<Documento>();
-
-        private async Task CargarClientesAsync()
-        {
-            try
-            {
-                await _supabaseClientes.InicializarAsync();
-                var clientes = await _supabaseClientes.ObtenerClientesAsync();
-                ListaClientes.Clear();
-                foreach (var c in clientes)
-                    ListaClientes.Add(c);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error al cargar clientes: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private async void CargarCasosFiltrados()
-        {
-            try
-            {
-                ListaCasosFiltrados.Clear();
-                if (SelectedCliente == null) return;
-                await _supabaseCasos.InicializarAsync();
-                var casos = await _supabaseCasos.ObtenerTodosAsync();
-                foreach (var caso in casos.Where(c => c.id_cliente == SelectedCliente.id))
-                    ListaCasosFiltrados.Add(caso);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error al cargar casos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private async Task CargarArchivosPorCasoAsync()
-        {
-            try
-            {
-                if (SelectedCaso == null) return;
-
-                ArchivosPdf.Clear();
-                ArchivosImagen.Clear();
-                ArchivosVideo.Clear();
-                ArchivosAudio.Clear();
-                ArchivosOtros.Clear();
-
-                var docs = await _supabaseDocumentos.ObtenerPorCasoAsync(SelectedCaso.id);
-
-                foreach (var doc in docs)
-                {
-                    var ext = System.IO.Path.GetExtension(doc.nombre).ToLower();
-                    if (ext == ".pdf")
-                        ArchivosPdf.Add(doc);
-                    else if (new[] { ".jpg", ".jpeg", ".png", ".gif" }.Contains(ext, StringComparer.OrdinalIgnoreCase))
-                        ArchivosImagen.Add(doc);
-                    else if (new[] { ".mp4", ".avi", ".mov", ".wmv" }.Contains(ext, StringComparer.OrdinalIgnoreCase))
-                        ArchivosVideo.Add(doc);
-                    else if (new[] { ".mp3", ".wav", ".ogg", ".m4a" }.Contains(ext, StringComparer.OrdinalIgnoreCase))
-                        ArchivosAudio.Add(doc);
-                    else
-                        ArchivosOtros.Add(doc);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error al cargar archivos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private async Task SubirArchivoYGuardar(string bucket)
-        {
-            try
-            {
-                if (SelectedCaso == null)
-                {
-                    MessageBox.Show("Selecciona un caso primero.");
-                    return;
-                }
-                var dialog = new Microsoft.Win32.OpenFileDialog
-                {
-                    Filter = "Todos los archivos|*.*"
-                };
-                if (dialog.ShowDialog() == true)
-                {
-                    var filePath = dialog.FileName;
-                    var fileName = System.IO.Path.GetFileName(filePath);
-
-                    // Subir a Storage
-                    var ruta = await _supaBaseStorage.SubirArchivoAsync(bucket, filePath, fileName);
-
-                    // Guardar en tabla
-                    var doc = new Documento
-                    {
-                        id_caso = SelectedCaso.id,
-                        nombre = fileName,
-                        ruta = ruta,
-                        fecha_subid = DateTime.Now
-                    };
-                    await _supabaseDocumentos.InsertarAsync(doc);
-
-                    await CargarArchivosPorCasoAsync();
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error al subir archivo: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private async void EliminarArchivo_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                if ((sender as Button)?.DataContext is Documento doc)
-                {
-                    var ext = System.IO.Path.GetExtension(doc.nombre).ToLower();
-                    string bucket = _supaBaseStorage.ObtenerCuboPorTipoArchivo(doc.nombre);
-
-                    // Eliminar de Storage
-                    await _supaBaseStorage.EliminarArchivoAsync(bucket, doc.nombre);
-
-                    // Eliminar de tabla
-                    await _supabaseDocumentos.EliminarAsync(doc.id);
-
-                    await CargarArchivosPorCasoAsync();
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error al eliminar archivo: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-        #endregion
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void OnPropertyChanged([CallerMemberName] string propertyName = null) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+        #endregion
 
         public Documentos()
         {
             InitializeComponent();
-            _supaBaseStorage = new SupaBaseStorage();
-            InitializeAnimations();
+            DataContext = this;
+
+            // Inicializar animaciones
+            fadeInAnimation = new DoubleAnimation(0, 1, animationDuration);
+            fadeOutAnimation = new DoubleAnimation(1, 0, animationDuration);
+            shakeAnimation = new DoubleAnimation
+            {
+                From = 0,
+                To = 5,
+                Duration = new Duration(TimeSpan.FromMilliseconds(50)),
+                AutoReverse = true,
+                RepeatBehavior = new RepeatBehavior(3)
+            };
+
+            InitializeDocumentPanels();
             AplicarModoSistema();
-            this.DataContext = this;
-            _ = CargarClientesAsync();
         }
 
-        #region Aplicar modo oscuro/claro cargado por sistema
+        #region 🌓 Aplicar modo oscuro/claro cargado por sistema
         private void AplicarModoSistema()
         {
-            if (MainWindow.isDarkTheme)
-            {
-                backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString("pack://application:,,,/TFG V0.01;component/Recursos/Background/oscuro/main.png") as ImageSource;
-                navbar.ActualizarTema(true);
-            }
-            else
-            {
-                backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString("pack://application:,,,/TFG V0.01;component/Recursos/Background/claro/main.png") as ImageSource;
-                navbar.ActualizarTema(false);
-            }
+            var button = FindName("ThemeButton") as Button;
+            var icon = button?.Template.FindName("ThemeIcon", button) as Image;
+
+            if (icon != null)
+                icon.Source = new BitmapImage(new Uri(GetIconoTema(), UriKind.Relative));
+
+            backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString(GetBackgroundPath()) as ImageSource;
+
+            navbar.ActualizarTema(MainWindow.isDarkTheme);
         }
-        #endregion
 
+        private string GetIconoTema() =>
+            MainWindow.isDarkTheme
+                ? "/TFG V0.01;component/Recursos/Iconos/sol.png"
+                : "/TFG V0.01;component/Recursos/Iconos/luna.png";
 
+        private string GetBackgroundPath() =>
+            MainWindow.isDarkTheme
+                ? "pack://application:,,,/TFG V0.01;component/Recursos/Background/oscuro/main.png"
+                : "pack://application:,,,/TFG V0.01;component/Recursos/Background/claro/main.png";
 
-        #region boton cambiar tema
         private void ThemeButton_Click(object sender, RoutedEventArgs e)
         {
             MainWindow.isDarkTheme = !MainWindow.isDarkTheme;
             AplicarModoSistema();
+            var fadeAnimation = CrearFadeAnimation(0.7, 0.9, 0.3, true);
+            backgroundFondo.BeginAnimation(OpacityProperty, fadeAnimation);
         }
         #endregion
 
-        #region Animaciones
+        #region 🎬  Animaciones
+
         private void InitializeAnimations()
         {
-            // Animación de entrada con fade
-            fadeInStoryboard = new Storyboard();
-            DoubleAnimation fadeIn = new DoubleAnimation
-            {
-                From = 0,
-                To = 1,
-                Duration = TimeSpan.FromSeconds(0.5)
-            };
-            Storyboard.SetTarget(fadeIn, this);
-            Storyboard.SetTargetProperty(fadeIn, new PropertyPath("Opacity"));
-            fadeInStoryboard.Children.Add(fadeIn);
+            fadeInStoryboard = CrearStoryboard(this, OpacityProperty, CrearFadeAnimation(0, 1, 0.5));
+            shakeStoryboard = CrearStoryboard(null, TranslateTransform.XProperty, CrearShakeAnimation());
+        }
 
-            // Animación de shake para error
-            shakeStoryboard = new Storyboard();
-            DoubleAnimation shakeAnimation = new DoubleAnimation
+        private Storyboard CrearStoryboard(DependencyObject target, DependencyProperty property, DoubleAnimation animation)
+        {
+            var storyboard = new Storyboard();
+            if (target != null && property != null)
+            {
+                Storyboard.SetTarget(animation, target);
+                Storyboard.SetTargetProperty(animation, new PropertyPath(property));
+            }
+            storyboard.Children.Add(animation);
+            return storyboard;
+        }
+
+        private DoubleAnimation CrearFadeAnimation(double from, double to, double durationSeconds, bool autoReverse = false) =>
+            new()
+            {
+                From = from,
+                To = to,
+                Duration = TimeSpan.FromSeconds(durationSeconds),
+                AutoReverse = autoReverse
+            };
+
+        private DoubleAnimation CrearShakeAnimation() =>
+            new()
             {
                 From = 0,
-                To = 1,
+                To = 5,
                 AutoReverse = true,
                 RepeatBehavior = new RepeatBehavior(3),
                 Duration = TimeSpan.FromSeconds(0.05)
             };
-
-            shakeStoryboard.Children.Add(shakeAnimation);
-        }
 
         private void BeginFadeInAnimation()
         {
@@ -288,216 +136,291 @@ namespace TFG_V0._01.Ventanas
 
         private void ShakeElement(FrameworkElement element)
         {
-            TranslateTransform trans = new TranslateTransform();
+            var trans = new TranslateTransform();
             element.RenderTransform = trans;
-
-            DoubleAnimation anim = new DoubleAnimation
-            {
-                From = 0,
-                To = 5,
-                AutoReverse = true,
-                RepeatBehavior = new RepeatBehavior(3),
-                Duration = TimeSpan.FromSeconds(0.05)
-            };
-
-            trans.BeginAnimation(TranslateTransform.XProperty, anim);
+            trans.BeginAnimation(TranslateTransform.XProperty, CrearShakeAnimation());
         }
         #endregion
 
-        #region Control de ventana sin bordes
-        private void Border_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+
+        #region Inicialización de Paneles
+        private void InitializeDocumentPanels()
         {
-            if (e.ClickCount == 2)
+            DocumentPanelsCollection = new ObservableCollection<DocumentPanel>();
+            var panelTypes = new[] { "PDF", "IMG", "VID", "AUD", "OTR" };
+            var panelTitles = new[] { "Documentos PDF", "Imágenes", "Videos", "Audios", "Otros Documentos" };
+
+            for (int i = 0; i < panelTypes.Length; i++)
             {
-                if (WindowState == WindowState.Maximized)
-                    WindowState = WindowState.Normal;
-                else
-                    WindowState = WindowState.Maximized;
+                DocumentPanelsCollection.Add(new DocumentPanel
+                {
+                    Title = panelTitles[i],
+                    Type = panelTypes[i],
+                    IsVisible = true,
+                    IsOddPanel = i % 2 == 0
+                });
+            }
+
+            DocumentPanels.ItemsSource = DocumentPanelsCollection;
+        }
+        #endregion
+
+        #region Filtros y Manejo de Documentos
+        private void ToggleFiltros_Click(object sender, RoutedEventArgs e)
+        {
+            isFiltrosPanelVisible = !isFiltrosPanelVisible;
+            PanelFiltros.Visibility = isFiltrosPanelVisible ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private void ComboClientes_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            // TODO: Implement client selection change logic
+            var selectedClient = ComboClientes.SelectedItem;
+            if (selectedClient != null)
+            {
+                // Update cases list based on selected client
+                // Update documents list based on selected client
+            }
+        }
+
+        private void ComboCasos_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            // TODO: Implement case selection change logic
+            var selectedCase = ComboCasos.SelectedItem;
+            if (selectedCase != null)
+            {
+                // Update documents list based on selected case
+            }
+        }
+
+        private void FiltroFecha_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        {
+            // TODO: Implement date filter change logic
+            var selectedDate = FiltroFecha.SelectedDate;
+            if (selectedDate.HasValue)
+            {
+                // Filter documents based on selected date
+            }
+        }
+
+        private void DropZone_DragOver(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effects = DragDropEffects.Copy;
             }
             else
             {
-                this.DragMove();
+                e.Effects = DragDropEffects.None;
             }
+            e.Handled = true;
         }
 
-        private void btnMinimize_Click(object sender, RoutedEventArgs e)
-        {
-            WindowState = WindowState.Minimized;
-        }
-
-        private void btnMaximize_Click(object sender, RoutedEventArgs e)
-        {
-            if (WindowState == WindowState.Maximized)
-                WindowState = WindowState.Normal;
-            else
-                WindowState = WindowState.Maximized;
-        }
-
-        private void btnClose_Click(object sender, RoutedEventArgs e)
-        {
-            this.Close();
-        }
-        #endregion
-
-        #region Navbar botones
-        private void irHome(object sender, RoutedEventArgs e)
-        {
-            Home home = new Home();
-            home.Show();
-            this.Close();
-        }
-
-        private void irJurisprudencia(object sender, RoutedEventArgs e)
-        {
-            BusquedaJurisprudencia busquedaJurisprudencia = new BusquedaJurisprudencia();
-            busquedaJurisprudencia.Show();
-            this.Close();
-        }
-
-        private void irDocumentos(object sender, RoutedEventArgs e)
-        {
-            Documentos documentos = new Documentos();
-            documentos.Show();
-            this.Close();
-        }
-
-        private void irClientes(object sender, RoutedEventArgs e)
-        {
-            Clientes clientes = new Clientes();
-            clientes.Show();
-            this.Close();
-        }
-
-        private void irCasos(object sender, RoutedEventArgs e)
-        {
-            Casos casos = new Casos();
-            casos.Show();
-            this.Close();
-        }
-
-        private void irAyuda(object sender, RoutedEventArgs e)
-        {
-            Ayuda ayuda = new Ayuda();
-            ayuda.Show();
-            this.Close();
-        }
-
-        private void irAgenda(object sender, RoutedEventArgs e)
-        {
-            Agenda agenda = new Agenda();
-            agenda.Show();
-            this.Close();
-        }
-
-        private void irAjustes(object sender, RoutedEventArgs e)
-        {
-            Ajustes ajustes = new Ajustes();
-            ajustes.Show();
-            this.Close();
-        }
-        #endregion
-
-        #region Drop de archivos
-        private async void DopAutomatico(object sender, DragEventArgs e)
+        private void DropZone_Drop(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-                foreach (string file in files)
+                // TODO: Handle dropped files
+                // ProcessFiles(files);
+            }
+        }
+
+        private void SelectFiles_Click(object sender, RoutedEventArgs e)
+        {
+            var openFileDialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Multiselect = true,
+                Filter = "All Files|*.*|PDF Files|*.pdf|Image Files|*.jpg;*.jpeg;*.png;*.gif|Video Files|*.mp4;*.avi;*.mov|Audio Files|*.mp3;*.wav"
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                // TODO: Handle selected files
+                // ProcessFiles(openFileDialog.FileNames);
+            }
+        }
+
+        private void OpenFile_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var file = button?.DataContext as DocumentFile;
+            if (file != null)
+            {
+                try
                 {
-                    string fileName = System.IO.Path.GetFileName(file);
-                    string fileBucket = _supaBaseStorage.ObtenerCuboPorTipoArchivo(file);
-                    await _supaBaseStorage.SubirArchivoAsync(fileBucket, file, fileName);
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = file.Path,
+                        UseShellExecute = true
+                    });
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error al abrir el archivo: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
-        #endregion
 
-        private void ComboClientes_Loaded(object sender, RoutedEventArgs e)
-        {
-            var combo = sender as ComboBox;
-            if (combo != null)
-            {
-                _clientesView = CollectionViewSource.GetDefaultView(combo.ItemsSource);
-                combo.IsTextSearchEnabled = false;
-            }
-        }
-        private void ComboClientes_KeyUp(object sender, KeyEventArgs e)
-        {
-            var combo = sender as ComboBox;
-            if (combo == null || _clientesView == null) return;
-            var text = combo.Text?.ToLower() ?? "";
-            _clientesView.Filter = item =>
-            {
-                var cliente = item as Cliente;
-                return cliente != null && (
-                    (cliente.nombre_cliente?.ToLower().Contains(text) ?? false) ||
-                    (cliente.email1?.ToLower().Contains(text) ?? false)
-                );
-            };
-            _clientesView.Refresh();
-            combo.IsDropDownOpen = true;
-        }
-        private void ComboClientes_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            var combo = sender as ComboBox;
-            if (combo == null || _clientesView == null) return;
-            if (combo.SelectedItem is Cliente cliente)
-            {
-                TextoComboCliente = cliente.nombre_cliente;
-            }
-            _clientesView.Filter = null;
-            _clientesView.Refresh();
-        }
-        private void ComboCasos_Loaded(object sender, RoutedEventArgs e)
-        {
-            var combo = sender as ComboBox;
-            if (combo != null)
-            {
-                _casosView = CollectionViewSource.GetDefaultView(combo.ItemsSource);
-                combo.IsTextSearchEnabled = false;
-            }
-        }
-        private void ComboCasos_KeyUp(object sender, KeyEventArgs e)
-        {
-            var combo = sender as ComboBox;
-            if (combo == null || _casosView == null) return;
-            var text = combo.Text?.ToLower() ?? "";
-            _casosView.Filter = item =>
-            {
-                var caso = item as Caso;
-                return caso != null && (
-                    (caso.titulo?.ToLower().Contains(text) ?? false) ||
-                    (caso.Estado?.nombre?.ToLower().Contains(text) ?? false)
-                );
-            };
-            _casosView.Refresh();
-            combo.IsDropDownOpen = true;
-        }
-        private void ComboCasos_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            var combo = sender as ComboBox;
-            if (combo == null || _casosView == null) return;
-            if (combo.SelectedItem is Caso caso)
-            {
-                TextoComboCaso = caso.titulo;
-            }
-            _casosView.Filter = null;
-            _casosView.Refresh();
-        }
-        private void ClearComboBox_Click(object sender, RoutedEventArgs e)
+        private void DeleteFile_Click(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
-            if (button?.TemplatedParent is ComboBox combo)
+            var file = button?.DataContext as DocumentFile;
+            if (file != null)
             {
-                combo.SelectedItem = null;
+                var result = MessageBox.Show(
+                    $"¿Estás seguro de que deseas eliminar el archivo '{file.Name}'?",
+                    "Confirmar eliminación",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        // TODO: Implement file deletion logic
+                        // DeleteFile(file);
+                        // Update UI
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Error al eliminar el archivo: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
             }
         }
 
-        private async void SubirPdf_Click(object sender, RoutedEventArgs e) => await SubirArchivoYGuardar("pdfs");
-        private async void SubirImagen_Click(object sender, RoutedEventArgs e) => await SubirArchivoYGuardar("imagenes");
-        private async void SubirVideo_Click(object sender, RoutedEventArgs e) => await SubirArchivoYGuardar("videos");
-        private async void SubirAudio_Click(object sender, RoutedEventArgs e) => await SubirArchivoYGuardar("audios");
-        private async void SubirOtro_Click(object sender, RoutedEventArgs e) => await SubirArchivoYGuardar("otros");
+        private void TipoDocumento_Changed(object sender, RoutedEventArgs e)
+        {
+            var checkbox = sender as CheckBox;
+            if (checkbox != null && checkbox.Tag != null)
+            {
+                string tipo = checkbox.Tag.ToString()!;
+                bool isChecked = checkbox.IsChecked ?? false;
+
+                // Si ningún checkbox está marcado, mostrar todos los paneles
+                var anyCheckboxChecked = false;
+                var wrapPanel = checkbox.Parent as WrapPanel;
+                if (wrapPanel != null)
+                {
+                    foreach (CheckBox cb in wrapPanel.Children)
+                    {
+                        if (cb.IsChecked ?? false)
+                        {
+                            anyCheckboxChecked = true;
+                            break;
+                        }
+                    }
+
+                    if (!anyCheckboxChecked)
+                    {
+                        foreach (var panel in DocumentPanelsCollection)
+                        {
+                            panel.IsVisible = true;
+                        }
+                    }
+                    else
+                    {
+                        // Actualizar la visibilidad del panel correspondiente
+                        var panel = DocumentPanelsCollection.FirstOrDefault(p => p.Type == tipo);
+                        if (panel != null)
+                        {
+                            panel.IsVisible = isChecked;
+                        }
+                    }
+                }
+            }
+        }
+
+        private void ReorderVisiblePanels()
+        {
+            var visiblePanels = DocumentPanelsCollection.Where(p => p.IsVisible).ToList();
+            for (int i = 0; i < visiblePanels.Count; i++)
+            {
+                visiblePanels[i].IsOddPanel = i % 2 == 0;
+            }
+        }
+        #endregion
+    }
+
+    public class DocumentPanel : INotifyPropertyChanged
+    {
+        private string _title = string.Empty;
+        private string _type = string.Empty;
+        private bool _isVisible;
+        private bool _isOddPanel;
+        private ObservableCollection<DocumentFile> _files = new();
+
+        public string Title
+        {
+            get => _title;
+            set
+            {
+                _title = value;
+                OnPropertyChanged(nameof(Title));
+            }
+        }
+
+        public string Type
+        {
+            get => _type;
+            set
+            {
+                _type = value;
+                OnPropertyChanged(nameof(Type));
+            }
+        }
+
+        public bool IsVisible
+        {
+            get => _isVisible;
+            set
+            {
+                _isVisible = value;
+                OnPropertyChanged(nameof(IsVisible));
+            }
+        }
+
+        public bool IsOddPanel
+        {
+            get => _isOddPanel;
+            set
+            {
+                _isOddPanel = value;
+                OnPropertyChanged(nameof(IsOddPanel));
+            }
+        }
+
+        public ObservableCollection<DocumentFile> Files
+        {
+            get => _files;
+            set
+            {
+                _files = value;
+                OnPropertyChanged(nameof(Files));
+            }
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public DocumentPanel()
+        {
+            Files = new ObservableCollection<DocumentFile>();
+        }
+    }
+
+    public class DocumentFile
+    {
+        public string Id { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string Path { get; set; } = string.Empty;
+        public string Type { get; set; } = string.Empty;
+        public DateTime UploadDate { get; set; }
+        public long Size { get; set; }
     }
 }

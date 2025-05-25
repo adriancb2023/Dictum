@@ -154,7 +154,6 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
-
         #region ⚡ Inicializacion
         public Home()
         {
@@ -251,8 +250,6 @@ namespace TFG_V0._01.Ventanas
             backgroundFondo.BeginAnimation(OpacityProperty, fadeAnimation);
         }
         #endregion
-
-
 
         #region 🎬  Animaciones
 

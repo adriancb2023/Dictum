@@ -1,27 +1,22 @@
 ﻿using System;
-using System.Windows;
 using System.Windows.Data;
 
 namespace TFG_V0._01.Converters
 {
-    public class BoolToVisibilityConverter : IValueConverter
+    public class BoolToNumberConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            if (value is bool isVisible)
+            if (value is bool isOdd)
             {
-                return isVisible ? Visibility.Visible : Visibility.Collapsed;
+                return isOdd ? 2 : 1;
             }
-            return Visibility.Collapsed;
+            return 1;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            if (value is Visibility visibility)
-            {
-                return visibility == Visibility.Visible;
-            }
-            return false;
+            throw new NotImplementedException();
         }
     }
 }

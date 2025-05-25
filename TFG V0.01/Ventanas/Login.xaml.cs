@@ -9,6 +9,7 @@ using TFG_V0._01.Supabase;
 using TFG_V0._01.Ventanas.SubVentanas;
 using WpfBrushes = System.Windows.Media.Brushes;
 using WpfImage = System.Windows.Controls.Image;
+using System.Windows.Documents;
 
 namespace TFG_V0._01.Ventanas
 {
@@ -18,20 +19,54 @@ namespace TFG_V0._01.Ventanas
         private readonly SupabaseAutentificacion _authService;
         private Storyboard fadeInStoryboard;
         private Storyboard shakeStoryboard;
+        private Storyboard meshAnimStoryboard;
 
         private const string ErrorCamposVacios = "Por favor, complete todos los campos";
         private const string ErrorCredenciales = "Email o contraseña incorrectos";
+        private string _correoPlaceholder = "Email";
+        private string _passPlaceholder = "Contraseña";
+        // Brushes y fondo animado
+        private RadialGradientBrush mesh1Brush;
+        private RadialGradientBrush mesh2Brush;
+        private DrawingBrush meshGradientBrush;
         #endregion
 
         #region InitializeComponent
         public Login()
         {
             InitializeComponent();
+            MainWindow.isDarkTheme = true; // Modo oscuro por defecto
             _authService = new SupabaseAutentificacion();
             CargarIdioma(MainWindow.idioma);
             InitializeAnimations();
+            CrearFondoAnimado();
             AplicarTema();
             BeginFadeInAnimation();
+            // Añadir PlaceholderAdorner a los campos
+            Loaded += (s, e) =>
+            {
+                var adornerLayer = AdornerLayer.GetAdornerLayer(UsernameTextBox);
+                if (adornerLayer != null)
+                {
+                    adornerLayer.Add(new PlaceholderAdorner(
+                        UsernameTextBox,
+                        _correoPlaceholder,
+                        MainWindow.isDarkTheme ? Brushes.Gray : Brushes.DarkGray,
+                        MainWindow.isDarkTheme ? Brushes.LightGray : Brushes.Gray,
+                        14));
+                }
+                adornerLayer = AdornerLayer.GetAdornerLayer(PasswordBox);
+                if (adornerLayer != null)
+                {
+                    adornerLayer.Add(new PlaceholderAdorner(
+                        PasswordBox,
+                        _passPlaceholder,
+                        MainWindow.isDarkTheme ? Brushes.Gray : Brushes.DarkGray,
+                        MainWindow.isDarkTheme ? Brushes.LightGray : Brushes.Gray,
+                        14));
+                }
+                IniciarAnimacionMesh();
+            };
         }
         #endregion
 
@@ -84,6 +119,32 @@ namespace TFG_V0._01.Ventanas
             element.RenderTransform = trans;
             trans.BeginAnimation(TranslateTransform.XProperty, CrearShakeAnimation());
         }
+
+        private void IniciarAnimacionMesh()
+        {
+            // Detener si ya existe
+            meshAnimStoryboard?.Stop();
+            meshAnimStoryboard = new Storyboard();
+            // Animar Center de mesh1
+            var anim1 = new PointAnimationUsingKeyFrames();
+            anim1.KeyFrames.Add(new EasingPointKeyFrame(new Point(0.3, 0.3), KeyTime.FromTimeSpan(TimeSpan.Zero)));
+            anim1.KeyFrames.Add(new EasingPointKeyFrame(new Point(0.7, 0.5), KeyTime.FromTimeSpan(TimeSpan.FromSeconds(4))) { EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut } });
+            anim1.KeyFrames.Add(new EasingPointKeyFrame(new Point(0.3, 0.3), KeyTime.FromTimeSpan(TimeSpan.FromSeconds(8))) { EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut } });
+            anim1.RepeatBehavior = RepeatBehavior.Forever;
+            Storyboard.SetTarget(anim1, mesh1Brush);
+            Storyboard.SetTargetProperty(anim1, new PropertyPath(RadialGradientBrush.CenterProperty));
+            meshAnimStoryboard.Children.Add(anim1);
+            // Animar Center de mesh2
+            var anim2 = new PointAnimationUsingKeyFrames();
+            anim2.KeyFrames.Add(new EasingPointKeyFrame(new Point(0.7, 0.7), KeyTime.FromTimeSpan(TimeSpan.Zero)));
+            anim2.KeyFrames.Add(new EasingPointKeyFrame(new Point(0.4, 0.4), KeyTime.FromTimeSpan(TimeSpan.FromSeconds(4))) { EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut } });
+            anim2.KeyFrames.Add(new EasingPointKeyFrame(new Point(0.7, 0.7), KeyTime.FromTimeSpan(TimeSpan.FromSeconds(8))) { EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut } });
+            anim2.RepeatBehavior = RepeatBehavior.Forever;
+            Storyboard.SetTarget(anim2, mesh2Brush);
+            Storyboard.SetTargetProperty(anim2, new PropertyPath(RadialGradientBrush.CenterProperty));
+            meshAnimStoryboard.Children.Add(anim2);
+            meshAnimStoryboard.Begin();
+        }
         #endregion
 
         #region Tema oscuro/claro
@@ -91,21 +152,56 @@ namespace TFG_V0._01.Ventanas
         {
             var button = this.FindName("ThemeButton") as Button;
             var icon = button?.Template.FindName("ThemeIcon", button) as WpfImage;
+            var closeButton = this.FindName("CloseButton") as Button;
 
+            // Cambiar fondo mesh gradient
             if (MainWindow.isDarkTheme)
             {
                 if (icon != null)
                     icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/sol.png", UriKind.Relative));
-                backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString(
-                    "pack://application:,,,/TFG V0.01;component/Recursos/Background/oscuro/main.png") as ImageSource;
+                // Colores mesh oscuro
+                mesh1Brush.GradientStops[0].Color = (Color)ColorConverter.ConvertFromString("#d2cdc6");
+                mesh1Brush.GradientStops[1].Color = (Color)ColorConverter.ConvertFromString("#08a693");
+                mesh2Brush.GradientStops[0].Color = (Color)ColorConverter.ConvertFromString("#3a4d5f");
+                mesh2Brush.GradientStops[1].Color = (Color)ColorConverter.ConvertFromString("#272c3f");
+                OverlayDark.Visibility = Visibility.Visible;
+                Titulo.Foreground = Brushes.White;
+                subTitulo.Foreground = Brushes.White;
+                // Cambiar color de la X
+                if (closeButton != null)
+                    closeButton.Foreground = (Brush)this.FindResource("CloseButtonForegroundDark");
+                // Cambiar recursos de color de campos
+                var app = Application.Current;
+                app.Resources["TextBoxBackgroundBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#20FFFFFF"));
+                app.Resources["TextBoxForegroundBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFFFFF"));
+                app.Resources["TextBoxBorderBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#AAFFFFFF"));
+                app.Resources["TextBoxForegroundBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFFFFF"));
             }
             else
             {
                 if (icon != null)
                     icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/luna.png", UriKind.Relative));
-                backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString(
-                    "pack://application:,,,/TFG V0.01;component/Recursos/Background/claro/main.png") as ImageSource;
+                // Colores mesh claro
+                mesh1Brush.GradientStops[0].Color = (Color)ColorConverter.ConvertFromString("#de9cb8");
+                mesh1Brush.GradientStops[1].Color = (Color)ColorConverter.ConvertFromString("#9dcde1");
+                mesh2Brush.GradientStops[0].Color = (Color)ColorConverter.ConvertFromString("#dc8eb8");
+                mesh2Brush.GradientStops[1].Color = (Color)ColorConverter.ConvertFromString("#98d3ec");
+                OverlayDark.Visibility = Visibility.Collapsed;
+                Titulo.Foreground = Brushes.Black;
+                subTitulo.Foreground = Brushes.Black;
+                // Cambiar color de la X
+                if (closeButton != null)
+                    closeButton.Foreground = (Brush)this.FindResource("CloseButtonForegroundLight");
+                // Cambiar recursos de color de campos
+                var app = Application.Current;
+                app.Resources["TextBoxBackgroundBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#20FFFFFF"));
+                app.Resources["TextBoxForegroundBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#222222"));
+                app.Resources["TextBoxBorderBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#AAFFFFFF"));
+                app.Resources["TextBoxForegroundBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#222222"));
             }
+            UsernameTextBox.Foreground = (Brush)Application.Current.Resources["TextBoxForegroundBrush"];
+            PasswordBox.Foreground = (Brush)Application.Current.Resources["TextBoxForegroundBrush"];
+            IniciarAnimacionMesh();
         }
 
         private void ThemeButton_Click(object sender, RoutedEventArgs e)
@@ -114,7 +210,6 @@ namespace TFG_V0._01.Ventanas
             AplicarTema();
 
             var fadeAnimation = CrearFadeAnimation(0.7, 0.9, 0.3, true);
-            backgroundFondo.BeginAnimation(OpacityProperty, fadeAnimation);
         }
         #endregion
 
@@ -290,7 +385,7 @@ namespace TFG_V0._01.Ventanas
             {
                 ("Iniciar Sesión", "Registrarse", "Bienvenido", "Inicia sesión para continuar", "Email", "Contraseña", "Email o contraseña incorrectos."), // Español
                 ("Log In", "Sign Up", "Welcome", "Log in to continue", "Email", "Password", "Incorrect email or password."), // Inglés
-                ("Inicia Sessió", "Registra’t", "Benvingut", "Inicia sessió per continuar", "Correu electrònic", "Contrasenya", "Correu o contrasenya incorrectes."), // Catalán
+                ("Inicia Sessió", "Registra't", "Benvingut", "Inicia sessió per continuar", "Correu electrònic", "Contrasenya", "Correu o contrasenya incorrectes."), // Catalán
                 ("Iniciar sesión", "Rexistrarse", "Benvido", "Inicia sesión para continuar", "Correo electrónico", "Contrasinal", "Correo ou contrasinal incorrectos."), // Gallego
                 ("Saioa hasi", "Erregistratu", "Ongi etorri", "Jarraitzeko hasi saioa", "Posta elektronikoa", "Pasahitza", "Posta edo pasahitz okerra.") // Euskera
             };
@@ -304,10 +399,39 @@ namespace TFG_V0._01.Ventanas
             btnRegistrarse.Content = textos.Registrarse;
             Titulo.Text = textos.Titulo;
             subTitulo.Text = textos.SubTitulo;
-            Correo.Text = textos.Correo;
-            Pass.Text = textos.Pass;
             errorLogin.Text = textos.Error;
+            _correoPlaceholder = textos.Correo;
+            _passPlaceholder = textos.Pass;
         }
         #endregion
+
+        private void CrearFondoAnimado()
+        {
+            // Crear los brushes
+            mesh1Brush = new RadialGradientBrush();
+            mesh1Brush.Center = new Point(0.3, 0.3);
+            mesh1Brush.RadiusX = 0.5;
+            mesh1Brush.RadiusY = 0.5;
+            mesh1Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#de9cb8"), 0));
+            mesh1Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#9dcde1"), 1));
+            mesh1Brush.Freeze();
+            mesh1Brush = mesh1Brush.Clone();
+
+            mesh2Brush = new RadialGradientBrush();
+            mesh2Brush.Center = new Point(0.7, 0.7);
+            mesh2Brush.RadiusX = 0.6;
+            mesh2Brush.RadiusY = 0.6;
+            mesh2Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#dc8eb8"), 0));
+            mesh2Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#98d3ec"), 1));
+            mesh2Brush.Freeze();
+            mesh2Brush = mesh2Brush.Clone();
+
+            // Crear el DrawingBrush
+            var drawingGroup = new DrawingGroup();
+            drawingGroup.Children.Add(new GeometryDrawing(mesh1Brush, null, new RectangleGeometry(new Rect(0, 0, 1, 1))));
+            drawingGroup.Children.Add(new GeometryDrawing(mesh2Brush, null, new RectangleGeometry(new Rect(0, 0, 1, 1))));
+            meshGradientBrush = new DrawingBrush(drawingGroup) { Stretch = Stretch.Fill };
+            MainGrid.Background = meshGradientBrush;
+        }
     }
 }

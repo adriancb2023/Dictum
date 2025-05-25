@@ -14,6 +14,60 @@
         Background="Transparent">
 
     <Window.Resources>
+        <!-- Estilo para los botones -->
+        <Style x:Key="ModernButton" TargetType="{x:Type Button}">
+            <Setter Property="Background" Value="{DynamicResource ButtonBackgroundDark}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ButtonForegroundDark}"/>
+            
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Height" Value="45"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="8" ShadowDepth="2" Color="#22000000"/>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" 
+                                CornerRadius="8" BorderThickness="{TemplateBinding BorderThickness}" 
+                                BorderBrush="{TemplateBinding BorderBrush}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter Property="Background" Value="{DynamicResource ButtonHoverDark}" TargetName="border"/>
+                                <Setter Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect BlurRadius="12" ShadowDepth="4" Color="#44000000"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="true">
+                                <Setter Property="Background" Value="#FFAAAAAA" TargetName="border"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <!-- Colores y estilos para el botón de cerrar -->
+        <SolidColorBrush x:Key="CloseButtonForegroundDark" Color="#FFFFFFFF"/>
+        <SolidColorBrush x:Key="CloseButtonForegroundLight" Color="#FF222222"/>
+        <SolidColorBrush x:Key="CloseButtonHover" Color="#FFFF5252"/>
+
+        <!--Colores para los botones-->
+        <SolidColorBrush x:Key="ButtonBackgroundDark" Color="#FFF"/>
+        <SolidColorBrush x:Key="ButtonBackgroundLight" Color="#FFF"/>
+        <SolidColorBrush x:Key="ButtonForegroundDark" Color="#222"/>
+        <SolidColorBrush x:Key="ButtonForegroundLight" Color="#222"/>
+        <SolidColorBrush x:Key="ButtonHoverDark" Color="#FF333333"/>
+        <SolidColorBrush x:Key="ButtonHoverLight" Color="#FFEEEEEE"/>
+        <SolidColorBrush x:Key="ButtonShadow" Color="#22000000"/>
+
         <!-- Estilo para el botón de cambio de tema -->
         <Style x:Key="ThemeButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
@@ -35,10 +89,22 @@
             </Setter>
         </Style>
 
+        <!-- Colores dinámicos para los campos -->
+        <Color x:Key="TextBoxBackgroundLight">#20FFFFFF</Color>
+        <Color x:Key="TextBoxBackgroundDark">#20FFFFFF</Color>
+        <Color x:Key="TextBoxForegroundLight">#222222</Color>
+        <Color x:Key="TextBoxForegroundDark">#FFFFFF</Color>
+        <Color x:Key="TextBoxBorderLight">#AAFFFFFF</Color>
+        <Color x:Key="TextBoxBorderDark">#AAFFFFFF</Color>
+        <SolidColorBrush x:Key="TextBoxBackgroundBrush" Color="{DynamicResource TextBoxBackgroundLight}"/>
+        <SolidColorBrush x:Key="TextBoxForegroundBrush" Color="{DynamicResource TextBoxForegroundLight}"/>
+        <SolidColorBrush x:Key="TextBoxBorderBrush" Color="{DynamicResource TextBoxBorderLight}"/>
+
         <!-- Estilo para los TextBox -->
         <Style x:Key="ModernTextBox" TargetType="{x:Type TextBox}">
-            <Setter Property="Background" Value="#20FFFFFF"/>
-            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="Background" Value="{DynamicResource TextBoxBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextBoxForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextBoxForegroundBrush}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Padding" Value="15,12"/>
             <Setter Property="FontSize" Value="14"/>
@@ -60,7 +126,7 @@
                             <Trigger Property="IsFocused" Value="true">
                                 <Setter Property="Background" Value="#40FFFFFF" TargetName="border"/>
                                 <Setter Property="BorderThickness" Value="1" TargetName="border"/>
-                                <Setter Property="BorderBrush" Value="#AAFFFFFF" TargetName="border"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource TextBoxBorderBrush}" TargetName="border"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -70,8 +136,8 @@
 
         <!-- Estilo para los PasswordBox -->
         <Style x:Key="ModernPasswordBox" TargetType="{x:Type PasswordBox}">
-            <Setter Property="Background" Value="#20FFFFFF"/>
-            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="Background" Value="{DynamicResource TextBoxBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextBoxForegroundBrush}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Padding" Value="15,12"/>
             <Setter Property="FontSize" Value="14"/>
@@ -93,38 +159,7 @@
                             <Trigger Property="IsFocused" Value="true">
                                 <Setter Property="Background" Value="#40FFFFFF" TargetName="border"/>
                                 <Setter Property="BorderThickness" Value="1" TargetName="border"/>
-                                <Setter Property="BorderBrush" Value="#AAFFFFFF" TargetName="border"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Estilo para los botones -->
-        <Style x:Key="ModernButton" TargetType="{x:Type Button}">
-            <Setter Property="Background" Value="#FFFFFF"/>
-            <Setter Property="Foreground" Value="#333333"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Height" Value="45"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Button}">
-                        <Border x:Name="border" Background="{TemplateBinding Background}" 
-                                CornerRadius="8" BorderThickness="{TemplateBinding BorderThickness}" 
-                                BorderBrush="{TemplateBinding BorderBrush}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="true">
-                                <Setter Property="Background" Value="#EEEEEE" TargetName="border"/>
-                                <Setter Property="Opacity" Value="0.9"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="true">
-                                <Setter Property="Background" Value="#DDDDDD" TargetName="border"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource TextBoxBorderBrush}" TargetName="border"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -170,23 +205,42 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- Mesh Gradients accesibles globalmente -->
+        <RadialGradientBrush x:Key="Mesh1" Center="0.3,0.3" RadiusX="0.5" RadiusY="0.5">
+            <GradientStop Color="#de9cb8" Offset="0"/>
+            <GradientStop Color="#9dcde1" Offset="1"/>
+        </RadialGradientBrush>
+        <RadialGradientBrush x:Key="Mesh2" Center="0.7,0.7" RadiusX="0.6" RadiusY="0.6">
+            <GradientStop Color="#dc8eb8" Offset="0"/>
+            <GradientStop Color="#98d3ec" Offset="1"/>
+        </RadialGradientBrush>
     </Window.Resources>
 
     <Border CornerRadius="20" Background="#FF1A1A2E" MouseDown="Border_MouseDown">
-        <Grid>
-            <!-- Fondo con gradiente -->
-            <Grid.Background>
-                <ImageBrush x:Name="backgroundFondo" Opacity="0.7" Stretch="UniformToFill" />
-            </Grid.Background>
-
+        <Grid x:Name="MainGrid">
             <!-- Overlay para oscurecer el fondo -->
-            <Border Background="#80000000" CornerRadius="20"/>
+            <Border x:Name="OverlayDark" Background="#80000000" CornerRadius="0" Visibility="Collapsed"/>
+
 
             <!-- Botón de cerrar -->
-            <Button x:Name="CloseButton" Content="×" FontSize="20" Width="30" Height="30" 
+            <Button x:Name="CloseButton" Content="✖" FontSize="20" Width="30" Height="30" 
                     HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,15,15,0"
-                    Background="Transparent" Foreground="White" BorderThickness="0"
-                    Click="CloseButton_Click" Cursor="Hand"/>
+                    Background="Transparent" 
+                    Foreground="{DynamicResource CloseButtonForegroundDark}"
+                    BorderThickness="0"
+                    Click="CloseButton_Click" Cursor="Hand">
+                <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                        <Setter Property="Foreground" Value="{DynamicResource CloseButtonForegroundDark}"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{DynamicResource CloseButtonHover}"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
 
             <!-- Claro/Oscuro -->
             <Button x:Name="ThemeButton" Width="40" Height="40" Margin="15,15,0,0" 
@@ -194,8 +248,8 @@
                     Click="ThemeButton_Click" Style="{StaticResource ThemeButtonStyle}"/>
 
             <!-- Contenedor principal -->
-            <Border Width="350" Height="450" CornerRadius="15" 
-                    Background="#30FFFFFF" VerticalAlignment="Center">
+            <Border x:Name="FormBorder" Width="350" Height="450" CornerRadius="15" 
+                    Background="#40FFFFFF" VerticalAlignment="Center">
                 <Border.Effect>
                     <DropShadowEffect BlurRadius="15" Direction="-90" 
                                       RenderingBias="Quality" ShadowDepth="2" 
@@ -222,17 +276,10 @@
                     <!-- Formulario -->
                     <StackPanel Grid.Row="1" VerticalAlignment="Center" Margin="20">
                         <StackPanel>
-                            <TextBlock x:Name="Correo" Text="Email" FontSize="13" 
-                                       Margin="5,0,0,8" Foreground="#CCFFFFFF" 
-                                       FontFamily="Segoe UI"/>
                             <TextBox x:Name="UsernameTextBox" Style="{StaticResource ModernTextBox}" 
                                      GotFocus="TextBox_GotFocus" LostFocus="TextBox_LostFocus"/>
                         </StackPanel>
-
-                        <StackPanel>
-                            <TextBlock x:Name="Pass" Text="Contraseña" FontSize="13" 
-                                       Margin="5,0,0,8" Foreground="#CCFFFFFF" 
-                                       FontFamily="Segoe UI"/>
+                        <StackPanel Margin="0,12,0,0">
                             <PasswordBox x:Name="PasswordBox" Style="{StaticResource ModernPasswordBox}" 
                                          GotFocus="PasswordBox_GotFocus" LostFocus="PasswordBox_LostFocus"/>
                         </StackPanel>
@@ -243,7 +290,7 @@
                                    FontFamily="Segoe UI" FontSize="13"/>
 
                         <!-- Botones -->
-                        <Button x:Name="btnIniciarSecion" Content="Iniciar Sesión" Margin="0,10,0,0" 
+                        <Button x:Name="btnIniciarSecion" Content="Iniciar Sesión" Margin="0,10,0,5" 
                                 Style="{StaticResource ModernButton}" Click="Loguearse"/>
 
                         <Button x:Name="btnRegistrarse" Content="Registrarse" Margin="0,5,0,0" 

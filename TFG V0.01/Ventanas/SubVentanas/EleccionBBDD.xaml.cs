@@ -16,21 +16,20 @@ using TFG_V0._01.Supabase;
 
 namespace TFG_V0._01.Ventanas.SubVentanas
 {
-    /// <summary>
-    /// Lógica de interacción para EleccionBBDD.xaml
-    /// </summary>
     public partial class EleccionBBDD : Window
     {
+        #region 🎨 Variables y Recursos
         private readonly SupabaseAutentificacion _authService;
         private Storyboard fadeInStoryboard;
         private Storyboard shakeStoryboard;
         private Storyboard meshAnimStoryboard;
 
-        // Brushes y fondo animado
         private RadialGradientBrush mesh1Brush;
         private RadialGradientBrush mesh2Brush;
         private DrawingBrush meshGradientBrush;
+        #endregion
 
+        #region ⚡ Inicialización
         public EleccionBBDD()
         {
             InitializeComponent();
@@ -42,8 +41,9 @@ namespace TFG_V0._01.Ventanas.SubVentanas
             AplicarTema();
             BeginFadeInAnimation();
         }
+        #endregion
 
-        #region ⌛ Leer Configuración
+        #region 📂 Configuración
         private void ReadConfiguration()
         {
             try
@@ -65,7 +65,6 @@ namespace TFG_V0._01.Ventanas.SubVentanas
                         BBDD.IsChecked = config.TipoBBDD.Value;
                     if (BBDD.IsChecked != true)
                     {
-                        // Ruta relativa al recurso local
                         var localImgPath = "pack://application:,,,/TFG V0.01;component/Recursos/Iconos/localselect.png";
                         try
                         {
@@ -78,7 +77,6 @@ namespace TFG_V0._01.Ventanas.SubVentanas
                     }
                     else
                     {
-                        // Ruta relativa al recurso de nube
                         var supaImgPath = "pack://application:,,,/TFG V0.01;component/Recursos/Iconos/cloudselect.png";
                         try
                         {
@@ -98,7 +96,7 @@ namespace TFG_V0._01.Ventanas.SubVentanas
         }
         #endregion
 
-        #region 🔄 Eventos
+        #region 🔄 Navegación
         private void iniciarModoAmind(object sender, RoutedEventArgs e)
         {
             MainWindow.tipoBBDD = BBDD.IsChecked.HasValue && BBDD.IsChecked.Value;
@@ -106,12 +104,10 @@ namespace TFG_V0._01.Ventanas.SubVentanas
             var home = new Home();
             home.Show();
             this.Close();
-
-
         }
         #endregion
 
-        #region 🈳 Idioma
+        #region 🌍 Gestión de Idiomas
         private void CargarIdioma(int idioma)
         {
             var idiomas = new (string SeleccionBBDD, string InfoSeleccion, string Local, string Nube, string BtnAceptar)[] {
@@ -135,7 +131,7 @@ namespace TFG_V0._01.Ventanas.SubVentanas
         }
         #endregion
 
-        #region 🌓 Aplicar tema
+        #region 🌓 Gestión de Tema
         private void AplicarTema()
         {
             this.Tag = MainWindow.isDarkTheme;
@@ -147,16 +143,12 @@ namespace TFG_V0._01.Ventanas.SubVentanas
             {
                 if (icon != null)
                     icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/sol.png", UriKind.Relative));
-                // Colores mesh oscuro
+         
                 mesh1Brush.GradientStops[0].Color = (Color)ColorConverter.ConvertFromString("#d2cdc6");
                 mesh1Brush.GradientStops[1].Color = (Color)ColorConverter.ConvertFromString("#08a693");
                 mesh2Brush.GradientStops[0].Color = (Color)ColorConverter.ConvertFromString("#3a4d5f");
                 mesh2Brush.GradientStops[1].Color = (Color)ColorConverter.ConvertFromString("#272c3f");
                 OverlayDark.Visibility = Visibility.Visible;
-                txtSeleccionBBDD.Foreground = Brushes.White;
-                txtInfoSeleccion.Foreground = Brushes.White;
-                txtLocal.Foreground = Brushes.White;
-                txtNube.Foreground = Brushes.White;
                 if (closeButton != null)
                     closeButton.Foreground = (Brush)this.FindResource("CloseButtonForegroundDark");
             }
@@ -164,16 +156,12 @@ namespace TFG_V0._01.Ventanas.SubVentanas
             {
                 if (icon != null)
                     icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/luna.png", UriKind.Relative));
-                // Colores mesh claro
+         
                 mesh1Brush.GradientStops[0].Color = (Color)ColorConverter.ConvertFromString("#de9cb8");
                 mesh1Brush.GradientStops[1].Color = (Color)ColorConverter.ConvertFromString("#9dcde1");
                 mesh2Brush.GradientStops[0].Color = (Color)ColorConverter.ConvertFromString("#dc8eb8");
                 mesh2Brush.GradientStops[1].Color = (Color)ColorConverter.ConvertFromString("#98d3ec");
                 OverlayDark.Visibility = Visibility.Collapsed;
-                txtSeleccionBBDD.Foreground = Brushes.Black;
-                txtInfoSeleccion.Foreground = Brushes.Black;
-                txtLocal.Foreground = Brushes.Black;
-                txtNube.Foreground = Brushes.Black;
                 if (closeButton != null)
                     closeButton.Foreground = (Brush)this.FindResource("CloseButtonForegroundLight");
             }
@@ -208,6 +196,7 @@ namespace TFG_V0._01.Ventanas.SubVentanas
         }
         #endregion
 
+        #region 🎬 Animaciones y Efectos
         private DoubleAnimation CrearFadeAnimation(double from, double to, double durationSeconds, bool autoReverse = false) =>
             new()
             {
@@ -234,7 +223,6 @@ namespace TFG_V0._01.Ventanas.SubVentanas
 
         private void CrearFondoAnimado()
         {
-            // Crear los brushes
             mesh1Brush = new RadialGradientBrush();
             mesh1Brush.Center = new Point(0.3, 0.3);
             mesh1Brush.RadiusX = 0.5;
@@ -253,7 +241,6 @@ namespace TFG_V0._01.Ventanas.SubVentanas
             mesh2Brush.Freeze();
             mesh2Brush = mesh2Brush.Clone();
 
-            // Crear el DrawingBrush
             var drawingGroup = new DrawingGroup();
             drawingGroup.Children.Add(new GeometryDrawing(mesh1Brush, null, new RectangleGeometry(new Rect(0, 0, 1, 1))));
             drawingGroup.Children.Add(new GeometryDrawing(mesh2Brush, null, new RectangleGeometry(new Rect(0, 0, 1, 1))));
@@ -263,10 +250,9 @@ namespace TFG_V0._01.Ventanas.SubVentanas
 
         private void IniciarAnimacionMesh()
         {
-            // Detener si ya existe
             meshAnimStoryboard?.Stop();
             meshAnimStoryboard = new Storyboard();
-            // Animar Center de mesh1
+            
             var anim1 = new PointAnimationUsingKeyFrames();
             anim1.KeyFrames.Add(new EasingPointKeyFrame(new Point(0.3, 0.3), KeyTime.FromTimeSpan(TimeSpan.Zero)));
             anim1.KeyFrames.Add(new EasingPointKeyFrame(new Point(0.7, 0.5), KeyTime.FromTimeSpan(TimeSpan.FromSeconds(4))) { EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut } });
@@ -275,7 +261,7 @@ namespace TFG_V0._01.Ventanas.SubVentanas
             Storyboard.SetTarget(anim1, mesh1Brush);
             Storyboard.SetTargetProperty(anim1, new PropertyPath(RadialGradientBrush.CenterProperty));
             meshAnimStoryboard.Children.Add(anim1);
-            // Animar Center de mesh2
+       
             var anim2 = new PointAnimationUsingKeyFrames();
             anim2.KeyFrames.Add(new EasingPointKeyFrame(new Point(0.7, 0.7), KeyTime.FromTimeSpan(TimeSpan.Zero)));
             anim2.KeyFrames.Add(new EasingPointKeyFrame(new Point(0.4, 0.4), KeyTime.FromTimeSpan(TimeSpan.FromSeconds(4))) { EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut } });
@@ -286,5 +272,6 @@ namespace TFG_V0._01.Ventanas.SubVentanas
             meshAnimStoryboard.Children.Add(anim2);
             meshAnimStoryboard.Begin();
         }
+        #endregion
     }
 }

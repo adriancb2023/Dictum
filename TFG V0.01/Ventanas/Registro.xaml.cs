@@ -14,7 +14,7 @@ namespace TFG_V0._01.Ventanas
 {
     public partial class Registro : Window
     {
-        #region variables
+        #region 🎨 Variables y Recursos
         private readonly SupabaseAutentificacion _supabaseAutentificacion;
         private Storyboard fadeInStoryboard;
         private Storyboard shakeStoryboard;
@@ -26,13 +26,12 @@ namespace TFG_V0._01.Ventanas
         private string _passPlaceholder = "Contraseña";
         private string _pass2Placeholder = "Repita la contraseña";
 
-        // Brushes y fondo animado
         private RadialGradientBrush mesh1Brush;
         private RadialGradientBrush mesh2Brush;
         private DrawingBrush meshGradientBrush;
         #endregion
 
-        #region InitializeComponent
+        #region ⚡ Inicialización
         public Registro()
         {
             InitializeComponent();
@@ -81,7 +80,7 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
-        #region Animaciones
+        #region 🎬 Animaciones y Efectos
         private void InitializeAnimations()
         {
             fadeInStoryboard = new Storyboard();
@@ -187,7 +186,7 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
-        #region Aplicar modo oscuro/claro
+        #region 🌓 Gestión de Tema
         private void AplicarTema()
         {
             this.Tag = MainWindow.isDarkTheme;
@@ -282,7 +281,7 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
-        #region volver al login
+        #region 🔄 Navegación
         private void VolverLogin(object sender, RoutedEventArgs e)
         {
             var fadeOut = CrearFadeAnimation(1, 0, 0.3);
@@ -296,7 +295,7 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
-        #region Registro usuario
+        #region 👤 Registro de Usuario
         private async void RegistrarUser(object sender, RoutedEventArgs e)
         {
             try
@@ -350,7 +349,7 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
-        #region Eventos de UI
+        #region 🖱️ Eventos de UI
         private void Border_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ChangedButton == MouseButton.Left)
@@ -401,7 +400,7 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
-        #region Idiomas
+        #region 🌍 Gestión de Idiomas
         private void CargarIdioma(int idioma)
         {
             var idiomas = new (string Titulo, string Subtitulo, string Correo, string Pass1, string Pass2, string BtnRegistrarse, string BtnVolver)[]

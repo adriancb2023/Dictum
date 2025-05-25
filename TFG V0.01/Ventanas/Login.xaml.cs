@@ -15,7 +15,7 @@ namespace TFG_V0._01.Ventanas
 {
     public partial class Login : Window
     {
-        #region variables
+        #region 🎨 Variables y Recursos
         private readonly SupabaseAutentificacion _authService;
         private Storyboard fadeInStoryboard;
         private Storyboard shakeStoryboard;
@@ -25,23 +25,24 @@ namespace TFG_V0._01.Ventanas
         private const string ErrorCredenciales = "Email o contraseña incorrectos";
         private string _correoPlaceholder = "Email";
         private string _passPlaceholder = "Contraseña";
-
+        // Brushes y fondo animado
         private RadialGradientBrush mesh1Brush;
         private RadialGradientBrush mesh2Brush;
         private DrawingBrush meshGradientBrush;
         #endregion
 
-        #region InitializeComponent
+        #region ⚡ Inicialización
         public Login()
         {
             InitializeComponent();
-            this.Tag = MainWindow.isDarkTheme; 
+            this.Tag = MainWindow.isDarkTheme; // Establecer el Tag inicial
             _authService = new SupabaseAutentificacion();
             CargarIdioma(MainWindow.idioma);
             InitializeAnimations();
             CrearFondoAnimado();
             AplicarTema();
             BeginFadeInAnimation();
+            // Añadir PlaceholderAdorner a los campos
             Loaded += (s, e) =>
             {
                 var adornerLayer = AdornerLayer.GetAdornerLayer(UsernameTextBox);
@@ -49,7 +50,7 @@ namespace TFG_V0._01.Ventanas
                 {
                     adornerLayer.Add(new PlaceholderAdorner(
                         UsernameTextBox,
-                        _correoPlaceholder, 
+                        _correoPlaceholder,
                         MainWindow.isDarkTheme ? Brushes.White : Brushes.Black,
                         MainWindow.isDarkTheme ? Brushes.WhiteSmoke : Brushes.DarkSlateGray,
                         14));
@@ -69,7 +70,7 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
-        #region Animaciones
+        #region 🎬 Animaciones y Efectos
         private void InitializeAnimations()
         {
             fadeInStoryboard = new Storyboard();
@@ -121,9 +122,10 @@ namespace TFG_V0._01.Ventanas
 
         private void IniciarAnimacionMesh()
         {
+            // Detener si ya existe
             meshAnimStoryboard?.Stop();
             meshAnimStoryboard = new Storyboard();
-
+            // Animar Center de mesh1
             var anim1 = new PointAnimationUsingKeyFrames();
             anim1.KeyFrames.Add(new EasingPointKeyFrame(new Point(0.3, 0.3), KeyTime.FromTimeSpan(TimeSpan.Zero)));
             anim1.KeyFrames.Add(new EasingPointKeyFrame(new Point(0.7, 0.5), KeyTime.FromTimeSpan(TimeSpan.FromSeconds(4))) { EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut } });
@@ -132,7 +134,7 @@ namespace TFG_V0._01.Ventanas
             Storyboard.SetTarget(anim1, mesh1Brush);
             Storyboard.SetTargetProperty(anim1, new PropertyPath(RadialGradientBrush.CenterProperty));
             meshAnimStoryboard.Children.Add(anim1);
-
+            // Animar Center de mesh2
             var anim2 = new PointAnimationUsingKeyFrames();
             anim2.KeyFrames.Add(new EasingPointKeyFrame(new Point(0.7, 0.7), KeyTime.FromTimeSpan(TimeSpan.Zero)));
             anim2.KeyFrames.Add(new EasingPointKeyFrame(new Point(0.4, 0.4), KeyTime.FromTimeSpan(TimeSpan.FromSeconds(4))) { EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut } });
@@ -145,19 +147,20 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
-        #region Tema oscuro/claro
+        #region 🌓 Gestión de Tema
         private void AplicarTema()
         {
-            this.Tag = MainWindow.isDarkTheme; 
+            this.Tag = MainWindow.isDarkTheme; // Actualizar el Tag cuando cambia el tema
             var button = this.FindName("ThemeButton") as Button;
             var icon = button?.Template.FindName("ThemeIcon", button) as WpfImage;
             var closeButton = this.FindName("CloseButton") as Button;
 
+            // Cambiar fondo mesh gradient
             if (MainWindow.isDarkTheme)
             {
                 if (icon != null)
                     icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/sol.png", UriKind.Relative));
-
+                // Colores mesh oscuro
                 mesh1Brush.GradientStops[0].Color = (Color)ColorConverter.ConvertFromString("#d2cdc6");
                 mesh1Brush.GradientStops[1].Color = (Color)ColorConverter.ConvertFromString("#08a693");
                 mesh2Brush.GradientStops[0].Color = (Color)ColorConverter.ConvertFromString("#3a4d5f");
@@ -165,10 +168,10 @@ namespace TFG_V0._01.Ventanas
                 OverlayDark.Visibility = Visibility.Visible;
                 Titulo.Foreground = Brushes.White;
                 subTitulo.Foreground = Brushes.White;
-
+                // Cambiar color de la X
                 if (closeButton != null)
                     closeButton.Foreground = (Brush)this.FindResource("CloseButtonForegroundDark");
-
+                // Cambiar recursos de color de campos
                 var app = Application.Current;
                 app.Resources["TextBoxBackgroundBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#20FFFFFF"));
                 app.Resources["TextBoxForegroundBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFFFFF"));
@@ -179,7 +182,7 @@ namespace TFG_V0._01.Ventanas
             {
                 if (icon != null)
                     icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/luna.png", UriKind.Relative));
-
+                // Colores mesh claro
                 mesh1Brush.GradientStops[0].Color = (Color)ColorConverter.ConvertFromString("#de9cb8");
                 mesh1Brush.GradientStops[1].Color = (Color)ColorConverter.ConvertFromString("#9dcde1");
                 mesh2Brush.GradientStops[0].Color = (Color)ColorConverter.ConvertFromString("#dc8eb8");
@@ -187,20 +190,18 @@ namespace TFG_V0._01.Ventanas
                 OverlayDark.Visibility = Visibility.Collapsed;
                 Titulo.Foreground = Brushes.Black;
                 subTitulo.Foreground = Brushes.Black;
-
+                // Cambiar color de la X
                 if (closeButton != null)
                     closeButton.Foreground = (Brush)this.FindResource("CloseButtonForegroundLight");
-
+                // Cambiar recursos de color de campos
                 var app = Application.Current;
                 app.Resources["TextBoxBackgroundBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#20FFFFFF"));
                 app.Resources["TextBoxForegroundBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#222222"));
                 app.Resources["TextBoxBorderBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#AAFFFFFF"));
                 app.Resources["TextBoxForegroundBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#222222"));
             }
-
             UsernameTextBox.Foreground = (Brush)Application.Current.Resources["TextBoxForegroundBrush"];
             PasswordBox.Foreground = (Brush)Application.Current.Resources["TextBoxForegroundBrush"];
-
             IniciarAnimacionMesh();
         }
 
@@ -213,7 +214,7 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
-        #region Login
+        #region 🔐 Autenticación
         private async void Loguearse(object sender, RoutedEventArgs e)
         {
             string email = UsernameTextBox.Text;
@@ -269,9 +270,7 @@ namespace TFG_V0._01.Ventanas
             PasswordBox.BorderBrush = WpfBrushes.Red;
             PasswordBox.BorderThickness = new Thickness(1);
         }
-        #endregion
 
-        #region Registro
         private void irRegistrarse(object sender, RoutedEventArgs e)
         {
             var fadeOut = CrearFadeAnimation(1, 0, 0.3);
@@ -283,9 +282,7 @@ namespace TFG_V0._01.Ventanas
             };
             this.BeginAnimation(OpacityProperty, fadeOut);
         }
-        #endregion
 
-        #region saltarse el inicio de sesión con root
         private async void saltarInicio(object sender, RoutedEventArgs e)
         {
             string email = "root@root.com";
@@ -323,7 +320,7 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
-        #region Eventos de UI
+        #region 🖱️ Eventos de UI
         private void Border_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ChangedButton == MouseButton.Left)
@@ -350,7 +347,7 @@ namespace TFG_V0._01.Ventanas
             TextBox textBox = sender as TextBox;
             if (textBox != null)
             {
-
+                // Restaurar estilo normal al obtener foco
                 textBox.BorderBrush = WpfBrushes.Transparent;
                 errorLogin.Visibility = Visibility.Collapsed;
             }
@@ -358,7 +355,7 @@ namespace TFG_V0._01.Ventanas
 
         private void TextBox_LostFocus(object sender, RoutedEventArgs e)
         {
-
+            // Puedes agregar validación aquí si es necesario
         }
 
         private void PasswordBox_GotFocus(object sender, RoutedEventArgs e)
@@ -366,19 +363,19 @@ namespace TFG_V0._01.Ventanas
             PasswordBox passwordBox = sender as PasswordBox;
             if (passwordBox != null)
             {
+                // Restaurar estilo normal al obtener foco
                 passwordBox.BorderBrush = WpfBrushes.Transparent;
                 errorLogin.Visibility = Visibility.Collapsed;
             }
         }
 
-
         private void PasswordBox_LostFocus(object sender, RoutedEventArgs e)
         {
-
+            // Puedes agregar validación aquí si es necesario
         }
         #endregion
 
-        #region Idiomas
+        #region 🌍 Gestión de Idiomas
         private void CargarIdioma(int idioma)
         {
             var idiomas = new (string IniciarSesion, string Registrarse, string Titulo, string SubTitulo, string Correo, string Pass, string Error)[]
@@ -405,8 +402,10 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
+        #region 🎨 Fondo Animado
         private void CrearFondoAnimado()
         {
+            // Crear los brushes
             mesh1Brush = new RadialGradientBrush();
             mesh1Brush.Center = new Point(0.3, 0.3);
             mesh1Brush.RadiusX = 0.5;
@@ -425,11 +424,13 @@ namespace TFG_V0._01.Ventanas
             mesh2Brush.Freeze();
             mesh2Brush = mesh2Brush.Clone();
 
+            // Crear el DrawingBrush
             var drawingGroup = new DrawingGroup();
             drawingGroup.Children.Add(new GeometryDrawing(mesh1Brush, null, new RectangleGeometry(new Rect(0, 0, 1, 1))));
             drawingGroup.Children.Add(new GeometryDrawing(mesh2Brush, null, new RectangleGeometry(new Rect(0, 0, 1, 1))));
             meshGradientBrush = new DrawingBrush(drawingGroup) { Stretch = Stretch.Fill };
             MainGrid.Background = meshGradientBrush;
         }
+        #endregion
     }
 }

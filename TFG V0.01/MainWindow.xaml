@@ -32,11 +32,10 @@
                       StrokeStartLineCap="Round" StrokeEndLineCap="Round">
                     <Path.Stroke>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                            <GradientStop Color="#f90126" Offset="0"/>
-                            <GradientStop Color="#ee0066" Offset="0.25"/>
-                            <GradientStop Color="#c61698" Offset="0.5"/>
-                            <GradientStop Color="#8445b5" Offset="0.75"/>
-                            <GradientStop Color="#1457b7" Offset="1"/>
+                            <GradientStop Color="#de9cb8" Offset="0"/>
+                            <GradientStop Color="#9dcde1" Offset="0.33"/>
+                            <GradientStop Color="#dc8eb8" Offset="0.66"/>
+                            <GradientStop Color="#98d3ec" Offset="1"/>
                         </LinearGradientBrush>
                     </Path.Stroke>
                     <Path.Effect>

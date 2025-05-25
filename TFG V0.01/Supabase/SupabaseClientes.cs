@@ -40,6 +40,7 @@ namespace TFG_V0._01.Supabase
         public async Task InsertarClienteAsync(Cliente cliente)
         {
             await EnsureInitializedAsync();
+            Console.WriteLine($"ID antes de insertar: {cliente.id}");
             await _client.From<Cliente>().Insert(cliente);
         }
 

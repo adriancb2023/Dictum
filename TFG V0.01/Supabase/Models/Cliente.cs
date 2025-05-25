@@ -13,7 +13,8 @@ namespace TFG_V0._01.Supabase.Models
     public class Cliente : BaseModel
     {
         [PrimaryKey("id", true)]
-        public int id { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int? id { get; set; }
         public string nombre { get; set; }
         public string apellido1 { get; set; }
         public string apellido2 { get; set; }

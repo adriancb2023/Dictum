@@ -25,7 +25,7 @@ namespace TFG_V0._01.Ventanas.SubVentanas
 
             Loaded += AñadirCasoWindow_Loaded;
         }
-
+         
         private async void AñadirCasoWindow_Loaded(object sender, RoutedEventArgs e)
         {
             try
@@ -72,15 +72,15 @@ namespace TFG_V0._01.Ventanas.SubVentanas
                     return;
                 }
 
-                var nuevoCaso = new Caso
+                var nuevoCaso = new CasoInsertDto
                 {
-                    referencia = txtReferencia.Text.Trim(),
                     titulo = txtTitulo.Text.Trim(),
                     descripcion = txtDescripcion.Text.Trim(),
                     id_cliente = (int)cmbClientes.SelectedValue,
                     id_tipo_caso = (int)cmbTiposCaso.SelectedValue,
                     id_estado = (int)cmbEstados.SelectedValue,
-                    fecha_inicio = dpFechaInicio.SelectedDate ?? DateTime.Now
+                    fecha_inicio = dpFechaInicio.SelectedDate ?? DateTime.Now,
+                    referencia = null // o lo que corresponda
                 };
 
                 await _casosService.InsertarAsync(nuevoCaso);
@@ -96,8 +96,7 @@ namespace TFG_V0._01.Ventanas.SubVentanas
 
         private bool ValidarCampos()
         {
-            return !string.IsNullOrWhiteSpace(txtReferencia.Text) &&
-                   !string.IsNullOrWhiteSpace(txtTitulo.Text) &&
+            return !string.IsNullOrWhiteSpace(txtTitulo.Text) &&
                    !string.IsNullOrWhiteSpace(txtDescripcion.Text) &&
                    cmbClientes.SelectedValue != null &&
                    cmbTiposCaso.SelectedValue != null &&

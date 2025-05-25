@@ -21,7 +21,18 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}" CornerRadius="20">
-                            <Image x:Name="ThemeIcon" Source="/TFG V0.01;component/Recursos/Iconos/sol.png" Width="20" Height="20"/>
+                            <Image x:Name="ThemeIcon" Width="20" Height="20">
+                                <Image.Style>
+                                    <Style TargetType="Image">
+                                        <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/luna.png"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                                                <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/sol.png"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
+                            </Image>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -86,6 +97,30 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- Colores y estilos para el botón de cerrar -->
+        <SolidColorBrush x:Key="CloseButtonForegroundDark" Color="#FFFFFFFF"/>
+        <SolidColorBrush x:Key="CloseButtonForegroundLight" Color="#FF222222"/>
+        <SolidColorBrush x:Key="CloseButtonHover" Color="#FFFF5252"/>
+
+        <!--Colores para los botones-->
+        <SolidColorBrush x:Key="ButtonBackgroundDark" Color="#FFF"/>
+        <SolidColorBrush x:Key="ButtonBackgroundLight" Color="#FFF"/>
+        <SolidColorBrush x:Key="ButtonForegroundDark" Color="#222"/>
+        <SolidColorBrush x:Key="ButtonForegroundLight" Color="#222"/>
+        <SolidColorBrush x:Key="ButtonHoverDark" Color="#FF333333"/>
+        <SolidColorBrush x:Key="ButtonHoverLight" Color="#FFEEEEEE"/>
+        <SolidColorBrush x:Key="ButtonShadow" Color="#22000000"/>
+
+        <!-- Mesh Gradients accesibles globalmente -->
+        <RadialGradientBrush x:Key="Mesh1" Center="0.3,0.3" RadiusX="0.5" RadiusY="0.5">
+            <GradientStop Color="#de9cb8" Offset="0"/>
+            <GradientStop Color="#9dcde1" Offset="1"/>
+        </RadialGradientBrush>
+        <RadialGradientBrush x:Key="Mesh2" Center="0.7,0.7" RadiusX="0.6" RadiusY="0.6">
+            <GradientStop Color="#dc8eb8" Offset="0"/>
+            <GradientStop Color="#98d3ec" Offset="1"/>
+        </RadialGradientBrush>
     </Window.Resources>
 
     <Grid>
@@ -96,8 +131,10 @@
         </Grid.ColumnDefinitions>
         <!-- Fondo -->
         <Grid.Background>
-            <ImageBrush x:Name="backgroundFondo" ImageSource="/TFG V0.01;component/Recursos/Background/oscuro/main.png"/>
+            <DrawingBrush x:Name="meshGradientBrush" Stretch="Fill"/>
         </Grid.Background>
+        <!-- Overlay para oscurecer el fondo -->
+        <Border x:Name="OverlayDark" Background="#80000000" CornerRadius="0" Visibility="Collapsed" Grid.ColumnSpan="3"/>
         <!-- Navbar -->
         <controls:NavbarControl x:Name="navbar" Grid.Column="0" />
         <!-- Claro/Oscuro  -->

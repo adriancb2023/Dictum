@@ -249,6 +249,25 @@ namespace TFG_V0._01.Ventanas
                 mesh2Brush.GradientStops[1].Color = (Color)ColorConverter.ConvertFromString("#98d3ec");
             }
 
+            // Crear nuevos estilos dinámicamente
+            var primaryTextStyle = new Style(typeof(TextBlock));
+            var secondaryTextStyle = new Style(typeof(TextBlock));
+
+            if (MainWindow.isDarkTheme)
+            {
+                primaryTextStyle.Setters.Add(new Setter(TextBlock.ForegroundProperty, new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E0E0E0"))));
+                secondaryTextStyle.Setters.Add(new Setter(TextBlock.ForegroundProperty, new SolidColorBrush((Color)ColorConverter.ConvertFromString("#B0B0B0"))));
+            }
+            else
+            {
+                primaryTextStyle.Setters.Add(new Setter(TextBlock.ForegroundProperty, new SolidColorBrush((Color)ColorConverter.ConvertFromString("#303030"))));
+                secondaryTextStyle.Setters.Add(new Setter(TextBlock.ForegroundProperty, new SolidColorBrush((Color)ColorConverter.ConvertFromString("#606060"))));
+            }
+
+            // Reemplazar los recursos existentes
+            this.Resources["PrimaryTextStyle"] = primaryTextStyle;
+            this.Resources["SecondaryTextStyle"] = secondaryTextStyle;
+
             navbar.ActualizarTema(MainWindow.isDarkTheme);
             IniciarAnimacionMesh();
         }

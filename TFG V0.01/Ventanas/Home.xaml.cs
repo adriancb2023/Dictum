@@ -997,6 +997,33 @@ namespace TFG_V0._01.Ventanas
             }
         }
 
+        // Manejadores de eventos para el efecto hover en botones de añadir
+        private void btnAddCaso_MouseEnter(object sender, MouseEventArgs e)
+        {
+            if (sender is Button btn)
+            {
+                ShakeElement(btn);
+            }
+        }
+
+        private void btnAddCaso_MouseLeave(object sender, MouseEventArgs e)
+        {
+            // No es necesario hacer nada al salir del hover para este efecto
+        }
+
+        private void btnAddCliente_MouseEnter(object sender, MouseEventArgs e)
+        {
+             if (sender is Button btn)
+            {
+                ShakeElement(btn);
+            }
+        }
+
+        private void btnAddCliente_MouseLeave(object sender, MouseEventArgs e)
+        {
+             // No es necesario hacer nada al salir del hover para este efecto
+        }
+
         /*
         public async Task<Caso> ObtenerPorIdAsync(int id)
         {
@@ -1016,6 +1043,31 @@ namespace TFG_V0._01.Ventanas
         //revisar funcion CheckBox_TareaFinalizada => no funciona al 100% en local.
         #endregion
 
+        // Implementación de los manejadores de eventos
+        private void btnMesAnterior_MouseEnter(object sender, MouseEventArgs e)
+        {
+            if (sender is FrameworkElement element)
+            {
+                ShakeElement(element);
+            }
+        }
 
+        private void btnMesAnterior_MouseLeave(object sender, MouseEventArgs e)
+        {
+            // No necesitas hacer nada al quitar el ratón si la animación no es repetitiva
+        }
+
+        private void btnMesSiguiente_MouseEnter(object sender, MouseEventArgs e)
+        {
+            if (sender is FrameworkElement element)
+            {
+                ShakeElement(element);
+            }
+        }
+
+        private void btnMesSiguiente_MouseLeave(object sender, MouseEventArgs e)
+        {
+            // No necesitas hacer nada al quitar el ratón si la animación no es repetitiva
+        }
     }
 }

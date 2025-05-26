@@ -42,7 +42,28 @@
     </UserControl.Resources>
 
     <Grid x:Name="menu" Visibility="Visible" MouseEnter="Menu_MouseEnter" MouseLeave="Menu_MouseLeave">
-        <Border x:Name="backgroun_menu" BorderBrush="#454545" BorderThickness="0" Margin="0,0,0,0" CornerRadius="15" Background="#30FFFFFF" VerticalAlignment="Center">
+        <Border x:Name="backgroun_menu" BorderBrush="#454545" BorderThickness="0" Margin="0,0,0,0" CornerRadius="15" VerticalAlignment="Center">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Background">
+                        <Setter.Value>
+                            <SolidColorBrush Color="#282828" Opacity="0.8"/>
+                        </Setter.Value>
+                    </Setter>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                            <Setter Property="Background" Value="#F0F0F0"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                            <Setter Property="Background">
+                                <Setter.Value>
+                                    <SolidColorBrush Color="#282828" Opacity="0.8"/>
+                                </Setter.Value>
+                            </Setter>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
             <Border.Effect>
                 <DropShadowEffect BlurRadius="15" Direction="-90" 
                                 RenderingBias="Quality" ShadowDepth="2" 

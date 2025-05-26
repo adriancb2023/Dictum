@@ -48,7 +48,6 @@
         <!-- Botones redondeados -->
         <Style x:Key="RoundedButtonStyle" TargetType="{x:Type Button}">
             <Setter Property="Background" Value="#FFFFFF"/>
-            <Setter Property="Foreground" Value="#333333"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Height" Value="45"/>
             <Setter Property="FontSize" Value="14"/>
@@ -64,7 +63,8 @@
                         BorderBrush="{TemplateBinding BorderBrush}">
                             <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
                                       VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                      RecognizesAccessKey="True"/>
+                                      RecognizesAccessKey="True"
+                                      TextElement.Foreground="{TemplateBinding Foreground}"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -73,6 +73,61 @@
                             <Trigger Property="IsPressed" Value="true">
                                 <Setter Property="Background" Value="#DDDDDD" TargetName="border"/>
                             </Trigger>
+                            <!-- Trigger para cambiar el fondo en modo claro -->
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                <Setter Property="Background" Value="#30000000" TargetName="border"/>
+                            </DataTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Estilo de botón redondeado que cambia con el tema -->
+        <Style x:Key="ThemeAwareRoundedButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource RoundedButtonStyle}">
+            <Setter Property="Foreground" Value="#333333"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Background" Value="#30000000"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                    <Setter Property="Background" Value="#30FFFFFF"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Estilo de botón redondeado sin borde -->
+        <Style x:Key="NoBorderRoundedButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource ThemeAwareRoundedButtonStyle}">
+             <Setter Property="BorderThickness" Value="0"/>
+             <Setter Property="BorderBrush" Value="Transparent"/>
+             <Setter Property="Background" Value="Transparent"/>
+              <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" 
+                                CornerRadius="20" BorderThickness="{TemplateBinding BorderThickness}" 
+                                BorderBrush="{TemplateBinding BorderBrush}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              RecognizesAccessKey="True"/>
+                        </Border>
+                         <ControlTemplate.Triggers>
+                            <!-- Anular triggers de hover/press del estilo base -->
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="Transparent" TargetName="border"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="true">
+                                <Setter Property="Background" Value="Transparent" TargetName="border"/>
+                            </Trigger>
+                            <!-- Mantener trigger de tema si es necesario, o manejarlo en ThemeAwareRoundedButtonStyle -->
+                             <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                <Setter Property="Background" Value="Transparent" TargetName="border"/>
+                                <Setter Property="Foreground" Value="{StaticResource TextPrimaryLight}"/>
+                            </DataTrigger>
+                             <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                                <Setter Property="Background" Value="Transparent" TargetName="border"/>
+                                <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
+                            </DataTrigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
@@ -198,6 +253,9 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
+
+        <!-- Estilo para iconos que cambian con el tema -->
+        <!-- ELIMINADO -->
     </Window.Resources>
 
     <Grid>
@@ -210,8 +268,13 @@
         <Grid.Background>
             <DrawingBrush x:Name="meshGradientBrush" Stretch="Fill"/>
         </Grid.Background>
+        <!-- Efecto movido a los paneles principales -->
         <!-- Navbar -->
-        <controls:NavbarControl x:Name="navbar" Grid.Column="0" />
+        <controls:NavbarControl x:Name="navbar" Grid.Column="0" >
+            <controls:NavbarControl.Effect>
+                 <DropShadowEffect BlurRadius="20" ShadowDepth="0" Color="Black" Opacity="0.3"/>
+            </controls:NavbarControl.Effect>
+        </controls:NavbarControl>
         <!-- Claro/Oscuro  -->
         <Button x:Name="ThemeButton" Width="35" Height="35" Margin="0" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="ThemeButton_Click" Style="{StaticResource ThemeButtonStyle}" Grid.Column="2"/>
 
@@ -219,6 +282,9 @@
         <!-- Contenido -->
         <!-- Dashboard Content for Grid Column="2" -->
         <Grid Grid.Column="2" Margin="20">
+             <Grid.Effect>
+                <DropShadowEffect BlurRadius="20" ShadowDepth="0" Color="Black" Opacity="0.3"/>
+            </Grid.Effect>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
@@ -245,9 +311,6 @@
                 <Grid.RenderTransform>
                     <TranslateTransform x:Name="SlidePanelTransform" X="400"/>
                 </Grid.RenderTransform>
-                <Grid.Effect>
-                    <DropShadowEffect BlurRadius="20" ShadowDepth="0" Color="Black" Opacity="0.3"/>
-                </Grid.Effect>
                 <ContentControl>
                     <subventanas:AñadirCasoWindow x:Name="AddCasoControl"/>
                 </ContentControl>
@@ -279,19 +342,42 @@
                 </StackPanel>
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Button x:Name="btnAddCaso" Background="Transparent" Padding="15,8" Margin="0,0,15,0" Click="btnAddCaso_Click">
-                        <Border Background="#30FFFFFF" CornerRadius="20">
-                            <StackPanel Orientation="Horizontal">
-                                <Image Source="/TFG V0.01;component/Recursos/Iconos/addcaso.png" Width="20" Height="20"/>
-                            </StackPanel>
-                        </Border>
+                    <Button x:Name="btnAddCaso" Background="Transparent" Padding="20,10" Margin="0,0,15,0" Click="btnAddCaso_Click" Style="{StaticResource NoBorderRoundedButtonStyle}" MouseEnter="btnAddCaso_MouseEnter" MouseLeave="btnAddCaso_MouseLeave" Height="50">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Width="25" Height="25">
+                                <Image.Style>
+                                    <Style TargetType="Image">
+                                        <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/addcaso.png"/>
+                                        <!-- Icono modo oscuro -->
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                                <!-- Modo claro -->
+                                                <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/addcaso2.png"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
+                            </Image>
+                        </StackPanel>
                     </Button>
-                    <Button x:Name="btnAddCliente" Background="Transparent" Padding="15,8" Click="btnAddCliente_Click">
-                        <Border Background="#30FFFFFF" CornerRadius="20">
-                            <StackPanel Orientation="Horizontal">
-                                <Image Source="/TFG V0.01;component/Recursos/Iconos/addCliente.png" Width="20" Height="20"/>
-                            </StackPanel>
-                        </Border>
+                    <Button x:Name="btnAddCliente" Background="Transparent" Padding="20,10" Click="btnAddCliente_Click" Style="{StaticResource NoBorderRoundedButtonStyle}" MouseEnter="btnAddCliente_MouseEnter" MouseLeave="btnAddCliente_MouseLeave" Height="50">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Width="25" Height="25">
+                                <Image.Style>
+                                    <Style TargetType="Image">
+                                        <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/addCliente.png"/>
+                                        <!-- Icono modo oscuro -->
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                                <!-- Modo claro -->
+                                                <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/addCliente2.png"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
+                            </Image>
+                        </StackPanel>
+
                     </Button>
                 </StackPanel>
             </Grid>
@@ -410,14 +496,14 @@
                                     </Grid.ColumnDefinitions>
 
                                     <StackPanel Orientation="Horizontal" Grid.Column="0">
-                                        <TextBlock Text="Calendario - " FontSize="16" FontWeight="SemiBold" Foreground="White"/>
-                                        <TextBlock x:Name="FechaElegida" Text="Abril 2025" FontSize="16" FontWeight="SemiBold" Foreground="White" />
+                                        <TextBlock Text="Calendario - " FontSize="16" FontWeight="SemiBold" Style="{StaticResource PrimaryTextStyle}"/>
+                                        <TextBlock x:Name="FechaElegida" Text="Abril 2025" FontSize="16" FontWeight="SemiBold" Style="{StaticResource PrimaryTextStyle}" />
                                     </StackPanel>
 
                                     <StackPanel Grid.Column="1" Orientation="Horizontal">
-                                        <Button Content="‹" Style="{StaticResource RoundedButtonStyle}" FontSize="20" VerticalAlignment="Center" FontWeight="Bold" Width="30" Height="30" Margin="0,0,5,0" Background="#30FFFFFF" Click="mesAnterior"/>
-                                        <Button Content="↺" Style="{StaticResource RoundedButtonStyle}" FontSize="20" VerticalAlignment="Center" FontWeight="Bold" Width="30" Height="30" Margin="0,0,5,0" Background="#30FFFFFF" Click="mesActual" />
-                                        <Button Content="›" Style="{StaticResource RoundedButtonStyle}" FontSize="20" VerticalAlignment="Center" FontWeight="Bold" Width="30" Height="30" Background="#30FFFFFF" Click="mesSiguiente"/>
+                                        <Button Content="‹" Style="{StaticResource ThemeAwareRoundedButtonStyle}" FontSize="20" VerticalAlignment="Center" FontWeight="Bold" Width="30" Height="30" Margin="0,0,5,0" Click="mesAnterior" MouseEnter="btnMesAnterior_MouseEnter" MouseLeave="btnMesAnterior_MouseLeave"/>
+                                        <Button Content="↺" Style="{StaticResource ThemeAwareRoundedButtonStyle}" FontSize="20" VerticalAlignment="Center" FontWeight="Bold" Width="30" Height="30" Margin="0,0,5,0" Click="mesActual" />
+                                        <Button Content="›" Style="{StaticResource ThemeAwareRoundedButtonStyle}" FontSize="20" VerticalAlignment="Center" FontWeight="Bold" Width="30" Height="30" Click="mesSiguiente" MouseEnter="btnMesSiguiente_MouseEnter" MouseLeave="btnMesSiguiente_MouseLeave"/>
                                     </StackPanel>
 
                                 </Grid>
@@ -532,7 +618,7 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
-                                <TextBlock x:Name="listaTareas" Grid.Row="0" Text="Tareas Pendientes" FontSize="16" FontWeight="SemiBold" Foreground="White"/>
+                                <TextBlock x:Name="listaTareas" Grid.Row="0" Text="Tareas Pendientes" FontSize="16" FontWeight="SemiBold" Style="{StaticResource PrimaryTextStyle}"/>
 
                                 <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="1" Margin="0,15,0,0"  MaxHeight="600">
                                     <ItemsControl ItemsSource="{Binding TareasPendientesLista}">
@@ -547,8 +633,8 @@
                                                         <CheckBox Grid.Column="0" Margin="0,0,10,0" VerticalAlignment="Center"
                                                                       Checked="CheckBox_TareaFinalizada"/>
                                                         <StackPanel Grid.Column="1">
-                                                            <TextBlock Text="{Binding titulo}" Foreground="White" TextWrapping="Wrap"/>
-                                                            <TextBlock Text="{Binding descripcion}" Foreground="#CCFFFFFF" FontSize="12" Margin="0,5,0,0"/>
+                                                            <TextBlock Text="{Binding titulo}" Style="{StaticResource PrimaryTextStyle}" TextWrapping="Wrap"/>
+                                                            <TextBlock Text="{Binding descripcion}" Style="{StaticResource SecondaryTextStyle}" FontSize="12" Margin="0,5,0,0"/>
                                                             <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
                                                                 <Border CornerRadius="5" Padding="5,2" Margin="0,0,10,0">
                                                                     <Border.Style>
@@ -578,7 +664,7 @@
                                     </ItemsControl>
                                 </ScrollViewer>
 
-                                <Button x:Name="btnAñadirTarea" Grid.Row="2" Content="+ Añadir Tarea" Style="{StaticResource RoundedButtonStyle}" Margin="0,15,0,0" Background="#30FFFFFF" />
+                                <Button x:Name="btnAñadirTarea" Grid.Row="2" Content="+ Añadir Tarea" Style="{StaticResource ThemeAwareRoundedButtonStyle}" Margin="0,15,0,0" />
                             </Grid>
                         </Border>
 
@@ -598,8 +684,8 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock x:Name="casosRecientes" Text="Casos Recientes" FontSize="16" FontWeight="SemiBold" Foreground="White"/>
-                                <Button x:Name="btnVerTodosCasos" Grid.Column="1" Content="Ver Todos" Style="{StaticResource RoundedButtonStyle}" Background="#30FFFFFF" Click="VerTodosCasos_Click"/>
+                                <TextBlock x:Name="casosRecientes" Text="Casos Recientes" FontSize="16" FontWeight="SemiBold" Style="{StaticResource PrimaryTextStyle}"/>
+                                <Button x:Name="btnVerTodosCasos" Grid.Column="1" Content="Ver Todos" Style="{StaticResource ThemeAwareRoundedButtonStyle}" Click="VerTodosCasos_Click"/>
                             </Grid>
 
                             <Grid Grid.Row="1" Margin="0,0,0,0">
@@ -638,9 +724,9 @@
                                                             <ColumnDefinition Width="*"/>
                                                             <ColumnDefinition Width="Auto"/>
                                                         </Grid.ColumnDefinitions>
-                                                        <TextBlock Grid.Column="0" Text="{Binding referencia}" Foreground="White" VerticalAlignment="Center"/>
-                                                        <TextBlock Grid.Column="1" Text="{Binding nombre_cliente}" Foreground="White" VerticalAlignment="Center"/>
-                                                        <TextBlock Grid.Column="2" Text="{Binding tipo_nombre}" Foreground="White" VerticalAlignment="Center"/>
+                                                        <TextBlock Grid.Column="0" Text="{Binding referencia}" Style="{StaticResource PrimaryTextStyle}" VerticalAlignment="Center"/>
+                                                        <TextBlock Grid.Column="1" Text="{Binding nombre_cliente}" Style="{StaticResource PrimaryTextStyle}" VerticalAlignment="Center"/>
+                                                        <TextBlock Grid.Column="2" Text="{Binding tipo_nombre}" Style="{StaticResource PrimaryTextStyle}" VerticalAlignment="Center"/>
                                                         <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
                                                             <Border Background="{Binding estado_color}" CornerRadius="5" Padding="8,3">
                                                                 <TextBlock Text="{Binding estado}" Foreground="White" FontSize="12"/>
@@ -648,7 +734,7 @@
                                                         </StackPanel>
                                                         <StackPanel Grid.Column="4" Orientation="Horizontal">
 
-                                                            <Button Style="{StaticResource RoundedButtonStyle}" Width="35" Height="35" Background="#30FFFFFF" Margin="0,0,5,0" Click="MostrarDetallesCaso_Click">
+                                                            <Button Style="{StaticResource ThemeAwareRoundedButtonStyle}" Width="35" Height="35" Margin="0,0,5,0" Click="MostrarDetallesCaso_Click">
                                                                 <Image Source="/TFG V0.01;component/Recursos/Iconos/ver.png" Width="15" Height="15"/>
                                                             </Button>
 

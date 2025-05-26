@@ -938,11 +938,9 @@ namespace TFG_V0._01.Ventanas
 
         private void ShowSlidePanel()
         {
-            OverlayPanel.Visibility = Visibility.Visible;
             SlidePanel.Visibility = Visibility.Visible;
-            
-            // Animación de entrada
-            var animation = new DoubleAnimation
+            OverlayPanel.Visibility = Visibility.Visible;
+            DoubleAnimation slideInAnimation = new DoubleAnimation
             {
                 From = 400,
                 To = 0,
@@ -950,13 +948,12 @@ namespace TFG_V0._01.Ventanas
                 EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
             };
 
-            SlidePanelTransform.BeginAnimation(TranslateTransform.XProperty, animation);
+            SlidePanelTransform.BeginAnimation(TranslateTransform.XProperty, slideInAnimation);
         }
 
         private void HideSlidePanel()
         {
-            // Animación de salida
-            var animation = new DoubleAnimation
+            DoubleAnimation slideOutAnimation = new DoubleAnimation
             {
                 From = 0,
                 To = 400,
@@ -964,13 +961,13 @@ namespace TFG_V0._01.Ventanas
                 EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseIn }
             };
 
-            animation.Completed += (s, e) =>
+            slideOutAnimation.Completed += (s, e) =>
             {
                 SlidePanel.Visibility = Visibility.Collapsed;
                 OverlayPanel.Visibility = Visibility.Collapsed;
             };
 
-            SlidePanelTransform.BeginAnimation(TranslateTransform.XProperty, animation);
+            SlidePanelTransform.BeginAnimation(TranslateTransform.XProperty, slideOutAnimation);
         }
 
         private void OverlayPanel_MouseDown(object sender, MouseButtonEventArgs e)

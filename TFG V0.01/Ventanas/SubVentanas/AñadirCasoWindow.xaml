@@ -88,7 +88,7 @@
             <Setter Property="BorderThickness" Value="1"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
-                    <Setter Property="Foreground" Value="#222222"/>
+                    <Setter Property="Foreground" Value="Black"/>
                     <Setter Property="Background" Value="#30FFFFFF"/>
                     <Setter Property="BorderBrush" Value="#40000000"/>
                 </DataTrigger>

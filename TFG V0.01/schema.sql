@@ -148,10 +148,10 @@ CREATE TABLE IF NOT EXISTS reciente (
   id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   id_caso BIGINT NOT NULL,
   fecha_hora TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT FK__casos FOREIGN KEY (id_caso) REFERENCES casos (id)
+  CONSTRAINT FK_reciente_casos FOREIGN KEY (id_caso) REFERENCES casos (id)
 );
 
-CREATE INDEX FK__casos ON reciente (id_caso);
+CREATE INDEX FK_reciente_casos ON reciente (id_caso);
 
 -- Create table for time records (depends on casos)
 CREATE TABLE IF NOT EXISTS registrotiempos (

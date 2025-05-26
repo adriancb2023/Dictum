@@ -1,36 +1,54 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media.Animation;
 using TFG_V0._01.Supabase;
 using TFG_V0._01.Supabase.Models;
 
 namespace TFG_V0._01.Ventanas.SubVentanas
 {
-    public partial class AñadirCasoWindow : Window
+    public partial class AñadirCasoWindow : UserControl
     {
-        private readonly SupabaseCasos _casosService;
-        private readonly SupabaseClientes _clientesService;
-        private readonly SupabaseEstados _estadosService;
-        private readonly SupabaseTiposCaso _tiposCasoService;
+        private readonly SupabaseCasos _supabaseCasos;
+        private readonly SupabaseClientes _supabaseClientes;
+        private readonly SupabaseTiposCaso _supabaseTiposCaso;
+        private readonly SupabaseEstados _supabaseEstados;
+
+        public event EventHandler CasoGuardado;
+        public event EventHandler CasoCancelado;
 
         public AñadirCasoWindow()
         {
             InitializeComponent();
-            _casosService = new SupabaseCasos();
-            _clientesService = new SupabaseClientes();
-            _estadosService = new SupabaseEstados();
-            _tiposCasoService = new SupabaseTiposCaso();
-
-            Loaded += AñadirCasoWindow_Loaded;
+            _supabaseCasos = new SupabaseCasos();
+            _supabaseClientes = new SupabaseClientes();
+            _supabaseTiposCaso = new SupabaseTiposCaso();
+            _supabaseEstados = new SupabaseEstados();
+            LoadData();
         }
-         
-        private async void AñadirCasoWindow_Loaded(object sender, RoutedEventArgs e)
+
+        private async void LoadData()
         {
             try
             {
-                await CargarDatosAsync();
+                // Cargar clientes
+                var clientes = await _supabaseClientes.ObtenerClientesAsync();
+                cmbClientes.ItemsSource = clientes;
+
+                // Cargar tipos de caso
+                var tiposCaso = await _supabaseTiposCaso.ObtenerTodosAsync();
+                cmbTiposCaso.ItemsSource = tiposCaso;
+
+                // Cargar estados
+                var estados = await _supabaseEstados.ObtenerTodosAsync();
+                cmbEstados.ItemsSource = estados;
+
+                // Establecer valores por defecto
+                if (cmbEstados.Items.Count > 0)
+                    cmbEstados.SelectedIndex = 0;
+                if (cmbTiposCaso.Items.Count > 0)
+                    cmbTiposCaso.SelectedIndex = 0;
+                dpFechaInicio.SelectedDate = DateTime.Now;
             }
             catch (Exception ex)
             {
@@ -38,55 +56,35 @@ namespace TFG_V0._01.Ventanas.SubVentanas
             }
         }
 
-        private async Task CargarDatosAsync()
-        {
-            // Cargar clientes
-            var clientes = await _clientesService.ObtenerClientesAsync();
-            cmbClientes.ItemsSource = clientes;
-            cmbClientes.DisplayMemberPath = "nombre";
-            cmbClientes.SelectedValuePath = "id";
-
-            // Cargar tipos de caso
-            var tiposCaso = await _tiposCasoService.ObtenerTodosAsync();
-            cmbTiposCaso.ItemsSource = tiposCaso;
-            cmbTiposCaso.DisplayMemberPath = "nombre";
-            cmbTiposCaso.SelectedValuePath = "id";
-
-            // Cargar estados
-            var estados = await _estadosService.ObtenerTodosAsync();
-            cmbEstados.ItemsSource = estados;
-            cmbEstados.DisplayMemberPath = "nombre";
-            cmbEstados.SelectedValuePath = "id";
-
-            // Establecer fecha actual por defecto
-            dpFechaInicio.SelectedDate = DateTime.Now;
-        }
-
         private async void btnGuardar_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                if (!ValidarCampos())
+                if (string.IsNullOrWhiteSpace(txtTitulo.Text))
                 {
-                    MessageBox.Show("Por favor, complete todos los campos requeridos.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("Por favor, introduce un título para el caso.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                if (cmbClientes.SelectedItem == null)
+                {
+                    MessageBox.Show("Por favor, selecciona un cliente.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
                 var nuevoCaso = new CasoInsertDto
                 {
-                    titulo = txtTitulo.Text.Trim(),
-                    descripcion = txtDescripcion.Text.Trim(),
+                    titulo = txtTitulo.Text,
+                    descripcion = txtDescripcion.Text,
                     id_cliente = (int)cmbClientes.SelectedValue,
                     id_tipo_caso = (int)cmbTiposCaso.SelectedValue,
                     id_estado = (int)cmbEstados.SelectedValue,
                     fecha_inicio = dpFechaInicio.SelectedDate ?? DateTime.Now,
-                    referencia = null // o lo que corresponda
+                    referencia = $"C-{DateTime.Now:yyyyMMdd}-{new Random().Next(1000, 9999)}"
                 };
 
-                await _casosService.InsertarAsync(nuevoCaso);
-                MessageBox.Show("Caso creado exitosamente.", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
-                DialogResult = true;
-                Close();
+                await _supabaseCasos.InsertarAsync(nuevoCaso);
+                CasoGuardado?.Invoke(this, EventArgs.Empty);
             }
             catch (Exception ex)
             {
@@ -94,20 +92,9 @@ namespace TFG_V0._01.Ventanas.SubVentanas
             }
         }
 
-        private bool ValidarCampos()
-        {
-            return !string.IsNullOrWhiteSpace(txtTitulo.Text) &&
-                   !string.IsNullOrWhiteSpace(txtDescripcion.Text) &&
-                   cmbClientes.SelectedValue != null &&
-                   cmbTiposCaso.SelectedValue != null &&
-                   cmbEstados.SelectedValue != null &&
-                   dpFechaInicio.SelectedDate != null;
-        }
-
         private void btnCancelar_Click(object sender, RoutedEventArgs e)
         {
-            DialogResult = false;
-            Close();
+            CasoCancelado?.Invoke(this, EventArgs.Empty);
         }
     }
 } 

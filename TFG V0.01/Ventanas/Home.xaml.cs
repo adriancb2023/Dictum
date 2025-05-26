@@ -217,6 +217,13 @@ namespace TFG_V0._01.Ventanas
             {
 
             }
+
+            // Suscribirse a los eventos del control AddCasoControl
+            if (AddCasoControl != null)
+            {
+                AddCasoControl.CasoGuardado += OnCasoGuardado;
+                AddCasoControl.CasoCancelado += OnCasoCancelado;
+            }
         }
         #endregion
 
@@ -937,14 +944,64 @@ namespace TFG_V0._01.Ventanas
             }
         }
 
-        private async void btnAddCaso_Click(object sender, RoutedEventArgs e)
+        private void btnAddCaso_Click(object sender, RoutedEventArgs e)
         {
-            var window = new SubVentanas.AñadirCasoWindow();
-            if (window.ShowDialog() == true)
+            ShowSlidePanel();
+        }
+
+        private void ShowSlidePanel()
+        {
+            OverlayPanel.Visibility = Visibility.Visible;
+            SlidePanel.Visibility = Visibility.Visible;
+            
+            // Animación de entrada
+            var animation = new DoubleAnimation
             {
-                // Refresh the cases list if needed
-                await CargarCasosRecientes();
-            }
+                From = 400,
+                To = 0,
+                Duration = TimeSpan.FromMilliseconds(300),
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+            };
+
+            SlidePanelTransform.BeginAnimation(TranslateTransform.XProperty, animation);
+        }
+
+        private void HideSlidePanel()
+        {
+            // Animación de salida
+            var animation = new DoubleAnimation
+            {
+                From = 0,
+                To = 400,
+                Duration = TimeSpan.FromMilliseconds(300),
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseIn }
+            };
+
+            animation.Completed += (s, e) =>
+            {
+                SlidePanel.Visibility = Visibility.Collapsed;
+                OverlayPanel.Visibility = Visibility.Collapsed;
+            };
+
+            SlidePanelTransform.BeginAnimation(TranslateTransform.XProperty, animation);
+        }
+
+        private void OverlayPanel_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            HideSlidePanel();
+        }
+
+        // Método para manejar el guardado del caso
+        private void OnCasoGuardado(object sender, EventArgs e)
+        {
+            HideSlidePanel();
+            // Aquí puedes añadir la lógica para actualizar la lista de casos si es necesario
+        }
+
+        // Método para manejar la cancelación
+        private void OnCasoCancelado(object sender, EventArgs e)
+        {
+            HideSlidePanel();
         }
 
         private void btnAddCliente_Click(object sender, RoutedEventArgs e)

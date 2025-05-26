@@ -48,7 +48,6 @@ namespace TFG_V0._01.Ventanas
 
         private readonly SupabaseTareas _tareasService;
 
-        private readonly SupabaseReciente _recienteService;
 
         public ICommand VerDetallesCommand { get; }
 
@@ -180,7 +179,6 @@ namespace TFG_V0._01.Ventanas
             _supabaseCasos = new SupabaseCasos();
             _documentosService = new SupabaseDocumentos();
             _tareasService = new SupabaseTareas();
-            _recienteService = new SupabaseReciente();
             _eventosCitasService = new SupabaseEventosCitas();
             CasosRecientesLista = new ObservableCollection<CasoViewModel>();
 
@@ -568,7 +566,6 @@ namespace TFG_V0._01.Ventanas
                 await Task.WhenAll(
                     _documentosService.InicializarAsync(),
                     _tareasService.InicializarAsync(),
-                    _recienteService.InicializarAsync(),
                     _eventosCitasService.InicializarAsync()
                 );
             }
@@ -589,11 +586,10 @@ namespace TFG_V0._01.Ventanas
                 var casosTask = _supabaseCasos.ObtenerTodosAsync();
                 var documentosTask = _documentosService.ObtenerTodosDocumentosManualAsync();
                 var tareasTask = _tareasService.ObtenerTodosAsync();
-                var recientesTask = _recienteService.ObtenerTodosAsync();
                 var eventosCitasTask = _eventosCitasService.ObtenerTodosEventosManualAsync();
 
                 // Esperar a que todas las tareas se completen
-                await Task.WhenAll(clientesTask, casosTask, documentosTask, tareasTask, recientesTask, eventosCitasTask);
+                await Task.WhenAll(clientesTask, casosTask, documentosTask, tareasTask, eventosCitasTask);
 
                 // Procesar clientes
                 var clientes = await clientesTask;
@@ -619,33 +615,26 @@ namespace TFG_V0._01.Ventanas
                     TareasPendientesLista.Add(tarea);
 
                 // Procesar casos recientes
-                var recientes = await recientesTask;
                 CasosRecientesLista.Clear();
                 var fechaLimite = DateTime.Now.Date.AddDays(-28);
 
-                // Cargar casos recientes en paralelo
-                var casosRecientes = await Task.WhenAll(
-                    recientes.Select(async reciente =>
-                    {
-                        var caso = await _supabaseCasos.ObtenerPorIdAsync(reciente.id_caso);
-                        return (caso, reciente);
-                    })
-                );
+                // Cargar casos recientes directamente desde la tabla casos
+                var casosRecientes = await _supabaseCasos.ObtenerTodosAsync();
+                var casosFiltrados = casosRecientes
+                    .Where(caso => caso.fecha_inicio.Date >= fechaLimite)
+                    .OrderByDescending(caso => caso.fecha_inicio);
 
-                foreach (var (caso, _) in casosRecientes)
+                foreach (var caso in casosFiltrados)
                 {
-                    if (caso != null && caso.fecha_inicio.Date >= fechaLimite)
+                    CasosRecientesLista.Add(new CasoViewModel
                     {
-                        CasosRecientesLista.Add(new CasoViewModel
-                        {
-                            id = caso.id,
-                            referencia = caso.referencia,
-                            nombre_cliente = caso.nombre_cliente,
-                            tipo_nombre = caso.tipo_nombre,
-                            estado = caso.estado_nombre,
-                            estado_color = ObtenerColorEstadoCaso(caso.estado_nombre)
-                        });
-                    }
+                        id = caso.id,
+                        referencia = caso.referencia,
+                        nombre_cliente = caso.nombre_cliente,
+                        tipo_nombre = caso.tipo_nombre,
+                        estado = caso.estado_nombre,
+                        estado_color = ObtenerColorEstadoCaso(caso.estado_nombre)
+                    });
                 }
                 CasosRecientes = CasosRecientesLista.Count;
 
@@ -732,8 +721,6 @@ namespace TFG_V0._01.Ventanas
 
                 var casosRecientes = casos
                     .Where(c => c.fecha_inicio.Date >= fechaLimite)
-                    .GroupBy(c => c.id)
-                    .Select(g => g.First())
                     .OrderByDescending(c => c.fecha_inicio)
                     .ToList();
 

@@ -805,7 +805,7 @@
 
         </Grid>
 
-        <Popup x:Name="PopupDetallesCaso" Placement="Right" PlacementTarget="{Binding ElementName=RootWindow}" StaysOpen="False" AllowsTransparency="True" PopupAnimation="Slide" Width="400" HorizontalOffset="-20">
+        <Popup x:Name="PopupDetallesCaso" Placement="Center" PlacementTarget="{Binding ElementName=RootWindow}" StaysOpen="False" AllowsTransparency="True" PopupAnimation="Slide" Width="400">
             <Border Background="#FF222222" CornerRadius="15" Padding="20">
                 <StackPanel>
                     <TextBlock x:Name="PopupTitulo" FontSize="20" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}"/>

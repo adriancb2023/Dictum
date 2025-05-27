@@ -142,5 +142,14 @@ namespace TFG_V0._01.Ventanas.SubVentanas
         {
             ClienteCancelado?.Invoke(this, EventArgs.Empty);
         }
+
+        private void dpFechaContrato_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (dpFechaContrato.SelectedDate.HasValue)
+            {
+                // Aquí puedes manejar la fecha seleccionada si lo necesitas
+                DateTime fechaSeleccionada = dpFechaContrato.SelectedDate.Value;
+            }
+        }
     }
 } 

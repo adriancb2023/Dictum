@@ -312,9 +312,8 @@
                     <TextBlock.Text>Fecha de Contrato:</TextBlock.Text>
                 </TextBlock>
 
-                <DatePicker x:Name="dpFechaContrato" 
-                           Style="{StaticResource RoundedDatePickerStyle}"
-                           Margin="0,0,0,15"/>
+                <DatePicker x:Name="dpFechaContrato" Style="{StaticResource RoundedDatePickerStyle}" Margin="0,0,0,15"/>
+                
             </StackPanel>
         </ScrollViewer>
 

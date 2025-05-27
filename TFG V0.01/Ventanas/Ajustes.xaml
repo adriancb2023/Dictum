@@ -189,22 +189,22 @@
             </Grid.RowDefinitions>
 
             <!-- Header -->
-            <TextBlock Text="Ajustes" FontSize="24" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,20"/>
+            <TextBlock x:Name="TituloAjustes" Text="Ajustes" FontSize="24" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,20"/>
 
             <!-- Contenido de ajustes -->
             <Border Grid.Row="1" Style="{StaticResource CardStyle}" Margin="0,0,0,20">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="10">
                         <!-- Sección de Apariencia -->
-                        <TextBlock Text="Apariencia" FontSize="18" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,15"/>
+                        <TextBlock x:Name="txtApariencia" Text="Apariencia" FontSize="18" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,15"/>
                         <Grid Margin="0,0,0,20">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="Tema Oscuro" Style="{StaticResource PrimaryTextStyle}" FontWeight="SemiBold"/>
-                                <TextBlock Text="Cambiar entre tema claro y oscuro" Style="{StaticResource SecondaryTextStyle}" FontSize="12"/>
+                                <TextBlock x:Name="txtTemaOscuro" Text="Tema Oscuro" Style="{StaticResource PrimaryTextStyle}" FontWeight="SemiBold"/>
+                                <TextBlock x:Name="txtCambiarTema" Text="Cambiar entre tema claro y oscuro" Style="{StaticResource SecondaryTextStyle}" FontSize="12"/>
                             </StackPanel>
                             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
                                 <Image x:Name="solIcon" Width="20" Height="20">
@@ -241,7 +241,7 @@
                         <Separator Background="#454545" Margin="0,10,0,20"/>
 
                         <!-- Sección de Idioma -->
-                        <TextBlock Text="Idioma" FontSize="18" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,15"/>
+                        <TextBlock x:Name="txtIdioma" Text="Idioma" FontSize="18" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,15"/>
                         <ComboBox x:Name="LanguageComboBox" Width="200" HorizontalAlignment="Left" Margin="0,0,0,20">
                             <ComboBoxItem Content="Español" Tag="1" />
                             <ComboBoxItem Content="English" Tag="2" />
@@ -254,15 +254,15 @@
                         <Separator Background="#454545" Margin="0,10,0,20"/>
 
                         <!-- Sección de Base de Datos -->
-                        <TextBlock Text="Base de Datos" FontSize="18" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,15" Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVisibilityConverter}, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                        <TextBlock x:Name="txtBaseDatos" Text="Base de Datos" FontSize="18" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,15" Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVisibilityConverter}, RelativeSource={RelativeSource AncestorType=Window}}"/>
                         <Grid x:Name="BBDDSection" Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVisibilityConverter}, RelativeSource={RelativeSource AncestorType=Window}}">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                                <TextBlock Text="Tipo de Base de Datos" Style="{StaticResource PrimaryTextStyle}" FontWeight="SemiBold" FontSize="16"/>
-                                <TextBlock Text="Elige dónde almacenar tus datos" Style="{StaticResource SecondaryTextStyle}" FontSize="12" Margin="0,5,0,0"/>
+                                <TextBlock x:Name="txtTipoBBDD" Text="Tipo de Base de Datos" Style="{StaticResource PrimaryTextStyle}" FontWeight="SemiBold" FontSize="16"/>
+                                <TextBlock x:Name="txtEligeBBDD" Text="Elige dónde almacenar tus datos" Style="{StaticResource SecondaryTextStyle}" FontSize="12" Margin="0,5,0,0"/>
                             </StackPanel>
                             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
                                 <Image x:Name="localIcon" Width="20" Height="20">
@@ -300,8 +300,8 @@
 
             <!-- Botones de acción -->
             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
-                <Button Content="Cancelar" Style="{StaticResource RoundedButtonStyle}" Width="120" Margin="0,0,10,0"/>
-                <Button Content="Guardar" Style="{StaticResource RoundedButtonStyle}" Width="120" Background="#007AFF" Click="GuardarConfig"/>
+                <Button x:Name="btnCancelar" Content="Cancelar" Style="{StaticResource RoundedButtonStyle}" Width="120" Margin="0,0,10,0"/>
+                <Button x:Name="btnGuardar" Content="Guardar" Style="{StaticResource RoundedButtonStyle}" Width="120" Background="#007AFF" Click="GuardarConfig"/>
             </StackPanel>
         </Grid>
     </Grid>

@@ -47,6 +47,7 @@ namespace TFG_V0._01.Ventanas
             IniciarAnimacionMesh();
             AplicarModoSistema();
             ReadConfiguration();
+            CargarIdioma(MainWindow.idioma);
         }
         #endregion
 
@@ -281,6 +282,15 @@ namespace TFG_V0._01.Ventanas
             System.IO.File.WriteAllText(filePath, json);
 
             MessageBox.Show("Configuración guardada correctamente en el escritorio.");
+            MainWindow.isDarkTheme = isDarkMode;
+            MainWindow.idioma = idioma;
+            MainWindow.tipoBBDD = bbdd;
+
+            AplicarTemaMesh();
+            navbar.ActualizarTema(MainWindow.isDarkTheme);
+            CargarIdioma(MainWindow.idioma);
+
+
         }
         #endregion
 
@@ -321,6 +331,36 @@ namespace TFG_V0._01.Ventanas
             {
                 MessageBox.Show("Error al leer la configuración: " + ex.Message);
             }
+        }
+        #endregion
+
+        #region 🌍 Gestión de Idiomas
+        private void CargarIdioma(int idioma)
+        {
+            var idiomas = new (string Titulo, string Apariencia, string TemaOscuro, string CambiarTema, string Idioma, string BaseDatos, string TipoBBDD, string EligeBBDD, string Guardar, string Cancelar)[] {
+                ("Ajustes", "Apariencia", "Tema Oscuro", "Cambiar entre tema claro y oscuro", "Idioma", "Base de Datos", "Tipo de Base de Datos", "Elige dónde almacenar tus datos", "Guardar", "Cancelar"),
+                ("Settings", "Appearance", "Dark Theme", "Switch between light and dark theme", "Language", "Database", "Database Type", "Choose where to store your data", "Save", "Cancel"),
+                ("Ajustos", "Aparença", "Tema Fosc", "Canvia entre tema clar i fosc", "Idioma", "Base de Dades", "Tipus de Base de Dades", "Tria on desar les teves dades", "Desar", "Cancel·lar"),
+                ("Axustes", "Apariencia", "Tema escuro", "Cambiar entre tema claro e escuro", "Idioma", "Base de Datos", "Tipo de Base de Datos", "Elixe onde gardar os teus datos", "Gardar", "Cancelar"),
+                ("Ezarpenak", "Itxura", "Gaueko gaia", "Aldatu argi eta ilun moduen artean", "Hizkuntza", "Datu-basea", "Datu-base mota", "Aukeratu datuak non gorde", "Gorde", "Utzi")
+            };
+
+            if (idioma < 0 || idioma >= idiomas.Length)
+                idioma = 0;
+
+            var t = idiomas[idioma];
+
+            // Asigna los textos a los controles
+            TituloAjustes.Text = t.Titulo;
+            txtApariencia.Text = t.Apariencia;
+            txtTemaOscuro.Text = t.TemaOscuro;
+            txtCambiarTema.Text = t.CambiarTema;
+            txtIdioma.Text = t.Idioma;
+            txtBaseDatos.Text = t.BaseDatos;
+            txtTipoBBDD.Text = t.TipoBBDD;
+            txtEligeBBDD.Text = t.EligeBBDD;
+            btnGuardar.Content = t.Guardar;
+            btnCancelar.Content = t.Cancelar;
         }
         #endregion
 

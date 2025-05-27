@@ -94,7 +94,32 @@ namespace TFG_V0._01.Supabase
             response.EnsureSuccessStatusCode();
 
             var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            return JsonConvert.DeserializeObject<List<EventoCita>>(json);
+            
+            // Configurar el deserializador para manejar fechas correctamente
+            var settings = new JsonSerializerSettings
+            {
+                DateFormatString = "yyyy-MM-dd",
+                DateTimeZoneHandling = DateTimeZoneHandling.Local
+            };
+            
+            var eventos = JsonConvert.DeserializeObject<List<EventoCita>>(json, settings);
+            
+            // Validar y corregir fechas si es necesario
+            foreach (var evento in eventos)
+            {
+                if (string.IsNullOrEmpty(evento.FechaString))
+                {
+                    evento.FechaString = DateTime.Now.ToString("yyyy-MM-dd");
+                }
+                
+                // Asegurar que FechaInicio tenga un valor válido
+                if (evento.FechaInicio == default)
+                {
+                    evento.FechaInicio = new TimeSpan(0, 0, 0);
+                }
+            }
+            
+            return eventos;
         }
     }
 } 

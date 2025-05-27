@@ -220,6 +220,7 @@
                     </TextBlock.Style>
                     <TextBlock.Text>Estado:</TextBlock.Text>
                 </TextBlock>
+                
                 <ComboBox x:Name="cmbEstados" 
                           Style="{StaticResource ModernComboBoxStyle}"
                           DisplayMemberPath="nombre"
@@ -255,11 +256,11 @@
                     Style="{StaticResource RoundedButtonStyle}"
                     Background="#30FFFFFF"
                     Margin="0,0,10,0"
-                    Click="btnCancelar_Click"/>
+                    Click="btnCancelar_Click" Height="40" Width="100"/>
             <Button Content="Guardar" 
                     Style="{StaticResource RoundedButtonStyle}"
                     Background="#2979FF"
-                    Click="btnGuardar_Click"/>
+                    Click="btnGuardar_Click" Width="100"/>
         </StackPanel>
     </Grid>
 </UserControl> 

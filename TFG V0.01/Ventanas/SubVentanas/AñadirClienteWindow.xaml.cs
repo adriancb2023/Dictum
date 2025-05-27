@@ -1,14 +1,18 @@
 using System;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using TFG_V0._01.Supabase;
 using TFG_V0._01.Supabase.Models;
 
 namespace TFG_V0._01.Ventanas.SubVentanas
 {
-    public partial class AñadirClienteWindow : Window
+    public partial class AñadirClienteWindow : UserControl
     {
         private readonly SupabaseClientes _supabaseClientes;
+
+        public event EventHandler ClienteGuardado;
+        public event EventHandler ClienteCancelado;
 
         public AñadirClienteWindow()
         {
@@ -52,8 +56,7 @@ namespace TFG_V0._01.Ventanas.SubVentanas
 
                 await _supabaseClientes.InsertarClienteAsync(nuevoCliente);
                 MessageBox.Show("Cliente añadido correctamente", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
-                DialogResult = true;
-                Close();
+                ClienteGuardado?.Invoke(this, EventArgs.Empty);
             }
             catch (Exception ex)
             {
@@ -137,8 +140,7 @@ namespace TFG_V0._01.Ventanas.SubVentanas
 
         private void btnCancelar_Click(object sender, RoutedEventArgs e)
         {
-            DialogResult = false;
-            Close();
+            ClienteCancelado?.Invoke(this, EventArgs.Empty);
         }
     }
 } 

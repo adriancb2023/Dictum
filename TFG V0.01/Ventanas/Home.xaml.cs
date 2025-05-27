@@ -972,7 +972,15 @@ namespace TFG_V0._01.Ventanas
 
         private void OverlayPanel_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            HideSlidePanel();
+            // Ocultar ambos paneles si están visibles
+            if (SlidePanel.Visibility == Visibility.Visible)
+            {
+                HideSlidePanel();
+            }
+            if (SlidePanelCliente.Visibility == Visibility.Visible)
+            {
+                HideSlidePanelCliente();
+            }
         }
 
         // Método para manejar el guardado del caso
@@ -990,11 +998,64 @@ namespace TFG_V0._01.Ventanas
 
         private void btnAddCliente_Click(object sender, RoutedEventArgs e)
         {
-            var window = new SubVentanas.AñadirClienteWindow();
-            if (window.ShowDialog() == true)
+            ShowSlidePanelCliente();
+        }
+
+        private void ShowSlidePanelCliente()
+        {
+            SlidePanelCliente.Visibility = Visibility.Visible;
+            OverlayPanel.Visibility = Visibility.Visible;
+
+            // Suscribirse a los eventos del control
+            AddClienteControl.ClienteGuardado += OnClienteGuardado;
+            AddClienteControl.ClienteCancelado += OnClienteCancelado;
+
+            var slideInAnimation = new DoubleAnimation
             {
-                // Refresh the client list if needed
+                To = 0,
+                Duration = TimeSpan.FromMilliseconds(300),
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+            };
+
+            SlidePanelClienteTransform.BeginAnimation(TranslateTransform.XProperty, slideInAnimation);
+        }
+
+        private void HideSlidePanelCliente()
+        {
+            // Desuscribirse de los eventos del control
+            if (AddClienteControl != null)
+            {
+                AddClienteControl.ClienteGuardado -= OnClienteGuardado;
+                AddClienteControl.ClienteCancelado -= OnClienteCancelado;
             }
+
+            var slideOutAnimation = new DoubleAnimation
+            {
+                To = 400,
+                Duration = TimeSpan.FromMilliseconds(300),
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseIn }
+            };
+
+            slideOutAnimation.Completed += (s, e) =>
+            {
+                SlidePanelCliente.Visibility = Visibility.Collapsed;
+                OverlayPanel.Visibility = Visibility.Collapsed;
+            };
+
+            SlidePanelClienteTransform.BeginAnimation(TranslateTransform.XProperty, slideOutAnimation);
+        }
+
+        // Método para manejar el guardado del cliente
+        private void OnClienteGuardado(object sender, EventArgs e)
+        {
+            HideSlidePanelCliente();
+            // Aquí puedes añadir la lógica para actualizar la lista de clientes si es necesario
+        }
+
+        // Método para manejar la cancelación
+        private void OnClienteCancelado(object sender, EventArgs e)
+        {
+            HideSlidePanelCliente();
         }
 
         // Manejadores de eventos para el efecto hover en botones de añadir

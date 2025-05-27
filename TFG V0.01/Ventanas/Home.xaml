@@ -316,6 +316,31 @@
                 </ContentControl>
             </Grid>
 
+            <!-- Panel deslizante para añadir cliente -->
+            <Grid x:Name="SlidePanelCliente" 
+                  Grid.RowSpan="3" 
+                  Width="400" 
+                  HorizontalAlignment="Right" 
+                  Panel.ZIndex="1000"
+                  Visibility="Collapsed">
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Background" Value="{StaticResource SlidePanelGradientDark}"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                <Setter Property="Background" Value="{StaticResource SlidePanelGradientLight}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+                <Grid.RenderTransform>
+                    <TranslateTransform x:Name="SlidePanelClienteTransform" X="400"/>
+                </Grid.RenderTransform>
+                <ContentControl>
+                    <subventanas:AñadirClienteWindow x:Name="AddClienteControl"/>
+                </ContentControl>
+            </Grid>
+
             <!-- Overlay para cerrar al hacer clic fuera -->
             <Grid x:Name="OverlayPanel" 
                   Grid.RowSpan="3" 

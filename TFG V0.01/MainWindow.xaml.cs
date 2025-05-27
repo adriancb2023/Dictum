@@ -11,13 +11,14 @@ namespace TFG_V0._01
 {
     public partial class MainWindow : Window
     {
-        #region Campos
+        #region Variables
         private DispatcherTimer progressTimer = null!;
         private DateTime startTime;
         private readonly TimeSpan duration = TimeSpan.FromSeconds(2.0);
         public static bool isDarkTheme;
         public static bool tipoBBDD;
         public static int idioma;
+        public static bool isAdmin;
         #endregion
 
         #region Constructor
@@ -29,6 +30,7 @@ namespace TFG_V0._01
             cargarIdioma(idioma);
             StartLoadingAnimation();
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            isAdmin = false;
 
             // No necesitamos aplicar tema ya que el fondo es translúcido
             // y queremos que se vea el fondo del escritorio

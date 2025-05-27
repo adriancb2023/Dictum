@@ -236,6 +236,7 @@ namespace TFG_V0._01.Ventanas
                 {
                     var eleccionBBDD = new EleccionBBDD();
                     eleccionBBDD.Show();
+                    MainWindow.isAdmin = true;
                     this.Close();
                 }
                 else
@@ -296,6 +297,7 @@ namespace TFG_V0._01.Ventanas
 
                 if (resultado.User != null && resultado.User.Email == "root@root.com")
                 {
+                    MainWindow.isAdmin = true;
                     var eleccionBBDD = new EleccionBBDD();
                     eleccionBBDD.Show();
                     this.Close();

@@ -454,6 +454,25 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
+
+        <!-- Estilos específicos para los textos de los resultados -->
+        <Style x:Key="ResultadoTextBlockStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#FFF"/> <!-- Por defecto blanco (oscuro) -->
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Foreground" Value="#222"/> <!-- Negro en modo claro -->
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ResultadoBorderStyle" TargetType="Border">
+            <Setter Property="Background" Value="#3A3A3A"/> <!-- Fondo oscuro por defecto -->
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Background" Value="#FFF"/> <!-- Fondo claro en modo claro -->
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
     </Window.Resources>
 
     <Grid>
@@ -707,33 +726,33 @@
                             </ListBox.ItemContainerStyle>
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <Border BorderBrush="#555" BorderThickness="0,0,0,1" Padding="10">
+                                    <Border Style="{DynamicResource ResultadoBorderStyle}" BorderBrush="#555" BorderThickness="0,0,0,1" Padding="10">
                                         <StackPanel>
-                                            <TextBlock FontWeight="SemiBold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5">
+                                            <TextBlock FontWeight="SemiBold" Style="{DynamicResource ResultadoTextBlockStyle}" Margin="0,0,0,5">
                                                 <Run Text="ROJ:"/>
                                                 <Run Text="{Binding Roj}" FontWeight="Normal" />
                                             </TextBlock>
-                                            <TextBlock Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,3" FontSize="11">
+                                            <TextBlock Style="{DynamicResource ResultadoTextBlockStyle}" Margin="0,0,0,3" FontSize="11">
                                                 <Run Text="ECLI:"/>
                                                 <Run Text="{Binding Ecli}" />
                                             </TextBlock>
-                                            <TextBlock Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,3" FontSize="11">
+                                            <TextBlock Style="{DynamicResource ResultadoTextBlockStyle}" Margin="0,0,0,3" FontSize="11">
                                                 <Run Text="Fecha:"/>
                                                 <Run Text="{Binding FechaResolucion}" />
                                                  <Run Text="  |  "/>
                                                 <Run Text="Tipo: "/>
                                                 <Run Text="{Binding TipoResolucion}" />
                                             </TextBlock>
-                                            <TextBlock Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,3" FontSize="11">
+                                            <TextBlock Style="{DynamicResource ResultadoTextBlockStyle}" Margin="0,0,0,3" FontSize="11">
                                                 <Run Text="Órgano:"/>
                                                 <Run Text="{Binding OrganoJudicial}" />
                                             </TextBlock>
-                                            <TextBlock Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,3" FontSize="11" TextWrapping="Wrap">
+                                            <TextBlock Style="{DynamicResource ResultadoTextBlockStyle}" Margin="0,0,0,3" FontSize="11" TextWrapping="Wrap">
                                                 <Run Text="Ponente:"/>
                                                 <Run Text="{Binding Ponente}" />
                                             </TextBlock>
-                                            <TextBlock Text="Resumen:" FontWeight="SemiBold" Style="{StaticResource PrimaryTextStyle}" Margin="0,5,0,2"/>
-                                            <TextBlock Text="{Binding Resumen}" Style="{StaticResource SecondaryTextStyle}" TextWrapping="Wrap" MaxHeight="100" FontSize="12">
+                                            <TextBlock Text="Resumen:" FontWeight="SemiBold" Style="{DynamicResource ResultadoTextBlockStyle}" Margin="0,5,0,2"/>
+                                            <TextBlock Text="{Binding Resumen}" Style="{DynamicResource ResultadoTextBlockStyle}" TextWrapping="Wrap" MaxHeight="100" FontSize="12">
                                                 <TextBlock.ToolTip>
                                                     <ToolTip Background="#333" Foreground="White">
                                                         <TextBlock Text="{Binding Resumen}" TextWrapping="Wrap" MaxWidth="400" />

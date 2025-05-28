@@ -52,6 +52,7 @@ namespace TFG_V0._01.Supabase.Models
         [JsonConverter(typeof(TimeSpanConverter))]
         public TimeSpan FechaInicio { get; set; }
 
+        [JsonIgnore]
         public string EstadoColor { get; set; }
     }
 } 

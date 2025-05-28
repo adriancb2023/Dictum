@@ -473,6 +473,18 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
+
+        <Style x:Key="VerDocumentoButtonStyle" TargetType="Button" BasedOn="{StaticResource RoundedButtonStyle}">
+            <Setter Property="Background" Value="#2563EB"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="MinWidth" Value="90"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,8,0,0"/>
+        </Style>
     </Window.Resources>
 
     <Grid>
@@ -759,7 +771,7 @@
                                                     </ToolTip>
                                                 </TextBlock.ToolTip>
                                             </TextBlock>
-                                            <Button Content="Ver Documento" Margin="0,8,0,0" Padding="8,3" FontSize="10" HorizontalAlignment="Left" Click="VerDocumentoButton_Click" CommandParameter="{Binding UrlDocumento}" Style="{StaticResource RoundedButtonStyle}" Background="#FF3C72C2" Height="Auto">
+                                            <Button Content="Ver Documento" Margin="0,8,0,0" Padding="8,3" FontSize="10" HorizontalAlignment="Left" Click="VerDocumentoButton_Click" CommandParameter="{Binding UrlDocumento}" Style="{StaticResource VerDocumentoButtonStyle}">
                                                 <Button.Effect>
                                                     <DropShadowEffect BlurRadius="5" ShadowDepth="1" Opacity="0.3"/>
                                                 </Button.Effect>

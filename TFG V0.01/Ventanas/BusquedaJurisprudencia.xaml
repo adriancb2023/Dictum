@@ -152,7 +152,7 @@
                                                     ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
                                                     VerticalAlignment="Center"
                                                     Margin="{TemplateBinding Padding}"/>
-                                    <ToggleButton Grid.Column="1" 
+                                    <ToggleButton Grid.Column="0" Grid.ColumnSpan="2"
                                                 x:Name="ToggleButton"
                                                 IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
                                                 ClickMode="Press">
@@ -254,32 +254,33 @@
                                                       x:Name="PART_TextBox"
                                                       Background="Transparent"
                                                       BorderThickness="0"
-                                                      Padding="10,2"
-                                                      Foreground="{DynamicResource TextPrimaryDark}"
-                                                      CaretBrush="{DynamicResource TextPrimaryDark}">
+                                                      Padding="10,2">
                                         <DatePickerTextBox.Style>
                                             <Style TargetType="DatePickerTextBox">
+                                                <Setter Property="Foreground" Value="#FFF"/>
+                                                <Setter Property="CaretBrush" Value="#FFF"/>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
-                                                        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryLight}"/>
-                                                        <Setter Property="CaretBrush" Value="{DynamicResource TextPrimaryLight}"/>
+                                                        <Setter Property="Foreground" Value="#222"/>
+                                                        <Setter Property="CaretBrush" Value="#222"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
                                         </DatePickerTextBox.Style>
                                     </DatePickerTextBox>
-                                    <Button Grid.Column="1" 
-                                            x:Name="PART_Button"
-                                            Click="PART_Button_Click"
-                                            Background="Transparent"
-                                            BorderThickness="0"
-                                            Padding="5">
+                                    <ToggleButton Grid.Column="1" 
+                                                x:Name="PART_Button"
+                                                Background="Transparent"
+                                                BorderThickness="0"
+                                                Padding="5"
+                                                IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
                                         <Path Data="M0,0 L4,4 L8,0"
                                               StrokeThickness="2"
                                               HorizontalAlignment="Center"
                                               VerticalAlignment="Center">
                                             <Path.Style>
                                                 <Style TargetType="Path">
+                                                    <Setter Property="Stroke" Value="{DynamicResource TextPrimaryDark}"/>
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
                                                             <Setter Property="Stroke" Value="{DynamicResource TextPrimaryLight}"/>
@@ -288,9 +289,22 @@
                                                 </Style>
                                             </Path.Style>
                                         </Path>
-                                    </Button>
+                                    </ToggleButton>
                                 </Grid>
                             </Border>
+                            <Popup x:Name="PART_Popup" 
+                                   AllowsTransparency="True" 
+                                   IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   PlacementTarget="{Binding ElementName=PART_Button}"
+                                   Placement="Bottom">
+                                <Border Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="10">
+                                    <Calendar x:Name="PART_Calendar" 
+                                             Style="{DynamicResource {x:Type Calendar}}"/>
+                                </Border>
+                            </Popup>
                         </Grid>
                     </ControlTemplate>
                 </Setter.Value>
@@ -487,8 +501,7 @@
                                     <ComboBox x:Name="JurisdiccionComboBox" 
                                               ItemsSource="{Binding Jurisdicciones}" 
                                               SelectedItem="{Binding JurisdiccionSeleccionada, UpdateSourceTrigger=PropertyChanged}" 
-                                              Style="{StaticResource RoundedComboBoxStyle}"
-                                              Foreground="Black" />
+                                              Style="{StaticResource RoundedComboBoxStyle}"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="1">
@@ -496,8 +509,7 @@
                                     <ComboBox x:Name="TipoResolucionComboBox" 
                                               ItemsSource="{Binding TiposResolucion}" 
                                               SelectedItem="{Binding TipoResolucionSeleccionada, UpdateSourceTrigger=PropertyChanged}" 
-                                              Style="{StaticResource RoundedComboBoxStyle}"
-                                              Foreground="Black" />
+                                              Style="{StaticResource RoundedComboBoxStyle}"/>
                                 </StackPanel>
                             </Grid>
                             <Separator Margin="0,10,0,10"/>
@@ -514,7 +526,7 @@
                                               ItemsSource="{Binding OrganosJudiciales}" 
                                               SelectedItem="{Binding OrganoJudicialSeleccionado, UpdateSourceTrigger=PropertyChanged}" 
                                               Style="{StaticResource RoundedComboBoxStyle}"
-                                              Foreground="Black" Margin="0,0,10,0" />
+                                              Margin="0,0,10,0"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
@@ -529,8 +541,7 @@
                                 <ComboBox x:Name="LocalizacionComboBox" 
                                           ItemsSource="{Binding Localizaciones}" 
                                           SelectedItem="{Binding LocalizacionSeleccionada, UpdateSourceTrigger=PropertyChanged}" 
-                                          Style="{StaticResource RoundedComboBoxStyle}"
-                                          Foreground="Black" />
+                                          Style="{StaticResource RoundedComboBoxStyle}"/>
                             </Grid>
 
                             <Separator Margin="0,10,0,10"/>
@@ -570,6 +581,7 @@
                             </Grid>
 
                             <Grid Margin="0,10,0,0">
+
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="*"/>
@@ -577,13 +589,14 @@
 
                                 <StackPanel Grid.Column="0" Margin="0,0,10,0">
                                     <TextBlock Text="Fecha desde" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
-                                    <DatePicker x:Name="FechaDesdeDatePicker" SelectedDate="{Binding FechaDesde, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedDatePickerStyle}"/>
+                                    <DatePicker x:Name="FechaDesdeDatePicker" SelectedDate="{Binding FechaDesde, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedDatePickerStyle}" />
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="1">
                                     <TextBlock Text="Fecha hasta" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
-                                    <DatePicker x:Name="FechaHastaDatePicker" SelectedDate="{Binding FechaHasta, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedDatePickerStyle}"/>
+                                    <DatePicker x:Name="FechaHastaDatePicker" SelectedDate="{Binding FechaHasta, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedDatePickerStyle}" />
                                 </StackPanel>
+                                
                             </Grid>
 
                             <Separator Margin="0,10,0,10"/>
@@ -601,7 +614,7 @@
 
                                 <StackPanel Grid.Column="1">
                                     <TextBlock Text="Idioma" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
-                                    <ComboBox x:Name="IdiomaComboBox" SelectedItem="{Binding IdiomaSeleccionado, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedComboBoxStyle}" Foreground="Black">
+                                    <ComboBox x:Name="IdiomaComboBox" SelectedItem="{Binding IdiomaSeleccionado, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedComboBoxStyle}">
                                         <ComboBoxItem Content="Todos"/>
                                         <ComboBoxItem Content="Español"/>
                                         <ComboBoxItem Content="Català"/>

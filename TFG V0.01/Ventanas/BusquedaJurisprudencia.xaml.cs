@@ -161,6 +161,9 @@ namespace TFG_V0._01.Ventanas
            this.Resources["PrimaryTextStyle"] = primaryTextStyle;
            this.Resources["SecondaryTextStyle"] = secondaryTextStyle;
 
+           // Forzar actualización de estilos en ComboBoxes
+           ActualizarEstilosComboBoxes();
+
            navbar.ActualizarTema(MainWindow.isDarkTheme);
            IniciarAnimacionMesh();
         }
@@ -601,17 +604,34 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
-        #region Control de DatePicker
-        // Este método se asocia al botón dentro del template del DatePicker redondeado
-        // para abrir y cerrar el calendario.
-        private void PART_Button_Click(object sender, RoutedEventArgs e)
+        #region Actualizar Estilos ComboBoxes
+
+        private void ActualizarEstilosComboBoxes()
         {
-            var datePicker = ((Button)sender).TemplatedParent as DatePicker;
-            if (datePicker != null)
+            // Lista de nombres de ComboBoxes a actualizar
+            var comboBoxNames = new List<string>
             {
-                datePicker.IsDropDownOpen = !datePicker.IsDropDownOpen;
+                "JurisdiccionComboBox",
+                "TipoResolucionComboBox",
+                "OrganoJudicialComboBox",
+                "LocalizacionComboBox",
+                "IdiomaComboBox"
+            };
+
+            foreach (var name in comboBoxNames)
+            {
+                if (FindName(name) is ComboBox comboBox)
+                {
+                    // Guarda el estilo actual
+                    var currentStyle = comboBox.Style;
+                    // Establece el estilo a null temporalmente
+                    comboBox.Style = null;
+                    // Restaura el estilo original para forzar la re-evaluación
+                    comboBox.Style = currentStyle;
+                }
             }
         }
+
         #endregion
     }
 }

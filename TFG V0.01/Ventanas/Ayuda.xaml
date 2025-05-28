@@ -159,10 +159,10 @@
         <Style x:Key="MaterialDesignExpander" TargetType="Expander">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Expander">
-                        <!-- Definir animación de rotación como recurso del template -->
                         <ControlTemplate.Resources>
                             <Storyboard x:Key="ExpandRotateStoryboard">
                                 <DoubleAnimation 
@@ -171,7 +171,7 @@
                                     To="180"
                                     Duration="0:0:0.2"/>
                             </Storyboard>
-                             <Storyboard x:Key="CollapseRotateStoryboard">
+                            <Storyboard x:Key="CollapseRotateStoryboard">
                                 <DoubleAnimation 
                                     Storyboard.TargetName="ExpandPathTransform"
                                     Storyboard.TargetProperty="Angle"
@@ -198,9 +198,10 @@
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
-                                        <ContentPresenter Grid.Column="0" 
-                                                        ContentSource="Header" 
-                                                        RecognizesAccessKey="True"/>
+                                        <TextBlock Grid.Column="0" 
+                                                 Text="{TemplateBinding Header}"
+                                                 Foreground="{TemplateBinding Foreground}"
+                                                 FontWeight="SemiBold"/>
                                         <Path x:Name="ExpandPath" 
                                               Grid.Column="1"
                                               Data="M0,0 L10,0 L5,5 Z" 
@@ -208,7 +209,7 @@
                                               Height="5" 
                                               Stretch="Uniform" 
                                               HorizontalAlignment="Right" 
-                                              VerticalAlignment="Center" 
+                                              VerticalAlignment="Center"
                                               Fill="{TemplateBinding Foreground}">
                                             <Path.RenderTransform>
                                                 <RotateTransform x:Name="ExpandPathTransform" Angle="0"/>
@@ -216,12 +217,12 @@
                                         </Path>
                                     </Grid>
                                 </ToggleButton>
-                                <ContentPresenter x:Name="ContentPresenter" Grid.Row="1" 
+                                <ContentPresenter x:Name="ContentPresenter" 
+                                                Grid.Row="1" 
                                                 ContentSource="Content" 
                                                 Visibility="Collapsed"/>
                             </Grid>
                         </Border>
-                        <!-- ControlTemplate Triggers para iniciar Storyboards -->
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsExpanded" Value="True">
                                 <Setter TargetName="ContentPresenter" Property="Visibility" Value="Visible"/>
@@ -229,7 +230,7 @@
                                     <BeginStoryboard Storyboard="{StaticResource ExpandRotateStoryboard}"/>
                                 </Trigger.EnterActions>
                                 <Trigger.ExitActions>
-                                     <BeginStoryboard Storyboard="{StaticResource CollapseRotateStoryboard}"/>
+                                    <BeginStoryboard Storyboard="{StaticResource CollapseRotateStoryboard}"/>
                                 </Trigger.ExitActions>
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -237,26 +238,9 @@
                 </Setter.Value>
             </Setter>
             <Style.Triggers>
-                <!-- DataTrigger para color de texto en tema oscuro -->
-                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
-                    <Setter Property="Foreground" Value="#FFFFFF"/>
-                </DataTrigger>
-                 <!-- DataTrigger para color de texto en tema claro -->
                 <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
                     <Setter Property="Foreground" Value="#212121"/>
                 </DataTrigger>
-                <!-- DataTrigger para color de texto cuando expandido en tema oscuro -->
-                 <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsExpanded}" Value="True">
-                      <Setter Property="Foreground" Value="#FFFFFF"/>
-                 </DataTrigger>
-                  <!-- DataTrigger para color de texto cuando expandido en tema claro -->
-                 <MultiDataTrigger>
-                     <MultiDataTrigger.Conditions>
-                         <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False"/>
-                         <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsExpanded}" Value="True"/>
-                     </MultiDataTrigger.Conditions>
-                      <Setter Property="Foreground" Value="#212121"/>
-                 </MultiDataTrigger>
             </Style.Triggers>
         </Style>
 
@@ -450,7 +434,7 @@
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
                                 <TextBlock Text="Guías Rápidas" FontSize="20" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,15"/>
-                                <ItemsControl x:Name="GuiasRapidasItemsControl" Grid.Row="1">
+                                <ItemsControl x:Name="GuiasRapidasItemsControl" Grid.Row="1" Margin="0,0,10,0">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Border Style="{StaticResource ListItemContainerStyle}">
@@ -533,12 +517,12 @@
                                 </StackPanel>
 
                                 <!-- Formulario de contacto -->
-                                <StackPanel Grid.Column="1">
+                                <StackPanel Grid.Column="1" Margin="0,0,10,0">
                                     <TextBlock Text="Envíanos un mensaje" FontSize="16" FontWeight="SemiBold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,10"/>
                                     <TextBox x:Name="NombreTextBox" Style="{StaticResource RoundedTextBoxStyle}" Margin="0,0,0,10" Tag="Tu nombre"/>
                                     <TextBox x:Name="EmailTextBox" Style="{StaticResource RoundedTextBoxStyle}" Margin="0,0,0,10" Tag="Tu email"/>
                                     <TextBox x:Name="MensajeTextBox" Style="{StaticResource RoundedTextBoxStyle}" Height="100" TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,20" Tag="Tu mensaje"/>
-                                    <Button Content="Enviar mensaje" Style="{StaticResource RoundedButtonStyle}" HorizontalAlignment="Right" Height="40" Width="120" Click="EnviarMensaje_Click" Margin="0,0,0,15"/>
+                                    <Button Content="Enviar mensaje" Style="{StaticResource RoundedButtonStyle}" HorizontalAlignment="Right" Height="40" Width="120" Background="#007AFF" Foreground="White" FontWeight="SemiBold" FontSize="15" Click="EnviarMensaje_Click" Margin="0,0,0,15"/>
                                 </StackPanel>
                             </Grid>
                         </Grid>

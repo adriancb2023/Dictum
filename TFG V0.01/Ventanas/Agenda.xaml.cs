@@ -479,6 +479,13 @@ namespace TFG_V0._01.Ventanas
                 MessageBox.Show($"Error al guardar el evento: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        private void NuevoContactoButton_Click(object sender, RoutedEventArgs e)
+        {
+            var nuevoContactoWindow = new SubVentanas.NuevoContactoWindow();
+            nuevoContactoWindow.Owner = this;
+            nuevoContactoWindow.ShowDialog();
+        }
         #endregion
     }
 }

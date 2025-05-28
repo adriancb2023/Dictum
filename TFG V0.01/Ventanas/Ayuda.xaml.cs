@@ -52,6 +52,7 @@ namespace TFG_V0._01.Ventanas
         {
             this.Tag = MainWindow.isDarkTheme;
             AplicarTemaMesh(); // Aplicar tema al mesh gradient
+            navbar.ActualizarTema(MainWindow.isDarkTheme);
         }
         #endregion
 

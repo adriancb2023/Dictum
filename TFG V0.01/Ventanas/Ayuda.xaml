@@ -357,7 +357,20 @@
         </Grid.ColumnDefinitions>
 
             <!-- Navbar -->
-        <controls:NavbarControl x:Name="navbar" Grid.Column="0" />
+        <controls:NavbarControl x:Name="navbar" Grid.Column="0" Tag="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}">
+            <controls:NavbarControl.Style>
+                <Style TargetType="controls:NavbarControl">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                            <Setter Property="Foreground" Value="#FFFFFF"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                            <Setter Property="Foreground" Value="#222222"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </controls:NavbarControl.Style>
+        </controls:NavbarControl>
 
         <!-- Claro/Oscuro -->
         <Button x:Name="ThemeButton" Width="35" Height="35" Margin="0" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="ThemeButton_Click" Style="{StaticResource ThemeButtonStyle}" Grid.Column="2"/>

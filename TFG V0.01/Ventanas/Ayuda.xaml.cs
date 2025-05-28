@@ -153,6 +153,7 @@ namespace TFG_V0._01.Ventanas
             meshGradientBrush = new DrawingBrush(drawingGroup) { Stretch = Stretch.Fill };
 
             // Asignar al fondo del Grid principal
+            MainGrid.Background = meshGradientBrush;
             fondoAnimadoInicializado = true;
         }
 

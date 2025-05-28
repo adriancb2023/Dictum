@@ -522,7 +522,23 @@
                                     <TextBox x:Name="NombreTextBox" Style="{StaticResource RoundedTextBoxStyle}" Margin="0,0,0,10" Tag="Tu nombre"/>
                                     <TextBox x:Name="EmailTextBox" Style="{StaticResource RoundedTextBoxStyle}" Margin="0,0,0,10" Tag="Tu email"/>
                                     <TextBox x:Name="MensajeTextBox" Style="{StaticResource RoundedTextBoxStyle}" Height="100" TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,20" Tag="Tu mensaje"/>
-                                    <Button Content="Enviar mensaje" Style="{StaticResource RoundedButtonStyle}" HorizontalAlignment="Right" Height="40" Width="120" Background="#007AFF" Foreground="White" FontWeight="SemiBold" FontSize="15" Click="EnviarMensaje_Click" Margin="0,0,0,15"/>
+                                    <Button x:Name="btnEnviarMensaje" 
+                                            Click="EnviarMensaje_Click"
+                                            Style="{StaticResource RoundedButtonStyle}" 
+                                            Height="40" 
+                                            Width="200"
+                                            Background="#007AFF"
+                                            Foreground="White"
+                                            FontWeight="SemiBold"
+                                            FontSize="15"
+                                            HorizontalAlignment="Right"
+                                            Margin="0,0,0,15">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Source="/TFG V0.01;component/Recursos/Iconos/whatsapp.png" Width="20" Height="20" Margin="0,0,5,0"/>
+                                            <TextBlock Text="Enviar mensaje"/>
+                                            <Image Source="/TFG V0.01;component/Recursos/Iconos/email.png" Width="20" Height="20" Margin="5,0,0,0"/>
+                                        </StackPanel>
+                                    </Button>
                                 </StackPanel>
                             </Grid>
                         </Grid>

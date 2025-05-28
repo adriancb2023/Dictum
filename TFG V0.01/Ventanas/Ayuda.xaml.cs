@@ -14,6 +14,9 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using TFG_V0._01.Supabase;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Net.Mail;
+using System.Windows.Forms;
 
 namespace TFG_V0._01.Ventanas
 {
@@ -260,13 +263,9 @@ namespace TFG_V0._01.Ventanas
 
         private void EnviarMensaje_Click(object sender, RoutedEventArgs e)
         {
-            var nombreTextBox = this.FindName("NombreTextBox") as TextBox;
-            var emailTextBox = this.FindName("EmailTextBox") as TextBox;
-            var mensajeTextBox = this.FindName("MensajeTextBox") as TextBox;
-
-            if (string.IsNullOrWhiteSpace(nombreTextBox?.Text) ||
-                string.IsNullOrWhiteSpace(emailTextBox?.Text) ||
-                string.IsNullOrWhiteSpace(mensajeTextBox?.Text))
+            if (string.IsNullOrWhiteSpace(NombreTextBox?.Text) ||
+                string.IsNullOrWhiteSpace(EmailTextBox?.Text) ||
+                string.IsNullOrWhiteSpace(MensajeTextBox?.Text))
             {
                 MessageBox.Show("Por favor, complete todos los campos del formulario.", 
                               "Campos incompletos", 
@@ -275,16 +274,56 @@ namespace TFG_V0._01.Ventanas
                 return;
             }
 
-            // Aquí iría la lógica para enviar el mensaje
-            MessageBox.Show("Gracias por su mensaje. Nos pondremos en contacto con usted pronto.", 
-                          "Mensaje enviado", 
-                          MessageBoxButton.OK, 
-                          MessageBoxImage.Information);
+            try
+            {
+                // Configuración de contactos
+                string numeroWhatsApp = "34612345678"; // Número de ejemplo de WhatsApp Business
+                string emailDestino = "soporte@tfgapp.com";
 
-            // Limpiar campos
-            nombreTextBox.Text = string.Empty;
-            emailTextBox.Text = string.Empty;
-            mensajeTextBox.Text = string.Empty;
+                // Preparar mensaje para WhatsApp
+                string mensajeWhatsApp = $"Nombre: {NombreTextBox.Text}\n\nMensaje:\n{MensajeTextBox.Text}";
+                string mensajeCodificado = Uri.EscapeDataString(mensajeWhatsApp);
+                string urlWhatsApp = $"https://wa.me/{numeroWhatsApp}?text={mensajeCodificado}";
+
+                // Preparar mensaje para email
+                string asunto = Uri.EscapeDataString($"Mensaje de contacto de {NombreTextBox.Text}");
+                string cuerpo = Uri.EscapeDataString($"Nombre: {NombreTextBox.Text}\nEmail: {EmailTextBox.Text}\n\nMensaje:\n{MensajeTextBox.Text}");
+                string mailtoUrl = $"mailto:{emailDestino}?subject={asunto}&body={cuerpo}";
+
+                // Abrir WhatsApp
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = urlWhatsApp,
+                    UseShellExecute = true
+                });
+
+                // Esperar un momento antes de abrir el correo
+                System.Threading.Thread.Sleep(1000);
+
+                // Abrir el cliente de correo
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = mailtoUrl,
+                    UseShellExecute = true
+                });
+
+                // Limpiar campos después de enviar
+                NombreTextBox.Text = string.Empty;
+                EmailTextBox.Text = string.Empty;
+                MensajeTextBox.Text = string.Empty;
+
+                MessageBox.Show("Se han abierto WhatsApp y el cliente de correo para enviar su mensaje.", 
+                              "Mensaje preparado", 
+                              MessageBoxButton.OK, 
+                              MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al enviar el mensaje: {ex.Message}", 
+                              "Error", 
+                              MessageBoxButton.OK, 
+                              MessageBoxImage.Error);
+            }
         }
     }
 

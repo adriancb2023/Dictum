@@ -492,7 +492,12 @@ namespace TFG_V0._01.Ventanas
             TipoResolucionComboBox.SelectedItem = "Todos";
             OrganoJudicialComboBox.SelectedItem = "Todos";
             LocalizacionComboBox.SelectedItem = "Todos";
-            IdiomaComboBox.SelectedItem = "Todos";
+            // Modificar para seleccionar el ComboBoxItem con Content="Todos" para IdiomaComboBox
+            var idiomaTodosItem = IdiomaComboBox.Items.OfType<ComboBoxItem>().FirstOrDefault(item => item.Content?.ToString() == "Todos");
+            if (idiomaTodosItem != null)
+            {
+                IdiomaComboBox.SelectedItem = idiomaTodosItem;
+            }
 
             // Resetear TextBoxes a vacío
             SeccionTextBox.Text = string.Empty;

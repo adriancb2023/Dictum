@@ -32,6 +32,11 @@ namespace TFG_V0._01.Ventanas
         #region variables animacion
         private Storyboard fadeInStoryboard;
         private Storyboard shakeStoryboard;
+        private Storyboard meshAnimStoryboard;
+
+        // Brushes y fondo animado
+        private RadialGradientBrush mesh1Brush;
+        private RadialGradientBrush mesh2Brush;
         #endregion
 
         #region Variables API
@@ -90,32 +95,74 @@ namespace TFG_V0._01.Ventanas
         private JurisprudenciaSearchParameters _lastSearchParameters; // Para recordar los filtros al cargar más
         #endregion
 
+        // Implementación simple de ICommand para enlazar comandos en XAML
+        public class RelayCommand : ICommand
+        {
+            private readonly Action<object?> _execute;
+            private readonly Func<object?, bool>? _canExecute;
+
+            public event EventHandler? CanExecuteChanged;
+
+            public RelayCommand(Action<object?> execute, Func<object?, bool>? canExecute = null)
+            {
+                _execute = execute ?? throw new ArgumentNullException(nameof(execute));
+                _canExecute = canExecute;
+            }
+
+            public bool CanExecute(object? parameter) => _canExecute == null || _canExecute(parameter);
+
+            public void Execute(object? parameter) => _execute(parameter);
+
+            public void RaiseCanExecuteChanged()
+            {
+                CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
         #region Aplicar modo oscuro/claro cargado por sistema
         private void AplicarModoSistema()
         {
-            var button = this.FindName("ThemeButton") as Button;
-            var icon = button?.Template.FindName("ThemeIcon", button) as Image;
-
+            this.Tag = MainWindow.isDarkTheme;
+           
+            // Cambiar fondo mesh gradient
             if (MainWindow.isDarkTheme)
             {
-                // Aplicar modo oscuro
-                if (icon != null)
-                {
-                    icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/sol.png", UriKind.Relative));
-                }
-                backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString("pack://application:,,,/TFG V0.01;component/Recursos/Background/oscuro/main.png") as ImageSource;
-                navbar.ActualizarTema(true);
+               // Colores mesh oscuro
+               mesh1Brush.GradientStops[0].Color = (Color)ColorConverter.ConvertFromString("#8C7BFF");
+               mesh1Brush.GradientStops[1].Color = (Color)ColorConverter.ConvertFromString("#08a693");
+               mesh2Brush.GradientStops[0].Color = (Color)ColorConverter.ConvertFromString("#3a4d5f");
+               mesh2Brush.GradientStops[1].Color = (Color)ColorConverter.ConvertFromString("#272c3f");
             }
             else
             {
-                // Aplicar modo claro
-                if (icon != null)
-                {
-                    icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/luna.png", UriKind.Relative));
-                }
-                backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString("pack://application:,,,/TFG V0.01;component/Recursos/Background/claro/main.png") as ImageSource;
-                navbar.ActualizarTema(false);
+               // Colores mesh claro
+               mesh1Brush.GradientStops[0].Color = (Color)ColorConverter.ConvertFromString("#de9cb8");
+               mesh1Brush.GradientStops[1].Color = (Color)ColorConverter.ConvertFromString("#9dcde1");
+               mesh2Brush.GradientStops[0].Color = (Color)ColorConverter.ConvertFromString("#dc8eb8");
+               mesh2Brush.GradientStops[1].Color = (Color)ColorConverter.ConvertFromString("#98d3ec");
             }
+           
+           // Crear nuevos estilos dinámicamente para textos
+           var primaryTextStyle = new Style(typeof(TextBlock));
+           var secondaryTextStyle = new Style(typeof(TextBlock));
+
+           if (MainWindow.isDarkTheme)
+           {
+               primaryTextStyle.Setters.Add(new Setter(TextBlock.ForegroundProperty, new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E0E0E0"))));
+               secondaryTextStyle.Setters.Add(new Setter(TextBlock.ForegroundProperty, new SolidColorBrush((Color)ColorConverter.ConvertFromString("#B0B0B0"))));
+           }
+           else
+           {
+               primaryTextStyle.Setters.Add(new Setter(TextBlock.ForegroundProperty, new SolidColorBrush((Color)ColorConverter.ConvertFromString("#303030"))));
+               secondaryTextStyle.Setters.Add(new Setter(TextBlock.ForegroundProperty, new SolidColorBrush((Color)ColorConverter.ConvertFromString("#606060"))));
+           }
+
+           // Reemplazar los recursos existentes (asegúrate de que estas claves existan en XAML)
+           this.Resources["PrimaryTextStyle"] = primaryTextStyle;
+           this.Resources["SecondaryTextStyle"] = secondaryTextStyle;
+
+           navbar.ActualizarTema(MainWindow.isDarkTheme);
+           IniciarAnimacionMesh();
         }
         #endregion
 
@@ -127,35 +174,9 @@ namespace TFG_V0._01.Ventanas
             MainWindow.isDarkTheme = !MainWindow.isDarkTheme;
 
             // Obtener el botón y el icono
-            var button = sender as Button;
-            var icon = button?.Template.FindName("ThemeIcon", button) as Image;
-
-            if (MainWindow.isDarkTheme)
-            {
-                // Cambiar a modo oscuro
-                if (icon != null)
-                {
-                    icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/sol.png", UriKind.Relative));
-                }
-
-                backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString(
-                    "pack://application:,,,/TFG V0.01;component/Recursos/Background/oscuro/main.png") as ImageSource;
-
-                navbar.ActualizarTema(true);
-            }
-            else
-            {
-                // Cambiar a modo claro
-                if (icon != null)
-                {
-                    icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/luna.png", UriKind.Relative));
-                }
-
-                backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString(
-                    "pack://application:,,,/TFG V0.01;component/Recursos/Background/claro/main.png") as ImageSource;
-
-                navbar.ActualizarTema(false);
-            }
+            AplicarModoSistema();
+            var fadeAnimation = CrearFadeAnimation(0.7, 0.9, 0.3, true);
+            this.BeginAnimation(OpacityProperty, fadeAnimation);
         }
 
         #endregion
@@ -204,31 +225,40 @@ namespace TFG_V0._01.Ventanas
         #region Animaciones
         private void InitializeAnimations()
         {
-            // Animación de entrada con fade
-            fadeInStoryboard = new Storyboard();
-            DoubleAnimation fadeIn = new DoubleAnimation
-            {
-                From = 0,
-                To = 1,
-                Duration = TimeSpan.FromSeconds(0.5)
-            };
-            Storyboard.SetTarget(fadeIn, this);
-            Storyboard.SetTargetProperty(fadeIn, new PropertyPath("Opacity"));
-            fadeInStoryboard.Children.Add(fadeIn);
+           fadeInStoryboard = CrearStoryboard(this, OpacityProperty, CrearFadeAnimation(0, 1, 0.5));
+           shakeStoryboard = CrearStoryboard(null, TranslateTransform.XProperty, CrearShakeAnimation());
+        }
 
-            // Animación de shake para error
-            shakeStoryboard = new Storyboard();
-            DoubleAnimation shakeAnimation = new DoubleAnimation
+        private Storyboard CrearStoryboard(DependencyObject target, DependencyProperty property, DoubleAnimation animation)
+        {
+            var storyboard = new Storyboard();
+            if (target != null && property != null)
+            {
+                Storyboard.SetTarget(animation, target);
+                Storyboard.SetTargetProperty(animation, new PropertyPath(property));
+            }
+            storyboard.Children.Add(animation);
+            return storyboard;
+        }
+
+        private DoubleAnimation CrearFadeAnimation(double from, double to, double durationSeconds, bool autoReverse = false) =>
+            new()
+            {
+                From = from,
+                To = to,
+                Duration = TimeSpan.FromSeconds(durationSeconds),
+                AutoReverse = autoReverse
+            };
+
+        private DoubleAnimation CrearShakeAnimation() =>
+            new()
             {
                 From = 0,
-                To = 1,
+                To = 5,
                 AutoReverse = true,
                 RepeatBehavior = new RepeatBehavior(3),
                 Duration = TimeSpan.FromSeconds(0.05)
             };
-
-            shakeStoryboard.Children.Add(shakeAnimation);
-        }
 
         private void BeginFadeInAnimation()
         {
@@ -238,19 +268,9 @@ namespace TFG_V0._01.Ventanas
 
         private void ShakeElement(FrameworkElement element)
         {
-            TranslateTransform trans = new TranslateTransform();
+            var trans = new TranslateTransform();
             element.RenderTransform = trans;
-
-            DoubleAnimation anim = new DoubleAnimation
-            {
-                From = 0,
-                To = 5,
-                AutoReverse = true,
-                RepeatBehavior = new RepeatBehavior(3),
-                Duration = TimeSpan.FromSeconds(0.05)
-            };
-
-            trans.BeginAnimation(TranslateTransform.XProperty, anim);
+            trans.BeginAnimation(TranslateTransform.XProperty, CrearShakeAnimation());
         }
         #endregion
 
@@ -440,6 +460,10 @@ namespace TFG_V0._01.Ventanas
             ResultadosBusqueda = new ObservableCollection<JurisprudenciaResult>(); // Inicializa la colección
             this.DataContext = this; // Establece el DataContext para que los bindings del XAML funcionen
 
+            // Inicializar brushes para el mesh gradient
+            CrearFondoAnimado();
+            IniciarAnimacionMesh();
+
             InitializeAnimations();
             AplicarModoSistema();
 
@@ -452,7 +476,45 @@ namespace TFG_V0._01.Ventanas
 
             // Cargar datos iniciales
             _ = CargarDatosInicialesAsync();
+
+            // Inicializar comandos
+            LimpiarCommand = new RelayCommand(EjecutarLimpiarFormulario);
         }
+
+        #region Limpiar Formulario Command
+
+        public ICommand LimpiarCommand { get; private set; }
+
+        private void EjecutarLimpiarFormulario(object? parameter)
+        {
+            // Resetear ComboBoxes a "Todos"
+            JurisdiccionComboBox.SelectedItem = "Todos";
+            TipoResolucionComboBox.SelectedItem = "Todos";
+            OrganoJudicialComboBox.SelectedItem = "Todos";
+            LocalizacionComboBox.SelectedItem = "Todos";
+            IdiomaComboBox.SelectedItem = "Todos";
+
+            // Resetear TextBoxes a vacío
+            SeccionTextBox.Text = string.Empty;
+            NumeroRojTextBox.Text = string.Empty;
+            EcliTextBox.Text = string.Empty;
+            NumeroResolucionTextBox.Text = string.Empty;
+            NumeroRecursoTextBox.Text = string.Empty;
+            PonenteTextBox.Text = string.Empty;
+            LegislacionTextBox.Text = string.Empty;
+
+            // Resetear DatePickers a null
+            FechaDesdeDatePicker.SelectedDate = null;
+            FechaHastaDatePicker.SelectedDate = null;
+
+            // Limpiar resultados de búsqueda
+            ResultadosBusqueda.Clear();
+            _paginaActual = 1; // Resetear paginación
+            CargarMasButton.Visibility = Visibility.Collapsed; // Ocultar botón de cargar más
+        }
+
+        #endregion
+
         private void VerDocumentoButton_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button button && button.CommandParameter is string url)
@@ -477,5 +539,74 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
+        #region 🎨 Fondo Animado
+        private void CrearFondoAnimado()
+        {
+            // Crear los brushes
+            mesh1Brush = new RadialGradientBrush();
+            mesh1Brush.Center = new Point(0.3, 0.3);
+            mesh1Brush.RadiusX = 0.5;
+            mesh1Brush.RadiusY = 0.5;
+            mesh1Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#de9cb8"), 0));
+            mesh1Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#9dcde1"), 1));
+            mesh1Brush.Freeze();
+            mesh1Brush = mesh1Brush.Clone();
+
+            mesh2Brush = new RadialGradientBrush();
+            mesh2Brush.Center = new Point(0.7, 0.7);
+            mesh2Brush.RadiusX = 0.6;
+            mesh2Brush.RadiusY = 0.6;
+            mesh2Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#dc8eb8"), 0));
+            mesh2Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#98d3ec"), 1));
+            mesh2Brush.Freeze();
+            mesh2Brush = mesh2Brush.Clone();
+
+            // Crear el DrawingBrush
+            var drawingGroup = new DrawingGroup();
+            drawingGroup.Children.Add(new GeometryDrawing(mesh1Brush, null, new RectangleGeometry(new Rect(0, 0, 1, 1))));
+            drawingGroup.Children.Add(new GeometryDrawing(mesh2Brush, null, new RectangleGeometry(new Rect(0, 0, 1, 1))));
+            var meshGradientBrush = new DrawingBrush(drawingGroup) { Stretch = Stretch.Fill };
+            ((Grid)this.Content).Background = meshGradientBrush;
+        }
+
+        private void IniciarAnimacionMesh()
+        {
+            // Detener si ya existe
+            meshAnimStoryboard?.Stop();
+            meshAnimStoryboard = new Storyboard();
+            // Animar Center de mesh1
+            var anim1 = new PointAnimationUsingKeyFrames();
+            anim1.KeyFrames.Add(new EasingPointKeyFrame(new Point(0.3, 0.3), KeyTime.FromTimeSpan(TimeSpan.Zero)));
+            anim1.KeyFrames.Add(new EasingPointKeyFrame(new Point(0.7, 0.5), KeyTime.FromTimeSpan(TimeSpan.FromSeconds(4))) { EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut } });
+            anim1.KeyFrames.Add(new EasingPointKeyFrame(new Point(0.3, 0.3), KeyTime.FromTimeSpan(TimeSpan.FromSeconds(8))) { EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut } });
+            anim1.RepeatBehavior = RepeatBehavior.Forever;
+            Storyboard.SetTarget(anim1, mesh1Brush);
+            Storyboard.SetTargetProperty(anim1, new PropertyPath(RadialGradientBrush.CenterProperty));
+            meshAnimStoryboard.Children.Add(anim1);
+            // Animar Center de mesh2
+            var anim2 = new PointAnimationUsingKeyFrames();
+            anim2.KeyFrames.Add(new EasingPointKeyFrame(new Point(0.7, 0.7), KeyTime.FromTimeSpan(TimeSpan.Zero)));
+            anim2.KeyFrames.Add(new EasingPointKeyFrame(new Point(0.4, 0.4), KeyTime.FromTimeSpan(TimeSpan.FromSeconds(4))) { EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut } });
+            anim2.KeyFrames.Add(new EasingPointKeyFrame(new Point(0.7, 0.7), KeyTime.FromTimeSpan(TimeSpan.FromSeconds(8))) { EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut } });
+            anim2.RepeatBehavior = RepeatBehavior.Forever;
+            Storyboard.SetTarget(anim2, mesh2Brush);
+            Storyboard.SetTargetProperty(anim2, new PropertyPath(RadialGradientBrush.CenterProperty));
+            meshAnimStoryboard.Children.Add(anim2);
+            meshAnimStoryboard.Begin();
+        }
+        #endregion
+
+        #region Control de DatePicker
+        // Este método se asocia al botón dentro del template del DatePicker redondeado
+        // para abrir y cerrar el calendario.
+        private void PART_Button_Click(object sender, RoutedEventArgs e)
+        {
+            var datePicker = ((Button)sender).TemplatedParent as DatePicker;
+            if (datePicker != null)
+            {
+                datePicker.IsDropDownOpen = !datePicker.IsDropDownOpen;
+            }
+        }
+        #endregion
     }
 }

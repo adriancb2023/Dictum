@@ -612,7 +612,7 @@
               Width="400" 
               HorizontalAlignment="Right" 
               Panel.ZIndex="1000"
-              Visibility="Visible">
+              Visibility="Collapsed">
             <Grid.Style>
                 <Style TargetType="Grid">
                     <Setter Property="Background" Value="{StaticResource SlidePanelGradientDark}"/>
@@ -677,12 +677,7 @@
         </Grid>
 
         <!-- Overlay para cerrar al hacer clic fuera -->
-        <Grid x:Name="OverlayPanel" 
-                  Grid.Column="2"
-                  Background="#80000000" 
-                  Panel.ZIndex="999"
-                  Visibility="Collapsed"
-                  MouseDown="OverlayPanel_MouseDown"/>
+        <Grid x:Name="OverlayPanel" Grid.Column="2" Background="#80000000" Panel.ZIndex="999" Visibility="Collapsed" MouseDown="OverlayPanel_MouseDown"/>
 
     </Grid>
 </Window>

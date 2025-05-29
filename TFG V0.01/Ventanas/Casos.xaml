@@ -12,7 +12,13 @@
         WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
-        <!-- Estilo para el botón de cambio de tema -->
+        <!-- Estilos y Brushes temáticos de Home -->
+        <SolidColorBrush x:Key="TextPrimaryDark" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="TextSecondaryDark" Color="#CCFFFFFF"/>
+        <SolidColorBrush x:Key="TextPrimaryLight" Color="#222222"/>
+        <SolidColorBrush x:Key="TextSecondaryLight" Color="#666666"/>
+
+        <!-- Estilo para el botón de cambio de tema (adaptado con DataTrigger) -->
         <Style x:Key="ThemeButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -21,7 +27,18 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}" CornerRadius="20">
-                            <Image x:Name="ThemeIcon" Source="/TFG V0.01;component/Recursos/Iconos/sol.png" Width="20" Height="20"/>
+                            <Image x:Name="ThemeIcon" Width="20" Height="20">
+                                <Image.Style>
+                                    <Style TargetType="Image">
+                                        <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/luna.png"/> <!-- Icono por defecto (Claro) -->
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True"> <!-- Modo Oscuro -->
+                                                <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/sol.png"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
+                            </Image>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -32,7 +49,8 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        <!-- Botones redondeados -->
+
+        <!-- Estilo de botón redondeado (adaptado con DataTrigger para tema) -->
         <Style x:Key="RoundedButtonStyle" TargetType="{x:Type Button}">
             <Setter Property="Background" Value="#FFFFFF"/>
             <Setter Property="Foreground" Value="#333333"/>
@@ -41,13 +59,17 @@
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Button}">
                         <Border x:Name="border" Background="{TemplateBinding Background}" 
-                        CornerRadius="20" BorderThickness="{TemplateBinding BorderThickness}" 
-                        BorderBrush="{TemplateBinding BorderBrush}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                CornerRadius="20" BorderThickness="{TemplateBinding BorderThickness}" 
+                                BorderBrush="{TemplateBinding BorderBrush}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              RecognizesAccessKey="True" TextElement.Foreground="{TemplateBinding Foreground}"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -56,21 +78,80 @@
                             <Trigger Property="IsPressed" Value="true">
                                 <Setter Property="Background" Value="#DDDDDD" TargetName="border"/>
                             </Trigger>
+                            <!-- Trigger para cambiar el fondo en modo claro/oscuro -->
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                <Setter Property="Background" Value="#30000000" TargetName="border"/>
+                                <Setter Property="Foreground" Value="{StaticResource TextPrimaryLight}"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                                <Setter Property="Background" Value="#30FFFFFF" TargetName="border"/>
+                                <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
+                            </DataTrigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
-        <!-- Estilo de tarjeta -->
+
+        <!-- Estilo de botón redondeado que cambia con el tema (copiado de Home) -->
+        <Style x:Key="ThemeAwareRoundedButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource RoundedButtonStyle}">
+            <!-- Este estilo base ya maneja el foreground, pero lo mantenemos por claridad si fuera necesario -->
+             <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Foreground" Value="{StaticResource TextPrimaryLight}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                    <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Estilo de botón redondeado sin borde (copiado de Home) -->
+        <Style x:Key="NoBorderRoundedButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource ThemeAwareRoundedButtonStyle}">
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Background" Value="Transparent"/>
+             <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" 
+                                CornerRadius="20" BorderThickness="{TemplateBinding BorderThickness}" 
+                                BorderBrush="{TemplateBinding BorderBrush}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              RecognizesAccessKey="True"/>
+                        </Border>
+                         <ControlTemplate.Triggers>
+                            <!-- Anular triggers de hover/press del estilo base -->
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="Transparent" TargetName="border"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="true">
+                                <Setter Property="Background" Value="Transparent" TargetName="border"/>
+                            </Trigger>
+                             <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                <Setter Property="Foreground" Value="{StaticResource TextPrimaryLight}"/>
+                            </DataTrigger>
+                             <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                                <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
+                            </DataTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Estilo de tarjeta (adaptado con DataTrigger para tema y efecto) -->
         <Style x:Key="CardStyle" TargetType="Border">
             <Setter Property="CornerRadius" Value="20"/>
             <Setter Property="Background">
                 <Setter.Value>
-                    <SolidColorBrush x:Name="colortarjeta" Color="#454545" Opacity="0.4"/>
+                    <SolidColorBrush Color="#282828" Opacity="0.8"/> <!-- Fondo oscuro por defecto -->
                 </Setter.Value>
             </Setter>
-            <Setter Property="BorderBrush" Value="#333" />
-            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Padding" Value="15"/>
             <Setter Property="Margin" Value="10"/>
             <Setter Property="Effect">
@@ -78,14 +159,83 @@
                     <DropShadowEffect Color="Black" BlurRadius="15" ShadowDepth="2" Opacity="0.3"/>
                 </Setter.Value>
             </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False"> <!-- Modo Claro -->
+                    <Setter Property="Background" Value="#F0F0F0"/>
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect Color="#AAAAAA" BlurRadius="15" ShadowDepth="2" Opacity="0.3"/>
+                        </Setter.Value>
+                    </Setter>
+                </DataTrigger>
+            </Style.Triggers>
         </Style>
+
+        <!-- Estilo para textos primarios (copiado de Home) -->
+        <Style x:Key="PrimaryTextStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Foreground" Value="{StaticResource TextPrimaryLight}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Estilo para textos secundarios (copiado de Home) -->
+        <Style x:Key="SecondaryTextStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource TextSecondaryDark}"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Foreground" Value="{StaticResource TextSecondaryLight}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Estilo para los contenedores de lista (copiado de Home) -->
+        <Style x:Key="ListItemContainerStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+            <Setter Property="Background">
+                <Setter.Value>
+                    <SolidColorBrush Color="#3A3A3A" Opacity="0.7"/>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl}, Path=(ItemsControl.AlternationIndex)}" Value="1">
+                </DataTrigger>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Background" Value="#E8E8E8"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Mesh Gradients accesibles globalmente (copiado de Home) -->
+        <RadialGradientBrush x:Key="Mesh1" Center="0.3,0.3" RadiusX="0.5" RadiusY="0.5">
+            <GradientStop Color="#de9cb8" Offset="0"/>
+            <GradientStop Color="#9dcde1" Offset="1"/>
+        </RadialGradientBrush>
+        <RadialGradientBrush x:Key="Mesh2" Center="0.7,0.7" RadiusX="0.6" RadiusY="0.6">
+            <GradientStop Color="#dc8eb8" Offset="0"/>
+            <GradientStop Color="#98d3ec" Offset="1"/>
+        </RadialGradientBrush>
+
+        <!-- Storyboards para animaciones de fade -->
+        <Storyboard x:Key="FadeInAnimation">
+            <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0.0" To="1.0" Duration="0:0:0.5"/>
+        </Storyboard>
+        <Storyboard x:Key="FadeOutAnimation">
+            <DoubleAnimation Storyboard.TargetProperty="Opacity" From="1.0" To="0.0" Duration="0:0:0.5"/>
+        </Storyboard>
 
         <!-- ModernComboBoxStyle de Clientes.xaml -->
         <Style x:Key="ModernComboBoxStyle" TargetType="{x:Type ComboBox}">
             <Setter Property="Background" Value="#30FFFFFF"/>
-            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
             <Setter Property="BorderBrush" Value="#40FFFFFF"/>
             <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="10,0,0,0"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type ComboBox}">
@@ -111,17 +261,17 @@
                                             Grid.Column="0"
                                             Content="{TemplateBinding SelectedItem}"
                                             ContentTemplate="{TemplateBinding ItemTemplate}"
-                                            Margin="10,0,0,0"
-                                            VerticalAlignment="Center"
+                                            Margin="0"
+                                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                             HorizontalAlignment="Stretch"/>
                                         <Path
                                             Grid.Column="1"
                                             Data="M0,0 L4,4 L8,0"
-                                            Stroke="White"
+                                            Stroke="{TemplateBinding Foreground}"
                                             StrokeThickness="2"
                                             Width="20"
                                             Height="20"
-                                            Margin="0,0,10,0"
+                                            Margin="0,0,12,0"
                                             VerticalAlignment="Center"
                                             HorizontalAlignment="Right"/>
                                     </Grid>
@@ -135,11 +285,14 @@
                                 PopupAnimation="Slide">
                                 <Grid MaxHeight="{TemplateBinding MaxDropDownHeight}"
                                       MinWidth="{Binding Path=ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
-                                    <Border Background="#90454545" 
+                                    <Border 
                                             BorderBrush="#40FFFFFF"
                                             BorderThickness="1" 
                                             CornerRadius="10" 
                                             Margin="0,5,0,0">
+                                        <Border.Background>
+                                            <SolidColorBrush Color="#90454545" Opacity="0.9"/> <!-- Fondo desplegable oscuro con opacidad -->
+                                        </Border.Background>
                                         <ScrollViewer SnapsToDevicePixels="True">
                                             <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained"/>
                                         </ScrollViewer>
@@ -150,6 +303,16 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Background" Value="#30000000"/>
+                    <Setter Property="Foreground" Value="{StaticResource TextPrimaryLight}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                    <Setter Property="Background" Value="#30FFFFFF"/>
+                    <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
+                </DataTrigger>
+            </Style.Triggers>
         </Style>
 
         <!-- Estilo para el ToggleButton del ComboBox -->
@@ -158,7 +321,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type ToggleButton}">
                         <Border Background="Transparent" Width="30">
-                            <Path Data="M0,0 L4,4 L8,0" Stroke="White" StrokeThickness="2"
+                            <Path Data="M0,0 L4,4 L8,0" Stroke="{TemplateBinding Foreground}" StrokeThickness="2"
                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                     </ControlTemplate>
@@ -196,9 +359,9 @@
                                             Grid.Column="0"
                                             Text="{Binding Text, RelativeSource={RelativeSource TemplatedParent}, UpdateSourceTrigger=PropertyChanged}"
                                             Background="Transparent"
-                                            Foreground="White"
+                                            Foreground="{TemplateBinding Foreground}"
                                             BorderThickness="0"
-                                            Padding="10,0,0,0"
+                                            Padding="0"
                                             VerticalAlignment="Center"/>
                                     <!-- Botón X -->
                                     <Button x:Name="ClearButton"
@@ -221,7 +384,7 @@
                                         BorderThickness="0">
                                         <Path
                                             Data="M0,0 L4,4 L8,0"
-                                            Stroke="White"
+                                            Stroke="{TemplateBinding Foreground}"
                                             StrokeThickness="2"
                                             Width="20"
                                             Height="20"
@@ -238,11 +401,14 @@
                                 PopupAnimation="Slide">
                                 <Grid MaxHeight="{TemplateBinding MaxDropDownHeight}"
                                       MinWidth="{Binding Path=ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
-                                    <Border Background="#90454545"
+                                    <Border 
                                             BorderBrush="#40FFFFFF"
                                             BorderThickness="1"
                                             CornerRadius="10"
                                             Margin="0,5,0,0">
+                                        <Border.Background>
+                                             <SolidColorBrush Color="#90454545" Opacity="0.9"/> <!-- Fondo desplegable oscuro con opacidad -->
+                                        </Border.Background>
                                         <ScrollViewer SnapsToDevicePixels="True">
                                             <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained"/>
                                         </ScrollViewer>
@@ -264,10 +430,10 @@
         </Grid.ColumnDefinitions>
         <!-- Fondo -->
         <Grid.Background>
-            <ImageBrush x:Name="backgroundFondo" ImageSource="/TFG V0.01;component/Recursos/Background/oscuro/main.png"/>
+            <SolidColorBrush Color="#FF1E1E1E"/> <!-- Establecer un color sólido temporal o transparente -->
         </Grid.Background>
         <!--Navbar-->
-        <controls:NavbarControl x:Name="navbar" Grid.Column="0" />
+        <controls:NavbarControl x:Name="navbar" Grid.Column="0" Tag="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}"/>
         <!-- Botón de tema claro/oscuro -->
         <Button x:Name="ThemeButton" Width="35" Height="35" Margin="0" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="ThemeButton_Click" Style="{StaticResource ThemeButtonStyle}" Grid.Column="2"/>
 
@@ -279,7 +445,7 @@
             </Grid.RowDefinitions>
 
             <!-- Header -->
-            <TextBlock Text="Gestión del Caso" FontSize="24" FontWeight="Bold" Foreground="White" Margin="0,0,0,20"/>
+            <TextBlock Text="Gestión del Caso" FontSize="24" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,20"/>
 
             <!-- Main Content Area -->
             <Grid Grid.Row="1">
@@ -287,8 +453,8 @@
                 <Grid x:Name="Buscador" Visibility="Visible">
                     <Border Style="{StaticResource CardStyle}" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="30" Width="500" CornerRadius="12">
                         <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="20">
-                            <TextBlock Text="Buscar Caso" FontSize="22" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,10"/>
-                            <TextBlock Text="Paso 1: Seleccione un cliente" Foreground="#CCCCCC" FontSize="14" Margin="0,5,0,0"/>
+                            <TextBlock Text="Buscar Caso" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,10" Style="{StaticResource PrimaryTextStyle}"/>
+                            <TextBlock Text="Paso 1: Seleccione un cliente" Style="{StaticResource SecondaryTextStyle}" FontSize="14" Margin="0,5,0,0"/>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <ComboBox x:Name="comboClientes"
                                           Style="{StaticResource ComboBoxWithClearStyle}"
@@ -303,14 +469,14 @@
                                     <ComboBox.ItemTemplate>
                                         <DataTemplate>
                                             <StackPanel Margin="5">
-                                                <TextBlock Text="{Binding nombre_cliente}" Foreground="White" FontSize="16"/>
-                                                <TextBlock Text="{Binding email1}" Foreground="#CCFFFFFF" FontSize="12"/>
+                                                <TextBlock Text="{Binding nombre_cliente}" Style="{StaticResource PrimaryTextStyle}" FontSize="16"/>
+                                                <TextBlock Text="{Binding email1}" Style="{StaticResource SecondaryTextStyle}" FontSize="12"/>
                                             </StackPanel>
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
                                 </ComboBox>
                             </StackPanel>
-                            <TextBlock Text="Paso 2: Seleccione un caso del cliente" Foreground="#CCCCCC" FontSize="14" Margin="0,5,0,0"/>
+                            <TextBlock Text="Paso 2: Seleccione un caso del cliente" Style="{StaticResource SecondaryTextStyle}" FontSize="14" Margin="0,5,0,0"/>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <ComboBox x:Name="comboCasosFiltrados"
                                           Style="{StaticResource ComboBoxWithClearStyle}"
@@ -330,8 +496,8 @@
                                                         <Binding Path="Estado.nombre" Converter="{StaticResource EstadoToColorConverter}"/>
                                                     </Ellipse.Fill>
                                                 </Ellipse>
-                                                <TextBlock Text="{Binding titulo}" Foreground="White" FontWeight="Bold" FontSize="15"/>
-                                                <TextBlock Text="{Binding descripcion}" Foreground="#FFD6D6D6" FontSize="13" Margin="8,0,0,0"/>
+                                                <TextBlock Text="{Binding titulo}" Style="{StaticResource PrimaryTextStyle}" FontWeight="Bold" FontSize="15"/>
+                                                <TextBlock Text="{Binding descripcion}" Style="{StaticResource SecondaryTextStyle}" FontSize="13" Margin="8,0,0,0"/>
                                             </StackPanel>
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
@@ -340,12 +506,12 @@
 
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,20,0,20" HorizontalAlignment="Center">
                                 <Separator Margin="10,0" Width="100"/>
-                                <TextBlock Text="O" FontSize="14" Margin="10,0" VerticalAlignment="Center" Foreground="White"/>
+                                <TextBlock Text="O" FontSize="14" Margin="10,0" VerticalAlignment="Center" Style="{StaticResource PrimaryTextStyle}"/>
                                 <Separator Margin="10,0" Width="100"/>
                             </StackPanel>
 
                             <!-- BÚSQUEDA DIRECTA -->
-                            <TextBlock Text="Buscar directamente un caso" Foreground="#CCCCCC" FontSize="14"/>
+                            <TextBlock Text="Buscar directamente un caso" Style="{StaticResource SecondaryTextStyle}" FontSize="14"/>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <ComboBox x:Name="comboTodosLosCasos"
                                           Style="{StaticResource ComboBoxWithClearStyle}"
@@ -361,9 +527,9 @@
                                     <ComboBox.ItemTemplate>
                                         <DataTemplate>
                                             <StackPanel Orientation="Horizontal" Margin="5">
-                                                <TextBlock Text="{Binding referencia}" Foreground="White" FontWeight="Bold" Margin="0,0,10,0"/>
-                                                <TextBlock Text="{Binding titulo}" Foreground="White" Margin="0,0,10,0"/>
-                                                <TextBlock Text="{Binding descripcion}" Foreground="#CCFFFFFF"/>
+                                                <TextBlock Text="{Binding referencia}" Style="{StaticResource PrimaryTextStyle}" FontWeight="Bold" Margin="0,0,10,0"/>
+                                                <TextBlock Text="{Binding titulo}" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,10,0"/>
+                                                <TextBlock Text="{Binding descripcion}" Style="{StaticResource SecondaryTextStyle}"/>
                                             </StackPanel>
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
@@ -438,7 +604,7 @@
                                     </Grid.RowDefinitions>
 
                                     <!-- Título -->
-                                    <TextBlock x:Name="TituloEventos" Text="Eventos del día" FontSize="24" FontWeight="Bold" Foreground="White" Margin="0,0,0,10" Grid.Row="0"/>
+                                    <TextBlock x:Name="TituloEventos" Text="Eventos del día" FontSize="24" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,10" Grid.Row="0"/>
 
                                     <!-- Lista de eventos -->
                                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
@@ -478,13 +644,13 @@
                                                             <!-- Info del evento -->
                                                             <StackPanel Grid.Column="2">
                                                                 <TextBlock Text="{Binding Titulo}" 
-                                                                           Foreground="White" 
+                                                                           Style="{StaticResource PrimaryTextStyle}" 
                                                                            FontWeight="SemiBold"/>
                                                                 <TextBlock Text="{Binding Descripcion}" 
-                                                                           Foreground="#CCFFFFFF" 
+                                                                           Style="{StaticResource SecondaryTextStyle}" 
                                                                            FontSize="12"/>
                                                                 <TextBlock Text="{Binding EstadoNombre}" 
-                                                                           Foreground="#CCFFFFFF" 
+                                                                           Style="{StaticResource SecondaryTextStyle}" 
                                                                            FontSize="12"/>
                                                             </StackPanel>
                                                         </Grid>
@@ -513,7 +679,7 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
-                                <TextBlock Text="Notas" FontSize="16" FontWeight="Bold" Foreground="White" Margin="0,0,0,10"/>
+                                <TextBlock Text="Notas" FontSize="16" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,10"/>
 
                                 <!-- Lista de notas -->
                                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
@@ -538,9 +704,9 @@
                                                         </Grid.ColumnDefinitions>
                                                         <!-- Info de la nota -->
                                                         <StackPanel Grid.Column="1">
-                                                            <TextBlock Text="{Binding Nombre}" Foreground="White" FontWeight="SemiBold"/>
-                                                            <TextBlock Text="{Binding Descripcion}" Foreground="#CCFFFFFF" FontSize="12"/>
-                                                            <TextBlock Text="{Binding FechaCreacion, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" Foreground="#CCFFFFFF" FontSize="12"/>
+                                                            <TextBlock Text="{Binding Nombre}" Style="{StaticResource PrimaryTextStyle}" FontWeight="SemiBold"/>
+                                                            <TextBlock Text="{Binding Descripcion}" Style="{StaticResource SecondaryTextStyle}" FontSize="12"/>
+                                                            <TextBlock Text="{Binding FechaCreacion, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" Style="{StaticResource SecondaryTextStyle}" FontSize="12"/>
                                                         </StackPanel>
                                                     </Grid>
                                                 </Border>
@@ -566,7 +732,7 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
-                                <TextBlock Text="Documentos del Caso" FontSize="16" FontWeight="Bold" Foreground="White" Margin="0,0,0,10"/>
+                                <TextBlock Text="Documentos del Caso" FontSize="16" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,10"/>
 
                                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                                     <ListView x:Name="DocumentosList" 
@@ -591,13 +757,13 @@
                                                         <!-- Info del documento -->
                                                         <StackPanel Grid.Column="1">
                                                             <TextBlock Text="{Binding nombre}" 
-                                                                       Foreground="White" 
+                                                                       Style="{StaticResource PrimaryTextStyle}"
                                                                        FontWeight="SemiBold"/>
                                                             <TextBlock Text="{Binding descripcion}" 
-                                                                       Foreground="#CCFFFFFF" 
+                                                                       Style="{StaticResource SecondaryTextStyle}"
                                                                        FontSize="12"/>
                                                             <TextBlock Text="{Binding tipo_documento}" 
-                                                                       Foreground="#CCFFFFFF" 
+                                                                       Style="{StaticResource SecondaryTextStyle}"
                                                                        FontSize="12"/>
                                                         </StackPanel>
                                                     </Grid>
@@ -625,7 +791,7 @@
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <TextBlock Text="Tareas Pendientes" FontSize="16" FontWeight="Bold" Foreground="White" Margin="0,0,0,10"/>
+                            <TextBlock Text="Tareas Pendientes" FontSize="16" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,10"/>
 
                             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                                 <ListView x:Name="TareasList" 
@@ -655,16 +821,16 @@
                                                     <!-- Info de la tarea -->
                                                     <StackPanel Grid.Column="1">
                                                         <TextBlock Text="{Binding titulo}" 
-                                                                   Foreground="White" 
+                                                                   Style="{StaticResource PrimaryTextStyle}" 
                                                                    FontWeight="SemiBold"/>
                                                         <TextBlock Text="{Binding descripcion}" 
-                                                                   Foreground="#CCFFFFFF" 
+                                                                   Style="{StaticResource SecondaryTextStyle}" 
                                                                    FontSize="12"/>
                                                         <TextBlock Text="{Binding fecha_vencimiento, StringFormat='Vence: {0:dd/MM/yyyy}'}" 
-                                                                   Foreground="#CCFFFFFF" 
+                                                                   Style="{StaticResource SecondaryTextStyle}" 
                                                                    FontSize="12"/>
                                                         <TextBlock Text="{Binding prioridad}" 
-                                                                   Foreground="#CCFFFFFF" 
+                                                                   Style="{StaticResource SecondaryTextStyle}" 
                                                                    FontSize="12"/>
                                                         <TextBlock Text="{Binding TiempoRestante}" Foreground="Orange" FontSize="12"/>
                                                     </StackPanel>

@@ -84,6 +84,10 @@ namespace TFG_V0._01.Ventanas
         private Documento _documentoSeleccionado;
         private Tarea _tareaSeleccionada;
 
+        // Brushes y fondo animado (añadido de Home)
+        private RadialGradientBrush mesh1Brush;
+        private RadialGradientBrush mesh2Brush;
+
         public ObservableCollection<Cliente> Clientes
         {
             get => _clientes;
@@ -144,7 +148,8 @@ namespace TFG_V0._01.Ventanas
             InitializeComponent();
             this.DataContext = this;
             InitializeAnimations();
-            AplicarModoSistema();
+            CrearFondoAnimado(); // Llamar al método para crear el fondo
+            AplicarModoSistema(); // Asegurarse de que el Tag se establece aquí y se actualizan colores/animación
 
             _clientesService = new SupabaseClientes();
             _casosService = new SupabaseCasos();
@@ -452,53 +457,91 @@ namespace TFG_V0._01.Ventanas
 
             if (CasoSeleccionado != null)
             {
-                // Asegurar que el calendario tenga seleccionada la fecha actual
-                var calendar = this.FindName("calendar") as CalendarControl;
-                if (calendar != null)
+                // Iniciar animación de fade out para el buscador
+                var fadeOut = (Storyboard)FindResource("FadeOutAnimation");
+                fadeOut.Completed += async (s, ev) =>
                 {
-                    calendar.SelectedDate = DateTime.Today;
-                    _fechaSeleccionada = DateTime.Today;
-                }
+                    // Una vez que el fade out termina, ocultar el buscador y mostrar el contenido del caso con fade in
+                    Buscador.Visibility = Visibility.Collapsed;
+                    ContenidoCasos.Opacity = 0; // Establecer opacidad a 0 para la animación de fade in
+                    ContenidoCasos.Visibility = Visibility.Visible;
 
-                // Cargar datos del caso y eventos
-                await CargarDatosDelCaso(CasoSeleccionado.id);
-                await CargarEventosDelDia();
+                    var fadeIn = (Storyboard)FindResource("FadeInAnimation");
+                    fadeIn.Begin(ContenidoCasos);
 
-                var contenidoCasos = this.FindName("ContenidoCasos") as UIElement;
-                var buscador = this.FindName("Buscador") as UIElement;
-                if (contenidoCasos != null) contenidoCasos.Visibility = Visibility.Visible;
-                if (buscador != null) buscador.Visibility = Visibility.Collapsed;
+                     // Asegurar que el calendario tenga seleccionada la fecha actual
+                    var calendar = this.FindName("calendar") as CalendarControl;
+                    if (calendar != null)
+                    {
+                        calendar.SelectedDate = DateTime.Today;
+                        _fechaSeleccionada = DateTime.Today;
+                    }
+
+                    // Cargar datos del caso y eventos (ya son async, no es necesario await extra aquí)
+                    await CargarDatosDelCaso(CasoSeleccionado.id);
+                    await CargarEventosDelDia();
+                };
+                fadeOut.Begin(Buscador);
             }
         }
 
         #region Aplicar modo oscuro/claro cargado por sistema
         private void AplicarModoSistema()
         {
+            // Establecer el Tag de la ventana basado en el tema global
+            this.Tag = MainWindow.isDarkTheme;
+
             var button = this.FindName("ThemeButton") as Button;
             var icon = button?.Template.FindName("ThemeIcon", button) as System.Windows.Controls.Image;
-            var backgroundFondo = this.FindName("backgroundFondo") as ImageBrush;
 
+            // Actualizar colores de los brushes de malla
+            if (mesh1Brush != null && mesh2Brush != null)
+            {
+                if (MainWindow.isDarkTheme)
+                {
+                    // Colores para modo oscuro
+                    mesh1Brush.GradientStops.Clear();
+                    mesh1Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#8C7BFF"), 0));
+                    mesh1Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#08a693"), 1));
+
+                    mesh2Brush.GradientStops.Clear();
+                    mesh2Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#3a4d5f"), 0));
+                    mesh2Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#272c3f"), 1));
+                }
+                else
+                {
+                    // Colores para modo claro
+                    mesh1Brush.GradientStops.Clear();
+                    mesh1Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#de9cb8"), 0));
+                    mesh1Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#9dcde1"), 1));
+
+                    mesh2Brush.GradientStops.Clear();
+                    mesh2Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#dc8eb8"), 0));
+                    mesh2Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#98d3ec"), 1));
+                }
+                // No reiniciar la animación aquí, ya se inicia en CrearFondoAnimado y al cambiar el tema
+                // IniciarAnimacionMesh();
+            }
+
+            // Actualizar icono del tema
             if (MainWindow.isDarkTheme)
             {
-                // Aplicar modo oscuro
                 if (icon != null)
                 {
                     icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/sol.png", UriKind.Relative));
                 }
-                if (backgroundFondo != null)
-                    backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString("pack://application:,,,/TFG V0.01;component/Recursos/Background/oscuro/main.png") as ImageSource;
+                 // Asegurarse de que el Navbar se actualice
                 navbar.ActualizarTema(true);
             }
             else
             {
-                // Aplicar modo claro
+                // Aplicar modo claro (resto de elementos si los hubiera)
                 if (icon != null)
                 {
                     icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/luna.png", UriKind.Relative));
                 }
-                if (backgroundFondo != null)
-                    backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString("pack://application:,,,/TFG V0.01;component/Recursos/Background/claro/main.png") as ImageSource;
-                navbar.ActualizarTema(false);
+                 // Asegurarse de que el Navbar se actualice
+                 navbar.ActualizarTema(false);
             }
         }
         #endregion
@@ -550,7 +593,7 @@ namespace TFG_V0._01.Ventanas
         #region Animaciones
         private void InitializeAnimations()
         {
-            // Animación de entrada con fade
+            // Animación de entrada con fade de la ventana (ya existente)
             fadeInStoryboard = new Storyboard();
             DoubleAnimation fadeIn = new DoubleAnimation
             {
@@ -562,7 +605,7 @@ namespace TFG_V0._01.Ventanas
             Storyboard.SetTargetProperty(fadeIn, new PropertyPath("Opacity"));
             fadeInStoryboard.Children.Add(fadeIn);
 
-            // Animación de shake para error
+            // Animación de shake para error (ya existente)
             shakeStoryboard = new Storyboard();
             DoubleAnimation shakeAnimation = new DoubleAnimation
             {
@@ -597,6 +640,79 @@ namespace TFG_V0._01.Ventanas
             };
 
             trans.BeginAnimation(TranslateTransform.XProperty, anim);
+        }
+        #endregion
+
+        #region 🎨 Fondo Animado (copiado y adaptado de Home)
+        private void CrearFondoAnimado()
+        {
+            // Crear los brushes
+            mesh1Brush = new RadialGradientBrush();
+            mesh1Brush.Center = new Point(0.3, 0.3);
+            mesh1Brush.RadiusX = 0.5;
+            mesh1Brush.RadiusY = 0.5;
+            mesh1Brush.GradientStops = new GradientStopCollection(); // Inicializar la colección
+
+            mesh2Brush = new RadialGradientBrush();
+            mesh2Brush.Center = new Point(0.7, 0.7);
+            mesh2Brush.RadiusX = 0.6;
+            mesh2Brush.RadiusY = 0.6;
+            mesh2Brush.GradientStops = new GradientStopCollection(); // Inicializar la colección
+
+            // Crear el DrawingGroup y el DrawingBrush
+            var drawingGroup = new DrawingGroup();
+            drawingGroup.Children.Add(new GeometryDrawing(mesh1Brush, null, new RectangleGeometry(new Rect(0, 0, 1, 1))));
+            drawingGroup.Children.Add(new GeometryDrawing(mesh2Brush, null, new RectangleGeometry(new Rect(0, 0, 1, 1))));
+
+            var meshGradientBrush = new DrawingBrush(drawingGroup) { Stretch = Stretch.Fill };
+
+            // Asignar el DrawingBrush al Background del Grid principal
+            if (this.Content is Grid mainGrid)
+            {
+                mainGrid.Background = meshGradientBrush;
+            }
+
+            // Llamar a AplicarModoSistema para establecer los colores iniciales y iniciar la animación
+            AplicarModoSistema();
+        }
+
+        private void IniciarAnimacionMesh()
+        {
+             if (mesh1Brush == null || mesh2Brush == null) return; // Asegurarse de que los brushes existan
+
+            // Crear un nuevo Storyboard para la animación
+            var meshAnimStoryboard = new Storyboard();
+
+            // Animación para mesh1Brush Center
+            var anim1 = new PointAnimation
+            {
+                From = mesh1Brush.Center,
+                To = new Point(0.7, 0.5), // Usar mismos puntos de animación que Home
+                Duration = TimeSpan.FromSeconds(8), // Duración total de la secuencia
+                AutoReverse = true,
+                RepeatBehavior = RepeatBehavior.Forever,
+                EasingFunction = new System.Windows.Media.Animation.SineEase { EasingMode = EasingMode.EaseInOut }
+            };
+            Storyboard.SetTarget(anim1, mesh1Brush);
+            Storyboard.SetTargetProperty(anim1, new PropertyPath(RadialGradientBrush.CenterProperty));
+            meshAnimStoryboard.Children.Add(anim1);
+
+            // Animación para mesh2Brush Center
+            var anim2 = new PointAnimation
+            {
+                From = mesh2Brush.Center,
+                To = new Point(0.4, 0.4), // Usar mismos puntos de animación que Home
+                Duration = TimeSpan.FromSeconds(8), // Duración total de la secuencia
+                AutoReverse = true,
+                RepeatBehavior = RepeatBehavior.Forever,
+                EasingFunction = new System.Windows.Media.Animation.SineEase { EasingMode = EasingMode.EaseInOut }
+            };
+            Storyboard.SetTarget(anim2, mesh2Brush);
+            Storyboard.SetTargetProperty(anim2, new PropertyPath(RadialGradientBrush.CenterProperty));
+            meshAnimStoryboard.Children.Add(anim2);
+
+            // Iniciar la animación
+            meshAnimStoryboard.Begin();
         }
         #endregion
 

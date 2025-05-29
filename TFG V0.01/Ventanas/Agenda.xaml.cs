@@ -77,7 +77,9 @@ namespace TFG_V0._01.Ventanas
         public Agenda()
         {
             InitializeComponent();
+            DataContext = this;
             InitializeAnimations();
+            CrearFondoAnimado();
             AplicarModoSistema();
             InitializeTimeComboBox();
 
@@ -127,41 +129,124 @@ namespace TFG_V0._01.Ventanas
                 this.Tag = false;
                 navbar.ActualizarTema(false);
             }
+            ActualizarColoresFondoYAnimacion(MainWindow.isDarkTheme);
         }
 
         private void ThemeButton_Click(object sender, RoutedEventArgs e)
         {
             // Alternar el estado del tema
             MainWindow.isDarkTheme = !MainWindow.isDarkTheme;
-
-            // Obtener el botón y el icono
-            var button = sender as Button;
-            var icon = button?.Template.FindName("ThemeIcon", button) as Image;
-
-            if (MainWindow.isDarkTheme)
-            {
-                // Cambiar a modo oscuro
-                if (icon != null)
-                {
-                    icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/sol.png", UriKind.Relative));
-                }
-                this.Tag = true;
-                navbar.ActualizarTema(true);
-            }
-            else
-            {
-                // Cambiar a modo claro
-                if (icon != null)
-                {
-                    icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/luna.png", UriKind.Relative));
-                }
-                this.Tag = false;
-                navbar.ActualizarTema(false);
-            }
+            AplicarModoSistema();
         }
         #endregion
 
-        #region Animaciones
+        #region Fondo Animado
+        private void CrearFondoAnimado()
+        {
+            // Crear los brushes una sola vez
+            mesh1Brush = new RadialGradientBrush();
+            mesh1Brush.Center = new Point(0.3, 0.3);
+            mesh1Brush.RadiusX = 0.5;
+            mesh1Brush.RadiusY = 0.5;
+             mesh1Brush.GradientStops = new GradientStopCollection(); // Inicializar la colección
+
+            mesh2Brush = new RadialGradientBrush();
+            mesh2Brush.Center = new Point(0.7, 0.7);
+            mesh2Brush.RadiusX = 0.6;
+            mesh2Brush.RadiusY = 0.6;
+             mesh2Brush.GradientStops = new GradientStopCollection(); // Inicializar la colección
+
+            // Crear el DrawingGroup con los brushes
+            var drawingGroup = new DrawingGroup();
+            drawingGroup.Children.Add(new GeometryDrawing(mesh1Brush, null, new RectangleGeometry(new Rect(0, 0, 1, 1))));
+            drawingGroup.Children.Add(new GeometryDrawing(mesh2Brush, null, new RectangleGeometry(new Rect(0, 0, 1, 1))));
+
+            // Obtener el DrawingBrush del XAML y asignar el DrawingGroup
+            var drawingBrush = this.FindName("meshGradientBrush") as DrawingBrush;
+             if (drawingBrush != null)
+             {
+                 drawingBrush.Drawing = drawingGroup;
+             }
+             // No asignamos el DrawingBrush al Background aquí, ya está asignado en XAML
+        }
+
+        private void ActualizarColoresFondoYAnimacion(bool esModoOscuro)
+        {
+            if (mesh1Brush == null || mesh2Brush == null) return; // Asegurarse de que los brushes existan
+
+            // Limpiar los GradientStops existentes y añadir los nuevos
+            mesh1Brush.GradientStops.Clear();
+            mesh2Brush.GradientStops.Clear();
+
+            if (esModoOscuro)
+            {
+                // Colores para modo oscuro (los mismos que en Home.xaml.cs para consistencia)
+                mesh1Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#8C7BFF"), 0));
+                mesh1Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#08a693"), 1));
+
+                mesh2Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#3a4d5f"), 0));
+                mesh2Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#272c3f"), 1));
+            }
+            else
+            {
+                // Colores para modo claro (los mismos que en Home.xaml.cs para consistencia)
+                mesh1Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#de9cb8"), 0));
+                mesh1Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#9dcde1"), 1));
+
+                mesh2Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#dc8eb8"), 0));
+                mesh2Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#98d3ec"), 1));
+            }
+
+            // Reiniciar la animación para que apunte a los brushes con los colores actualizados
+            StartMeshAnimation();
+        }
+
+         private void StartMeshAnimation()
+         {
+             if (mesh1Brush == null || mesh2Brush == null) return; // Asegurarse de que los brushes existan
+
+             // Detener la animación actual si está corriendo
+             if (meshAnimStoryboard != null)
+             {
+                 meshAnimStoryboard.Stop();
+             }
+
+             // Crear un nuevo Storyboard cada vez que se inicia la animación
+             meshAnimStoryboard = new Storyboard();
+
+             // Animación para mesh1Brush
+             PointAnimation mesh1CenterAnimation = new PointAnimation
+             {
+                 From = new Point(0.3, 0.3),
+                 To = new Point(0.7, 0.5), // Usar mismos puntos de animación que Home
+                 Duration = TimeSpan.FromSeconds(8), // Duración total de la secuencia
+                 AutoReverse = true,
+                 RepeatBehavior = RepeatBehavior.Forever,
+                 EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut } // Usar el mismo easing que Home
+             };
+             Storyboard.SetTarget(mesh1CenterAnimation, mesh1Brush);
+             Storyboard.SetTargetProperty(mesh1CenterAnimation, new PropertyPath(RadialGradientBrush.CenterProperty));
+             meshAnimStoryboard.Children.Add(mesh1CenterAnimation);
+
+             // Animación para mesh2Brush
+             PointAnimation mesh2CenterAnimation = new PointAnimation
+             {
+                 From = new Point(0.7, 0.7),
+                 To = new Point(0.4, 0.4), // Usar mismos puntos de animación que Home
+                 Duration = TimeSpan.FromSeconds(8), // Duración total de la secuencia
+                 AutoReverse = true,
+                 RepeatBehavior = RepeatBehavior.Forever,
+                 EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut } // Usar el mismo easing que Home
+             };
+             Storyboard.SetTarget(mesh2CenterAnimation, mesh2Brush);
+             Storyboard.SetTargetProperty(mesh2CenterAnimation, new PropertyPath(RadialGradientBrush.CenterProperty));
+             meshAnimStoryboard.Children.Add(mesh2CenterAnimation);
+
+             meshAnimStoryboard.Begin();
+         }
+        #endregion
+
+        #region Animaciones (Básicas)
         private void InitializeAnimations()
         {
             // Animación de entrada con fade
@@ -188,96 +273,6 @@ namespace TFG_V0._01.Ventanas
             };
 
             shakeStoryboard.Children.Add(shakeAnimation);
-
-            // Inicializar los brushes para el fondo animado
-            mesh1Brush = new RadialGradientBrush
-            {
-                Center = new Point(0.3, 0.3),
-                RadiusX = 0.5,
-                RadiusY = 0.5,
-                GradientStops = new GradientStopCollection
-                {
-                    new GradientStop(Color.FromRgb(222, 156, 184), 0),
-                    new GradientStop(Color.FromRgb(157, 205, 225), 1)
-                }
-            };
-
-            mesh2Brush = new RadialGradientBrush
-            {
-                Center = new Point(0.7, 0.7),
-                RadiusX = 0.6,
-                RadiusY = 0.6,
-                GradientStops = new GradientStopCollection
-                {
-                    new GradientStop(Color.FromRgb(220, 142, 184), 0),
-                    new GradientStop(Color.FromRgb(152, 211, 236), 1)
-                }
-            };
-
-            // Crear el fondo animado
-            DrawingGroup drawingGroup = new DrawingGroup();
-            GeometryDrawing geometryDrawing1 = new GeometryDrawing
-            {
-                Brush = mesh1Brush,
-                Geometry = new RectangleGeometry(new Rect(0, 0, 1, 1))
-            };
-            GeometryDrawing geometryDrawing2 = new GeometryDrawing
-            {
-                Brush = mesh2Brush,
-                Geometry = new RectangleGeometry(new Rect(0, 0, 1, 1))
-            };
-            drawingGroup.Children.Add(geometryDrawing1);
-            drawingGroup.Children.Add(geometryDrawing2);
-
-            DrawingBrush drawingBrush = new DrawingBrush(drawingGroup)
-            {
-                Viewport = new Rect(0, 0, 1, 1),
-                ViewportUnits = BrushMappingMode.RelativeToBoundingBox,
-                TileMode = TileMode.None
-            };
-
-            // Asignar el fondo al Grid
-            var grid = this.FindName("meshGradientBrush") as DrawingBrush;
-            if (grid != null)
-            {
-                grid.Drawing = drawingGroup;
-            }
-
-            // Iniciar la animación del fondo
-            StartMeshAnimation();
-        }
-
-        private void StartMeshAnimation()
-        {
-            meshAnimStoryboard = new Storyboard();
-
-            // Animación para mesh1
-            PointAnimation mesh1CenterAnimation = new PointAnimation
-            {
-                From = new Point(0.3, 0.3),
-                To = new Point(0.4, 0.4),
-                Duration = TimeSpan.FromSeconds(10),
-                AutoReverse = true,
-                RepeatBehavior = RepeatBehavior.Forever
-            };
-            Storyboard.SetTarget(mesh1CenterAnimation, mesh1Brush);
-            Storyboard.SetTargetProperty(mesh1CenterAnimation, new PropertyPath(RadialGradientBrush.CenterProperty));
-            meshAnimStoryboard.Children.Add(mesh1CenterAnimation);
-
-            // Animación para mesh2
-            PointAnimation mesh2CenterAnimation = new PointAnimation
-            {
-                From = new Point(0.7, 0.7),
-                To = new Point(0.6, 0.6),
-                Duration = TimeSpan.FromSeconds(8),
-                AutoReverse = true,
-                RepeatBehavior = RepeatBehavior.Forever
-            };
-            Storyboard.SetTarget(mesh2CenterAnimation, mesh2Brush);
-            Storyboard.SetTargetProperty(mesh2CenterAnimation, new PropertyPath(RadialGradientBrush.CenterProperty));
-            meshAnimStoryboard.Children.Add(mesh2CenterAnimation);
-
-            meshAnimStoryboard.Begin();
         }
 
         private void BeginFadeInAnimation()

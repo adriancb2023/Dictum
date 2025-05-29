@@ -458,23 +458,32 @@
                                                         <Grid>
                                                             <Grid.ColumnDefinitions>
                                                                 <ColumnDefinition Width="Auto"/>
+                                                                <ColumnDefinition Width="Auto"/>
                                                                 <ColumnDefinition Width="*"/>
                                                             </Grid.ColumnDefinitions>
+                                                            <!-- Hora del evento -->
+                                                            <TextBlock Text="{Binding FechaInicio, StringFormat={}{0:hh\\:mm}}"
+                                                                       Foreground="Orange"
+                                                                       FontWeight="Bold"
+                                                                       FontSize="18"
+                                                                       VerticalAlignment="Center"
+                                                                       Margin="0,0,12,0"
+                                                                       Grid.Column="0"/>
                                                             <!-- Círculo de estado -->
-                                                            <Ellipse Width="18" Height="18" Margin="0,0,12,0" Grid.Column="0">
+                                                            <Ellipse Width="18" Height="18" Margin="0,0,12,0" Grid.Column="1">
                                                                 <Ellipse.Fill>
                                                                     <SolidColorBrush Color="{Binding EstadoColor}"/>
                                                                 </Ellipse.Fill>
                                                             </Ellipse>
                                                             <!-- Info del evento -->
-                                                            <StackPanel Grid.Column="1">
-                                                                <TextBlock Text="{Binding titulo}" 
+                                                            <StackPanel Grid.Column="2">
+                                                                <TextBlock Text="{Binding Titulo}" 
                                                                            Foreground="White" 
                                                                            FontWeight="SemiBold"/>
-                                                                <TextBlock Text="{Binding descripcion}" 
+                                                                <TextBlock Text="{Binding Descripcion}" 
                                                                            Foreground="#CCFFFFFF" 
                                                                            FontSize="12"/>
-                                                                <TextBlock Text="{Binding estado_nombre}" 
+                                                                <TextBlock Text="{Binding EstadoNombre}" 
                                                                            Foreground="#CCFFFFFF" 
                                                                            FontSize="12"/>
                                                             </StackPanel>

@@ -23,8 +23,19 @@ namespace TFG_V0._01.Supabase
             return result.Models;
         }
 
-        public Task InsertarAsync(Contacto entidad) =>
-            _client.From<Contacto>().Insert(entidad);
+        public Task InsertarAsync(Contacto entidad)
+        {
+            // Create a new Contacto object without the id
+            var contactoInsert = new Contacto
+            {
+                id_caso = entidad.id_caso,
+                nombre = entidad.nombre,
+                tipo = entidad.tipo,
+                telefono = entidad.telefono,
+                email = entidad.email
+            };
+            return _client.From<Contacto>().Insert(new[] { contactoInsert });
+        }
 
         public Task ActualizarAsync(Contacto entidad) =>
             _client.From<Contacto>().Update(entidad);

@@ -694,7 +694,8 @@ namespace TFG_V0._01.Ventanas
                         Fecha = e.Fecha,
                         EstadoNombre = estados.FirstOrDefault(s => s.Id == e.IdEstado)?.Nombre ?? "Sin estado",
                         EstadoColor = ObtenerColorEstado(estados.FirstOrDefault(s => s.Id == e.IdEstado)?.Nombre),
-                        FechaInicio = e.FechaInicio
+                        FechaInicio = e.FechaInicio,
+                        IdCaso = e.IdCaso
                     })
                     .ToList();
 
@@ -1121,7 +1122,8 @@ namespace TFG_V0._01.Ventanas
                     Fecha = e.Fecha,
                     EstadoNombre = estados.FirstOrDefault(s => s.Id == e.IdEstado)?.Nombre ?? "Sin estado",
                     EstadoColor = ObtenerColorEstado(estados.FirstOrDefault(s => s.Id == e.IdEstado)?.Nombre),
-                    FechaInicio = e.FechaInicio
+                    FechaInicio = e.FechaInicio,
+                    IdCaso = e.IdCaso
                 }).ToList();
 
                 EventosList.ItemsSource = eventosConEstado;
@@ -1217,6 +1219,7 @@ namespace TFG_V0._01.Ventanas
         public string EstadoNombre { get; set; }
         public string EstadoColor { get; set; }
         public TimeSpan FechaInicio { get; set; }
+        public int IdCaso { get; set; }
     }
 
     public class CasoViewModel

@@ -1,19 +1,14 @@
 ﻿using Supabase.Postgrest.Models;
 using Supabase.Postgrest.Attributes;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.ComponentModel;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace TFG_V0._01.Supabase.Models
 {
     [Table("casos")]
-    public class Caso : BaseModel, INotifyPropertyChanged
+    public class Caso : BaseModel
     {
-        [JsonIgnore]
         [PrimaryKey("id", true)]
         [Column("id")]
         public int id { get; set; }
@@ -39,43 +34,13 @@ namespace TFG_V0._01.Supabase.Models
         [Column("referencia")]
         public string referencia { get; set; }
 
+        // Propiedades de navegación y calculadas solo para uso en la app
         [JsonIgnore]
-        [Reference(typeof(Cliente))]
         public Cliente Cliente { get; set; }
-
-        private Estado _estado;
         [JsonIgnore]
-        [Reference(typeof(Estado))]
-        public Estado Estado
-        {
-            get => _estado;
-            set
-            {
-                if (_estado != value)
-                {
-                    _estado = value;
-                    OnPropertyChanged(nameof(Estado));
-                    OnPropertyChanged(nameof(estado_nombre));
-                }
-            }
-        }
-
+        public Estado Estado { get; set; }
         [JsonIgnore]
-        [Reference(typeof(TipoCaso))]
         public TipoCaso TipoCaso { get; set; }
-
-        [JsonIgnore]
-        [Reference(typeof(Alerta))]
-        public List<Alerta> Alertas { get; set; }
-
-        [JsonIgnore]
-        [Reference(typeof(Documento))]
-        public List<Documento> Documentos { get; set; }
-
-        [JsonIgnore]
-        [Reference(typeof(Tarea))]
-        public List<Tarea> Tareas { get; set; }
-
         [JsonIgnore]
         public string nombre_cliente => Cliente?.nombre ?? "Sin cliente";
         [JsonIgnore]
@@ -84,17 +49,8 @@ namespace TFG_V0._01.Supabase.Models
         public string tipo_nombre => TipoCaso?.nombre ?? "Sin tipo";
         [JsonIgnore]
         public string tipo_abreviatura => TipoCaso?.abreviatura ?? "--";
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        public override string ToString()
-        {
-            return $"{referencia} - {titulo} - {Estado?.nombre}";
-        }
+        [JsonIgnore]
+        public List<Alerta> Alertas { get; set; }
     }
 
     // DTO para inserción

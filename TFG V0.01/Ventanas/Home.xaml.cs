@@ -159,6 +159,46 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
+        #region 🎨 Modelo para el día de la semana
+        public class DiaSemanaModel : INotifyPropertyChanged
+        {
+            public string Nombre { get; set; }
+            public DateTime Fecha { get; set; }
+            private bool _isSelected;
+            public bool IsSelected
+            {
+                get => _isSelected;
+                set { _isSelected = value; OnPropertyChanged(); }
+            }
+            public event PropertyChangedEventHandler PropertyChanged;
+            protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+        #endregion
+
+        #region 🎨 Variables adicionales
+        public ObservableCollection<DiaSemanaModel> DiasSemana { get; set; } = new ObservableCollection<DiaSemanaModel>();
+        public ObservableCollection<EventoCita> EventosDiaSeleccionado { get; set; } = new ObservableCollection<EventoCita>();
+
+        private DiaSemanaModel _diaSeleccionado;
+        public DiaSemanaModel DiaSeleccionado
+        {
+            get => _diaSeleccionado;
+            set
+            {
+                if (_diaSeleccionado != null) _diaSeleccionado.IsSelected = false;
+                _diaSeleccionado = value;
+                if (_diaSeleccionado != null) _diaSeleccionado.IsSelected = true;
+                OnPropertyChanged();
+                FiltrarEventosPorDia();
+            }
+        }
+
+        public ICommand SeleccionarDiaCommand { get; set; }
+        #endregion
+
         #region ⚡ Inicializacion
         public Home()
         {
@@ -166,8 +206,6 @@ namespace TFG_V0._01.Ventanas
             DataContext = this;
 
             CargarIdioma(MainWindow.idioma);
-
-            diaSemana();
 
             InitializeAnimations();
             CrearFondoAnimado();
@@ -194,6 +232,9 @@ namespace TFG_V0._01.Ventanas
 
             _eventosCitasService = new SupabaseEventosCitas();
             EventosProximos = 0;
+
+            SeleccionarDiaCommand = new RelayCommand<DateTime>(SeleccionarDia);
+            InicializarSemanaActual();
         }
         #endregion
 
@@ -339,39 +380,6 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
-        #region 📅 Dia Actual
-        private void diaSemana()
-        {
-            var diaSemana = fechaActual.DayOfWeek;
-            switch (diaSemana)
-            {
-                case DayOfWeek.Monday:
-                    lunes.Foreground = new SolidColorBrush(Colors.Red);
-                    break;
-                case DayOfWeek.Tuesday:
-                    martes.Foreground = new SolidColorBrush(Colors.Red);
-                    break;
-                case DayOfWeek.Wednesday:
-                    miercoles.Foreground = new SolidColorBrush(Colors.Red);
-                    break;
-                case DayOfWeek.Thursday:
-                    jueves.Foreground = new SolidColorBrush(Colors.Red);
-                    break;
-                case DayOfWeek.Friday:
-                    viernes.Foreground = new SolidColorBrush(Colors.Red);
-                    break;
-                case DayOfWeek.Saturday:
-                    sabado.Foreground = new SolidColorBrush(Colors.Red);
-                    break;
-                case DayOfWeek.Sunday:
-                    domingo.Foreground = new SolidColorBrush(Colors.Red);
-                    break;
-                default:
-                    break;
-            }
-        }
-        #endregion
-
         #region 📅 Cambiar de fecha Calendario
         private static readonly string[] NombresMeses = { "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre" };
 
@@ -425,16 +433,6 @@ namespace TFG_V0._01.Ventanas
         {
             mesText = NombresMeses[fechaActual.Month - 1];
             anio = fechaActual.Year.ToString();
-            FechaElegida.Text = $"{mesText} {anio}";
-
-            //actualizar lista en local 
-            if (MainWindow.tipoBBDD)
-            {
-
-            }
-            else
-            {
-            }
         }
         #endregion
 
@@ -480,13 +478,6 @@ namespace TFG_V0._01.Ventanas
             resumenClientes.Text = t.ResumenClientes;
             resumenDocumentos.Text = t.ResumenDocumentos;
             resumenEventos.Text = t.ResumenEventos;
-            lunes.Text = t.Lunes;
-            martes.Text = t.Martes;
-            miercoles.Text = t.Miercoles;
-            jueves.Text = t.Jueves;
-            viernes.Text = t.Viernes;
-            sabado.Text = t.Sabado;
-            domingo.Text = t.Domingo;
             listaTareas.Text = t.ListaTareas;
             btnAñadirTarea.Content = t.BtnAñadirTarea;
             btnVerTodosCasos.Content = t.BtnVerTodosCasos;
@@ -646,6 +637,19 @@ namespace TFG_V0._01.Ventanas
                     .Count();
                 EventosProximos = eventosHoy;
                 OnPropertyChanged(nameof(EventosProximos));
+
+                // Llenar la colección de todos los eventos para la semana
+                var colores = new[] { "#1976D2", "#43A047", "#FFA726", "#E53935", "#8E24AA", "#00ACC1", "#FDD835", "#F4511E", "#3949AB", "#00897B" };
+                var random = new Random();
+                EventosProximosLista.Clear();
+                foreach (var evento in eventosCitas)
+                {
+                    // DEBUG: Mostrar el valor real de FechaInicio
+                    MessageBox.Show($"Evento: {evento.Titulo}\nFechaInicio: {evento.FechaInicio}");
+                    evento.EstadoColor = colores[random.Next(colores.Length)];
+                    EventosProximosLista.Add(evento);
+                }
+                FiltrarEventosPorDia();
 
                 if (ProxEventos != null)
                 {
@@ -1129,6 +1133,72 @@ namespace TFG_V0._01.Ventanas
         private void btnMesSiguiente_MouseLeave(object sender, MouseEventArgs e)
         {
             // No necesitas hacer nada al quitar el ratón si la animación no es repetitiva
+        }
+
+        // Variables para la semana mostrada
+        private DateTime _lunesSemanaMostrada = DateTime.Today;
+
+        private void SemanaAnterior_Click(object sender, RoutedEventArgs e)
+        {
+            _lunesSemanaMostrada = _lunesSemanaMostrada.AddDays(-7);
+            ActualizarSemanaMostrada();
+        }
+
+        private void SemanaSiguiente_Click(object sender, RoutedEventArgs e)
+        {
+            _lunesSemanaMostrada = _lunesSemanaMostrada.AddDays(7);
+            ActualizarSemanaMostrada();
+        }
+
+        private void SemanaHoy_Click(object sender, RoutedEventArgs e)
+        {
+            _lunesSemanaMostrada = DateTime.Today.AddDays(-(int)(DateTime.Today.DayOfWeek == 0 ? 6 : DateTime.Today.DayOfWeek - DayOfWeek.Monday));
+            ActualizarSemanaMostrada();
+            DiaSeleccionado = DiasSemana.FirstOrDefault(d => d.Fecha.Date == DateTime.Today.Date) ?? DiasSemana[0];
+        }
+
+        private void ActualizarSemanaMostrada()
+        {
+            DiasSemana.Clear();
+            string[] nombres = { "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom" };
+            for (int i = 0; i < 7; i++)
+            {
+                var fecha = _lunesSemanaMostrada.AddDays(i);
+                DiasSemana.Add(new DiaSemanaModel
+                {
+                    Nombre = nombres[i] + " " + fecha.Day,
+                    Fecha = fecha,
+                    IsSelected = false
+                });
+            }
+            SemanaActualRango.Text = $"{_lunesSemanaMostrada:dd/MM} - {_lunesSemanaMostrada.AddDays(6):dd/MM}";
+            // Si el día seleccionado no está en la semana, selecciona el lunes
+            if (!DiasSemana.Any(d => d.Fecha.Date == DiaSeleccionado?.Fecha.Date))
+                DiaSeleccionado = DiasSemana[0];
+        }
+
+        // Modificar InicializarSemanaActual para usar _lunesSemanaMostrada
+        private void InicializarSemanaActual()
+        {
+            _lunesSemanaMostrada = DateTime.Today.AddDays(-(int)(DateTime.Today.DayOfWeek == 0 ? 6 : DateTime.Today.DayOfWeek - DayOfWeek.Monday));
+            ActualizarSemanaMostrada();
+            DiaSeleccionado = DiasSemana.FirstOrDefault(d => d.Fecha.Date == DateTime.Today.Date) ?? DiasSemana[0];
+        }
+
+        private void FiltrarEventosPorDia()
+        {
+            EventosDiaSeleccionado.Clear();
+            if (DiaSeleccionado == null) return;
+            var eventos = EventosProximosLista.Where(ev => ev.Fecha.Date == DiaSeleccionado.Fecha.Date).OrderBy(ev => ev.Fecha).ToList();
+            foreach (var ev in eventos)
+                EventosDiaSeleccionado.Add(ev);
+        }
+
+        private void SeleccionarDia(DateTime fecha)
+        {
+            var dia = DiasSemana.FirstOrDefault(d => d.Fecha.Date == fecha.Date);
+            if (dia != null)
+                DiaSeleccionado = dia;
         }
     }
 }

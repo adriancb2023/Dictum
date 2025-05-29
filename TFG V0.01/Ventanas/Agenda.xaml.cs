@@ -18,6 +18,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using TFG_V0._01.Supabase.Models;
+using System.Windows.Threading;
 
 namespace TFG_V0._01.Ventanas
 {
@@ -39,6 +40,7 @@ namespace TFG_V0._01.Ventanas
         private ObservableCollection<EventoViewModel> _eventosDeHoy;
         private DateTime _fechaSeleccionada;
         private Dictionary<DateTime, string> _diasConEventoColor;
+        private System.Windows.Threading.DispatcherTimer _timerActualizacion;
 
         public ObservableCollection<EventoViewModel> EventosDelDia
         {
@@ -82,6 +84,12 @@ namespace TFG_V0._01.Ventanas
             EventosDeHoy = new ObservableCollection<EventoViewModel>();
             DiasConEventoColor = new Dictionary<DateTime, string>();
             _fechaSeleccionada = DateTime.Today;
+
+            // Inicializar el temporizador
+            _timerActualizacion = new System.Windows.Threading.DispatcherTimer();
+            _timerActualizacion.Interval = TimeSpan.FromMinutes(1);
+            _timerActualizacion.Tick += async (s, e) => await CargarEventosDeHoy();
+            _timerActualizacion.Start();
 
             // Cargar datos iniciales
             CargarDatosIniciales();
@@ -302,8 +310,19 @@ namespace TFG_V0._01.Ventanas
                 await _estadosEventosService.InicializarAsync();
                 await _casosService.InicializarAsync();
 
+                // Establecer la fecha seleccionada al día actual
+                _fechaSeleccionada = DateTime.Today;
+                MainCalendar.SelectedDate = DateTime.Today;
+
+                // Cargar los eventos
                 await CargarEventosDelDia();
                 await CargarEventosDeHoy();
+
+                // Forzar la actualización de la UI
+                EventosDelDiaList.ItemsSource = null;
+                EventosDelDiaList.ItemsSource = EventosDelDia;
+                EventosDeHoyList.ItemsSource = null;
+                EventosDeHoyList.ItemsSource = EventosDeHoy;
             }
             catch (Exception ex)
             {
@@ -331,14 +350,18 @@ namespace TFG_V0._01.Ventanas
                         EstadoNombre = estados.FirstOrDefault(s => s.Id == e.IdEstado)?.Nombre ?? "Sin estado",
                         EstadoColor = ObtenerColorEstado(estados.FirstOrDefault(s => s.Id == e.IdEstado)?.Nombre),
                         FechaInicio = e.FechaInicio,
+                        IdCaso = e.IdCaso
                     })
                     .ToList();
 
-                EventosDelDia.Clear();
-                foreach (var evento in eventosDelDia)
+                Application.Current.Dispatcher.Invoke(() =>
                 {
-                    EventosDelDia.Add(evento);
-                }
+                    EventosDelDia.Clear();
+                    foreach (var evento in eventosDelDia)
+                    {
+                        EventosDelDia.Add(evento);
+                    }
+                });
 
                 // Actualizar el diccionario de días con evento y color
                 DiasConEventoColor.Clear();
@@ -377,14 +400,18 @@ namespace TFG_V0._01.Ventanas
                         EstadoNombre = estados.FirstOrDefault(s => s.Id == e.IdEstado)?.Nombre ?? "Sin estado",
                         EstadoColor = ObtenerColorEstado(estados.FirstOrDefault(s => s.Id == e.IdEstado)?.Nombre),
                         FechaInicio = e.FechaInicio,
+                        IdCaso = e.IdCaso
                     })
                     .ToList();
 
-                EventosDeHoy.Clear();
-                foreach (var evento in eventosDeHoy)
+                Application.Current.Dispatcher.Invoke(() =>
                 {
-                    EventosDeHoy.Add(evento);
-                }
+                    EventosDeHoy.Clear();
+                    foreach (var evento in eventosDeHoy)
+                    {
+                        EventosDeHoy.Add(evento);
+                    }
+                });
             }
             catch (Exception ex)
             {
@@ -413,6 +440,7 @@ namespace TFG_V0._01.Ventanas
             {
                 _fechaSeleccionada = calendar.SelectedDate.Value;
                 await CargarEventosDelDia();
+                await CargarEventosDeHoy();
             }
         }
 
@@ -450,6 +478,13 @@ namespace TFG_V0._01.Ventanas
             {
                 MessageBox.Show($"Error al guardar el evento: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private void NuevoContactoButton_Click(object sender, RoutedEventArgs e)
+        {
+            var nuevoContactoWindow = new SubVentanas.NuevoContactoWindow();
+            nuevoContactoWindow.Owner = this;
+            nuevoContactoWindow.ShowDialog();
         }
         #endregion
     }

@@ -30,6 +30,11 @@ namespace TFG_V0._01.Ventanas
         #region variables animacion
         private Storyboard fadeInStoryboard;
         private Storyboard shakeStoryboard;
+        private Storyboard meshAnimStoryboard;
+
+        // Brushes y fondo animado
+        private RadialGradientBrush mesh1Brush;
+        private RadialGradientBrush mesh2Brush;
         #endregion
 
         #region variables
@@ -109,7 +114,7 @@ namespace TFG_V0._01.Ventanas
                 {
                     icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/sol.png", UriKind.Relative));
                 }
-                backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString("pack://application:,,,/TFG V0.01;component/Recursos/Background/oscuro/main.png") as ImageSource;
+                this.Tag = true;
                 navbar.ActualizarTema(true);
             }
             else
@@ -119,7 +124,7 @@ namespace TFG_V0._01.Ventanas
                 {
                     icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/luna.png", UriKind.Relative));
                 }
-                backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString("pack://application:,,,/TFG V0.01;component/Recursos/Background/claro/main.png") as ImageSource;
+                this.Tag = false;
                 navbar.ActualizarTema(false);
             }
         }
@@ -140,10 +145,7 @@ namespace TFG_V0._01.Ventanas
                 {
                     icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/sol.png", UriKind.Relative));
                 }
-
-                backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString(
-                    "pack://application:,,,/TFG V0.01;component/Recursos/Background/oscuro/main.png") as ImageSource;
-
+                this.Tag = true;
                 navbar.ActualizarTema(true);
             }
             else
@@ -153,10 +155,7 @@ namespace TFG_V0._01.Ventanas
                 {
                     icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/luna.png", UriKind.Relative));
                 }
-
-                backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString(
-                    "pack://application:,,,/TFG V0.01;component/Recursos/Background/claro/main.png") as ImageSource;
-
+                this.Tag = false;
                 navbar.ActualizarTema(false);
             }
         }
@@ -189,6 +188,96 @@ namespace TFG_V0._01.Ventanas
             };
 
             shakeStoryboard.Children.Add(shakeAnimation);
+
+            // Inicializar los brushes para el fondo animado
+            mesh1Brush = new RadialGradientBrush
+            {
+                Center = new Point(0.3, 0.3),
+                RadiusX = 0.5,
+                RadiusY = 0.5,
+                GradientStops = new GradientStopCollection
+                {
+                    new GradientStop(Color.FromRgb(222, 156, 184), 0),
+                    new GradientStop(Color.FromRgb(157, 205, 225), 1)
+                }
+            };
+
+            mesh2Brush = new RadialGradientBrush
+            {
+                Center = new Point(0.7, 0.7),
+                RadiusX = 0.6,
+                RadiusY = 0.6,
+                GradientStops = new GradientStopCollection
+                {
+                    new GradientStop(Color.FromRgb(220, 142, 184), 0),
+                    new GradientStop(Color.FromRgb(152, 211, 236), 1)
+                }
+            };
+
+            // Crear el fondo animado
+            DrawingGroup drawingGroup = new DrawingGroup();
+            GeometryDrawing geometryDrawing1 = new GeometryDrawing
+            {
+                Brush = mesh1Brush,
+                Geometry = new RectangleGeometry(new Rect(0, 0, 1, 1))
+            };
+            GeometryDrawing geometryDrawing2 = new GeometryDrawing
+            {
+                Brush = mesh2Brush,
+                Geometry = new RectangleGeometry(new Rect(0, 0, 1, 1))
+            };
+            drawingGroup.Children.Add(geometryDrawing1);
+            drawingGroup.Children.Add(geometryDrawing2);
+
+            DrawingBrush drawingBrush = new DrawingBrush(drawingGroup)
+            {
+                Viewport = new Rect(0, 0, 1, 1),
+                ViewportUnits = BrushMappingMode.RelativeToBoundingBox,
+                TileMode = TileMode.None
+            };
+
+            // Asignar el fondo al Grid
+            var grid = this.FindName("meshGradientBrush") as DrawingBrush;
+            if (grid != null)
+            {
+                grid.Drawing = drawingGroup;
+            }
+
+            // Iniciar la animación del fondo
+            StartMeshAnimation();
+        }
+
+        private void StartMeshAnimation()
+        {
+            meshAnimStoryboard = new Storyboard();
+
+            // Animación para mesh1
+            PointAnimation mesh1CenterAnimation = new PointAnimation
+            {
+                From = new Point(0.3, 0.3),
+                To = new Point(0.4, 0.4),
+                Duration = TimeSpan.FromSeconds(10),
+                AutoReverse = true,
+                RepeatBehavior = RepeatBehavior.Forever
+            };
+            Storyboard.SetTarget(mesh1CenterAnimation, mesh1Brush);
+            Storyboard.SetTargetProperty(mesh1CenterAnimation, new PropertyPath(RadialGradientBrush.CenterProperty));
+            meshAnimStoryboard.Children.Add(mesh1CenterAnimation);
+
+            // Animación para mesh2
+            PointAnimation mesh2CenterAnimation = new PointAnimation
+            {
+                From = new Point(0.7, 0.7),
+                To = new Point(0.6, 0.6),
+                Duration = TimeSpan.FromSeconds(8),
+                AutoReverse = true,
+                RepeatBehavior = RepeatBehavior.Forever
+            };
+            Storyboard.SetTarget(mesh2CenterAnimation, mesh2Brush);
+            Storyboard.SetTargetProperty(mesh2CenterAnimation, new PropertyPath(RadialGradientBrush.CenterProperty));
+            meshAnimStoryboard.Children.Add(mesh2CenterAnimation);
+
+            meshAnimStoryboard.Begin();
         }
 
         private void BeginFadeInAnimation()

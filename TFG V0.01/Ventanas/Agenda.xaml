@@ -549,15 +549,46 @@
             </Grid>
         </Grid>
 
+        <!-- Overlay para cerrar al hacer clic fuera -->
+        <Grid x:Name="OverlayPanel" 
+              Grid.Column="2" 
+              Background="#80000000" 
+              Panel.ZIndex="998" 
+              Visibility="Collapsed" 
+              MouseDown="OverlayPanel_MouseDown"/>
+
         <!-- Panel deslizable para nuevo evento -->
-        <Grid x:Name="NewEventPanel" Grid.Column="2" HorizontalAlignment="Right" Width="400" Style="{StaticResource SlidePanelStyle}" Visibility="Collapsed">
-            <StackPanel>
+        <Grid x:Name="NewEventPanel" 
+              Grid.Column="2" 
+              HorizontalAlignment="Right" 
+              Width="400" 
+              Background="{StaticResource SlidePanelGradientDark}"
+              Panel.ZIndex="999"
+              Visibility="Collapsed">
+            
+            <Grid>
+                <Grid.Effect>
+                    <DropShadowEffect BlurRadius="20" ShadowDepth="0" Color="Black" Opacity="0.5"/>
+                </Grid.Effect>
+                
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
                 <!-- Header del panel -->
-                <Grid  Height="60">
-                    <TextBlock Text="Nuevo Evento" Style="{StaticResource PrimaryTextStyle}" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" Margin="20,0"/>
+                <Grid Grid.Row="0" Height="60">
+                    <TextBlock Text="Nuevo Evento" 
+                              Style="{StaticResource PrimaryTextStyle}" 
+                              FontSize="20" 
+                              FontWeight="Bold" 
+                              VerticalAlignment="Center" 
+                              Margin="20,0"/>
                 </Grid>
-                <ScrollViewer VerticalScrollBarVisibility="Auto" Height="696">
+
+                <!-- Contenido del formulario -->
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Height="696">
                     <StackPanel Margin="20">
                         <!-- Título del evento -->
                         <TextBlock Text="Título" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
@@ -593,16 +624,14 @@
                     </StackPanel>
                 </ScrollViewer>
 
-                <!-- Contenido del formulario -->
-
                 <!-- Botones de acción -->
-                <Grid Grid.Row="2"  Height="70">
+                <Grid Grid.Row="2" Height="70">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="20,0">
                         <Button Content="Cancelar" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,10,0" Click="CancelEventButton_Click" Width="100"/>
-                        <Button Content="Guardar" Style="{StaticResource RoundedButtonStyle}" Click="SaveEventButton_Click" Width="100"/>
+                        <Button Content="Guardar" Style="{StaticResource RoundedButtonStyle}" Width="100"/>
                     </StackPanel>
                 </Grid>
-            </StackPanel>
+            </Grid>
         </Grid>
 
         <!-- Panel deslizable para nuevo contacto -->
@@ -611,73 +640,64 @@
               Grid.RowSpan="3" 
               Width="400" 
               HorizontalAlignment="Right" 
-              Panel.ZIndex="1000"
+              Panel.ZIndex="999"
+              Background="{StaticResource SlidePanelGradientDark}"
               Visibility="Collapsed">
-            <Grid.Style>
-                <Style TargetType="Grid">
-                    <Setter Property="Background" Value="{StaticResource SlidePanelGradientDark}"/>
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
-                            <Setter Property="Background" Value="{StaticResource SlidePanelGradientLight}"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Grid.Style>
-            <Grid.RenderTransform>
-                <TranslateTransform x:Name="SlidePanelTransform" X="400"/>
-            </Grid.RenderTransform>
+            
+            <Grid>
+                <Grid.Effect>
+                    <DropShadowEffect BlurRadius="20" ShadowDepth="0" Color="Black" Opacity="0.5"/>
+                </Grid.Effect>
+                
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-            <ContentControl>
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-
-                    <!-- Header del panel -->
-                    <Grid Background="Transparent" Height="60">
-                        <TextBlock Text="Nuevo Contacto" Style="{StaticResource PrimaryTextStyle}" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="20,0"/>
-                    </Grid>
-
-                    <!-- Contenido del formulario -->
-                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                        <StackPanel Margin="20">
-                            <!-- Caso -->
-                            <TextBlock Text="Caso" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5" FontSize="12"/>
-                            <ComboBox x:Name="ContactCasoComboBox" Style="{StaticResource RoundedComboBoxStyle}" Margin="0,0,0,15" DisplayMemberPath="referencia" Height="30"/>
-
-                            <!-- Nombre -->
-                            <TextBlock Text="Nombre" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5" FontSize="12"/>
-                            <TextBox x:Name="ContactNombreTextBox" Style="{StaticResource RoundedTextBoxStyle}" Margin="0,0,0,15"/>
-
-                            <!-- Rol -->
-                            <TextBlock Text="Rol" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5" FontSize="12"/>
-                            <ComboBox x:Name="ContactRolComboBox" Style="{StaticResource RoundedComboBoxStyle}" Margin="0,0,0,15" Height="30"/>
-
-                            <!-- Teléfono -->
-                            <TextBlock Text="Teléfono" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5" FontSize="12"/>
-                            <TextBox x:Name="ContactTelefonoTextBox" Style="{StaticResource RoundedTextBoxStyle}" Margin="0,0,0,15"/>
-
-                            <!-- Email -->
-                            <TextBlock Text="Email" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5" FontSize="12"/>
-                            <TextBox x:Name="ContactEmailTextBox" Style="{StaticResource RoundedTextBoxStyle}" Margin="0,0,0,15"/>
-                        </StackPanel>
-                    </ScrollViewer>
-
-                    <!-- Botones de acción -->
-                    <Grid Grid.Row="2" Height="70">
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="20,0">
-                            <Button Content="Cancelar" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,10,0" Click="CancelContactButton_Click" Width="100"/>
-                            <Button Content="Guardar" Style="{StaticResource RoundedButtonStyle}" Click="SaveContactButton_Click" Width="100"/>
-                        </StackPanel>
-                    </Grid>
+                <!-- Header del panel -->
+                <Grid Grid.Row="0" Height="60">
+                    <TextBlock Text="Nuevo Contacto" 
+                              Style="{StaticResource PrimaryTextStyle}" 
+                              FontSize="20" 
+                              FontWeight="Bold" 
+                              VerticalAlignment="Center" 
+                              Margin="20,0"/>
                 </Grid>
-            </ContentControl>
+
+                <!-- Contenido del formulario -->
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="20">
+                        <!-- Caso -->
+                        <TextBlock Text="Caso" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5" FontSize="12"/>
+                        <ComboBox x:Name="ContactCasoComboBox" Style="{StaticResource RoundedComboBoxStyle}" Margin="0,0,0,15" DisplayMemberPath="referencia" Height="30"/>
+
+                        <!-- Nombre -->
+                        <TextBlock Text="Nombre" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5" FontSize="12"/>
+                        <TextBox x:Name="ContactNombreTextBox" Style="{StaticResource RoundedTextBoxStyle}" Margin="0,0,0,15"/>
+
+                        <!-- Rol -->
+                        <TextBlock Text="Rol" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5" FontSize="12"/>
+                        <ComboBox x:Name="ContactRolComboBox" Style="{StaticResource RoundedComboBoxStyle}" Margin="0,0,0,15" Height="30"/>
+
+                        <!-- Teléfono -->
+                        <TextBlock Text="Teléfono" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5" FontSize="12"/>
+                        <TextBox x:Name="ContactTelefonoTextBox" Style="{StaticResource RoundedTextBoxStyle}" Margin="0,0,0,15"/>
+
+                        <!-- Email -->
+                        <TextBlock Text="Email" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5" FontSize="12"/>
+                        <TextBox x:Name="ContactEmailTextBox" Style="{StaticResource RoundedTextBoxStyle}" Margin="0,0,0,15"/>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- Botones de acción -->
+                <Grid Grid.Row="2" Height="70">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="20,0">
+                        <Button Content="Cancelar" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,10,0" Click="CancelContactButton_Click" Width="100"/>
+                        <Button Content="Guardar" Style="{StaticResource RoundedButtonStyle}"  Width="100"/>
+                    </StackPanel>
+                </Grid>
+            </Grid>
         </Grid>
-
-        <!-- Overlay para cerrar al hacer clic fuera -->
-        <Grid x:Name="OverlayPanel" Grid.Column="2" Background="#80000000" Panel.ZIndex="999" Visibility="Collapsed" MouseDown="OverlayPanel_MouseDown"/>
-
     </Grid>
 </Window>

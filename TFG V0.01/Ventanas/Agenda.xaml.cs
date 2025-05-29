@@ -341,23 +341,23 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
-        #region Gestión de panel de nuevo evento
-        private void MainCalendar_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        #region Gestión de paneles deslizantes
+        private void OverlayPanel_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            // Obtener la fecha seleccionada
-            DateTime? selectedDate = MainCalendar.SelectedDate;
-
-            if (selectedDate.HasValue)
+            // Solo cerrar si el clic fue directamente en el overlay
+            if (e.Source == OverlayPanel)
             {
-                // Establecer la fecha seleccionada en el DatePicker
-                EventDatePicker.SelectedDate = selectedDate;
-
-                // Mostrar el panel de nuevo evento
-                ShowNewEventPanel();
+                if (SlidePanel.Visibility == Visibility.Visible)
+                {
+                    HideNewContactPanel();
+                }
+                else if (NewEventPanel.Visibility == Visibility.Visible)
+                {
+                    HideNewEventPanel();
+                }
             }
         }
 
-        // Muestra el panel de nuevo evento con animación
         private void ShowNewEventPanel()
         {
             // Asegurarse de que el otro panel esté oculto
@@ -372,111 +372,15 @@ namespace TFG_V0._01.Ventanas
             EventLocationTextBox.Clear();
             ParticipantsListBox.Items.Clear();
 
-            // Mostrar el panel con una animación suave
+            // Mostrar el panel y el overlay
             NewEventPanel.Visibility = Visibility.Visible;
-            NewEventPanel.Opacity = 0;
-
-            // Crear una animación de fade in
-            var animation = new System.Windows.Media.Animation.DoubleAnimation
-            {
-                From = 0,
-                To = 1,
-                Duration = TimeSpan.FromMilliseconds(300)
-            };
-
-            NewEventPanel.BeginAnimation(UIElement.OpacityProperty, animation);
-
-            // Mostrar el overlay con animación
             OverlayPanel.Visibility = Visibility.Visible;
-            OverlayPanel.Opacity = 0;
-            var fadeOverlayAnimation = new DoubleAnimation
-            {
-                From = 0,
-                To = 0.8, // Opacidad del overlay
-                Duration = TimeSpan.FromMilliseconds(300)
-            };
-            OverlayPanel.BeginAnimation(UIElement.OpacityProperty, fadeOverlayAnimation);
-        }
-
-        private void ClosePanelButton_Click(object sender, RoutedEventArgs e)
-        {
-            HideNewEventPanel();
-        }
-
-        private void CancelEventButton_Click(object sender, RoutedEventArgs e)
-        {
-            HideNewEventPanel();
         }
 
         private void HideNewEventPanel()
         {
-            // Crear una animación de fade out
-            var animation = new System.Windows.Media.Animation.DoubleAnimation
-            {
-                From = 1,
-                To = 0,
-                Duration = TimeSpan.FromMilliseconds(300)
-            };
-
-            animation.Completed += (s, e) =>
-            {
-                NewEventPanel.Visibility = Visibility.Collapsed;
-            };
-
-            NewEventPanel.BeginAnimation(UIElement.OpacityProperty, animation);
-
-            // Ocultar el overlay con animación
-            var fadeOverlayAnimation = new DoubleAnimation
-            {
-                From = 0.8, // Opacidad actual del overlay
-                To = 0,
-                Duration = TimeSpan.FromMilliseconds(300)
-            };
-            fadeOverlayAnimation.Completed += (s, e) => OverlayPanel.Visibility = Visibility.Collapsed; // Ocultar completamente al finalizar
-            OverlayPanel.BeginAnimation(UIElement.OpacityProperty, fadeOverlayAnimation);
-        }
-
-        private async void SaveEventButton_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(EventTitleTextBox.Text))
-                {
-                    MessageBox.Show("Por favor, introduce un título para el evento.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                var fechaSeleccionada = EventDatePicker.SelectedDate ?? DateTime.Today;
-                var horaSeleccionada = EventTimeComboBox.SelectedItem?.ToString() ?? "00:00";
-                var horaMinuto = TimeSpan.Parse(horaSeleccionada);
-
-                var nuevoEvento = new EventoCita
-                {
-                    Titulo = EventTitleTextBox.Text,
-                    Descripcion = EventDescriptionTextBox.Text,
-                    Fecha = fechaSeleccionada,
-                    FechaInicio = horaMinuto,
-                    IdEstado = 1, // Estado por defecto: Programado
-                    IdCaso = 0 // Por ahora no asociamos a ningún caso
-                };
-
-                await _eventosCitasService.InsertarEventoCita(nuevoEvento);
-                await CargarEventosDelDia();
-                await CargarEventosDeHoy();
-
-                HideNewEventPanel();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error al guardar el evento: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-        #endregion
-
-        #region Gestión de panel de nuevo contacto
-        private void NuevoContactoButton_Click(object sender, RoutedEventArgs e)
-        {
-            ShowNewContactPanel();
+            NewEventPanel.Visibility = Visibility.Collapsed;
+            OverlayPanel.Visibility = Visibility.Collapsed;
         }
 
         private void ShowNewContactPanel()
@@ -494,53 +398,20 @@ namespace TFG_V0._01.Ventanas
             ContactTelefonoTextBox.Clear();
             ContactEmailTextBox.Clear();
 
-            // Mostrar el panel con una animación suave
+            // Mostrar el panel y el overlay
             SlidePanel.Visibility = Visibility.Visible;
-
-            // Crear y comenzar una animación de fade in para el overlay
             OverlayPanel.Visibility = Visibility.Visible;
-            OverlayPanel.Opacity = 0;
-            var fadeOverlayAnimation = new DoubleAnimation
-            {
-                From = 0,
-                To = 0.8, // Opacidad del overlay
-                Duration = TimeSpan.FromMilliseconds(300)
-            };
-            OverlayPanel.BeginAnimation(UIElement.OpacityProperty, fadeOverlayAnimation);
-
-            // Animación de deslizamiento para el panel
-            var slideInAnimation = new DoubleAnimation
-            {
-                From = SlidePanel.ActualWidth,
-                To = 0,
-                Duration = TimeSpan.FromMilliseconds(300),
-                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
-            };
-            SlidePanelTransform.BeginAnimation(TranslateTransform.XProperty, slideInAnimation);
         }
 
         private void HideNewContactPanel()
         {
-             // Ocultar el overlay con animación
-            var fadeOverlayAnimation = new DoubleAnimation
-            {
-                From = 0.8, // Opacidad actual del overlay
-                To = 0,
-                Duration = TimeSpan.FromMilliseconds(300)
-            };
-            fadeOverlayAnimation.Completed += (s, e) => OverlayPanel.Visibility = Visibility.Collapsed; // Ocultar completamente al finalizar
-            OverlayPanel.BeginAnimation(UIElement.OpacityProperty, fadeOverlayAnimation);
+            SlidePanel.Visibility = Visibility.Collapsed;
+            OverlayPanel.Visibility = Visibility.Collapsed;
+        }
 
-            // Crear y comenzar una animación de deslizamiento hacia afuera para el SlidePanel
-            var slideOutAnimation = new DoubleAnimation
-            {
-                From = 0,
-                To = SlidePanel.ActualWidth,
-                Duration = TimeSpan.FromMilliseconds(300),
-                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseIn }
-            };
-            slideOutAnimation.Completed += (s, e) => SlidePanel.Visibility = Visibility.Collapsed;
-            SlidePanelTransform.BeginAnimation(TranslateTransform.XProperty, slideOutAnimation);
+        private void CancelEventButton_Click(object sender, RoutedEventArgs e)
+        {
+            HideNewEventPanel();
         }
 
         private void CancelContactButton_Click(object sender, RoutedEventArgs e)
@@ -548,64 +419,20 @@ namespace TFG_V0._01.Ventanas
             HideNewContactPanel();
         }
 
-        private async void SaveContactButton_Click(object sender, RoutedEventArgs e)
+        private void NuevoContactoButton_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                if (ContactCasoComboBox.SelectedItem == null)
-                {
-                    MessageBox.Show("Por favor, seleccione un caso.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                if (string.IsNullOrWhiteSpace(ContactNombreTextBox.Text))
-                {
-                    MessageBox.Show("Por favor, ingrese el nombre del contacto.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                if (ContactRolComboBox.SelectedItem == null)
-                {
-                    MessageBox.Show("Por favor, seleccione un rol.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                var casoSeleccionado = (TFG_V0._01.Supabase.Models.Caso)ContactCasoComboBox.SelectedItem;
-                var nuevoContacto = new TFG_V0._01.Supabase.Models.Contacto
-                {
-                    id_caso = casoSeleccionado.id,
-                    nombre = ContactNombreTextBox.Text.Trim(),
-                    tipo = ContactRolComboBox.SelectedItem.ToString(),
-                    telefono = ContactTelefonoTextBox.Text.Trim(),
-                    email = ContactEmailTextBox.Text.Trim(),
-                    id = null // Asegúrate de que no se envía el id
-                };
-
-                await _contactosService.InsertarAsync(nuevoContacto);
-
-                MessageBox.Show("Contacto guardado exitosamente.", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
-                HideNewContactPanel(); // Ocultar el panel después de guardar
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error al guardar el contacto: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            ShowNewContactPanel();
         }
 
-         private void OverlayPanel_MouseDown(object sender, MouseButtonEventArgs e)
-         {
-             // Ocultar el panel de nuevo contacto si está visible
-             if (SlidePanel.Visibility == Visibility.Visible)
-             {
-                 HideNewContactPanel();
-             }
-             // Si el panel de nuevo evento está visible, ocultarlo también
-             else if (NewEventPanel.Visibility == Visibility.Visible)
-             {
-                 HideNewEventPanel();
-             }
-             // Si también tienes el panel de nuevo evento, asegúrate de ocultarlo aquí si el clic no fue en él.
-         }
+        private void MainCalendar_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            DateTime? selectedDate = MainCalendar.SelectedDate;
+            if (selectedDate.HasValue)
+            {
+                EventDatePicker.SelectedDate = selectedDate;
+                ShowNewEventPanel();
+            }
+        }
         #endregion
 
         #region Carga de datos de contacto

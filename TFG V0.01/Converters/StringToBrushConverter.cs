@@ -13,14 +13,14 @@ namespace TFG_V0._01.Converters
             {
                 try
                 {
-                    return (SolidColorBrush)(new BrushConverter().ConvertFrom(colorString));
+                    return new SolidColorBrush((Color)ColorConverter.ConvertFromString(colorString));
                 }
                 catch
                 {
-                    return Brushes.Transparent;
+                    return new SolidColorBrush(Colors.Gray);
                 }
             }
-            return Brushes.Transparent;
+            return new SolidColorBrush(Colors.Gray);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

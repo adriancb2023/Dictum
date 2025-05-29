@@ -41,11 +41,16 @@ namespace TFG_V0._01.Ventanas
         private readonly SupabaseEventosCitas _eventosCitasService;
         private readonly SupabaseEstadosEventos _estadosEventosService;
         private readonly SupabaseCasos _casosService;
+        private readonly SupabaseContactos _contactosService;
         private ObservableCollection<EventoViewModel> _eventosDelDia;
         private ObservableCollection<EventoViewModel> _eventosDeHoy;
         private DateTime _fechaSeleccionada;
         private Dictionary<DateTime, string> _diasConEventoColor;
         private System.Windows.Threading.DispatcherTimer _timerActualizacion;
+
+        // Colecciones para los ComboBox de Contacto
+        private ObservableCollection<TFG_V0._01.Supabase.Models.Caso> _casosParaContacto;
+        private ObservableCollection<string> _rolesParaContacto;
 
         public ObservableCollection<EventoViewModel> EventosDelDia
         {
@@ -63,6 +68,19 @@ namespace TFG_V0._01.Ventanas
         {
             get => _diasConEventoColor;
             set { _diasConEventoColor = value; OnPropertyChanged(); }
+        }
+
+        // Propiedades públicas para las colecciones de Contacto
+        public ObservableCollection<TFG_V0._01.Supabase.Models.Caso> CasosParaContacto
+        {
+            get => _casosParaContacto;
+            set { _casosParaContacto = value; OnPropertyChanged(); }
+        }
+
+        public ObservableCollection<string> RolesParaContacto
+        {
+            get => _rolesParaContacto;
+            set { _rolesParaContacto = value; OnPropertyChanged(); }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -86,10 +104,16 @@ namespace TFG_V0._01.Ventanas
             _eventosCitasService = new SupabaseEventosCitas();
             _estadosEventosService = new SupabaseEstadosEventos();
             _casosService = new SupabaseCasos();
+            _contactosService = new SupabaseContactos();
 
             EventosDelDia = new ObservableCollection<EventoViewModel>();
             EventosDeHoy = new ObservableCollection<EventoViewModel>();
             DiasConEventoColor = new Dictionary<DateTime, string>();
+
+            // Inicializar colecciones para Contacto
+            CasosParaContacto = new ObservableCollection<TFG_V0._01.Supabase.Models.Caso>();
+            RolesParaContacto = new ObservableCollection<string>();
+
             _fechaSeleccionada = DateTime.Today;
 
             // Inicializar el temporizador
@@ -98,8 +122,9 @@ namespace TFG_V0._01.Ventanas
             _timerActualizacion.Tick += async (s, e) => await CargarEventosDeHoy();
             _timerActualizacion.Start();
 
-            // Cargar datos iniciales
+            // Cargar datos iniciales (incluyendo datos para Contacto)
             CargarDatosIniciales();
+            CargarDatosContactoAsync();
         }
         #endregion
 
@@ -335,6 +360,12 @@ namespace TFG_V0._01.Ventanas
         // Muestra el panel de nuevo evento con animación
         private void ShowNewEventPanel()
         {
+            // Asegurarse de que el otro panel esté oculto
+            if (SlidePanel.Visibility == Visibility.Visible)
+            {
+                HideNewContactPanel();
+            }
+
             // Limpiar los campos del formulario
             EventTitleTextBox.Clear();
             EventDescriptionTextBox.Clear();
@@ -354,6 +385,17 @@ namespace TFG_V0._01.Ventanas
             };
 
             NewEventPanel.BeginAnimation(UIElement.OpacityProperty, animation);
+
+            // Mostrar el overlay con animación
+            OverlayPanel.Visibility = Visibility.Visible;
+            OverlayPanel.Opacity = 0;
+            var fadeOverlayAnimation = new DoubleAnimation
+            {
+                From = 0,
+                To = 0.8, // Opacidad del overlay
+                Duration = TimeSpan.FromMilliseconds(300)
+            };
+            OverlayPanel.BeginAnimation(UIElement.OpacityProperty, fadeOverlayAnimation);
         }
 
         private void ClosePanelButton_Click(object sender, RoutedEventArgs e)
@@ -382,6 +424,231 @@ namespace TFG_V0._01.Ventanas
             };
 
             NewEventPanel.BeginAnimation(UIElement.OpacityProperty, animation);
+
+            // Ocultar el overlay con animación
+            var fadeOverlayAnimation = new DoubleAnimation
+            {
+                From = 0.8, // Opacidad actual del overlay
+                To = 0,
+                Duration = TimeSpan.FromMilliseconds(300)
+            };
+            fadeOverlayAnimation.Completed += (s, e) => OverlayPanel.Visibility = Visibility.Collapsed; // Ocultar completamente al finalizar
+            OverlayPanel.BeginAnimation(UIElement.OpacityProperty, fadeOverlayAnimation);
+        }
+
+        private async void SaveEventButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(EventTitleTextBox.Text))
+                {
+                    MessageBox.Show("Por favor, introduce un título para el evento.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                var fechaSeleccionada = EventDatePicker.SelectedDate ?? DateTime.Today;
+                var horaSeleccionada = EventTimeComboBox.SelectedItem?.ToString() ?? "00:00";
+                var horaMinuto = TimeSpan.Parse(horaSeleccionada);
+
+                var nuevoEvento = new EventoCita
+                {
+                    Titulo = EventTitleTextBox.Text,
+                    Descripcion = EventDescriptionTextBox.Text,
+                    Fecha = fechaSeleccionada,
+                    FechaInicio = horaMinuto,
+                    IdEstado = 1, // Estado por defecto: Programado
+                    IdCaso = 0 // Por ahora no asociamos a ningún caso
+                };
+
+                await _eventosCitasService.InsertarEventoCita(nuevoEvento);
+                await CargarEventosDelDia();
+                await CargarEventosDeHoy();
+
+                HideNewEventPanel();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al guardar el evento: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        #endregion
+
+        #region Gestión de panel de nuevo contacto
+        private void NuevoContactoButton_Click(object sender, RoutedEventArgs e)
+        {
+            ShowNewContactPanel();
+        }
+
+        private void ShowNewContactPanel()
+        {
+            // Asegurarse de que el otro panel esté oculto
+            if (NewEventPanel.Visibility == Visibility.Visible)
+            {
+                HideNewEventPanel();
+            }
+
+            // Limpiar los campos del formulario
+            ContactCasoComboBox.SelectedItem = null;
+            ContactNombreTextBox.Clear();
+            ContactRolComboBox.SelectedItem = null;
+            ContactTelefonoTextBox.Clear();
+            ContactEmailTextBox.Clear();
+
+            // Mostrar el panel con una animación suave
+            SlidePanel.Visibility = Visibility.Visible;
+
+            // Crear y comenzar una animación de fade in para el overlay
+            OverlayPanel.Visibility = Visibility.Visible;
+            OverlayPanel.Opacity = 0;
+            var fadeOverlayAnimation = new DoubleAnimation
+            {
+                From = 0,
+                To = 0.8, // Opacidad del overlay
+                Duration = TimeSpan.FromMilliseconds(300)
+            };
+            OverlayPanel.BeginAnimation(UIElement.OpacityProperty, fadeOverlayAnimation);
+
+            // Animación de deslizamiento para el panel
+            var slideInAnimation = new DoubleAnimation
+            {
+                From = SlidePanel.ActualWidth,
+                To = 0,
+                Duration = TimeSpan.FromMilliseconds(300),
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+            };
+            SlidePanelTransform.BeginAnimation(TranslateTransform.XProperty, slideInAnimation);
+        }
+
+        private void HideNewContactPanel()
+        {
+             // Ocultar el overlay con animación
+            var fadeOverlayAnimation = new DoubleAnimation
+            {
+                From = 0.8, // Opacidad actual del overlay
+                To = 0,
+                Duration = TimeSpan.FromMilliseconds(300)
+            };
+            fadeOverlayAnimation.Completed += (s, e) => OverlayPanel.Visibility = Visibility.Collapsed; // Ocultar completamente al finalizar
+            OverlayPanel.BeginAnimation(UIElement.OpacityProperty, fadeOverlayAnimation);
+
+            // Crear y comenzar una animación de deslizamiento hacia afuera para el SlidePanel
+            var slideOutAnimation = new DoubleAnimation
+            {
+                From = 0,
+                To = SlidePanel.ActualWidth,
+                Duration = TimeSpan.FromMilliseconds(300),
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseIn }
+            };
+            slideOutAnimation.Completed += (s, e) => SlidePanel.Visibility = Visibility.Collapsed;
+            SlidePanelTransform.BeginAnimation(TranslateTransform.XProperty, slideOutAnimation);
+        }
+
+        private void CancelContactButton_Click(object sender, RoutedEventArgs e)
+        {
+            HideNewContactPanel();
+        }
+
+        private async void SaveContactButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (ContactCasoComboBox.SelectedItem == null)
+                {
+                    MessageBox.Show("Por favor, seleccione un caso.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(ContactNombreTextBox.Text))
+                {
+                    MessageBox.Show("Por favor, ingrese el nombre del contacto.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                if (ContactRolComboBox.SelectedItem == null)
+                {
+                    MessageBox.Show("Por favor, seleccione un rol.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                var casoSeleccionado = (TFG_V0._01.Supabase.Models.Caso)ContactCasoComboBox.SelectedItem;
+                var nuevoContacto = new TFG_V0._01.Supabase.Models.Contacto
+                {
+                    id_caso = casoSeleccionado.id,
+                    nombre = ContactNombreTextBox.Text.Trim(),
+                    tipo = ContactRolComboBox.SelectedItem.ToString(),
+                    telefono = ContactTelefonoTextBox.Text.Trim(),
+                    email = ContactEmailTextBox.Text.Trim(),
+                    id = null // Asegúrate de que no se envía el id
+                };
+
+                await _contactosService.InsertarAsync(nuevoContacto);
+
+                MessageBox.Show("Contacto guardado exitosamente.", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
+                HideNewContactPanel(); // Ocultar el panel después de guardar
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al guardar el contacto: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+         private void OverlayPanel_MouseDown(object sender, MouseButtonEventArgs e)
+         {
+             // Ocultar el panel de nuevo contacto si está visible
+             if (SlidePanel.Visibility == Visibility.Visible)
+             {
+                 HideNewContactPanel();
+             }
+             // Si el panel de nuevo evento está visible, ocultarlo también
+             else if (NewEventPanel.Visibility == Visibility.Visible)
+             {
+                 HideNewEventPanel();
+             }
+             // Si también tienes el panel de nuevo evento, asegúrate de ocultarlo aquí si el clic no fue en él.
+         }
+        #endregion
+
+        #region Carga de datos de contacto
+        private async Task CargarDatosContactoAsync()
+        {
+            try
+            {
+                await _casosService.InicializarAsync();
+                await _contactosService.InicializarAsync(); // Inicializar servicio de contactos aquí también
+
+                var casos = await _casosService.ObtenerTodosCasosManualAsync();
+                 // Definir los roles localmente como se hacía en NuevoContactoWindow.xaml.cs
+                 var roles = new List<string>
+                {
+                    "Abogado",
+                    "Cliente",
+                    "Testigo",
+                    "Perito",
+                    "Juez",
+                    "Secretario Judicial",
+                    "Otro"
+                };
+
+                // Actualizar las colecciones en el hilo de UI
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    CasosParaContacto.Clear();
+                    foreach (var caso in casos)
+                    {
+                        CasosParaContacto.Add(caso);
+                    }
+
+                    RolesParaContacto.Clear();
+                    foreach (var rol in roles)
+                    {
+                        RolesParaContacto.Add(rol);
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar los datos de contacto: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
         #endregion
 
@@ -526,49 +793,6 @@ namespace TFG_V0._01.Ventanas
                 await CargarEventosDelDia();
                 await CargarEventosDeHoy();
             }
-        }
-
-        private async void SaveEventButton_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(EventTitleTextBox.Text))
-                {
-                    MessageBox.Show("Por favor, introduce un título para el evento.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                var fechaSeleccionada = EventDatePicker.SelectedDate ?? DateTime.Today;
-                var horaSeleccionada = EventTimeComboBox.SelectedItem?.ToString() ?? "00:00";
-                var horaMinuto = TimeSpan.Parse(horaSeleccionada);
-
-                var nuevoEvento = new EventoCita
-                {
-                    Titulo = EventTitleTextBox.Text,
-                    Descripcion = EventDescriptionTextBox.Text,
-                    Fecha = fechaSeleccionada,
-                    FechaInicio = horaMinuto,
-                    IdEstado = 1, // Estado por defecto: Programado
-                    IdCaso = 0 // Por ahora no asociamos a ningún caso
-                };
-
-                await _eventosCitasService.InsertarEventoCita(nuevoEvento);
-                await CargarEventosDelDia();
-                await CargarEventosDeHoy();
-
-                HideNewEventPanel();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error al guardar el evento: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private void NuevoContactoButton_Click(object sender, RoutedEventArgs e)
-        {
-            var nuevoContactoWindow = new SubVentanas.NuevoContactoWindow();
-            nuevoContactoWindow.Owner = this;
-            nuevoContactoWindow.ShowDialog();
         }
         #endregion
     }

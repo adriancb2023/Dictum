@@ -10,8 +10,7 @@
         xmlns:conv="clr-namespace:TFG_V0._01.Converters"
         mc:Ignorable="d" 
         Title="Agenda" Height="850" Width="1200" 
-        WindowStartupLocation="CenterScreen"
-        Tag="{Binding RelativeSource={RelativeSource Self}, Path=IsDarkTheme}">
+        WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
         <SolidColorBrush x:Key="TextPrimaryDark" Color="#FFFFFF"/>
@@ -102,10 +101,10 @@
 
         <!-- Estilo de botón redondeado sin borde -->
         <Style x:Key="NoBorderRoundedButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource ThemeAwareRoundedButtonStyle}">
-             <Setter Property="BorderThickness" Value="0"/>
-             <Setter Property="BorderBrush" Value="Transparent"/>
-             <Setter Property="Background" Value="Transparent"/>
-              <Setter Property="Template">
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Button}">
                         <Border x:Name="border" Background="{TemplateBinding Background}" 
@@ -115,7 +114,7 @@
                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                               RecognizesAccessKey="True"/>
                         </Border>
-                         <ControlTemplate.Triggers>
+                        <ControlTemplate.Triggers>
                             <!-- Anular triggers de hover/press del estilo base -->
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter Property="Background" Value="Transparent" TargetName="border"/>
@@ -124,11 +123,11 @@
                                 <Setter Property="Background" Value="Transparent" TargetName="border"/>
                             </Trigger>
                             <!-- Mantener trigger de tema si es necesario, o manejarlo en ThemeAwareRoundedButtonStyle -->
-                             <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
                                 <Setter Property="Background" Value="Transparent" TargetName="border"/>
                                 <Setter Property="Foreground" Value="{StaticResource TextPrimaryLight}"/>
                             </DataTrigger>
-                             <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
                                 <Setter Property="Background" Value="Transparent" TargetName="border"/>
                                 <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
                             </DataTrigger>
@@ -251,7 +250,7 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
-         <helpers:BoolToBrushConverter x:Key="BoolToBrushConverter"
+        <helpers:BoolToBrushConverter x:Key="BoolToBrushConverter"
             SelectedBrush="#FF2196F3"
             UnselectedBrush="Transparent"/>
         <conv:StringToBrushConverter x:Key="StringToBrushConverter" />
@@ -410,12 +409,12 @@
             <ColumnDefinition Width="2" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        
+
         <!-- Fondo -->
         <Grid.Background>
             <DrawingBrush x:Name="meshGradientBrush" Stretch="Fill"/>
         </Grid.Background>
-        
+
         <!-- Navbar -->
         <controls:NavbarControl x:Name="navbar" Grid.Column="0" Tag="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}">
             <controls:NavbarControl.Effect>
@@ -552,63 +551,138 @@
 
         <!-- Panel deslizable para nuevo evento -->
         <Grid x:Name="NewEventPanel" Grid.Column="2" HorizontalAlignment="Right" Width="400" Style="{StaticResource SlidePanelStyle}" Visibility="Collapsed">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
+            <StackPanel>
 
-            <!-- Header del panel -->
-            <Grid Background="#FF1E1E1E" Height="60">
-                <TextBlock Text="Nuevo Evento" Style="{StaticResource PrimaryTextStyle}" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" Margin="20,0"/>
-                <Button x:Name="ClosePanelButton" Content="×" FontSize="24" Foreground="White" HorizontalAlignment="Right" Width="60" Height="60" Background="Transparent" BorderThickness="0" Click="ClosePanelButton_Click"/>
-            </Grid>
+                <!-- Header del panel -->
+                <Grid  Height="60">
+                    <TextBlock Text="Nuevo Evento" Style="{StaticResource PrimaryTextStyle}" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" Margin="20,0"/>
+                </Grid>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Height="696">
+                    <StackPanel Margin="20">
+                        <!-- Título del evento -->
+                        <TextBlock Text="Título" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
+                        <TextBox x:Name="EventTitleTextBox" Style="{StaticResource RoundedTextBoxStyle}" Margin="0,0,0,15"/>
 
-            <!-- Contenido del formulario -->
-            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                <StackPanel Margin="20">
-                    <!-- Título del evento -->
-                    <TextBlock Text="Título" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
-                    <TextBox x:Name="EventTitleTextBox" Style="{StaticResource RoundedTextBoxStyle}" Margin="0,0,0,15"/>
-                    
-                    <!-- Fecha y hora -->
-                    <Grid Margin="0,0,0,15">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                            <TextBlock Text="Fecha" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
-                            <DatePicker x:Name="EventDatePicker" Style="{StaticResource RoundedDatePickerStyle}"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="1" Margin="10,0,0,0">
-                            <TextBlock Text="Hora" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
-                            <ComboBox x:Name="EventTimeComboBox" Style="{StaticResource RoundedComboBoxStyle}"/>
-                        </StackPanel>
+                        <!-- Fecha y hora -->
+                        <Grid Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                <TextBlock Text="Fecha" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
+                                <DatePicker x:Name="EventDatePicker" Style="{StaticResource RoundedDatePickerStyle}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                <TextBlock Text="Hora" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
+                                <ComboBox x:Name="EventTimeComboBox" Style="{StaticResource RoundedComboBoxStyle}" Height="35"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Descripción -->
+                        <TextBlock Text="Descripción" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
+                        <TextBox x:Name="EventDescriptionTextBox" Style="{StaticResource RoundedTextBoxStyle}" Height="100" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Margin="0,0,0,15"/>
+
+                        <!-- Ubicación -->
+                        <TextBlock Text="Ubicación" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
+                        <TextBox x:Name="EventLocationTextBox" Style="{StaticResource RoundedTextBoxStyle}" Margin="0,0,0,15"/>
+
+                        <!-- Participantes -->
+                        <TextBlock Text="Participantes" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
+                        <ListBox x:Name="ParticipantsListBox" Style="{StaticResource RoundedListBoxStyle}" Height="100" Margin="0,0,0,15"/>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- Contenido del formulario -->
+
+                <!-- Botones de acción -->
+                <Grid Grid.Row="2"  Height="70">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="20,0">
+                        <Button Content="Cancelar" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,10,0" Click="CancelEventButton_Click" Width="100"/>
+                        <Button Content="Guardar" Style="{StaticResource RoundedButtonStyle}" Click="SaveEventButton_Click" Width="100"/>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+        </Grid>
+
+        <!-- Panel deslizable para nuevo contacto -->
+        <Grid x:Name="SlidePanel" 
+              Grid.Column="2"
+              Grid.RowSpan="3" 
+              Width="400" 
+              HorizontalAlignment="Right" 
+              Panel.ZIndex="1000"
+              Visibility="Visible">
+            <Grid.Style>
+                <Style TargetType="Grid">
+                    <Setter Property="Background" Value="{StaticResource SlidePanelGradientDark}"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                            <Setter Property="Background" Value="{StaticResource SlidePanelGradientLight}"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
+            <Grid.RenderTransform>
+                <TranslateTransform x:Name="SlidePanelTransform" X="400"/>
+            </Grid.RenderTransform>
+
+            <ContentControl>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Header del panel -->
+                    <Grid Background="Transparent" Height="60">
+                        <TextBlock Text="Nuevo Contacto" Style="{StaticResource PrimaryTextStyle}" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="20,0"/>
                     </Grid>
 
-                    <!-- Descripción -->
-                    <TextBlock Text="Descripción" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
-                    <TextBox x:Name="EventDescriptionTextBox" Style="{StaticResource RoundedTextBoxStyle}" Height="100" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Margin="0,0,0,15"/>
+                    <!-- Contenido del formulario -->
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="20">
+                            <!-- Caso -->
+                            <TextBlock Text="Caso" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5" FontSize="12"/>
+                            <ComboBox x:Name="ContactCasoComboBox" Style="{StaticResource RoundedComboBoxStyle}" Margin="0,0,0,15" DisplayMemberPath="referencia" Height="30"/>
 
-                    <!-- Ubicación -->
-                    <TextBlock Text="Ubicación" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
-                    <TextBox x:Name="EventLocationTextBox" Style="{StaticResource RoundedTextBoxStyle}" Margin="0,0,0,15"/>
+                            <!-- Nombre -->
+                            <TextBlock Text="Nombre" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5" FontSize="12"/>
+                            <TextBox x:Name="ContactNombreTextBox" Style="{StaticResource RoundedTextBoxStyle}" Margin="0,0,0,15"/>
 
-                    <!-- Participantes -->
-                    <TextBlock Text="Participantes" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
-                    <ListBox x:Name="ParticipantsListBox" Style="{StaticResource RoundedListBoxStyle}" Height="100" Margin="0,0,0,15"/>
-                    <Button Content="Añadir Participante" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,0,15"/>
-                </StackPanel>
-            </ScrollViewer>
+                            <!-- Rol -->
+                            <TextBlock Text="Rol" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5" FontSize="12"/>
+                            <ComboBox x:Name="ContactRolComboBox" Style="{StaticResource RoundedComboBoxStyle}" Margin="0,0,0,15" Height="30"/>
 
-            <!-- Botones de acción -->
-            <Grid Grid.Row="2" Background="#FF1E1E1E" Height="70">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="20,0">
-                    <Button Content="Cancelar" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,10,0" Click="CancelEventButton_Click"/>
-                    <Button Content="Guardar" Style="{StaticResource RoundedButtonStyle}" Click="SaveEventButton_Click"/>
-                </StackPanel>
-            </Grid>
+                            <!-- Teléfono -->
+                            <TextBlock Text="Teléfono" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5" FontSize="12"/>
+                            <TextBox x:Name="ContactTelefonoTextBox" Style="{StaticResource RoundedTextBoxStyle}" Margin="0,0,0,15"/>
+
+                            <!-- Email -->
+                            <TextBlock Text="Email" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5" FontSize="12"/>
+                            <TextBox x:Name="ContactEmailTextBox" Style="{StaticResource RoundedTextBoxStyle}" Margin="0,0,0,15"/>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- Botones de acción -->
+                    <Grid Grid.Row="2" Height="70">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="20,0">
+                            <Button Content="Cancelar" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,10,0" Click="CancelContactButton_Click" Width="100"/>
+                            <Button Content="Guardar" Style="{StaticResource RoundedButtonStyle}" Click="SaveContactButton_Click" Width="100"/>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </ContentControl>
         </Grid>
+
+        <!-- Overlay para cerrar al hacer clic fuera -->
+        <Grid x:Name="OverlayPanel" 
+                  Grid.Column="2"
+                  Background="#80000000" 
+                  Panel.ZIndex="999"
+                  Visibility="Collapsed"
+                  MouseDown="OverlayPanel_MouseDown"/>
+
     </Grid>
 </Window>

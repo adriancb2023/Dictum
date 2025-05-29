@@ -275,7 +275,7 @@
             </Setter>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
-                    <Setter Property="Background" Value="#333333"/>
+                    <Setter Property="Background" Value="#483D8B"/>
                     <Setter Property="Foreground" Value="#FFFFFF"/>
                 </DataTrigger>
             </Style.Triggers>
@@ -599,6 +599,9 @@
               Panel.ZIndex="999"
               Visibility="Collapsed"
               Style="{StaticResource SlidePanelStyle}">
+            <Grid.RenderTransform>
+                <TranslateTransform x:Name="NewEventPanelTransform" X="400"/>
+            </Grid.RenderTransform>
             
             <Grid>
                 <Grid.Effect>
@@ -675,8 +678,11 @@
               Width="400" 
               HorizontalAlignment="Right" 
               Panel.ZIndex="999"
-              Style="{StaticResource SlidePanelStyle}"
-              Visibility="Collapsed">
+              Visibility="Collapsed"
+              Style="{StaticResource SlidePanelStyle}">
+            <Grid.RenderTransform>
+                <TranslateTransform x:Name="ContactPanelTransform" X="400"/>
+            </Grid.RenderTransform>
             
             <Grid>
                 <Grid.Effect>

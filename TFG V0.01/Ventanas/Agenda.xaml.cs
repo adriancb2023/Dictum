@@ -375,12 +375,37 @@ namespace TFG_V0._01.Ventanas
             // Mostrar el panel y el overlay
             NewEventPanel.Visibility = Visibility.Visible;
             OverlayPanel.Visibility = Visibility.Visible;
+
+            // Iniciar la animación de entrada
+            DoubleAnimation slideInAnimation = new DoubleAnimation
+            {
+                From = 400,
+                To = 0,
+                Duration = TimeSpan.FromMilliseconds(300),
+                EasingFunction = new System.Windows.Media.Animation.CubicEase { EasingMode = EasingMode.EaseOut }
+            };
+
+            NewEventPanelTransform.BeginAnimation(TranslateTransform.XProperty, slideInAnimation);
         }
 
         private void HideNewEventPanel()
         {
-            NewEventPanel.Visibility = Visibility.Collapsed;
-            OverlayPanel.Visibility = Visibility.Collapsed;
+            // Iniciar la animación de salida
+            DoubleAnimation slideOutAnimation = new DoubleAnimation
+            {
+                From = 0,
+                To = 400,
+                Duration = TimeSpan.FromMilliseconds(300),
+                EasingFunction = new System.Windows.Media.Animation.CubicEase { EasingMode = EasingMode.EaseIn }
+            };
+
+            slideOutAnimation.Completed += (s, e) =>
+            {
+                NewEventPanel.Visibility = Visibility.Collapsed;
+                OverlayPanel.Visibility = Visibility.Collapsed;
+            };
+
+            NewEventPanelTransform.BeginAnimation(TranslateTransform.XProperty, slideOutAnimation);
         }
 
         private void ShowNewContactPanel()
@@ -401,12 +426,37 @@ namespace TFG_V0._01.Ventanas
             // Mostrar el panel y el overlay
             SlidePanel.Visibility = Visibility.Visible;
             OverlayPanel.Visibility = Visibility.Visible;
+
+            // Iniciar la animación de entrada
+            DoubleAnimation slideInAnimation = new DoubleAnimation
+            {
+                From = 400,
+                To = 0,
+                Duration = TimeSpan.FromMilliseconds(300),
+                EasingFunction = new System.Windows.Media.Animation.CubicEase { EasingMode = EasingMode.EaseOut }
+            };
+
+            ContactPanelTransform.BeginAnimation(TranslateTransform.XProperty, slideInAnimation);
         }
 
         private void HideNewContactPanel()
         {
-            SlidePanel.Visibility = Visibility.Collapsed;
-            OverlayPanel.Visibility = Visibility.Collapsed;
+            // Iniciar la animación de salida
+            DoubleAnimation slideOutAnimation = new DoubleAnimation
+            {
+                From = 0,
+                To = 400,
+                Duration = TimeSpan.FromMilliseconds(300),
+                EasingFunction = new System.Windows.Media.Animation.CubicEase { EasingMode = EasingMode.EaseIn }
+            };
+
+            slideOutAnimation.Completed += (s, e) =>
+            {
+                SlidePanel.Visibility = Visibility.Collapsed;
+                OverlayPanel.Visibility = Visibility.Collapsed;
+            };
+
+            ContactPanelTransform.BeginAnimation(TranslateTransform.XProperty, slideOutAnimation);
         }
 
         private void CancelEventButton_Click(object sender, RoutedEventArgs e)

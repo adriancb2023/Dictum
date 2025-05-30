@@ -79,6 +79,8 @@ namespace TFG_V0._01.Ventanas
         private Dictionary<DateTime, string> DiasConEventoColor = new();
         private EventoCita eventoEditando = null;
         private bool esEdicion = false;
+        private Nota notaEditando = null;
+        private bool esEdicionNota = false;
         private List<Documento> _documentosDelCaso;
         private List<Tarea> _tareasDelCaso;
         private Documento _documentoSeleccionado;
@@ -917,7 +919,13 @@ namespace TFG_V0._01.Ventanas
 
         private void OverlayPanel_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            CerrarGridEditarEvento();
+            if (EditarEventoGrid.Visibility == Visibility.Visible)
+            {
+                CerrarGridEditarEvento();
+            } else if (EditarNotaGrid.Visibility == Visibility.Visible)
+            {
+                CerrarGridEditarNota();
+            }
         }
 
         private void CerrarGridEditarEvento()
@@ -1052,19 +1060,8 @@ namespace TFG_V0._01.Ventanas
                 return;
             }
 
-            var ventana = new EditarNotaWindow(_casoSeleccionado.id);
-            if (ventana.ShowDialog() == true)
-            {
-                try
-                {
-                    await _notasService.InicializarAsync();
-                    await CargarNotasDelCaso(_casoSeleccionado.id);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error al crear la nota: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
+            // Mostrar el grid deslizante en lugar de la ventana
+            MostrarGridEditarNota(null);
         }
 
         private async void ModificarNota_Click(object sender, RoutedEventArgs e)
@@ -1075,19 +1072,8 @@ namespace TFG_V0._01.Ventanas
                 return;
             }
 
-            var ventana = new EditarNotaWindow(_casoSeleccionado.id, _notaSeleccionada);
-            if (ventana.ShowDialog() == true)
-            {
-                try
-                {
-                    await _notasService.InicializarAsync();
-                    await CargarNotasDelCaso(_casoSeleccionado.id);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error al modificar la nota: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
+            // Mostrar el grid deslizante en lugar de la ventana
+            MostrarGridEditarNota(_notaSeleccionada);
         }
 
         private async void EliminarNota_Click(object sender, RoutedEventArgs e)
@@ -1409,6 +1395,116 @@ namespace TFG_V0._01.Ventanas
             catch (Exception ex)
             {
                 MessageBox.Show($"Error al cargar el caso: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        // Métodos para el panel deslizante de Notas
+
+        private void MostrarGridEditarNota(Nota nota = null)
+        {
+            if (_casoSeleccionado == null)
+            {
+                MessageBox.Show("Por favor, seleccione un caso primero.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            // Configurar el grid
+            EditarNotaGrid.Visibility = Visibility.Visible;
+            OverlayPanel.Visibility = Visibility.Visible;
+
+            if (nota != null)
+            {
+                // Modo edición
+                txtTituloNota.Text = nota.Nombre;
+                txtDescripcionNota.Text = nota.Descripcion;
+                notaEditando = nota;
+                esEdicionNota = true;
+            }
+            else
+            {
+                // Modo creación
+                txtTituloNota.Text = "";
+                txtDescripcionNota.Text = "";
+                notaEditando = null;
+                esEdicionNota = false;
+            }
+
+            // Animar la entrada
+            var animation = new DoubleAnimation
+            {
+                From = 400,
+                To = 0,
+                Duration = TimeSpan.FromSeconds(0.3),
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+            };
+            EditarNotaTransform.BeginAnimation(TranslateTransform.XProperty, animation);
+        }
+
+        private void CerrarEditarNota_Click(object sender, RoutedEventArgs e)
+        {
+            CerrarGridEditarNota();
+        }
+
+        private void CancelarNota_Click(object sender, RoutedEventArgs e)
+        {
+            CerrarGridEditarNota();
+        }
+
+        private void CerrarGridEditarNota()
+        {
+            var animation = new DoubleAnimation
+            {
+                From = 0,
+                To = 400,
+                Duration = TimeSpan.FromSeconds(0.3),
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseIn }
+            };
+            animation.Completed += (s, e) =>
+            {
+                EditarNotaGrid.Visibility = Visibility.Collapsed;
+                OverlayPanel.Visibility = Visibility.Collapsed;
+            };
+            EditarNotaTransform.BeginAnimation(TranslateTransform.XProperty, animation);
+        }
+
+        private async void GuardarNota_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtTituloNota.Text))
+            {
+                MessageBox.Show("El título es obligatorio.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                await _notasService.InicializarAsync();
+
+                if (esEdicionNota && notaEditando != null)
+                {
+                    // Modificar nota existente
+                    notaEditando.Nombre = txtTituloNota.Text;
+                    notaEditando.Descripcion = txtDescripcionNota.Text;
+                    await _notasService.ActualizarAsync(notaEditando);
+                }
+                else
+                {
+                    // Crear nueva nota
+                    var nuevaNota = new Nota
+                    {
+                        IdCaso = _casoSeleccionado.id,
+                        Nombre = txtTituloNota.Text,
+                        Descripcion = txtDescripcionNota.Text,
+                        FechaCreacion = DateTime.UtcNow
+                    };
+                    await _notasService.InsertarAsync(nuevaNota);
+                }
+
+                await CargarNotasDelCaso(_casoSeleccionado.id);
+                CerrarGridEditarNota();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al guardar la nota: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

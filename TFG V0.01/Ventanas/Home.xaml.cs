@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Polly;
+﻿using Polly;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;

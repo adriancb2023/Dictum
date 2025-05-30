@@ -1098,7 +1098,7 @@ namespace TFG_V0._01.Ventanas
                 try
                 {
                     await _notasService.InicializarAsync();
-                    await _notasService.EliminarAsync(_notaSeleccionada.Id);
+                    await _notasService.EliminarAsync(_notaSeleccionada.Id.Value);
                     await CargarNotasDelCaso(_casoSeleccionado.id);
                 }
                 catch (Exception ex)
@@ -1203,12 +1203,11 @@ namespace TFG_V0._01.Ventanas
                 else
                 {
                     // Crear nueva nota
-                    var nuevaNota = new Nota
+                    var nuevaNota = new NotaInsertDto
                     {
                         IdCaso = _casoSeleccionado.id,
                         Nombre = txtTituloNota.Text,
-                        Descripcion = txtDescripcionNota.Text,
-                        FechaCreacion = DateTime.Now
+                        Descripcion = txtDescripcionNota.Text
                     };
                     await _notasService.InsertarAsync(nuevaNota);
                 }

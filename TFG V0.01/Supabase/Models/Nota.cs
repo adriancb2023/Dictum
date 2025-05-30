@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Supabase.Postgrest.Models;
 using Supabase.Postgrest.Attributes;
 using System.ComponentModel;
+using System.Text.Json.Serialization;
 
 namespace TFG_V0._01.Supabase.Models
 {
@@ -13,8 +14,7 @@ namespace TFG_V0._01.Supabase.Models
     public class Nota : BaseModel, INotifyPropertyChanged
     {
         [PrimaryKey("id", true)]
-        [Column("id")]
-        public int Id { get; set; }
+        public int? Id { get; set; }
 
         [Column("id_caso")]
         public int IdCaso { get; set; }
@@ -33,7 +33,7 @@ namespace TFG_V0._01.Supabase.Models
     }
 
     [Table("notas")]
-    public class NotaInsertDto
+    public class NotaInsertDto : BaseModel
     {
         [Column("id_caso")]
         public int IdCaso { get; set; }

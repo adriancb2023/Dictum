@@ -60,15 +60,7 @@ namespace TFG_V0._01.Supabase
         public async Task InsertarAsync(NotaInsertDto notaDto)
         {
             await InicializarAsync().ConfigureAwait(false);
-
-            var nuevaNota = new Nota
-            {
-                IdCaso = notaDto.IdCaso,
-                Nombre = notaDto.Nombre,
-                Descripcion = notaDto.Descripcion
-            };
-
-            await _client.From<Nota>().Insert(new List<Nota> { nuevaNota }).ConfigureAwait(false);
+            await _client.From<NotaInsertDto>().Insert(new[] { notaDto }).ConfigureAwait(false);
         }
 
         public async Task ActualizarAsync(Nota nota)

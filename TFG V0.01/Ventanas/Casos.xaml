@@ -12,6 +12,15 @@
         WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
+        <!-- Converters -->
+        <conv:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+        <conv:EstadoToColorConverter x:Key="EstadoToColorConverter"/>
+        <conv:EventoColorDotConverter x:Key="EventoColorDotConverter"/>
+        <conv:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+        <conv:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
+        <conv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <conv:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
+
         <!-- Estilos y Brushes temáticos de Home -->
         <SolidColorBrush x:Key="TextPrimaryDark" Color="#FFFFFF"/>
         <SolidColorBrush x:Key="TextSecondaryDark" Color="#CCFFFFFF"/>
@@ -534,15 +543,6 @@
             </Style.Triggers>
         </Style>
 
-        <!-- Estilo para el ToggleButton del ComboBox -->
-        <conv:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
-        <conv:EstadoToColorConverter x:Key="EstadoToColorConverter" />
-        <conv:EventoColorDotConverter x:Key="EventoColorDotConverter" />
-        <conv:StringToVisibilityConverter x:Key="StringToVisibilityConverter" />
-        <conv:CountToVisibilityConverter x:Key="CountToVisibilityConverter" />
-        <conv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
-        <conv:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
-
         <!-- Gradientes para el panel deslizante -->
         <LinearGradientBrush x:Key="SlidePanelGradientDark" StartPoint="0,0" EndPoint="1,1">
             <GradientStop Color="#070055" Offset="0"/>
@@ -1028,7 +1028,7 @@
             <!-- Main Content Area -->
             <Grid Grid.Row="1">
                 <!-- Buscador -->
-                <Grid x:Name="Buscador" Visibility="Collapsed">
+                <Grid x:Name="Buscador" Visibility="Visible">
                     <Border Style="{StaticResource CardStyle}" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="30" Width="500" CornerRadius="12">
                         <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="20">
                             <TextBlock Text="Buscar Caso" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,10" Style="{StaticResource PrimaryTextStyle}"/>
@@ -1127,7 +1127,7 @@
                 </Grid>
 
                 <!-- Contenido Casos -->
-                <Grid x:Name="ContenidoCasos" Visibility="Visible">
+                <Grid x:Name="ContenidoCasos" Visibility="Collapsed">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2.2*"/>
                         <ColumnDefinition Width="1.2*"/>

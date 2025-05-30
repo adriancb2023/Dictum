@@ -769,7 +769,6 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock x:Name="casosRecientes" Text="Casos Recientes" FontSize="16" FontWeight="SemiBold" Style="{StaticResource PrimaryTextStyle}"/>
-                                <Button x:Name="btnVerTodosCasos" Grid.Column="1" Content="Ver Todos" Style="{StaticResource ThemeAwareRoundedButtonStyle}" Click="VerTodosCasos_Click"/>
                             </Grid>
 
                             <Grid Grid.Row="1" Margin="0,0,0,0">

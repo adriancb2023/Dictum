@@ -85,6 +85,8 @@ namespace TFG_V0._01.Ventanas
         private List<Tarea> _tareasDelCaso;
         private Documento _documentoSeleccionado;
         private Tarea _tareaSeleccionada;
+        private Tarea tareaEditando = null;
+        private bool esEdicionTarea = false;
 
         // Brushes y fondo animado (añadido de Home)
         private RadialGradientBrush mesh1Brush;
@@ -922,9 +924,14 @@ namespace TFG_V0._01.Ventanas
             if (EditarEventoGrid.Visibility == Visibility.Visible)
             {
                 CerrarGridEditarEvento();
-            } else if (EditarNotaGrid.Visibility == Visibility.Visible)
+            } 
+            else if (EditarNotaGrid.Visibility == Visibility.Visible)
             {
                 CerrarGridEditarNota();
+            }
+            else if (EditarTareaGrid.Visibility == Visibility.Visible)
+            {
+                CerrarGridEditarTarea();
             }
         }
 
@@ -1169,54 +1176,17 @@ namespace TFG_V0._01.Ventanas
 
         private async void AgregarTarea_Click(object sender, RoutedEventArgs e)
         {
-            var ventana = new EditarTareaWindow();
-            if (ventana.ShowDialog() == true)
-            {
-                try
-                {
-                    var tarea = new Tarea
-                    {
-                        titulo = ventana.Titulo,
-                        descripcion = ventana.Descripcion,
-                        id_caso = _casoSeleccionado.id,
-                        fecha_vencimiento = ventana.FechaVencimiento,
-                        prioridad = ventana.Prioridad,
-                        estado = ventana.EstadoSeleccionado
-                    };
-
-                    await _supabaseTareas.CrearTarea(tarea);
-                    await CargarTareasDelCaso(_casoSeleccionado.id);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error al crear la tarea: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
+            MostrarGridEditarTarea();
         }
 
         private async void ModificarTarea_Click(object sender, RoutedEventArgs e)
         {
-            if (_tareaSeleccionada == null) return;
-
-            var ventana = new EditarTareaWindow(_tareaSeleccionada.titulo, _tareaSeleccionada.descripcion, _tareaSeleccionada.fecha_vencimiento, _tareaSeleccionada.prioridad, _tareaSeleccionada.estado);
-            if (ventana.ShowDialog() == true)
+            if (_tareaSeleccionada == null)
             {
-                try
-                {
-                    _tareaSeleccionada.titulo = ventana.Titulo;
-                    _tareaSeleccionada.descripcion = ventana.Descripcion;
-                    _tareaSeleccionada.fecha_vencimiento = ventana.FechaVencimiento;
-                    _tareaSeleccionada.prioridad = ventana.Prioridad;
-                    _tareaSeleccionada.estado = ventana.EstadoSeleccionado;
-
-                    await _supabaseTareas.ActualizarTarea(_tareaSeleccionada);
-                    await CargarTareasDelCaso(_casoSeleccionado.id);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error al modificar la tarea: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+                MessageBox.Show("Por favor, seleccione una tarea para modificar.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
             }
+            MostrarGridEditarTarea(_tareaSeleccionada);
         }
 
         private async void EliminarTarea_Click(object sender, RoutedEventArgs e)
@@ -1494,7 +1464,7 @@ namespace TFG_V0._01.Ventanas
                         IdCaso = _casoSeleccionado.id,
                         Nombre = txtTituloNota.Text,
                         Descripcion = txtDescripcionNota.Text,
-                        FechaCreacion = DateTime.UtcNow
+                        FechaCreacion = DateTime.Now
                     };
                     await _notasService.InsertarAsync(nuevaNota);
                 }
@@ -1505,6 +1475,136 @@ namespace TFG_V0._01.Ventanas
             catch (Exception ex)
             {
                 MessageBox.Show($"Error al guardar la nota: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void MostrarGridEditarTarea(Tarea tarea = null)
+        {
+            if (_casoSeleccionado == null)
+            {
+                MessageBox.Show("Por favor, seleccione un caso primero.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            // Configurar el grid
+            EditarTareaGrid.Visibility = Visibility.Visible;
+            OverlayPanel.Visibility = Visibility.Visible;
+
+            // Configurar prioridades
+            cbPrioridadTarea.ItemsSource = new[] { "Alta", "Media", "Baja" };
+            cbPrioridadTarea.SelectedIndex = 1; // Media por defecto
+
+            // Configurar estados
+            cbEstadoTarea.ItemsSource = new[] { "Pendiente", "En progreso", "Completada" };
+            cbEstadoTarea.SelectedIndex = 0; // Pendiente por defecto
+
+            if (tarea != null)
+            {
+                // Modo edición
+                txtTituloTarea.Text = tarea.titulo;
+                txtDescripcionTarea.Text = tarea.descripcion;
+                cbPrioridadTarea.SelectedItem = tarea.prioridad;
+                dpFechaVencimientoTarea.SelectedDate = tarea.fecha_vencimiento;
+                cbEstadoTarea.SelectedItem = tarea.estado;
+                tareaEditando = tarea;
+                esEdicionTarea = true;
+            }
+            else
+            {
+                // Modo creación
+                txtTituloTarea.Text = "";
+                txtDescripcionTarea.Text = "";
+                dpFechaVencimientoTarea.SelectedDate = DateTime.Now.AddDays(7); // Una semana por defecto
+                tareaEditando = null;
+                esEdicionTarea = false;
+            }
+
+            // Animar la entrada
+            var animation = new DoubleAnimation
+            {
+                From = 400,
+                To = 0,
+                Duration = TimeSpan.FromSeconds(0.3),
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+            };
+            EditarTareaTransform.BeginAnimation(TranslateTransform.XProperty, animation);
+        }
+
+        private void CerrarEditarTarea_Click(object sender, RoutedEventArgs e)
+        {
+            CerrarGridEditarTarea();
+        }
+
+        private void CancelarTarea_Click(object sender, RoutedEventArgs e)
+        {
+            CerrarGridEditarTarea();
+        }
+
+        private void CerrarGridEditarTarea()
+        {
+            var animation = new DoubleAnimation
+            {
+                From = 0,
+                To = 400,
+                Duration = TimeSpan.FromSeconds(0.3),
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseIn }
+            };
+            animation.Completed += (s, e) =>
+            {
+                EditarTareaGrid.Visibility = Visibility.Collapsed;
+                OverlayPanel.Visibility = Visibility.Collapsed;
+            };
+            EditarTareaTransform.BeginAnimation(TranslateTransform.XProperty, animation);
+        }
+
+        private async void GuardarTarea_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtTituloTarea.Text))
+            {
+                MessageBox.Show("El título es obligatorio.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (dpFechaVencimientoTarea.SelectedDate == null)
+            {
+                MessageBox.Show("La fecha de vencimiento es obligatoria.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                if (esEdicionTarea && tareaEditando != null)
+                {
+                    // Modificar tarea existente
+                    tareaEditando.titulo = txtTituloTarea.Text;
+                    tareaEditando.descripcion = txtDescripcionTarea.Text;
+                    tareaEditando.prioridad = cbPrioridadTarea.SelectedItem.ToString();
+                    tareaEditando.fecha_vencimiento = dpFechaVencimientoTarea.SelectedDate.Value;
+                    tareaEditando.estado = cbEstadoTarea.SelectedItem.ToString();
+                    await _supabaseTareas.ActualizarTarea(tareaEditando);
+                }
+                else
+                {
+                    // Crear nueva tarea
+                    var nuevaTarea = new Tarea
+                    {
+                        titulo = txtTituloTarea.Text,
+                        descripcion = txtDescripcionTarea.Text,
+                        prioridad = cbPrioridadTarea.SelectedItem.ToString(),
+                        fecha_vencimiento = dpFechaVencimientoTarea.SelectedDate.Value,
+                        estado = cbEstadoTarea.SelectedItem.ToString(),
+                        id_caso = _casoSeleccionado.id,
+                        completada = false
+                    };
+                    await _supabaseTareas.CrearTarea(nuevaTarea);
+                }
+
+                await CargarTareasDelCaso(_casoSeleccionado.id);
+                CerrarGridEditarTarea();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al guardar la tarea: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

@@ -243,14 +243,10 @@ namespace TFG_V0._01.Ventanas
         {
             if (MainWindow.tipoBBDD)
             {
-                LoadingPanel.Visibility = Visibility.Collapsed;
                 await CargarDatosDashboard();
                 CargarScoreCasos();
                 CargarCasosRecientes();
-
                 CargarScoreDocumentos();
-
-                LoadingPanel.Visibility = Visibility.Collapsed;
             }
             else
             {

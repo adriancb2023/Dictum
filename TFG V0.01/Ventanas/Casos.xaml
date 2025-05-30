@@ -1028,7 +1028,7 @@
             <!-- Main Content Area -->
             <Grid Grid.Row="1">
                 <!-- Buscador -->
-                <Grid x:Name="Buscador" Visibility="Visible">
+                <Grid x:Name="Buscador" Visibility="Collapsed">
                     <Border Style="{StaticResource CardStyle}" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="30" Width="500" CornerRadius="12">
                         <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="20">
                             <TextBlock Text="Buscar Caso" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,10" Style="{StaticResource PrimaryTextStyle}"/>
@@ -1127,7 +1127,7 @@
                 </Grid>
 
                 <!-- Contenido Casos -->
-                <Grid x:Name="ContenidoCasos" Visibility="Collapsed">
+                <Grid x:Name="ContenidoCasos" Visibility="Visible">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2.2*"/>
                         <ColumnDefinition Width="1.2*"/>
@@ -1367,7 +1367,7 @@
                     </Grid>
 
                     <!-- Columna derecha: Tareas -->
-                    <Border Style="{StaticResource CardStyle}" Grid.Column="1" VerticalAlignment="Stretch">
+                    <Border Style="{StaticResource CardStyle}" Grid.Column="1" Margin="10,0,0,10">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>

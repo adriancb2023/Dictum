@@ -461,11 +461,6 @@
                   Visibility="Collapsed"
                   MouseDown="OverlayPanel_MouseDown"/>
 
-            <!-- Pantalla Carga -->
-            <Grid Visibility="Collapsed" x:Name="LoadingPanel" Background="#AA000000" Panel.ZIndex="1000" Margin="0,88,0,64" Grid.RowSpan="3">
-                <TextBlock Text="Cargando..." Foreground="White" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-            </Grid>
-
             <!-- Cabeceras -->
             <Grid Grid.Row="0" Margin="0,10,0,20">
                 <Grid.ColumnDefinitions>

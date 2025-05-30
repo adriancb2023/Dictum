@@ -27,6 +27,8 @@ using Supabase.Storage;
 using Supabase.Postgrest;
 using IOPath = System.IO.Path;
 using CalendarControl = System.Windows.Controls.Calendar;
+using TFG_V0._01.Supabase;
+using TFG_V0._01.Supabase.Models;
 
 namespace TFG_V0._01.Ventanas
 {
@@ -92,6 +94,8 @@ namespace TFG_V0._01.Ventanas
         // Brushes y fondo animado (añadido de Home)
         private RadialGradientBrush mesh1Brush;
         private RadialGradientBrush mesh2Brush;
+
+        private List<TipoDocumento> _tiposDocumentoCache = new List<TipoDocumento>();
 
         public ObservableCollection<Cliente> Clientes
         {
@@ -1351,21 +1355,20 @@ namespace TFG_V0._01.Ventanas
             }
         }
 
-        private void MostrarGridEditarDocumento(Documento documento = null)
+        private async void MostrarGridEditarDocumento(Documento documento = null)
         {
             // Configurar el grid
             EditarDocumentoGrid.Visibility = Visibility.Visible;
             OverlayPanel.Visibility = Visibility.Visible;
 
-            // Configurar tipos de documento
-            cbTipoDocumento.ItemsSource = new[] { "Contrato", "Factura", "Informe", "Otro" };
+            // Cargar tipos de documento dinámicamente
+            await CargarTiposDocumentoAsync();
 
             if (documento != null)
             {
                 // Modo edición
                 txtNombreDocumento.Text = documento.nombre;
-                txtDescripcionDocumento.Text = documento.descripcion;
-                cbTipoDocumento.SelectedItem = documento.tipo_documento;
+                cbTipoDocumento.SelectedValue = documento.tipo_documento;
                 txtRutaArchivo.Text = documento.ruta;
                 _documentoSeleccionado = documento;
                 esEdicionDocumento = true;
@@ -1374,7 +1377,6 @@ namespace TFG_V0._01.Ventanas
             {
                 // Modo creación
                 txtNombreDocumento.Text = "";
-                txtDescripcionDocumento.Text = "";
                 txtRutaArchivo.Text = "";
                 cbTipoDocumento.SelectedIndex = 0;
                 _documentoSeleccionado = null;
@@ -1390,6 +1392,21 @@ namespace TFG_V0._01.Ventanas
                 EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
             };
             EditarDocumentoTransform.BeginAnimation(TranslateTransform.XProperty, animation);
+        }
+
+        private async Task CargarTiposDocumentoAsync()
+        {
+            try
+            {
+                var supabaseTiposDocumentos = new SupabaseTiposDocumentos();
+                await supabaseTiposDocumentos.InicializarAsync();
+                var tipos = await supabaseTiposDocumentos.ObtenerTiposDocumentos();
+                cbTipoDocumento.ItemsSource = tipos;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar los tipos de documento: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void CerrarEditarDocumento_Click(object sender, RoutedEventArgs e)
@@ -1427,51 +1444,41 @@ namespace TFG_V0._01.Ventanas
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(txtRutaArchivo.Text))
+            if (string.IsNullOrWhiteSpace(txtRutaArchivo.Text) || !System.IO.File.Exists(txtRutaArchivo.Text))
             {
-                MessageBox.Show("Por favor, seleccione un archivo.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Por favor, seleccione un archivo válido.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
             try
             {
-                if (esEdicionDocumento && _documentoSeleccionado != null)
-                {
-                    // Modo edición
-                    _documentoSeleccionado.nombre = txtNombreDocumento.Text;
-                    _documentoSeleccionado.descripcion = txtDescripcionDocumento.Text;
-                    _documentoSeleccionado.tipo_documento = cbTipoDocumento.SelectedItem.ToString();
-                    if (!string.IsNullOrEmpty(txtRutaArchivo.Text))
-                    {
-                        _documentoSeleccionado.ruta = txtRutaArchivo.Text;
-                        _documentoSeleccionado.tamanio = new System.IO.FileInfo(txtRutaArchivo.Text).Length.ToString();
-                    }
+                // 1. Subir archivo a Supabase Storage con nombre único
+                var storage = new TFG_V0._01.Supabase.SupaBaseStorage();
+                await storage.InicializarAsync();
+                string extension = System.IO.Path.GetExtension(txtRutaArchivo.Text);
+                string uniqueName = $"{System.IO.Path.GetFileNameWithoutExtension(txtRutaArchivo.Text)}_{Guid.NewGuid()}{extension}";
+                string storagePath = await storage.SubirArchivoAsync("documentos", txtRutaArchivo.Text, uniqueName);
 
-                    await _supabaseDocumentos.ActualizarAsync(_documentoSeleccionado);
-                }
-                else
+                // 2. Guardar registro en la base de datos
+                var documento = new TFG_V0._01.Supabase.Models.Documento.DocumentoInsertDto
                 {
-                    // Modo creación
-                    var nuevoDocumento = new Documento
-                    {
-                        nombre = txtNombreDocumento.Text,
-                        descripcion = txtDescripcionDocumento.Text,
-                        tipo_documento = cbTipoDocumento.SelectedItem.ToString(),
-                        ruta = txtRutaArchivo.Text,
-                        tamanio = new System.IO.FileInfo(txtRutaArchivo.Text).Length.ToString(),
-                        id_caso = _casoSeleccionado.id,
-                        fecha_subid = DateTime.Now
-                    };
+                    nombre = txtNombreDocumento.Text, // nombre original
+                    ruta = storagePath,               // nombre/ruta en Storage
+                    fecha_subid = DateTime.Now,
+                    id_caso = _casoSeleccionado.id,
+                    tipo_documento = (int)cbTipoDocumento.SelectedValue,
+                    extension_archivo = extension
+                };
 
-                    //await _supabaseDocumentos.CrearAsync(nuevoDocumento);
-                }
+                await _supabaseDocumentos.InicializarAsync();
+                await _supabaseDocumentos.InsertarAsync(documento);
 
                 await CargarDocumentosDelCaso(_casoSeleccionado.id);
                 CerrarGridEditarDocumento();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al guardar el documento: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Error al guardar el documento: {ex.Message}\n{ex.InnerException?.Message}\n{ex.StackTrace}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -1524,7 +1531,7 @@ namespace TFG_V0._01.Ventanas
             }
         }
 
-        private async void AgregarDocumento_Click(object sender, RoutedEventArgs e)
+        private void AgregarDocumento_Click(object sender, RoutedEventArgs e)
         {
             if (_casoSeleccionado == null)
             {
@@ -1535,7 +1542,7 @@ namespace TFG_V0._01.Ventanas
             MostrarGridEditarDocumento();
         }
 
-        private async void ModificarDocumento_Click(object sender, RoutedEventArgs e)
+        private void ModificarDocumento_Click(object sender, RoutedEventArgs e)
         {
             if (_documentoSeleccionado == null)
             {
@@ -1550,6 +1557,12 @@ namespace TFG_V0._01.Ventanas
         {
             if (_documentoSeleccionado == null) return;
 
+            if (!_documentoSeleccionado.id.HasValue)
+            {
+                MessageBox.Show("El documento no tiene un ID válido.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
             var result = MessageBox.Show("¿Está seguro de que desea eliminar este documento?", "Confirmar eliminación",
                 MessageBoxButton.YesNo, MessageBoxImage.Question);
 
@@ -1557,7 +1570,7 @@ namespace TFG_V0._01.Ventanas
             {
                 try
                 {
-                    await _supabaseDocumentos.EliminarAsync(_documentoSeleccionado.id);
+                    await _supabaseDocumentos.EliminarAsync(_documentoSeleccionado.id.Value);
                     await CargarDocumentosDelCaso(_casoSeleccionado.id);
                 }
                 catch (Exception ex)
@@ -1624,7 +1637,14 @@ namespace TFG_V0._01.Ventanas
             try
             {
                 await _supabaseDocumentos.InicializarAsync();
+                if (_tiposDocumentoCache == null || !_tiposDocumentoCache.Any())
+                    await CargarTiposDocumentoCacheAsync();
                 var documentos = await _supabaseDocumentos.ObtenerPorCasoAsync(casoId);
+                // Asociar el tipo de documento
+                foreach (var doc in documentos)
+                {
+                    doc.TipoDocumento = _tiposDocumentoCache.FirstOrDefault(t => t.Id == doc.tipo_documento);
+                }
                 DocumentosList.ItemsSource = documentos;
             }
             catch (Exception ex)
@@ -1725,6 +1745,83 @@ namespace TFG_V0._01.Ventanas
             catch (Exception ex)
             {
                 MessageBox.Show($"Error al cargar el caso: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async Task CargarTiposDocumentoCacheAsync()
+        {
+            try
+            {
+                var supabaseTiposDocumentos = new SupabaseTiposDocumentos();
+                await supabaseTiposDocumentos.InicializarAsync();
+                _tiposDocumentoCache = await supabaseTiposDocumentos.ObtenerTiposDocumentos();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar el caché de tipos de documento: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async void VerDocumento_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.CommandParameter is Documento doc)
+            {
+                try
+                {
+                    var storage = new TFG_V0._01.Supabase.SupaBaseStorage();
+                    await storage.InicializarAsync();
+                    // Descargar el archivo desde Supabase Storage usando solo el nombre del archivo
+                    var fileBytes = await storage.DescargarArchivoAsync("documentos", IOPath.GetFileName(doc.ruta));
+                    // Guardar en una ruta temporal
+                    string tempPath = IOPath.Combine(IOPath.GetTempPath(), IOPath.GetFileName(doc.ruta));
+                    await File.WriteAllBytesAsync(tempPath, fileBytes);
+                    // Abrir el archivo
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = tempPath,
+                        UseShellExecute = true
+                    });
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"No se pudo abrir el documento: {ex.Message}");
+                }
+            }
+        }
+
+        private async void DescargarDocumento_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.CommandParameter is Documento doc)
+            {
+                try
+                {
+                    // Create a SaveFileDialog to let the user choose where to save the file
+                    var saveFileDialog = new Microsoft.Win32.SaveFileDialog
+                    {
+                        FileName = doc.nombre + doc.extension_archivo,
+                        DefaultExt = doc.extension_archivo,
+                        Filter = $"Archivos {doc.extension_archivo}|*{doc.extension_archivo}|Todos los archivos|*.*"
+                    };
+
+                    if (saveFileDialog.ShowDialog() == true)
+                    {
+                        // Initialize Supabase Storage
+                        var storage = new TFG_V0._01.Supabase.SupaBaseStorage();
+                        await storage.InicializarAsync();
+
+                        // Download the file from Supabase Storage usando solo el nombre del archivo
+                        var fileBytes = await storage.DescargarArchivoAsync("documentos", IOPath.GetFileName(doc.ruta));
+
+                        // Save the file to the selected location
+                        await File.WriteAllBytesAsync(saveFileDialog.FileName, fileBytes);
+
+                        MessageBox.Show("Documento descargado correctamente.", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error al descargar el documento: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
 

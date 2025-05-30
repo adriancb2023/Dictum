@@ -930,7 +930,9 @@
                                  FontWeight="SemiBold" 
                                  Margin="0,0,0,5"/>
                         <ComboBox x:Name="cbTipoDocumento" 
-                                 Style="{StaticResource ModernComboBoxStyle}"/>
+                                 Style="{StaticResource ModernComboBoxStyle}"
+                                 DisplayMemberPath="Nombre"
+                                 SelectedValuePath="Id"/>
                     </StackPanel>
 
                     <!-- Área de arrastrar y soltar -->
@@ -975,19 +977,6 @@
                         <TextBox x:Name="txtRutaArchivo" 
                                 Style="{StaticResource RoundedTextBoxStyle}" 
                                 IsReadOnly="True"/>
-                    </StackPanel>
-
-                    <!-- Descripción -->
-                    <StackPanel Margin="0,0,0,15">
-                        <TextBlock Text="Descripción" 
-                                 Style="{StaticResource PrimaryTextStyle}" 
-                                 FontWeight="SemiBold" 
-                                 Margin="0,0,0,5"/>
-                        <TextBox x:Name="txtDescripcionDocumento" 
-                                Style="{StaticResource RoundedTextBoxStyle}" 
-                                Height="100" 
-                                TextWrapping="Wrap" 
-                                AcceptsReturn="True"/>
                     </StackPanel>
                 </StackPanel>
             </ScrollViewer>
@@ -1335,20 +1324,27 @@
                                                         HorizontalAlignment="Stretch">
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="Auto"/>
                                                             <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
                                                         </Grid.ColumnDefinitions>
                                                         <!-- Info del documento -->
-                                                        <StackPanel Grid.Column="1">
+                                                        <StackPanel Grid.Column="0">
                                                             <TextBlock Text="{Binding nombre}" 
                                                                        Style="{StaticResource PrimaryTextStyle}"
                                                                        FontWeight="SemiBold"/>
-                                                            <TextBlock Text="{Binding descripcion}" 
+                                                            <TextBlock Text="{Binding TipoDocumento.Nombre}" 
                                                                        Style="{StaticResource SecondaryTextStyle}"
                                                                        FontSize="12"/>
-                                                            <TextBlock Text="{Binding tipo_documento}" 
+                                                            <TextBlock Text="{Binding extension_archivo, StringFormat='Ext: {0}'}" 
                                                                        Style="{StaticResource SecondaryTextStyle}"
                                                                        FontSize="12"/>
+                                                            <TextBlock Text="{Binding fecha_subid, StringFormat='Subido: {0:dd/MM/yyyy HH:mm}'}" 
+                                                                       Style="{StaticResource SecondaryTextStyle}"
+                                                                       FontSize="12"/>
+                                                        </StackPanel>
+                                                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                                            <Button Content="Ver" Margin="0,0,8,0" CommandParameter="{Binding}" Click="VerDocumento_Click"/>
+                                                            <Button Content="Descargar" CommandParameter="{Binding}" Click="DescargarDocumento_Click"/>
                                                         </StackPanel>
                                                     </Grid>
                                                 </Border>

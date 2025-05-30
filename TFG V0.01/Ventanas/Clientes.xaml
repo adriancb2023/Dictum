@@ -569,7 +569,6 @@
                         <!-- Contenedor de botones -->
                         <StackPanel Grid.Row="1" Margin="20,10,20,20">
                             <Button Content="Continuar" Style="{StaticResource ThemeAwareRoundedButtonStyle}" HorizontalAlignment="Stretch" MaxWidth="400" Margin="0,0,0,10" Click="clientecheck"/>
-                            <Button Content="Nuevo Cliente" Style="{StaticResource ThemeAwareRoundedButtonStyle}" HorizontalAlignment="Stretch" MaxWidth="400"/>
                         </StackPanel>
                     </Grid>
                 </Border>

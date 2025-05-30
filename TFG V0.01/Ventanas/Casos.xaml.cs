@@ -79,10 +79,19 @@ namespace TFG_V0._01.Ventanas
         private Dictionary<DateTime, string> DiasConEventoColor = new();
         private EventoCita eventoEditando = null;
         private bool esEdicion = false;
+        private Nota notaEditando = null;
+        private bool esEdicionNota = false;
         private List<Documento> _documentosDelCaso;
         private List<Tarea> _tareasDelCaso;
         private Documento _documentoSeleccionado;
         private Tarea _tareaSeleccionada;
+        private Tarea tareaEditando = null;
+        private bool esEdicionTarea = false;
+        private bool esEdicionDocumento = false;
+
+        // Brushes y fondo animado (añadido de Home)
+        private RadialGradientBrush mesh1Brush;
+        private RadialGradientBrush mesh2Brush;
 
         public ObservableCollection<Cliente> Clientes
         {
@@ -144,7 +153,8 @@ namespace TFG_V0._01.Ventanas
             InitializeComponent();
             this.DataContext = this;
             InitializeAnimations();
-            AplicarModoSistema();
+            CrearFondoAnimado(); // Llamar al método para crear el fondo
+            AplicarModoSistema(); // Asegurarse de que el Tag se establece aquí y se actualizan colores/animación
 
             _clientesService = new SupabaseClientes();
             _casosService = new SupabaseCasos();
@@ -452,53 +462,91 @@ namespace TFG_V0._01.Ventanas
 
             if (CasoSeleccionado != null)
             {
-                // Asegurar que el calendario tenga seleccionada la fecha actual
-                var calendar = this.FindName("calendar") as CalendarControl;
-                if (calendar != null)
+                // Iniciar animación de fade out para el buscador
+                var fadeOut = (Storyboard)FindResource("FadeOutAnimation");
+                fadeOut.Completed += async (s, ev) =>
                 {
-                    calendar.SelectedDate = DateTime.Today;
-                    _fechaSeleccionada = DateTime.Today;
-                }
+                    // Una vez que el fade out termina, ocultar el buscador y mostrar el contenido del caso con fade in
+                    Buscador.Visibility = Visibility.Collapsed;
+                    ContenidoCasos.Opacity = 0; // Establecer opacidad a 0 para la animación de fade in
+                    ContenidoCasos.Visibility = Visibility.Visible;
 
-                // Cargar datos del caso y eventos
-                await CargarDatosDelCaso(CasoSeleccionado.id);
-                await CargarEventosDelDia();
+                    var fadeIn = (Storyboard)FindResource("FadeInAnimation");
+                    fadeIn.Begin(ContenidoCasos);
 
-                var contenidoCasos = this.FindName("ContenidoCasos") as UIElement;
-                var buscador = this.FindName("Buscador") as UIElement;
-                if (contenidoCasos != null) contenidoCasos.Visibility = Visibility.Visible;
-                if (buscador != null) buscador.Visibility = Visibility.Collapsed;
+                     // Asegurar que el calendario tenga seleccionada la fecha actual
+                    var calendar = this.FindName("calendar") as CalendarControl;
+                    if (calendar != null)
+                    {
+                        calendar.SelectedDate = DateTime.Today;
+                        _fechaSeleccionada = DateTime.Today;
+                    }
+
+                    // Cargar datos del caso y eventos (ya son async, no es necesario await extra aquí)
+                    await CargarDatosDelCaso(CasoSeleccionado.id);
+                    await CargarEventosDelDia();
+                };
+                fadeOut.Begin(Buscador);
             }
         }
 
         #region Aplicar modo oscuro/claro cargado por sistema
         private void AplicarModoSistema()
         {
+            // Establecer el Tag de la ventana basado en el tema global
+            this.Tag = MainWindow.isDarkTheme;
+
             var button = this.FindName("ThemeButton") as Button;
             var icon = button?.Template.FindName("ThemeIcon", button) as System.Windows.Controls.Image;
-            var backgroundFondo = this.FindName("backgroundFondo") as ImageBrush;
 
+            // Actualizar colores de los brushes de malla
+            if (mesh1Brush != null && mesh2Brush != null)
+            {
+                if (MainWindow.isDarkTheme)
+                {
+                    // Colores para modo oscuro
+                    mesh1Brush.GradientStops.Clear();
+                    mesh1Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#8C7BFF"), 0));
+                    mesh1Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#08a693"), 1));
+
+                    mesh2Brush.GradientStops.Clear();
+                    mesh2Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#3a4d5f"), 0));
+                    mesh2Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#272c3f"), 1));
+                }
+                else
+                {
+                    // Colores para modo claro
+                    mesh1Brush.GradientStops.Clear();
+                    mesh1Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#de9cb8"), 0));
+                    mesh1Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#9dcde1"), 1));
+
+                    mesh2Brush.GradientStops.Clear();
+                    mesh2Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#dc8eb8"), 0));
+                    mesh2Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#98d3ec"), 1));
+                }
+                // No reiniciar la animación aquí, ya se inicia en CrearFondoAnimado y al cambiar el tema
+                // IniciarAnimacionMesh();
+            }
+
+            // Actualizar icono del tema
             if (MainWindow.isDarkTheme)
             {
-                // Aplicar modo oscuro
                 if (icon != null)
                 {
                     icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/sol.png", UriKind.Relative));
                 }
-                if (backgroundFondo != null)
-                    backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString("pack://application:,,,/TFG V0.01;component/Recursos/Background/oscuro/main.png") as ImageSource;
+                 // Asegurarse de que el Navbar se actualice
                 navbar.ActualizarTema(true);
             }
             else
             {
-                // Aplicar modo claro
+                // Aplicar modo claro (resto de elementos si los hubiera)
                 if (icon != null)
                 {
                     icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/luna.png", UriKind.Relative));
                 }
-                if (backgroundFondo != null)
-                    backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString("pack://application:,,,/TFG V0.01;component/Recursos/Background/claro/main.png") as ImageSource;
-                navbar.ActualizarTema(false);
+                 // Asegurarse de que el Navbar se actualice
+                 navbar.ActualizarTema(false);
             }
         }
         #endregion
@@ -550,7 +598,7 @@ namespace TFG_V0._01.Ventanas
         #region Animaciones
         private void InitializeAnimations()
         {
-            // Animación de entrada con fade
+            // Animación de entrada con fade de la ventana (ya existente)
             fadeInStoryboard = new Storyboard();
             DoubleAnimation fadeIn = new DoubleAnimation
             {
@@ -562,7 +610,7 @@ namespace TFG_V0._01.Ventanas
             Storyboard.SetTargetProperty(fadeIn, new PropertyPath("Opacity"));
             fadeInStoryboard.Children.Add(fadeIn);
 
-            // Animación de shake para error
+            // Animación de shake para error (ya existente)
             shakeStoryboard = new Storyboard();
             DoubleAnimation shakeAnimation = new DoubleAnimation
             {
@@ -597,6 +645,79 @@ namespace TFG_V0._01.Ventanas
             };
 
             trans.BeginAnimation(TranslateTransform.XProperty, anim);
+        }
+        #endregion
+
+        #region 🎨 Fondo Animado (copiado y adaptado de Home)
+        private void CrearFondoAnimado()
+        {
+            // Crear los brushes
+            mesh1Brush = new RadialGradientBrush();
+            mesh1Brush.Center = new Point(0.3, 0.3);
+            mesh1Brush.RadiusX = 0.5;
+            mesh1Brush.RadiusY = 0.5;
+            mesh1Brush.GradientStops = new GradientStopCollection(); // Inicializar la colección
+
+            mesh2Brush = new RadialGradientBrush();
+            mesh2Brush.Center = new Point(0.7, 0.7);
+            mesh2Brush.RadiusX = 0.6;
+            mesh2Brush.RadiusY = 0.6;
+            mesh2Brush.GradientStops = new GradientStopCollection(); // Inicializar la colección
+
+            // Crear el DrawingGroup y el DrawingBrush
+            var drawingGroup = new DrawingGroup();
+            drawingGroup.Children.Add(new GeometryDrawing(mesh1Brush, null, new RectangleGeometry(new Rect(0, 0, 1, 1))));
+            drawingGroup.Children.Add(new GeometryDrawing(mesh2Brush, null, new RectangleGeometry(new Rect(0, 0, 1, 1))));
+
+            var meshGradientBrush = new DrawingBrush(drawingGroup) { Stretch = Stretch.Fill };
+
+            // Asignar el DrawingBrush al Background del Grid principal
+            if (this.Content is Grid mainGrid)
+            {
+                mainGrid.Background = meshGradientBrush;
+            }
+
+            // Llamar a AplicarModoSistema para establecer los colores iniciales y iniciar la animación
+            AplicarModoSistema();
+        }
+
+        private void IniciarAnimacionMesh()
+        {
+             if (mesh1Brush == null || mesh2Brush == null) return; // Asegurarse de que los brushes existan
+
+            // Crear un nuevo Storyboard para la animación
+            var meshAnimStoryboard = new Storyboard();
+
+            // Animación para mesh1Brush Center
+            var anim1 = new PointAnimation
+            {
+                From = mesh1Brush.Center,
+                To = new Point(0.7, 0.5), // Usar mismos puntos de animación que Home
+                Duration = TimeSpan.FromSeconds(8), // Duración total de la secuencia
+                AutoReverse = true,
+                RepeatBehavior = RepeatBehavior.Forever,
+                EasingFunction = new System.Windows.Media.Animation.SineEase { EasingMode = EasingMode.EaseInOut }
+            };
+            Storyboard.SetTarget(anim1, mesh1Brush);
+            Storyboard.SetTargetProperty(anim1, new PropertyPath(RadialGradientBrush.CenterProperty));
+            meshAnimStoryboard.Children.Add(anim1);
+
+            // Animación para mesh2Brush Center
+            var anim2 = new PointAnimation
+            {
+                From = mesh2Brush.Center,
+                To = new Point(0.4, 0.4), // Usar mismos puntos de animación que Home
+                Duration = TimeSpan.FromSeconds(8), // Duración total de la secuencia
+                AutoReverse = true,
+                RepeatBehavior = RepeatBehavior.Forever,
+                EasingFunction = new System.Windows.Media.Animation.SineEase { EasingMode = EasingMode.EaseInOut }
+            };
+            Storyboard.SetTarget(anim2, mesh2Brush);
+            Storyboard.SetTargetProperty(anim2, new PropertyPath(RadialGradientBrush.CenterProperty));
+            meshAnimStoryboard.Children.Add(anim2);
+
+            // Iniciar la animación
+            meshAnimStoryboard.Begin();
         }
         #endregion
 
@@ -730,31 +851,8 @@ namespace TFG_V0._01.Ventanas
         private async void AñadirEvento_Click(object sender, RoutedEventArgs e)
         {
             var estados = await ObtenerEstadosEventosAsync();
-            var ventana = new EditarEventoWindow(estados);
-            if (ventana.ShowDialog() == true)
-            {
-                var selectedTime = ventana.HoraMinuto ?? DateTime.Now;
-                // Crear la fecha completa con la fecha seleccionada y la hora elegida
-                var fechaEvento = new DateTime(
-                    _fechaSeleccionada.Year,
-                    _fechaSeleccionada.Month,
-                    _fechaSeleccionada.Day,
-                    selectedTime.Hour,
-                    selectedTime.Minute,
-                    0
-                );
-                var nuevoEvento = new EventoCita
-                {
-                    Titulo = ventana.TituloEvento,
-                    Descripcion = ventana.DescripcionEvento,
-                    Fecha = fechaEvento, // Asignar la fecha completa
-                    FechaInicio = new TimeSpan(selectedTime.Hour, selectedTime.Minute, 0),
-                    IdEstado = ventana.EstadoSeleccionado.Id,
-                    IdCaso = CasoSeleccionado?.id ?? 0
-                };
-                await _eventosCitasService.InsertarEventoCita(nuevoEvento);
-                await CargarEventosDelDia(); // Recargar la lista tras añadir
-            }
+            // Mostrar el grid deslizante en lugar de la ventana
+            MostrarGridEditarEvento(null, estados);
         }
 
         private async void ModificarEvento_Click(object sender, RoutedEventArgs e)
@@ -763,32 +861,154 @@ namespace TFG_V0._01.Ventanas
             {
                 var evento = await _eventosCitasService.ObtenerEventoCita(vm.Id);
                 var estados = await ObtenerEstadosEventosAsync();
-                var ventana = new EditarEventoWindow(
-                    estados,
-                    evento.Titulo,
-                    evento.Descripcion,
-                    DateTime.Today.Add(evento.FechaInicio),
-                    evento.IdEstado
-                );
-                if (ventana.ShowDialog() == true)
-                {
-                    evento.Titulo = ventana.TituloEvento;
-                    evento.Descripcion = ventana.DescripcionEvento;
-
-                    // Get the selected time or use current time as fallback
-                    var selectedTime = ventana.HoraMinuto ?? DateTime.Now;
-
-                    // Create a TimeSpan with just the hours and minutes
-                    evento.FechaInicio = new TimeSpan(selectedTime.Hour, selectedTime.Minute, 0);
-
-                    evento.IdEstado = ventana.EstadoSeleccionado.Id;
-                    await _eventosCitasService.ActualizarEventoCita(evento);
-                    await CargarEventosDelDia();
-                }
+                // Mostrar el grid deslizante en lugar de la ventana
+                MostrarGridEditarEvento(evento, estados);
             }
             else
             {
                 MessageBox.Show("Selecciona un evento para modificar.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private void MostrarGridEditarEvento(EventoCita evento = null, List<EstadoEvento> estados = null)
+        {
+            // Configurar el grid
+            EditarEventoGrid.Visibility = Visibility.Visible;
+            OverlayPanel.Visibility = Visibility.Visible;
+            cbEstadoEvento.ItemsSource = estados;
+
+            if (evento != null)
+            {
+                // Modo edición
+                txtTituloEvento.Text = evento.Titulo;
+                txtDescripcionEvento.Text = evento.Descripcion;
+                timePickerEvento.SelectedTime = DateTime.Today.Add(evento.FechaInicio);
+                cbEstadoEvento.SelectedValue = evento.IdEstado;
+                eventoEditando = evento;
+                esEdicion = true;
+            }
+            else
+            {
+                // Modo creación
+                txtTituloEvento.Text = "";
+                txtDescripcionEvento.Text = "";
+                timePickerEvento.SelectedTime = DateTime.Now;
+                if (estados?.Count > 0)
+                    cbEstadoEvento.SelectedIndex = 0;
+                eventoEditando = null;
+                esEdicion = false;
+            }
+
+            // Animar la entrada
+            var animation = new DoubleAnimation
+            {
+                From = 400,
+                To = 0,
+                Duration = TimeSpan.FromSeconds(0.3),
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+            };
+            EditarEventoTransform.BeginAnimation(TranslateTransform.XProperty, animation);
+        }
+
+        private void CerrarEditarEvento_Click(object sender, RoutedEventArgs e)
+        {
+            CerrarGridEditarEvento();
+        }
+
+        private void CancelarEvento_Click(object sender, RoutedEventArgs e)
+        {
+            CerrarGridEditarEvento();
+        }
+
+        private void OverlayPanel_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (EditarEventoGrid.Visibility == Visibility.Visible)
+            {
+                CerrarGridEditarEvento();
+            } 
+            else if (EditarNotaGrid.Visibility == Visibility.Visible)
+            {
+                CerrarGridEditarNota();
+            }
+            else if (EditarTareaGrid.Visibility == Visibility.Visible)
+            {
+                CerrarGridEditarTarea();
+            }
+        }
+
+        private void CerrarGridEditarEvento()
+        {
+            var animation = new DoubleAnimation
+            {
+                From = 0,
+                To = 400,
+                Duration = TimeSpan.FromSeconds(0.3),
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseIn }
+            };
+            animation.Completed += (s, e) => 
+            {
+                EditarEventoGrid.Visibility = Visibility.Collapsed;
+                OverlayPanel.Visibility = Visibility.Collapsed;
+            };
+            EditarEventoTransform.BeginAnimation(TranslateTransform.XProperty, animation);
+        }
+
+        private async void GuardarEvento_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtTituloEvento.Text))
+            {
+                MessageBox.Show("El título es obligatorio.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            if (cbEstadoEvento.SelectedItem == null)
+            {
+                MessageBox.Show("Selecciona un estado.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                var selectedTime = timePickerEvento.SelectedTime ?? DateTime.Now;
+                var fechaEvento = new DateTime(
+                    _fechaSeleccionada.Year,
+                    _fechaSeleccionada.Month,
+                    _fechaSeleccionada.Day,
+                    selectedTime.Hour,
+                    selectedTime.Minute,
+                    0
+                );
+
+                if (esEdicion && eventoEditando != null)
+                {
+                    // Modificar evento existente
+                    eventoEditando.Titulo = txtTituloEvento.Text;
+                    eventoEditando.Descripcion = txtDescripcionEvento.Text;
+                    eventoEditando.Fecha = fechaEvento;
+                    eventoEditando.FechaInicio = new TimeSpan(selectedTime.Hour, selectedTime.Minute, 0);
+                    eventoEditando.IdEstado = ((EstadoEvento)cbEstadoEvento.SelectedItem).Id;
+                    await _eventosCitasService.ActualizarEventoCita(eventoEditando);
+                }
+                else
+                {
+                    // Crear nuevo evento
+                    var nuevoEvento = new EventoCita
+                    {
+                        Titulo = txtTituloEvento.Text,
+                        Descripcion = txtDescripcionEvento.Text,
+                        Fecha = fechaEvento,
+                        FechaInicio = new TimeSpan(selectedTime.Hour, selectedTime.Minute, 0),
+                        IdEstado = ((EstadoEvento)cbEstadoEvento.SelectedItem).Id,
+                        IdCaso = CasoSeleccionado?.id ?? 0
+                    };
+                    await _eventosCitasService.InsertarEventoCita(nuevoEvento);
+                }
+
+                await CargarEventosDelDia();
+                CerrarGridEditarEvento();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al guardar el evento: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -848,19 +1068,8 @@ namespace TFG_V0._01.Ventanas
                 return;
             }
 
-            var ventana = new EditarNotaWindow(_casoSeleccionado.id);
-            if (ventana.ShowDialog() == true)
-            {
-                try
-                {
-                    await _notasService.InicializarAsync();
-                    await CargarNotasDelCaso(_casoSeleccionado.id);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error al crear la nota: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
+            // Mostrar el grid deslizante en lugar de la ventana
+            MostrarGridEditarNota(null);
         }
 
         private async void ModificarNota_Click(object sender, RoutedEventArgs e)
@@ -871,19 +1080,8 @@ namespace TFG_V0._01.Ventanas
                 return;
             }
 
-            var ventana = new EditarNotaWindow(_casoSeleccionado.id, _notaSeleccionada);
-            if (ventana.ShowDialog() == true)
-            {
-                try
-                {
-                    await _notasService.InicializarAsync();
-                    await CargarNotasDelCaso(_casoSeleccionado.id);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error al modificar la nota: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
+            // Mostrar el grid deslizante en lugar de la ventana
+            MostrarGridEditarNota(_notaSeleccionada);
         }
 
         private async void EliminarNota_Click(object sender, RoutedEventArgs e)
@@ -916,44 +1114,437 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
        
+        private void MostrarGridEditarNota(Nota nota = null)
+        {
+            if (_casoSeleccionado == null)
+            {
+                MessageBox.Show("Por favor, seleccione un caso primero.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            // Configurar el grid
+            EditarNotaGrid.Visibility = Visibility.Visible;
+            OverlayPanel.Visibility = Visibility.Visible;
+
+            if (nota != null)
+            {
+                // Modo edición
+                txtTituloNota.Text = nota.Nombre;
+                txtDescripcionNota.Text = nota.Descripcion;
+                notaEditando = nota;
+                esEdicionNota = true;
+            }
+            else
+            {
+                // Modo creación
+                txtTituloNota.Text = "";
+                txtDescripcionNota.Text = "";
+                notaEditando = null;
+                esEdicionNota = false;
+            }
+
+            // Animar la entrada
+            var animation = new DoubleAnimation
+            {
+                From = 400,
+                To = 0,
+                Duration = TimeSpan.FromSeconds(0.3),
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+            };
+            EditarNotaTransform.BeginAnimation(TranslateTransform.XProperty, animation);
+        }
+
+        private void CerrarEditarNota_Click(object sender, RoutedEventArgs e)
+        {
+            CerrarGridEditarNota();
+        }
+
+        private void CancelarNota_Click(object sender, RoutedEventArgs e)
+        {
+            CerrarGridEditarNota();
+        }
+
+        private void CerrarGridEditarNota()
+        {
+            var animation = new DoubleAnimation
+            {
+                From = 0,
+                To = 400,
+                Duration = TimeSpan.FromSeconds(0.3),
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseIn }
+            };
+            animation.Completed += (s, e) =>
+            {
+                EditarNotaGrid.Visibility = Visibility.Collapsed;
+                OverlayPanel.Visibility = Visibility.Collapsed;
+            };
+            EditarNotaTransform.BeginAnimation(TranslateTransform.XProperty, animation);
+        }
+
+        private async void GuardarNota_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtTituloNota.Text))
+            {
+                MessageBox.Show("El título es obligatorio.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                await _notasService.InicializarAsync();
+
+                if (esEdicionNota && notaEditando != null)
+                {
+                    // Modificar nota existente
+                    notaEditando.Nombre = txtTituloNota.Text;
+                    notaEditando.Descripcion = txtDescripcionNota.Text;
+                    await _notasService.ActualizarAsync(notaEditando);
+                }
+                else
+                {
+                    // Crear nueva nota
+                    var nuevaNota = new Nota
+                    {
+                        IdCaso = _casoSeleccionado.id,
+                        Nombre = txtTituloNota.Text,
+                        Descripcion = txtDescripcionNota.Text,
+                        FechaCreacion = DateTime.Now
+                    };
+                    await _notasService.InsertarAsync(nuevaNota);
+                }
+
+                await CargarNotasDelCaso(_casoSeleccionado.id);
+                CerrarGridEditarNota();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al guardar la nota: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void MostrarGridEditarTarea(Tarea tarea = null)
+        {
+            if (_casoSeleccionado == null)
+            {
+                MessageBox.Show("Por favor, seleccione un caso primero.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            // Configurar el grid
+            EditarTareaGrid.Visibility = Visibility.Visible;
+            OverlayPanel.Visibility = Visibility.Visible;
+
+            // Configurar prioridades
+            cbPrioridadTarea.ItemsSource = new[] { "Alta", "Media", "Baja" };
+            cbPrioridadTarea.SelectedIndex = 1; // Media por defecto
+
+            // Configurar estados
+            cbEstadoTarea.ItemsSource = new[] { "Pendiente", "En progreso", "Completada" };
+            cbEstadoTarea.SelectedIndex = 0; // Pendiente por defecto
+
+            if (tarea != null)
+            {
+                // Modo edición
+                txtTituloTarea.Text = tarea.titulo;
+                txtDescripcionTarea.Text = tarea.descripcion;
+                cbPrioridadTarea.SelectedItem = tarea.prioridad;
+                dpFechaVencimientoTarea.SelectedDate = tarea.fecha_vencimiento;
+                cbEstadoTarea.SelectedItem = tarea.estado;
+                tareaEditando = tarea;
+                esEdicionTarea = true;
+            }
+            else
+            {
+                // Modo creación
+                txtTituloTarea.Text = "";
+                txtDescripcionTarea.Text = "";
+                dpFechaVencimientoTarea.SelectedDate = DateTime.Now.AddDays(7); // Una semana por defecto
+                tareaEditando = null;
+                esEdicionTarea = false;
+            }
+
+            // Animar la entrada
+            var animation = new DoubleAnimation
+            {
+                From = 400,
+                To = 0,
+                Duration = TimeSpan.FromSeconds(0.3),
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+            };
+            EditarTareaTransform.BeginAnimation(TranslateTransform.XProperty, animation);
+        }
+
+        private void CerrarEditarTarea_Click(object sender, RoutedEventArgs e)
+        {
+            CerrarGridEditarTarea();
+        }
+
+        private void CancelarTarea_Click(object sender, RoutedEventArgs e)
+        {
+            CerrarGridEditarTarea();
+        }
+
+        private void CerrarGridEditarTarea()
+        {
+            var animation = new DoubleAnimation
+            {
+                From = 0,
+                To = 400,
+                Duration = TimeSpan.FromSeconds(0.3),
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseIn }
+            };
+            animation.Completed += (s, e) =>
+            {
+                EditarTareaGrid.Visibility = Visibility.Collapsed;
+                OverlayPanel.Visibility = Visibility.Collapsed;
+            };
+            EditarTareaTransform.BeginAnimation(TranslateTransform.XProperty, animation);
+        }
+
+        private async void GuardarTarea_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtTituloTarea.Text))
+            {
+                MessageBox.Show("El título es obligatorio.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (dpFechaVencimientoTarea.SelectedDate == null)
+            {
+                MessageBox.Show("La fecha de vencimiento es obligatoria.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                if (esEdicionTarea && tareaEditando != null)
+                {
+                    // Modificar tarea existente
+                    tareaEditando.titulo = txtTituloTarea.Text;
+                    tareaEditando.descripcion = txtDescripcionTarea.Text;
+                    tareaEditando.prioridad = cbPrioridadTarea.SelectedItem.ToString();
+                    tareaEditando.fecha_vencimiento = dpFechaVencimientoTarea.SelectedDate.Value;
+                    tareaEditando.estado = cbEstadoTarea.SelectedItem.ToString();
+                    await _supabaseTareas.ActualizarTarea(tareaEditando);
+                }
+                else
+                {
+                    // Crear nueva tarea
+                    var nuevaTarea = new Tarea
+                    {
+                        titulo = txtTituloTarea.Text,
+                        descripcion = txtDescripcionTarea.Text,
+                        prioridad = cbPrioridadTarea.SelectedItem.ToString(),
+                        fecha_vencimiento = dpFechaVencimientoTarea.SelectedDate.Value,
+                        estado = cbEstadoTarea.SelectedItem.ToString(),
+                        id_caso = _casoSeleccionado.id,
+                        completada = false
+                    };
+                    await _supabaseTareas.CrearTarea(nuevaTarea);
+                }
+
+                await CargarTareasDelCaso(_casoSeleccionado.id);
+                CerrarGridEditarTarea();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al guardar la tarea: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void MostrarGridEditarDocumento(Documento documento = null)
+        {
+            // Configurar el grid
+            EditarDocumentoGrid.Visibility = Visibility.Visible;
+            OverlayPanel.Visibility = Visibility.Visible;
+
+            // Configurar tipos de documento
+            cbTipoDocumento.ItemsSource = new[] { "Contrato", "Factura", "Informe", "Otro" };
+
+            if (documento != null)
+            {
+                // Modo edición
+                txtNombreDocumento.Text = documento.nombre;
+                txtDescripcionDocumento.Text = documento.descripcion;
+                cbTipoDocumento.SelectedItem = documento.tipo_documento;
+                txtRutaArchivo.Text = documento.ruta;
+                _documentoSeleccionado = documento;
+                esEdicionDocumento = true;
+            }
+            else
+            {
+                // Modo creación
+                txtNombreDocumento.Text = "";
+                txtDescripcionDocumento.Text = "";
+                txtRutaArchivo.Text = "";
+                cbTipoDocumento.SelectedIndex = 0;
+                _documentoSeleccionado = null;
+                esEdicionDocumento = false;
+            }
+
+            // Animar la entrada
+            var animation = new DoubleAnimation
+            {
+                From = 400,
+                To = 0,
+                Duration = TimeSpan.FromSeconds(0.3),
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+            };
+            EditarDocumentoTransform.BeginAnimation(TranslateTransform.XProperty, animation);
+        }
+
+        private void CerrarEditarDocumento_Click(object sender, RoutedEventArgs e)
+        {
+            CerrarGridEditarDocumento();
+        }
+
+        private void CancelarDocumento_Click(object sender, RoutedEventArgs e)
+        {
+            CerrarGridEditarDocumento();
+        }
+
+        private void CerrarGridEditarDocumento()
+        {
+            var animation = new DoubleAnimation
+            {
+                From = 0,
+                To = 400,
+                Duration = TimeSpan.FromSeconds(0.3),
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseIn }
+            };
+            animation.Completed += (s, e) =>
+            {
+                EditarDocumentoGrid.Visibility = Visibility.Collapsed;
+                OverlayPanel.Visibility = Visibility.Collapsed;
+            };
+            EditarDocumentoTransform.BeginAnimation(TranslateTransform.XProperty, animation);
+        }
+
+        private async void GuardarDocumento_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtNombreDocumento.Text))
+            {
+                MessageBox.Show("Por favor, ingrese un nombre para el documento.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(txtRutaArchivo.Text))
+            {
+                MessageBox.Show("Por favor, seleccione un archivo.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                if (esEdicionDocumento && _documentoSeleccionado != null)
+                {
+                    // Modo edición
+                    _documentoSeleccionado.nombre = txtNombreDocumento.Text;
+                    _documentoSeleccionado.descripcion = txtDescripcionDocumento.Text;
+                    _documentoSeleccionado.tipo_documento = cbTipoDocumento.SelectedItem.ToString();
+                    if (!string.IsNullOrEmpty(txtRutaArchivo.Text))
+                    {
+                        _documentoSeleccionado.ruta = txtRutaArchivo.Text;
+                        _documentoSeleccionado.tamanio = new System.IO.FileInfo(txtRutaArchivo.Text).Length.ToString();
+                    }
+
+                    await _supabaseDocumentos.ActualizarAsync(_documentoSeleccionado);
+                }
+                else
+                {
+                    // Modo creación
+                    var nuevoDocumento = new Documento
+                    {
+                        nombre = txtNombreDocumento.Text,
+                        descripcion = txtDescripcionDocumento.Text,
+                        tipo_documento = cbTipoDocumento.SelectedItem.ToString(),
+                        ruta = txtRutaArchivo.Text,
+                        tamanio = new System.IO.FileInfo(txtRutaArchivo.Text).Length.ToString(),
+                        id_caso = _casoSeleccionado.id,
+                        fecha_subid = DateTime.Now
+                    };
+
+                    //await _supabaseDocumentos.CrearAsync(nuevoDocumento);
+                }
+
+                await CargarDocumentosDelCaso(_casoSeleccionado.id);
+                CerrarGridEditarDocumento();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al guardar el documento: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void DropZone_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effects = DragDropEffects.Copy;
+                DropZone.Background = new SolidColorBrush(Color.FromArgb(50, 33, 150, 243));
+            }
+        }
+
+        private void DropZone_DragLeave(object sender, DragEventArgs e)
+        {
+            DropZone.Background = new SolidColorBrush(Color.FromArgb(30, 255, 255, 255));
+        }
+
+        private void DropZone_Drop(object sender, DragEventArgs e)
+        {
+            DropZone.Background = new SolidColorBrush(Color.FromArgb(30, 255, 255, 255));
+
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                if (files != null && files.Length > 0)
+                {
+                    txtRutaArchivo.Text = files[0];
+                    if (string.IsNullOrEmpty(txtNombreDocumento.Text))
+                    {
+                        txtNombreDocumento.Text = System.IO.Path.GetFileNameWithoutExtension(files[0]);
+                    }
+                }
+            }
+        }
+
+        private void ExaminarDocumento_Click(object sender, RoutedEventArgs e)
+        {
+            var openFileDialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Filter = "Todos los archivos|*.*"
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                txtRutaArchivo.Text = openFileDialog.FileName;
+                if (string.IsNullOrEmpty(txtNombreDocumento.Text))
+                {
+                    txtNombreDocumento.Text = System.IO.Path.GetFileNameWithoutExtension(openFileDialog.FileName);
+                }
+            }
+        }
+
+        private async void AgregarDocumento_Click(object sender, RoutedEventArgs e)
+        {
+            if (_casoSeleccionado == null)
+            {
+                MessageBox.Show("Por favor, seleccione un caso primero.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            MostrarGridEditarDocumento();
+        }
+
         private async void ModificarDocumento_Click(object sender, RoutedEventArgs e)
         {
             if (_documentoSeleccionado == null)
             {
-                MessageBox.Show("Por favor, selecciona un documento para modificar.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("Por favor, seleccione un documento para modificar.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
-            var ventana = new EditarDocumentoWindow(
-                _documentoSeleccionado.nombre,
-                _documentoSeleccionado.descripcion,
-                _documentoSeleccionado.tipo_documento
-            )
-            {
-                RutaArchivo = _documentoSeleccionado.ruta
-            };
-
-            if (ventana.ShowDialog() == true)
-            {
-                try
-                {
-                    _documentoSeleccionado.nombre = ventana.Nombre;
-                    _documentoSeleccionado.descripcion = ventana.Descripcion;
-                    _documentoSeleccionado.tipo_documento = ventana.TipoDocumento;
-                    if (!string.IsNullOrEmpty(ventana.RutaArchivo))
-                    {
-                        _documentoSeleccionado.ruta = ventana.RutaArchivo;
-                        _documentoSeleccionado.tamanio = new System.IO.FileInfo(ventana.RutaArchivo).Length.ToString();
-                    }
-
-                    await _supabaseDocumentos.ActualizarAsync(_documentoSeleccionado);
-                    await CargarDocumentosDelCaso(_casoSeleccionado.id);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error al modificar el documento: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
+            MostrarGridEditarDocumento(_documentoSeleccionado);
         }
 
         private async void EliminarDocumento_Click(object sender, RoutedEventArgs e)
@@ -979,54 +1570,17 @@ namespace TFG_V0._01.Ventanas
 
         private async void AgregarTarea_Click(object sender, RoutedEventArgs e)
         {
-            var ventana = new EditarTareaWindow();
-            if (ventana.ShowDialog() == true)
-            {
-                try
-                {
-                    var tarea = new Tarea
-                    {
-                        titulo = ventana.Titulo,
-                        descripcion = ventana.Descripcion,
-                        id_caso = _casoSeleccionado.id,
-                        fecha_vencimiento = ventana.FechaVencimiento,
-                        prioridad = ventana.Prioridad,
-                        estado = ventana.EstadoSeleccionado
-                    };
-
-                    await _supabaseTareas.CrearTarea(tarea);
-                    await CargarTareasDelCaso(_casoSeleccionado.id);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error al crear la tarea: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
+            MostrarGridEditarTarea();
         }
 
         private async void ModificarTarea_Click(object sender, RoutedEventArgs e)
         {
-            if (_tareaSeleccionada == null) return;
-
-            var ventana = new EditarTareaWindow(_tareaSeleccionada.titulo, _tareaSeleccionada.descripcion, _tareaSeleccionada.fecha_vencimiento, _tareaSeleccionada.prioridad, _tareaSeleccionada.estado);
-            if (ventana.ShowDialog() == true)
+            if (_tareaSeleccionada == null)
             {
-                try
-                {
-                    _tareaSeleccionada.titulo = ventana.Titulo;
-                    _tareaSeleccionada.descripcion = ventana.Descripcion;
-                    _tareaSeleccionada.fecha_vencimiento = ventana.FechaVencimiento;
-                    _tareaSeleccionada.prioridad = ventana.Prioridad;
-                    _tareaSeleccionada.estado = ventana.EstadoSeleccionado;
-
-                    await _supabaseTareas.ActualizarTarea(_tareaSeleccionada);
-                    await CargarTareasDelCaso(_casoSeleccionado.id);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error al modificar la tarea: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+                MessageBox.Show("Por favor, seleccione una tarea para modificar.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
             }
+            MostrarGridEditarTarea(_tareaSeleccionada);
         }
 
         private async void EliminarTarea_Click(object sender, RoutedEventArgs e)
@@ -1131,39 +1685,6 @@ namespace TFG_V0._01.Ventanas
             catch (Exception ex)
             {
                 MessageBox.Show($"Error al cargar los eventos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private async void AgregarDocumento_Click(object sender, RoutedEventArgs e)
-        {
-            if (_casoSeleccionado == null)
-            {
-                MessageBox.Show("Por favor, seleccione un caso primero.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Information);
-                return;
-            }
-
-            var ventana = new EditarDocumentoWindow();
-            if (ventana.ShowDialog() == true)
-            {
-                try
-                {
-                    var documento = new Documento
-                    {
-                        nombre = ventana.Nombre,
-                        descripcion = ventana.Descripcion,
-                        tipo_documento = ventana.TipoDocumento,
-                        ruta = ventana.RutaArchivo,
-                        id_caso = _casoSeleccionado.id,
-                        tamanio = !string.IsNullOrEmpty(ventana.RutaArchivo) ? new System.IO.FileInfo(ventana.RutaArchivo).Length.ToString() : null
-                    };
-
-                    await _supabaseDocumentos.InsertarAsync(documento);
-                    await CargarDocumentosDelCaso(_casoSeleccionado.id);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error al crear el documento: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
             }
         }
 

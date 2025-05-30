@@ -243,14 +243,10 @@ namespace TFG_V0._01.Ventanas
         {
             if (MainWindow.tipoBBDD)
             {
-                LoadingPanel.Visibility = Visibility.Collapsed;
                 await CargarDatosDashboard();
                 CargarScoreCasos();
                 CargarCasosRecientes();
-
                 CargarScoreDocumentos();
-
-                LoadingPanel.Visibility = Visibility.Collapsed;
             }
             else
             {
@@ -875,7 +871,7 @@ namespace TFG_V0._01.Ventanas
                         return;
                     }
 
-                    // Actualizar la información básica del caso en el popup
+                    // Actualizar la información básica del caso en el panel
                     PopupTitulo.Text = $"Caso #{caso.referencia}";
                     PopupDescripcion.Text = caso.descripcion;
                     PopupCliente.Text = $"Cliente: {caso.Cliente?.nombre ?? "No especificado"}";
@@ -904,8 +900,8 @@ namespace TFG_V0._01.Ventanas
                         .ToList();
                     PopupEventos.ItemsSource = proximosEventos;
 
-                    // Mostrar el popup
-                    PopupDetallesCaso.IsOpen = true;
+                    // Mostrar el panel deslizante
+                    ShowSlidePanelDetalles();
                 }
                 catch (Exception ex)
                 {
@@ -913,36 +909,10 @@ namespace TFG_V0._01.Ventanas
                 }
             }
         }
-        private async void EliminarCaso_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is Button button && button.DataContext is CasoViewModel caso)
-            {
-                var result = MessageBox.Show("¿Estás seguro de que deseas eliminar este caso?", "Confirmar eliminación",
-                    MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
-                if (result == MessageBoxResult.Yes)
-                {
-                    try
-                    {
-                        await EliminarCaso(caso.id);
-                        await CargarCasosRecientes();
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Error al eliminar el caso: {ex.Message}");
-                    }
-                }
-            }
-        }
-
-        private void btnAddCaso_Click(object sender, RoutedEventArgs e)
+        private void ShowSlidePanelDetalles()
         {
-            ShowSlidePanel();
-        }
-
-        private void ShowSlidePanel()
-        {
-            SlidePanel.Visibility = Visibility.Visible;
+            SlidePanelDetalles.Visibility = Visibility.Visible;
             OverlayPanel.Visibility = Visibility.Visible;
             DoubleAnimation slideInAnimation = new DoubleAnimation
             {
@@ -952,10 +922,10 @@ namespace TFG_V0._01.Ventanas
                 EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
             };
 
-            SlidePanelTransform.BeginAnimation(TranslateTransform.XProperty, slideInAnimation);
+            SlidePanelDetallesTransform.BeginAnimation(TranslateTransform.XProperty, slideInAnimation);
         }
 
-        private void HideSlidePanel()
+        private void HideSlidePanelDetalles()
         {
             DoubleAnimation slideOutAnimation = new DoubleAnimation
             {
@@ -967,16 +937,16 @@ namespace TFG_V0._01.Ventanas
 
             slideOutAnimation.Completed += (s, e) =>
             {
-                SlidePanel.Visibility = Visibility.Collapsed;
+                SlidePanelDetalles.Visibility = Visibility.Collapsed;
                 OverlayPanel.Visibility = Visibility.Collapsed;
             };
 
-            SlidePanelTransform.BeginAnimation(TranslateTransform.XProperty, slideOutAnimation);
+            SlidePanelDetallesTransform.BeginAnimation(TranslateTransform.XProperty, slideOutAnimation);
         }
 
         private void OverlayPanel_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            // Ocultar ambos paneles si están visibles
+            // Ocultar todos los paneles si están visibles
             if (SlidePanel.Visibility == Visibility.Visible)
             {
                 HideSlidePanel();
@@ -984,6 +954,14 @@ namespace TFG_V0._01.Ventanas
             if (SlidePanelCliente.Visibility == Visibility.Visible)
             {
                 HideSlidePanelCliente();
+            }
+            if (SlidePanelDetalles.Visibility == Visibility.Visible)
+            {
+                HideSlidePanelDetalles();
+            }
+            if (SlidePanelTarea.Visibility == Visibility.Visible)
+            {
+                CerrarPanelTarea();
             }
         }
 
@@ -1200,5 +1178,113 @@ namespace TFG_V0._01.Ventanas
             if (dia != null)
                 DiaSeleccionado = dia;
         }
+
+        private void HideSlidePanel()
+        {
+            DoubleAnimation slideOutAnimation = new DoubleAnimation
+            {
+                From = 0,
+                To = 400,
+                Duration = TimeSpan.FromMilliseconds(300),
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseIn }
+            };
+
+            slideOutAnimation.Completed += (s, e) =>
+            {
+                SlidePanel.Visibility = Visibility.Collapsed;
+                OverlayPanel.Visibility = Visibility.Collapsed;
+            };
+
+            SlidePanelTransform.BeginAnimation(TranslateTransform.XProperty, slideOutAnimation);
+        }
+
+        private void btnAddCaso_Click(object sender, RoutedEventArgs e)
+        {
+            ShowSlidePanel();
+        }
+
+        private void ShowSlidePanel()
+        {
+            SlidePanel.Visibility = Visibility.Visible;
+            OverlayPanel.Visibility = Visibility.Visible;
+            DoubleAnimation slideInAnimation = new DoubleAnimation
+            {
+                From = 400,
+                To = 0,
+                Duration = TimeSpan.FromMilliseconds(300),
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+            };
+
+            SlidePanelTransform.BeginAnimation(TranslateTransform.XProperty, slideInAnimation);
+        }
+
+        private async void EliminarCaso_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.DataContext is CasoViewModel caso)
+            {
+                var result = MessageBox.Show("¿Estás seguro de que deseas eliminar este caso?", "Confirmar eliminación",
+                    MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        await EliminarCaso(caso.id);
+                        await CargarCasosRecientes();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Error al eliminar el caso: {ex.Message}");
+                    }
+                }
+            }
+        }
+
+        private void btnAñadirTarea_Click(object sender, RoutedEventArgs e)
+        {
+            // Mostrar el overlay
+            OverlayPanel.Visibility = Visibility.Visible;
+            
+            // Mostrar el panel deslizante
+            SlidePanelTarea.Visibility = Visibility.Visible;
+            
+            // Crear y ejecutar la animación
+            var animation = new DoubleAnimation
+            {
+                From = 400,
+                To = 0,
+                Duration = TimeSpan.FromMilliseconds(300),
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+            };
+            
+            SlidePanelTareaTransform.BeginAnimation(TranslateTransform.XProperty, animation);
+        }
+
+        private void btnCancelarTarea_Click(object sender, RoutedEventArgs e)
+        {
+            CerrarPanelTarea();
+        }
+
+        private void CerrarPanelTarea()
+        {
+            // Crear y ejecutar la animación de cierre
+            var animation = new DoubleAnimation
+            {
+                From = 0,
+                To = 400,
+                Duration = TimeSpan.FromMilliseconds(300),
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseIn }
+            };
+            
+            animation.Completed += (s, e) =>
+            {
+                SlidePanelTarea.Visibility = Visibility.Collapsed;
+                OverlayPanel.Visibility = Visibility.Collapsed;
+            };
+            
+            SlidePanelTareaTransform.BeginAnimation(TranslateTransform.XProperty, animation);
+        }
+
+        
     }
 }

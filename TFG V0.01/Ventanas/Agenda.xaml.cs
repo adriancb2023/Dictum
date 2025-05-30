@@ -30,17 +30,27 @@ namespace TFG_V0._01.Ventanas
         #region variables animacion
         private Storyboard fadeInStoryboard;
         private Storyboard shakeStoryboard;
+        private Storyboard meshAnimStoryboard;
+
+        // Brushes y fondo animado
+        private RadialGradientBrush mesh1Brush;
+        private RadialGradientBrush mesh2Brush;
         #endregion
 
         #region variables
         private readonly SupabaseEventosCitas _eventosCitasService;
         private readonly SupabaseEstadosEventos _estadosEventosService;
         private readonly SupabaseCasos _casosService;
+        private readonly SupabaseContactos _contactosService;
         private ObservableCollection<EventoViewModel> _eventosDelDia;
         private ObservableCollection<EventoViewModel> _eventosDeHoy;
         private DateTime _fechaSeleccionada;
         private Dictionary<DateTime, string> _diasConEventoColor;
         private System.Windows.Threading.DispatcherTimer _timerActualizacion;
+
+        // Colecciones para los ComboBox de Contacto
+        private ObservableCollection<TFG_V0._01.Supabase.Models.Caso> _casosParaContacto;
+        private ObservableCollection<string> _rolesParaContacto;
 
         public ObservableCollection<EventoViewModel> EventosDelDia
         {
@@ -60,6 +70,19 @@ namespace TFG_V0._01.Ventanas
             set { _diasConEventoColor = value; OnPropertyChanged(); }
         }
 
+        // Propiedades públicas para las colecciones de Contacto
+        public ObservableCollection<TFG_V0._01.Supabase.Models.Caso> CasosParaContacto
+        {
+            get => _casosParaContacto;
+            set { _casosParaContacto = value; OnPropertyChanged(); }
+        }
+
+        public ObservableCollection<string> RolesParaContacto
+        {
+            get => _rolesParaContacto;
+            set { _rolesParaContacto = value; OnPropertyChanged(); }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -72,17 +95,25 @@ namespace TFG_V0._01.Ventanas
         public Agenda()
         {
             InitializeComponent();
+            DataContext = this;
             InitializeAnimations();
+            CrearFondoAnimado();
             AplicarModoSistema();
             InitializeTimeComboBox();
 
             _eventosCitasService = new SupabaseEventosCitas();
             _estadosEventosService = new SupabaseEstadosEventos();
             _casosService = new SupabaseCasos();
+            _contactosService = new SupabaseContactos();
 
             EventosDelDia = new ObservableCollection<EventoViewModel>();
             EventosDeHoy = new ObservableCollection<EventoViewModel>();
             DiasConEventoColor = new Dictionary<DateTime, string>();
+
+            // Inicializar colecciones para Contacto
+            CasosParaContacto = new ObservableCollection<TFG_V0._01.Supabase.Models.Caso>();
+            RolesParaContacto = new ObservableCollection<string>();
+
             _fechaSeleccionada = DateTime.Today;
 
             // Inicializar el temporizador
@@ -91,8 +122,9 @@ namespace TFG_V0._01.Ventanas
             _timerActualizacion.Tick += async (s, e) => await CargarEventosDeHoy();
             _timerActualizacion.Start();
 
-            // Cargar datos iniciales
+            // Cargar datos iniciales (incluyendo datos para Contacto)
             CargarDatosIniciales();
+            CargarDatosContactoAsync();
         }
         #endregion
 
@@ -109,7 +141,7 @@ namespace TFG_V0._01.Ventanas
                 {
                     icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/sol.png", UriKind.Relative));
                 }
-                backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString("pack://application:,,,/TFG V0.01;component/Recursos/Background/oscuro/main.png") as ImageSource;
+                this.Tag = true;
                 navbar.ActualizarTema(true);
             }
             else
@@ -119,50 +151,127 @@ namespace TFG_V0._01.Ventanas
                 {
                     icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/luna.png", UriKind.Relative));
                 }
-                backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString("pack://application:,,,/TFG V0.01;component/Recursos/Background/claro/main.png") as ImageSource;
+                this.Tag = false;
                 navbar.ActualizarTema(false);
             }
+            ActualizarColoresFondoYAnimacion(MainWindow.isDarkTheme);
         }
 
         private void ThemeButton_Click(object sender, RoutedEventArgs e)
         {
             // Alternar el estado del tema
             MainWindow.isDarkTheme = !MainWindow.isDarkTheme;
-
-            // Obtener el botón y el icono
-            var button = sender as Button;
-            var icon = button?.Template.FindName("ThemeIcon", button) as Image;
-
-            if (MainWindow.isDarkTheme)
-            {
-                // Cambiar a modo oscuro
-                if (icon != null)
-                {
-                    icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/sol.png", UriKind.Relative));
-                }
-
-                backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString(
-                    "pack://application:,,,/TFG V0.01;component/Recursos/Background/oscuro/main.png") as ImageSource;
-
-                navbar.ActualizarTema(true);
-            }
-            else
-            {
-                // Cambiar a modo claro
-                if (icon != null)
-                {
-                    icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/luna.png", UriKind.Relative));
-                }
-
-                backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString(
-                    "pack://application:,,,/TFG V0.01;component/Recursos/Background/claro/main.png") as ImageSource;
-
-                navbar.ActualizarTema(false);
-            }
+            AplicarModoSistema();
         }
         #endregion
 
-        #region Animaciones
+        #region Fondo Animado
+        private void CrearFondoAnimado()
+        {
+            // Crear los brushes una sola vez
+            mesh1Brush = new RadialGradientBrush();
+            mesh1Brush.Center = new Point(0.3, 0.3);
+            mesh1Brush.RadiusX = 0.5;
+            mesh1Brush.RadiusY = 0.5;
+             mesh1Brush.GradientStops = new GradientStopCollection(); // Inicializar la colección
+
+            mesh2Brush = new RadialGradientBrush();
+            mesh2Brush.Center = new Point(0.7, 0.7);
+            mesh2Brush.RadiusX = 0.6;
+            mesh2Brush.RadiusY = 0.6;
+             mesh2Brush.GradientStops = new GradientStopCollection(); // Inicializar la colección
+
+            // Crear el DrawingGroup con los brushes
+            var drawingGroup = new DrawingGroup();
+            drawingGroup.Children.Add(new GeometryDrawing(mesh1Brush, null, new RectangleGeometry(new Rect(0, 0, 1, 1))));
+            drawingGroup.Children.Add(new GeometryDrawing(mesh2Brush, null, new RectangleGeometry(new Rect(0, 0, 1, 1))));
+
+            // Obtener el DrawingBrush del XAML y asignar el DrawingGroup
+            var drawingBrush = this.FindName("meshGradientBrush") as DrawingBrush;
+             if (drawingBrush != null)
+             {
+                 drawingBrush.Drawing = drawingGroup;
+             }
+             // No asignamos el DrawingBrush al Background aquí, ya está asignado en XAML
+        }
+
+        private void ActualizarColoresFondoYAnimacion(bool esModoOscuro)
+        {
+            if (mesh1Brush == null || mesh2Brush == null) return; // Asegurarse de que los brushes existan
+
+            // Limpiar los GradientStops existentes y añadir los nuevos
+            mesh1Brush.GradientStops.Clear();
+            mesh2Brush.GradientStops.Clear();
+
+            if (esModoOscuro)
+            {
+                // Colores para modo oscuro (los mismos que en Home.xaml.cs para consistencia)
+                mesh1Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#8C7BFF"), 0));
+                mesh1Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#08a693"), 1));
+
+                mesh2Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#3a4d5f"), 0));
+                mesh2Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#272c3f"), 1));
+            }
+            else
+            {
+                // Colores para modo claro (los mismos que en Home.xaml.cs para consistencia)
+                mesh1Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#de9cb8"), 0));
+                mesh1Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#9dcde1"), 1));
+
+                mesh2Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#dc8eb8"), 0));
+                mesh2Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#98d3ec"), 1));
+            }
+
+            // Reiniciar la animación para que apunte a los brushes con los colores actualizados
+            StartMeshAnimation();
+        }
+
+         private void StartMeshAnimation()
+         {
+             if (mesh1Brush == null || mesh2Brush == null) return; // Asegurarse de que los brushes existan
+
+             // Detener la animación actual si está corriendo
+             if (meshAnimStoryboard != null)
+             {
+                 meshAnimStoryboard.Stop();
+             }
+
+             // Crear un nuevo Storyboard cada vez que se inicia la animación
+             meshAnimStoryboard = new Storyboard();
+
+             // Animación para mesh1Brush
+             PointAnimation mesh1CenterAnimation = new PointAnimation
+             {
+                 From = new Point(0.3, 0.3),
+                 To = new Point(0.7, 0.5), // Usar mismos puntos de animación que Home
+                 Duration = TimeSpan.FromSeconds(8), // Duración total de la secuencia
+                 AutoReverse = true,
+                 RepeatBehavior = RepeatBehavior.Forever,
+                 EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut } // Usar el mismo easing que Home
+             };
+             Storyboard.SetTarget(mesh1CenterAnimation, mesh1Brush);
+             Storyboard.SetTargetProperty(mesh1CenterAnimation, new PropertyPath(RadialGradientBrush.CenterProperty));
+             meshAnimStoryboard.Children.Add(mesh1CenterAnimation);
+
+             // Animación para mesh2Brush
+             PointAnimation mesh2CenterAnimation = new PointAnimation
+             {
+                 From = new Point(0.7, 0.7),
+                 To = new Point(0.4, 0.4), // Usar mismos puntos de animación que Home
+                 Duration = TimeSpan.FromSeconds(8), // Duración total de la secuencia
+                 AutoReverse = true,
+                 RepeatBehavior = RepeatBehavior.Forever,
+                 EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut } // Usar el mismo easing que Home
+             };
+             Storyboard.SetTarget(mesh2CenterAnimation, mesh2Brush);
+             Storyboard.SetTargetProperty(mesh2CenterAnimation, new PropertyPath(RadialGradientBrush.CenterProperty));
+             meshAnimStoryboard.Children.Add(mesh2CenterAnimation);
+
+             meshAnimStoryboard.Begin();
+         }
+        #endregion
+
+        #region Animaciones (Básicas)
         private void InitializeAnimations()
         {
             // Animación de entrada con fade
@@ -232,49 +341,122 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
 
-        #region Gestión de panel de nuevo evento
-        private void MainCalendar_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        #region Gestión de paneles deslizantes
+        private void OverlayPanel_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            // Obtener la fecha seleccionada
-            DateTime? selectedDate = MainCalendar.SelectedDate;
-
-            if (selectedDate.HasValue)
+            // Solo cerrar si el clic fue directamente en el overlay
+            if (e.Source == OverlayPanel)
             {
-                // Establecer la fecha seleccionada en el DatePicker
-                EventDatePicker.SelectedDate = selectedDate;
-
-                // Mostrar el panel de nuevo evento
-                ShowNewEventPanel();
+                if (SlidePanel.Visibility == Visibility.Visible)
+                {
+                    HideNewContactPanel();
+                }
+                else if (NewEventPanel.Visibility == Visibility.Visible)
+                {
+                    HideNewEventPanel();
+                }
             }
         }
 
-        // Muestra el panel de nuevo evento con animación
         private void ShowNewEventPanel()
         {
+            // Asegurarse de que el otro panel esté oculto
+            if (SlidePanel.Visibility == Visibility.Visible)
+            {
+                HideNewContactPanel();
+            }
+
             // Limpiar los campos del formulario
             EventTitleTextBox.Clear();
             EventDescriptionTextBox.Clear();
             EventLocationTextBox.Clear();
             ParticipantsListBox.Items.Clear();
 
-            // Mostrar el panel con una animación suave
+            // Mostrar el panel y el overlay
             NewEventPanel.Visibility = Visibility.Visible;
-            NewEventPanel.Opacity = 0;
+            OverlayPanel.Visibility = Visibility.Visible;
 
-            // Crear una animación de fade in
-            var animation = new System.Windows.Media.Animation.DoubleAnimation
+            // Iniciar la animación de entrada
+            DoubleAnimation slideInAnimation = new DoubleAnimation
             {
-                From = 0,
-                To = 1,
-                Duration = TimeSpan.FromMilliseconds(300)
+                From = 400,
+                To = 0,
+                Duration = TimeSpan.FromMilliseconds(300),
+                EasingFunction = new System.Windows.Media.Animation.CubicEase { EasingMode = EasingMode.EaseOut }
             };
 
-            NewEventPanel.BeginAnimation(UIElement.OpacityProperty, animation);
+            NewEventPanelTransform.BeginAnimation(TranslateTransform.XProperty, slideInAnimation);
         }
 
-        private void ClosePanelButton_Click(object sender, RoutedEventArgs e)
+        private void HideNewEventPanel()
         {
-            HideNewEventPanel();
+            // Iniciar la animación de salida
+            DoubleAnimation slideOutAnimation = new DoubleAnimation
+            {
+                From = 0,
+                To = 400,
+                Duration = TimeSpan.FromMilliseconds(300),
+                EasingFunction = new System.Windows.Media.Animation.CubicEase { EasingMode = EasingMode.EaseIn }
+            };
+
+            slideOutAnimation.Completed += (s, e) =>
+            {
+                NewEventPanel.Visibility = Visibility.Collapsed;
+                OverlayPanel.Visibility = Visibility.Collapsed;
+            };
+
+            NewEventPanelTransform.BeginAnimation(TranslateTransform.XProperty, slideOutAnimation);
+        }
+
+        private void ShowNewContactPanel()
+        {
+            // Asegurarse de que el otro panel esté oculto
+            if (NewEventPanel.Visibility == Visibility.Visible)
+            {
+                HideNewEventPanel();
+            }
+
+            // Limpiar los campos del formulario
+            ContactCasoComboBox.SelectedItem = null;
+            ContactNombreTextBox.Clear();
+            ContactRolComboBox.SelectedItem = null;
+            ContactTelefonoTextBox.Clear();
+            ContactEmailTextBox.Clear();
+
+            // Mostrar el panel y el overlay
+            SlidePanel.Visibility = Visibility.Visible;
+            OverlayPanel.Visibility = Visibility.Visible;
+
+            // Iniciar la animación de entrada
+            DoubleAnimation slideInAnimation = new DoubleAnimation
+            {
+                From = 400,
+                To = 0,
+                Duration = TimeSpan.FromMilliseconds(300),
+                EasingFunction = new System.Windows.Media.Animation.CubicEase { EasingMode = EasingMode.EaseOut }
+            };
+
+            ContactPanelTransform.BeginAnimation(TranslateTransform.XProperty, slideInAnimation);
+        }
+
+        private void HideNewContactPanel()
+        {
+            // Iniciar la animación de salida
+            DoubleAnimation slideOutAnimation = new DoubleAnimation
+            {
+                From = 0,
+                To = 400,
+                Duration = TimeSpan.FromMilliseconds(300),
+                EasingFunction = new System.Windows.Media.Animation.CubicEase { EasingMode = EasingMode.EaseIn }
+            };
+
+            slideOutAnimation.Completed += (s, e) =>
+            {
+                SlidePanel.Visibility = Visibility.Collapsed;
+                OverlayPanel.Visibility = Visibility.Collapsed;
+            };
+
+            ContactPanelTransform.BeginAnimation(TranslateTransform.XProperty, slideOutAnimation);
         }
 
         private void CancelEventButton_Click(object sender, RoutedEventArgs e)
@@ -282,22 +464,68 @@ namespace TFG_V0._01.Ventanas
             HideNewEventPanel();
         }
 
-        private void HideNewEventPanel()
+        private void CancelContactButton_Click(object sender, RoutedEventArgs e)
         {
-            // Crear una animación de fade out
-            var animation = new System.Windows.Media.Animation.DoubleAnimation
-            {
-                From = 1,
-                To = 0,
-                Duration = TimeSpan.FromMilliseconds(300)
-            };
+            HideNewContactPanel();
+        }
 
-            animation.Completed += (s, e) =>
-            {
-                NewEventPanel.Visibility = Visibility.Collapsed;
-            };
+        private void NuevoContactoButton_Click(object sender, RoutedEventArgs e)
+        {
+            ShowNewContactPanel();
+        }
 
-            NewEventPanel.BeginAnimation(UIElement.OpacityProperty, animation);
+        private void MainCalendar_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            DateTime? selectedDate = MainCalendar.SelectedDate;
+            if (selectedDate.HasValue)
+            {
+                EventDatePicker.SelectedDate = selectedDate;
+                ShowNewEventPanel();
+            }
+        }
+        #endregion
+
+        #region Carga de datos de contacto
+        private async Task CargarDatosContactoAsync()
+        {
+            try
+            {
+                await _casosService.InicializarAsync();
+                await _contactosService.InicializarAsync(); // Inicializar servicio de contactos aquí también
+
+                var casos = await _casosService.ObtenerTodosCasosManualAsync();
+                 // Definir los roles localmente como se hacía en NuevoContactoWindow.xaml.cs
+                 var roles = new List<string>
+                {
+                    "Abogado",
+                    "Cliente",
+                    "Testigo",
+                    "Perito",
+                    "Juez",
+                    "Secretario Judicial",
+                    "Otro"
+                };
+
+                // Actualizar las colecciones en el hilo de UI
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    CasosParaContacto.Clear();
+                    foreach (var caso in casos)
+                    {
+                        CasosParaContacto.Add(caso);
+                    }
+
+                    RolesParaContacto.Clear();
+                    foreach (var rol in roles)
+                    {
+                        RolesParaContacto.Add(rol);
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar los datos de contacto: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
         #endregion
 
@@ -442,49 +670,6 @@ namespace TFG_V0._01.Ventanas
                 await CargarEventosDelDia();
                 await CargarEventosDeHoy();
             }
-        }
-
-        private async void SaveEventButton_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(EventTitleTextBox.Text))
-                {
-                    MessageBox.Show("Por favor, introduce un título para el evento.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                var fechaSeleccionada = EventDatePicker.SelectedDate ?? DateTime.Today;
-                var horaSeleccionada = EventTimeComboBox.SelectedItem?.ToString() ?? "00:00";
-                var horaMinuto = TimeSpan.Parse(horaSeleccionada);
-
-                var nuevoEvento = new EventoCita
-                {
-                    Titulo = EventTitleTextBox.Text,
-                    Descripcion = EventDescriptionTextBox.Text,
-                    Fecha = fechaSeleccionada,
-                    FechaInicio = horaMinuto,
-                    IdEstado = 1, // Estado por defecto: Programado
-                    IdCaso = 0 // Por ahora no asociamos a ningún caso
-                };
-
-                await _eventosCitasService.InsertarEventoCita(nuevoEvento);
-                await CargarEventosDelDia();
-                await CargarEventosDeHoy();
-
-                HideNewEventPanel();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error al guardar el evento: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private void NuevoContactoButton_Click(object sender, RoutedEventArgs e)
-        {
-            var nuevoContactoWindow = new SubVentanas.NuevoContactoWindow();
-            nuevoContactoWindow.Owner = this;
-            nuevoContactoWindow.ShowDialog();
         }
         #endregion
     }

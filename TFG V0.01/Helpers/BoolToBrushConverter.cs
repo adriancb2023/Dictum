@@ -7,13 +7,16 @@ namespace TFG_V0._01.Helpers
 {
     public class BoolToBrushConverter : IValueConverter
     {
-        public Brush SelectedBrush { get; set; } = new SolidColorBrush(Color.FromRgb(33, 150, 243)); // Azul
-        public Brush UnselectedBrush { get; set; } = new SolidColorBrush(Color.FromArgb(0,0,0,0)); // Transparente
+        public Brush SelectedBrush { get; set; }
+        public Brush UnselectedBrush { get; set; }
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            bool isSelected = value is bool b && b;
-            return isSelected ? SelectedBrush : UnselectedBrush;
+            if (value is bool boolValue)
+            {
+                return boolValue ? SelectedBrush : UnselectedBrush;
+            }
+            return UnselectedBrush;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

@@ -12,6 +12,34 @@
 
     <Window.Resources>
         
+        <!-- Colores para modo oscuro -->
+        <SolidColorBrush x:Key="BackgroundDark" Color="#1a1a1a"/>
+        <SolidColorBrush x:Key="BackgroundSecondaryDark" Color="#2d2d2d"/>
+        <SolidColorBrush x:Key="CardBackgroundDark" Color="#282828"/>
+        <SolidColorBrush x:Key="ListItemBackgroundDark" Color="#3A3A3A"/>
+        <SolidColorBrush x:Key="TextPrimaryDark" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="TextSecondaryDark" Color="#CCFFFFFF"/>
+        <SolidColorBrush x:Key="BorderColorDark" Color="#40FFFFFF"/>
+        
+        <!-- Colores para modo claro -->
+        <SolidColorBrush x:Key="BackgroundLight" Color="#f0f0f0"/>
+        <SolidColorBrush x:Key="BackgroundSecondaryLight" Color="#f5f5f5"/>
+        <SolidColorBrush x:Key="CardBackgroundLight" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="ListItemBackgroundLight" Color="#E8E8E8"/>
+        <SolidColorBrush x:Key="TextPrimaryLight" Color="#222222"/>
+        <SolidColorBrush x:Key="TextSecondaryLight" Color="#666666"/>
+        <SolidColorBrush x:Key="BorderColorLight" Color="#40000000"/>
+
+        <!-- Mesh Gradients -->
+        <RadialGradientBrush x:Key="Mesh1" Center="0.3,0.3" RadiusX="0.5" RadiusY="0.5">
+            <GradientStop Color="#de9cb8" Offset="0"/>
+            <GradientStop Color="#9dcde1" Offset="1"/>
+        </RadialGradientBrush>
+        <RadialGradientBrush x:Key="Mesh2" Center="0.7,0.7" RadiusX="0.6" RadiusY="0.6">
+            <GradientStop Color="#dc8eb8" Offset="0"/>
+            <GradientStop Color="#98d3ec" Offset="1"/>
+        </RadialGradientBrush>
+
         <!-- Estilo para el botón de cambio de tema -->
         <Style x:Key="ThemeButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
@@ -21,7 +49,18 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}" CornerRadius="20">
-                            <Image x:Name="ThemeIcon" Source="/TFG V0.01;component/Recursos/Iconos/sol.png" Width="20" Height="20"/>
+                            <Image x:Name="ThemeIcon" Width="20" Height="20">
+                                <Image.Style>
+                                    <Style TargetType="Image">
+                                        <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/luna.png"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                                                <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/sol.png"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
+                            </Image>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -36,19 +75,23 @@
         <!-- Botones redondeados -->
         <Style x:Key="RoundedButtonStyle" TargetType="{x:Type Button}">
             <Setter Property="Background" Value="#FFFFFF"/>
-            <Setter Property="Foreground" Value="#333333"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Height" Value="45"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Button}">
                         <Border x:Name="border" Background="{TemplateBinding Background}" 
-                    CornerRadius="20" BorderThickness="{TemplateBinding BorderThickness}" 
-                    BorderBrush="{TemplateBinding BorderBrush}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        CornerRadius="20" BorderThickness="{TemplateBinding BorderThickness}" 
+                        BorderBrush="{TemplateBinding BorderBrush}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                      RecognizesAccessKey="True"
+                                      TextElement.Foreground="{TemplateBinding Foreground}"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -57,20 +100,96 @@
                             <Trigger Property="IsPressed" Value="true">
                                 <Setter Property="Background" Value="#DDDDDD" TargetName="border"/>
                             </Trigger>
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                <Setter Property="Background" Value="#30000000" TargetName="border"/>
+                            </DataTrigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
         
+        <!-- Estilo de botón redondeado que cambia con el tema -->
+        <Style x:Key="ThemeAwareRoundedButtonStyle" TargetType="{x:Type Button}">
+            <Setter Property="Background" Value="#30FFFFFF"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Height" Value="45"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border x:Name="border" 
+                                Background="{TemplateBinding Background}" 
+                                CornerRadius="20" 
+                                BorderThickness="{TemplateBinding BorderThickness}" 
+                                BorderBrush="{TemplateBinding BorderBrush}">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                            VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#40FFFFFF" TargetName="border"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#20FFFFFF" TargetName="border"/>
+                            </Trigger>
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                <Setter Property="Background" Value="#30000000" TargetName="border"/>
+                                <Setter Property="Foreground" Value="{StaticResource TextPrimaryLight}"/>
+                            </DataTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Estilo de botón redondeado sin borde -->
+        <Style x:Key="NoBorderRoundedButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource ThemeAwareRoundedButtonStyle}">
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" 
+                                CornerRadius="20" BorderThickness="{TemplateBinding BorderThickness}" 
+                                BorderBrush="{TemplateBinding BorderBrush}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                      RecognizesAccessKey="True"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="Transparent" TargetName="border"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="true">
+                                <Setter Property="Background" Value="Transparent" TargetName="border"/>
+                            </Trigger>
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                <Setter Property="Background" Value="Transparent" TargetName="border"/>
+                                <Setter Property="Foreground" Value="{StaticResource TextPrimaryLight}"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                                <Setter Property="Background" Value="Transparent" TargetName="border"/>
+                                <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
+                            </DataTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <!-- Easing para suavizar la animación -->
         <QuadraticEase x:Key="SmoothEase" EasingMode="EaseInOut" />
         
         <!-- Estilo ComboBox moderno -->
         <Style x:Key="ModernComboBoxStyle" TargetType="{x:Type ComboBox}">
             <Setter Property="Background" Value="#30FFFFFF"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#40FFFFFF"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderColorDark}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -103,7 +222,7 @@
                                         <Path
                                             Grid.Column="1"
                                             Data="M0,0 L4,4 L8,0"
-                                            Stroke="White"
+                                            Stroke="{TemplateBinding Foreground}"
                                             StrokeThickness="2"
                                             Width="20"
                                             Height="20"
@@ -122,8 +241,8 @@
                                 Panel.ZIndex="9999">
                                 <Grid MaxHeight="{TemplateBinding MaxDropDownHeight}"
                                       MinWidth="{Binding Path=ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
-                                    <Border Background="#90454545" 
-                                            BorderBrush="#40FFFFFF"
+                                    <Border Background="{StaticResource CardBackgroundDark}" 
+                                            BorderBrush="{StaticResource BorderColorDark}"
                                             BorderThickness="1" 
                                             CornerRadius="10" 
                                             Margin="0,5,0,0"
@@ -139,6 +258,13 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Background" Value="#30000000"/>
+                    <Setter Property="Foreground" Value="{StaticResource TextPrimaryLight}"/>
+                    <Setter Property="BorderBrush" Value="{StaticResource BorderColorLight}"/>
+                </DataTrigger>
+            </Style.Triggers>
         </Style>
 
         <!-- Estilo para el ToggleButton del ComboBox -->
@@ -157,24 +283,67 @@
 
         <!-- Estilo de tarjeta -->
         <Style x:Key="CardStyle" TargetType="Border">
-            <Setter Property="Background">
-                <Setter.Value>
-                    <SolidColorBrush Color="#454545" Opacity="0.4"/>
-                </Setter.Value>
-            </Setter>
-            <Setter Property="BorderBrush" Value="#40FFFFFF" />
+            <Setter Property="CornerRadius" Value="20"/>
+            <Setter Property="Background" Value="{StaticResource CardBackgroundDark}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderColorDark}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="15"/>
-            <Setter Property="Padding" Value="20"/>
-            <Setter Property="Margin" Value="0,0,0,20"/>
+            <Setter Property="Padding" Value="15"/>
+            <Setter Property="Margin" Value="10"/>
             <Setter Property="Effect">
                 <Setter.Value>
-                    <DropShadowEffect Color="Black" BlurRadius="10" ShadowDepth="2" Opacity="0.2"/>
+                    <DropShadowEffect Color="Black" BlurRadius="15" ShadowDepth="2" Opacity="0.3"/>
                 </Setter.Value>
             </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Background" Value="{StaticResource CardBackgroundLight}"/>
+                    <Setter Property="BorderBrush" Value="{StaticResource BorderColorLight}"/>
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect Color="#AAAAAA" BlurRadius="15" ShadowDepth="2" Opacity="0.3"/>
+                        </Setter.Value>
+                    </Setter>
+                </DataTrigger>
+            </Style.Triggers>
         </Style>
 
         <DropShadowEffect x:Key="DropShadowEffect" Color="Black" BlurRadius="15" ShadowDepth="2" Opacity="0.3"/>
+
+        <!-- Estilo para textos primarios -->
+        <Style x:Key="PrimaryTextStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Foreground" Value="{StaticResource TextPrimaryLight}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Estilo para textos secundarios -->
+        <Style x:Key="SecondaryTextStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource TextSecondaryDark}"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Foreground" Value="{StaticResource TextSecondaryLight}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Estilo para los contenedores de lista -->
+        <Style x:Key="ListItemContainerStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+            <Setter Property="Background" Value="{StaticResource ListItemBackgroundDark}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderColorDark}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Background" Value="{StaticResource ListItemBackgroundLight}"/>
+                    <Setter Property="BorderBrush" Value="{StaticResource BorderColorLight}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
 
         <conv:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
         <conv:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
@@ -182,6 +351,7 @@
         <conv:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
         <conv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <conv:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+        <conv:StringToBrushConverter x:Key="StringToBrushConverter"/>
 
         <Style x:Key="ModernDetailsButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="#40FFFFFF"/>
@@ -297,6 +467,36 @@
             </Setter>
         </Style>
 
+        <!-- Estilo para el TextBox -->
+        <Style x:Key="RoundedTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Background" Value="#30FFFFFF"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderColorDark}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="10">
+                            <ScrollViewer x:Name="PART_ContentHost" 
+                                        Margin="{TemplateBinding Padding}"
+                                        VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Background" Value="#30000000"/>
+                    <Setter Property="Foreground" Value="{StaticResource TextPrimaryLight}"/>
+                    <Setter Property="BorderBrush" Value="{StaticResource BorderColorLight}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
     </Window.Resources>
 
     <Grid>
@@ -309,25 +509,50 @@
         
         <!-- Fondo -->
         <Grid.Background>
-            <ImageBrush x:Name="backgroundFondo" ImageSource="/TFG V0.01;component/Recursos/Background/oscuro/main.png"/>
+            <DrawingBrush x:Name="meshGradientBrush" Stretch="Fill">
+                <DrawingBrush.Drawing>
+                    <DrawingGroup>
+                        <GeometryDrawing>
+                            <GeometryDrawing.Geometry>
+                                <RectangleGeometry Rect="0,0,1,1"/>
+                            </GeometryDrawing.Geometry>
+                            <GeometryDrawing.Brush>
+                                <StaticResource ResourceKey="Mesh1"/>
+                            </GeometryDrawing.Brush>
+                        </GeometryDrawing>
+                        <GeometryDrawing>
+                            <GeometryDrawing.Geometry>
+                                <RectangleGeometry Rect="0,0,1,1"/>
+                            </GeometryDrawing.Geometry>
+                            <GeometryDrawing.Brush>
+                                <StaticResource ResourceKey="Mesh2"/>
+                            </GeometryDrawing.Brush>
+                        </GeometryDrawing>
+                    </DrawingGroup>
+                </DrawingBrush.Drawing>
+            </DrawingBrush>
         </Grid.Background>
         
         <!-- Navbar -->
-        <controls:NavbarControl x:Name="navbar" Grid.Column="0" />
+        <controls:NavbarControl x:Name="navbar" Grid.Column="0">
+            <controls:NavbarControl.Effect>
+                <DropShadowEffect BlurRadius="20" ShadowDepth="0" Color="Black" Opacity="0.3"/>
+            </controls:NavbarControl.Effect>
+        </controls:NavbarControl>
         
-        <!-- Claro/Oscuro  -->
+        <!-- Claro/Oscuro -->
         <Button x:Name="ThemeButton" Width="35" Height="35" Margin="0" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="ThemeButton_Click" Style="{StaticResource ThemeButtonStyle}" Grid.Column="2"/>
 
         <!-- Contenido Principal -->
         <Grid Grid.Column="2" Margin="20">
+            <Grid.Effect>
+                <DropShadowEffect BlurRadius="20" ShadowDepth="0" Color="Black" Opacity="0.3"/>
+            </Grid.Effect>
 
             <!-- Selector de Cliente -->
             <Grid x:Name="ClientSelectorGrid" Visibility="Visible">
-
                 <Border Style="{StaticResource CardStyle}" MaxWidth="600" MaxHeight="600" VerticalAlignment="Center" Margin="0">
-
                     <Grid>
-
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
@@ -335,42 +560,28 @@
 
                         <!-- Contenedor superior: título + combo -->
                         <StackPanel Grid.Row="0" Margin="20">
-
-                            <TextBlock Text="Seleccionar Cliente"  FontSize="24" Foreground="White" HorizontalAlignment="Center" Margin="0,0,0,10"/>
-
-                            <!-- ComboBox con altura colapsable -->
+                            <TextBlock Text="Seleccionar Cliente" FontSize="24" Style="{StaticResource PrimaryTextStyle}" HorizontalAlignment="Center" Margin="0,0,0,10"/>
                             <Grid x:Name="ComboBoxContainer" Height="40">
-
-                                <!-- contraído por defecto -->
-                                <ComboBox x:Name="ClientesComboBox"  Style="{StaticResource ComboBoxWithClearStyle}" IsEditable="True"  StaysOpenOnEdit="True"  IsTextSearchEnabled="False" MaxDropDownHeight="300" Loaded="ComboClientes_Loaded" KeyUp="ComboClientes_KeyUp" SelectionChanged="ComboClientes_SelectionChanged" 
-                                          DropDownOpened="ClientesComboBox_DropDownOpened" DropDownClosed="ClientesComboBox_DropDownClosed" ItemsSource="{Binding ListaClientes}" SelectedItem="{Binding SelectedCliente, Mode=TwoWay}"/>
-
+                                <ComboBox x:Name="ClientesComboBox" Style="{StaticResource ComboBoxWithClearStyle}" IsEditable="True" StaysOpenOnEdit="True" IsTextSearchEnabled="False" MaxDropDownHeight="300" Loaded="ComboClientes_Loaded" KeyUp="ComboClientes_KeyUp" SelectionChanged="ComboClientes_SelectionChanged" DropDownOpened="ClientesComboBox_DropDownOpened" DropDownClosed="ClientesComboBox_DropDownClosed" ItemsSource="{Binding ListaClientes}" SelectedItem="{Binding SelectedCliente, Mode=TwoWay}"/>
                             </Grid>
-
                         </StackPanel>
 
                         <!-- Contenedor de botones -->
                         <StackPanel Grid.Row="1" Margin="20,10,20,20">
-
-                            <Button Content="Continuar" Style="{StaticResource RoundedButtonStyle}"  Background="White" Foreground="Black" HorizontalAlignment="Stretch" MaxWidth="400" Margin="0,0,0,10" Click="clientecheck"/>
-
-                            <Button Content="Nuevo Cliente" Style="{StaticResource RoundedButtonStyle}"  Background="#40FFFFFF" Foreground="White" HorizontalAlignment="Stretch"  MaxWidth="400"/>
-
+                            <Button Content="Continuar" Style="{StaticResource ThemeAwareRoundedButtonStyle}" HorizontalAlignment="Stretch" MaxWidth="400" Margin="0,0,0,10" Click="clientecheck"/>
                         </StackPanel>
-
                     </Grid>
-
                 </Border>
-
             </Grid>
 
-            <!-- Datos -->
+            <!-- Datos del Cliente -->
             <Grid x:Name="ClientDetailsGrid" Visibility="Collapsed">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
+
                 <!-- Cabecera con botón volver -->
                 <Grid Grid.Row="0" Margin="0,0,0,0">
                     <Grid.ColumnDefinitions>
@@ -379,12 +590,10 @@
                     </Grid.ColumnDefinitions>
 
                     <Button Grid.Column="0" 
-                            Style="{StaticResource RoundedButtonStyle}" 
-                            Background="#40FFFFFF" 
-                            Foreground="White" 
+                            Style="{StaticResource ThemeAwareRoundedButtonStyle}" 
                             Margin="0,0,20,0"
-                            Height="60"
-                            Width="100"
+                            Height="45"
+                            Width="90"
                             Click="atras">
                         <StackPanel Orientation="Horizontal">
                             <Image x:Name="volver" Source="/TFG V0.01;component/Recursos/Iconos/volver.png" 
@@ -400,8 +609,9 @@
                     <TextBlock Grid.Column="1" 
                                x:Name="ClienteNombreHeader" 
                                Text="{Binding SelectedCliente.nombre_cliente}"
+                               Style="{StaticResource PrimaryTextStyle}"
                                FontSize="24" 
-                               Foreground="White" 
+                               FontWeight="Bold"
                                VerticalAlignment="Center"
                                TextWrapping="Wrap"/>
                 </Grid>
@@ -425,76 +635,71 @@
                         <!-- Columna Izquierda -->
                         <!-- Información Personal -->
                         <Border Style="{StaticResource CardStyle}" Grid.Column="0" Grid.Row="0" Margin="0,0,0,10">
-                            <Border.Effect>
-                                <DropShadowEffect ShadowDepth="2" Direction="270" Color="#66000000" BlurRadius="10" Opacity="0.3"/>
-                            </Border.Effect>
                             <Grid>
                                 <!-- Vista normal (no edición) -->
                                 <StackPanel x:Name="PersonalInfoPanel"
-                                                Visibility="{Binding IsEditPersonalInfoVisible, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                            Visibility="{Binding IsEditPersonalInfoVisible, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                                     <TextBlock Text="{Binding SelectedCliente.fecha_contrato, StringFormat='Fecha de contrato: {0:dd/MM/yyyy}'}"
-                                                   FontWeight="Bold"
-                                                   Foreground="White"
-                                                   FontSize="16"
-                                                   Margin="0,0,0,10"/>
-                                    <TextBlock Text="{Binding SelectedCliente.nombre_cliente}" Foreground="White" FontSize="16" Margin="0,0,0,10"/>
-                                    <TextBlock Text="DNI:" Foreground="#CCFFFFFF" Margin="0,0,0,2"/>
-                                    <TextBlock Text="{Binding SelectedCliente.id}" Foreground="White" Margin="0,0,0,8"/>
-                                    <TextBlock Text="Teléfono 1:" Foreground="#CCFFFFFF" Margin="0,0,0,2"/>
-                                    <TextBlock Text="{Binding SelectedCliente.telf1}" Foreground="White" Margin="0,0,0,8"/>
-                                    <TextBlock Text="Teléfono 2:" Foreground="#CCFFFFFF" Margin="0,0,0,2"/>
-                                    <TextBlock Text="{Binding SelectedCliente.telf2}" Foreground="White" Margin="0,0,0,8"/>
-                                    <TextBlock Text="Email 1:" Foreground="#CCFFFFFF" Margin="0,0,0,2"/>
-                                    <TextBlock Text="{Binding SelectedCliente.email1}" Foreground="White" Margin="0,0,0,8"/>
-                                    <TextBlock Text="Email 2:" Foreground="#CCFFFFFF" Margin="0,0,0,2"/>
-                                    <TextBlock Text="{Binding SelectedCliente.email2}" Foreground="White" Margin="0,0,0,8"/>
-                                    <TextBlock Text="Dirección:" Foreground="#CCFFFFFF" Margin="0,0,0,2"/>
-                                    <TextBlock Text="{Binding SelectedCliente.direccion}" Foreground="White" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                               Style="{StaticResource PrimaryTextStyle}"
+                                               FontWeight="Bold"
+                                               FontSize="16"
+                                               Margin="0,0,0,10"/>
+                                    <TextBlock Text="{Binding SelectedCliente.nombre_cliente}" Style="{StaticResource PrimaryTextStyle}" FontSize="16" Margin="0,0,0,10"/>
+                                    <TextBlock Text="DNI:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,2"/>
+                                    <TextBlock Text="{Binding SelectedCliente.id}" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,8"/>
+                                    <TextBlock Text="Teléfono 1:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,2"/>
+                                    <TextBlock Text="{Binding SelectedCliente.telf1}" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,8"/>
+                                    <TextBlock Text="Teléfono 2:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,2"/>
+                                    <TextBlock Text="{Binding SelectedCliente.telf2}" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,8"/>
+                                    <TextBlock Text="Email 1:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,2"/>
+                                    <TextBlock Text="{Binding SelectedCliente.email1}" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,8"/>
+                                    <TextBlock Text="Email 2:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,2"/>
+                                    <TextBlock Text="{Binding SelectedCliente.email2}" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,8"/>
+                                    <TextBlock Text="Dirección:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,2"/>
+                                    <TextBlock Text="{Binding SelectedCliente.direccion}" Style="{StaticResource PrimaryTextStyle}" TextWrapping="Wrap" Margin="0,0,0,8"/>
                                     <Button Content="Editar Información"
-                                                Style="{StaticResource RoundedButtonStyle}"
-                                                Background="#40FFFFFF"
-                                                Foreground="White"
-                                                HorizontalAlignment="Right"
-                                                Margin="0,10,0,0"
-                                                Click="EditarInformacion_Click" Height="45" Width="150"/>
+                                            Style="{StaticResource ThemeAwareRoundedButtonStyle}"
+                                            HorizontalAlignment="Right"
+                                            Margin="0,10,0,0"
+                                            Click="EditarInformacion_Click" Height="45" Width="150"/>
                                 </StackPanel>
 
                                 <!-- Panel de edición -->
                                 <Border x:Name="EditPersonalInfoPanel"
-                                            Background="#CC222222"
-                                            CornerRadius="15"
-                                            Padding="20"
-                                            Visibility="{Binding IsEditPersonalInfoVisible, Converter={StaticResource BoolToVisibilityConverter}}"
-                                            VerticalAlignment="Stretch"
-                                            HorizontalAlignment="Stretch"
-                                            Opacity="0.97">
+                                        Background="#CC222222"
+                                        CornerRadius="15"
+                                        Padding="20"
+                                        Visibility="{Binding IsEditPersonalInfoVisible, Converter={StaticResource BoolToVisibilityConverter}}"
+                                        VerticalAlignment="Stretch"
+                                        HorizontalAlignment="Stretch"
+                                        Opacity="0.97">
                                     <StackPanel>
                                         <TextBlock Text="{Binding EditFechaContrato, StringFormat='Fecha de contrato: {0:dd/MM/yyyy}'}"
-                                                       FontWeight="Bold"
-                                                       Foreground="White"
-                                                       FontSize="16"
-                                                       Margin="0,0,0,10"/>
-                                        <TextBlock Text="Nombre:" Foreground="#CCFFFFFF" Margin="0,0,0,5"/>
-                                        <TextBox Text="{Binding EditNombre, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
-                                        <TextBlock Text="Primer Apellido:" Foreground="#CCFFFFFF" Margin="0,0,0,5"/>
-                                        <TextBox Text="{Binding EditApellido1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
-                                        <TextBlock Text="Segundo Apellido:" Foreground="#CCFFFFFF" Margin="0,0,0,5"/>
-                                        <TextBox Text="{Binding EditApellido2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
-                                        <TextBlock Text="DNI:" Foreground="#CCFFFFFF" Margin="0,0,0,5"/>
-                                        <TextBox Text="{Binding EditDNI, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
-                                        <TextBlock Text="Teléfono 1:" Foreground="#CCFFFFFF" Margin="0,0,0,5"/>
-                                        <TextBox Text="{Binding EditTelefono1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
-                                        <TextBlock Text="Teléfono 2:" Foreground="#CCFFFFFF" Margin="0,0,0,5"/>
-                                        <TextBox Text="{Binding EditTelefono2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
-                                        <TextBlock Text="Email 1:" Foreground="#CCFFFFFF" Margin="0,0,0,5"/>
-                                        <TextBox Text="{Binding EditEmail1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
-                                        <TextBlock Text="Email 2:" Foreground="#CCFFFFFF" Margin="0,0,0,5"/>
-                                        <TextBox Text="{Binding EditEmail2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
-                                        <TextBlock Text="Dirección:" Foreground="#CCFFFFFF" Margin="0,0,0,5"/>
-                                        <TextBox Text="{Binding EditDireccion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                                                   Style="{StaticResource PrimaryTextStyle}"
+                                                   FontWeight="Bold"
+                                                   FontSize="16"
+                                                   Margin="0,0,0,10"/>
+                                        <TextBlock Text="Nombre:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,5"/>
+                                        <TextBox Text="{Binding EditNombre, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedTextBoxStyle}" Margin="0,0,0,10"/>
+                                        <TextBlock Text="Primer Apellido:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,5"/>
+                                        <TextBox Text="{Binding EditApellido1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedTextBoxStyle}" Margin="0,0,0,10"/>
+                                        <TextBlock Text="Segundo Apellido:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,5"/>
+                                        <TextBox Text="{Binding EditApellido2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedTextBoxStyle}" Margin="0,0,0,10"/>
+                                        <TextBlock Text="DNI:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,5"/>
+                                        <TextBox Text="{Binding EditDNI, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedTextBoxStyle}" Margin="0,0,0,10"/>
+                                        <TextBlock Text="Teléfono 1:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,5"/>
+                                        <TextBox Text="{Binding EditTelefono1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedTextBoxStyle}" Margin="0,0,0,10"/>
+                                        <TextBlock Text="Teléfono 2:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,5"/>
+                                        <TextBox Text="{Binding EditTelefono2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedTextBoxStyle}" Margin="0,0,0,10"/>
+                                        <TextBlock Text="Email 1:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,5"/>
+                                        <TextBox Text="{Binding EditEmail1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedTextBoxStyle}" Margin="0,0,0,10"/>
+                                        <TextBlock Text="Email 2:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,5"/>
+                                        <TextBox Text="{Binding EditEmail2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedTextBoxStyle}" Margin="0,0,0,10"/>
+                                        <TextBlock Text="Dirección:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,5"/>
+                                        <TextBox Text="{Binding EditDireccion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedTextBoxStyle}" TextWrapping="Wrap" Margin="0,0,0,10"/>
                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                            <Button Content="Guardar" Margin="0,10,10,0" Click="GuardarInformacion_Click"/>
-                                            <Button Content="Cancelar" Margin="0,10,0,0" Click="CancelarInformacion_Click"/>
+                                            <Button Content="Guardar" Style="{StaticResource ThemeAwareRoundedButtonStyle}" Width="100" Margin="0,10,10,0" Click="GuardarInformacion_Click"/>
+                                            <Button Content="Cancelar" Style="{StaticResource ThemeAwareRoundedButtonStyle}" Width="100" Margin="0,10,0,0" Click="CancelarInformacion_Click"/>
                                         </StackPanel>
                                     </StackPanel>
                                 </Border>
@@ -503,33 +708,26 @@
 
                         <!-- Casos Activos -->
                         <Border Style="{StaticResource CardStyle}" Grid.Column="0" Grid.Row="2" Margin="0,0,0,10">
-                            <Border.Effect>
-                                <DropShadowEffect ShadowDepth="2" Direction="270" Color="#66000000" BlurRadius="10" Opacity="0.3"/>
-                            </Border.Effect>
                             <StackPanel>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Text="Casos Activos" FontSize="20" Foreground="White" VerticalAlignment="Center"/>
-                                    <Button Grid.Column="1" Content="Nuevo Caso" Style="{StaticResource RoundedButtonStyle}" Background="#40FFFFFF" Foreground="White" Height="45" Width="120" Padding="15,0"/>
+                                    <TextBlock Text="Casos Activos" Style="{StaticResource PrimaryTextStyle}" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                    <Button Grid.Column="1" Content="Nuevo Caso" Style="{StaticResource ThemeAwareRoundedButtonStyle}" Height="45" Width="120" Padding="15,0"/>
                                 </Grid>
                                 <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="300" Margin="0,10,0,0">
                                     <ListView x:Name="CasosActivosList"
-                                                  Background="Transparent"
-                                                  BorderThickness="0"
-                                                  Margin="0,15,0,0"
-                                                  ItemsSource="{Binding CasosActivos}"
-                                                  ItemContainerStyle="{StaticResource StretchingListViewItemStyle}">
+                                              Background="Transparent"
+                                              BorderThickness="0"
+                                              Margin="0,15,0,0"
+                                              ItemsSource="{Binding CasosActivos}"
+                                              ItemContainerStyle="{StaticResource StretchingListViewItemStyle}">
                                         <ListView.ItemTemplate>
                                             <DataTemplate>
-                                                <Border Background="#50FFFFFF"
-                                                            CornerRadius="16"
-                                                            Padding="18"
-                                                            Margin="0,8"
-                                                            Effect="{StaticResource DropShadowEffect}"
-                                                            HorizontalAlignment="Stretch">
+                                                <Border Style="{StaticResource ListItemContainerStyle}"
+                                                        HorizontalAlignment="Stretch">
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="Auto"/>
@@ -544,17 +742,17 @@
                                                         </Ellipse>
                                                         <!-- Info del caso -->
                                                         <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                                            <TextBlock Text="{Binding titulo}" Foreground="White" FontWeight="Bold" FontSize="16"/>
-                                                            <TextBlock Text="{Binding Estado.nombre}" Foreground="#FFD6D6D6" FontSize="13" Margin="0,2,0,0"/>
+                                                            <TextBlock Text="{Binding titulo}" Style="{StaticResource PrimaryTextStyle}" FontWeight="Bold" FontSize="16"/>
+                                                            <TextBlock Text="{Binding Estado.nombre}" Style="{StaticResource SecondaryTextStyle}" FontSize="13" Margin="0,2,0,0"/>
                                                         </StackPanel>
                                                         <!-- Botón detalles -->
                                                         <Button Grid.Column="2"
-                                                                    Content="Ver Detalles"
-                                                                    Style="{StaticResource ModernDetailsButtonStyle}"
-                                                                    Command="{Binding DataContext.VerDetallesCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                                    CommandParameter="{Binding}"
-                                                                    VerticalAlignment="Center"
-                                                                    Margin="12,0,0,0" Height="45" Width="120"/>
+                                                                Content="Ver Detalles"
+                                                                Style="{StaticResource ThemeAwareRoundedButtonStyle}"
+                                                                Command="{Binding DataContext.VerDetallesCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                CommandParameter="{Binding}"
+                                                                VerticalAlignment="Center"
+                                                                Margin="12,0,0,0" Height="45" Width="120"/>
                                                     </Grid>
                                                 </Border>
                                             </DataTemplate>
@@ -566,25 +764,18 @@
 
                         <!-- Historial de Casos -->
                         <Border Style="{StaticResource CardStyle}" Grid.Column="0" Grid.Row="4" Margin="0,0,0,10">
-                            <Border.Effect>
-                                <DropShadowEffect ShadowDepth="2" Direction="270" Color="#66000000" BlurRadius="10" Opacity="0.3"/>
-                            </Border.Effect>
                             <StackPanel>
-                                <TextBlock Text="Historial de Casos" FontSize="20" Foreground="White" Margin="0,0,0,15"/>
+                                <TextBlock Text="Historial de Casos" FontWeight="SemiBold" Style="{StaticResource PrimaryTextStyle}" FontSize="20" Margin="0,0,0,15"/>
                                 <ListView x:Name="HistorialCasosList"
-                                              Background="Transparent"
-                                              BorderThickness="0"
-                                              MaxHeight="300"
-                                              ItemsSource="{Binding HistorialCasos}"
-                                              ItemContainerStyle="{StaticResource StretchingListViewItemStyle}">
+                                          Background="Transparent"
+                                          BorderThickness="0"
+                                          MaxHeight="300"
+                                          ItemsSource="{Binding HistorialCasos}"
+                                          ItemContainerStyle="{StaticResource StretchingListViewItemStyle}">
                                     <ListView.ItemTemplate>
                                         <DataTemplate>
-                                            <Border Background="#50FFFFFF"
-                                                        CornerRadius="16"
-                                                        Padding="18"
-                                                        Margin="0,8"
-                                                        Effect="{StaticResource DropShadowEffect}"
-                                                        HorizontalAlignment="Stretch">
+                                            <Border Style="{StaticResource ListItemContainerStyle}"
+                                                    HorizontalAlignment="Stretch">
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="Auto"/>
@@ -598,8 +789,8 @@
                                                     </Ellipse>
                                                     <!-- Info del caso -->
                                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                                        <TextBlock Text="{Binding titulo}" Foreground="White" FontWeight="Bold" FontSize="16"/>
-                                                        <TextBlock Text="{Binding Estado.nombre}" Foreground="#FFD6D6D6" FontSize="13" Margin="0,2,0,0"/>
+                                                        <TextBlock Text="{Binding titulo}" Style="{StaticResource PrimaryTextStyle}" FontWeight="Bold" FontSize="16"/>
+                                                        <TextBlock Text="{Binding Estado.nombre}" Style="{StaticResource SecondaryTextStyle}" FontSize="13" Margin="0,2,0,0"/>
                                                     </StackPanel>
                                                 </Grid>
                                             </Border>
@@ -609,28 +800,20 @@
                             </StackPanel>
                         </Border>
 
-                        <!--columna izquierda-->
                         <!-- Documentos del Cliente -->
                         <Border Style="{StaticResource CardStyle}" Grid.Column="2" Grid.Row="0" Grid.RowSpan="5" Margin="0,0,0,10">
-                            <Border.Effect>
-                                <DropShadowEffect ShadowDepth="2" Direction="270" Color="#66000000" BlurRadius="10" Opacity="0.3"/>
-                            </Border.Effect>
                             <StackPanel>
-                                <TextBlock Text="Documentos del Cliente" FontSize="20" Foreground="White" Margin="0,0,0,15"/>
+                                <TextBlock Text="Documentos del Cliente" FontWeight="SemiBold" Style="{StaticResource PrimaryTextStyle}" FontSize="20" Margin="0,0,0,15"/>
                                 <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="1150">
                                     <ListView x:Name="DocumentosClienteList"
-                                                  Background="Transparent"
-                                                  BorderThickness="0"
-                                                  ItemsSource="{Binding DocumentosCliente}"
-                                                  ItemContainerStyle="{StaticResource StretchingListViewItemStyle}">
+                                              Background="Transparent"
+                                              BorderThickness="0"
+                                              ItemsSource="{Binding DocumentosCliente}"
+                                              ItemContainerStyle="{StaticResource StretchingListViewItemStyle}">
                                         <ListView.ItemTemplate>
                                             <DataTemplate>
-                                                <Border Background="#50FFFFFF"
-                                                            CornerRadius="16"
-                                                            Padding="18"
-                                                            Margin="0,8"
-                                                            Effect="{StaticResource DropShadowEffect}"
-                                                            HorizontalAlignment="Stretch">
+                                                <Border Style="{StaticResource ListItemContainerStyle}"
+                                                        HorizontalAlignment="Stretch">
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="*"/>
@@ -638,12 +821,12 @@
                                                             <ColumnDefinition Width="Auto"/>
                                                         </Grid.ColumnDefinitions>
                                                         <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                                                            <TextBlock Text="{Binding nombre}" Foreground="White" FontWeight="Bold" FontSize="15"/>
-                                                            <TextBlock Text="{Binding fecha_subid, StringFormat='Subido: {0:dd/MM/yyyy}'}" Foreground="#FFD6D6D6" FontSize="12"/>
-                                                            <TextBlock Text="{Binding tipo_documento}" Foreground="#FFD6D6D6" FontSize="12"/>
+                                                            <TextBlock Text="{Binding nombre}" Style="{StaticResource PrimaryTextStyle}" FontWeight="Bold" FontSize="15"/>
+                                                            <TextBlock Text="{Binding fecha_subid, StringFormat='Subido: {0:dd/MM/yyyy}'}" Style="{StaticResource SecondaryTextStyle}" FontSize="12"/>
+                                                            <TextBlock Text="{Binding tipo_documento}" Style="{StaticResource SecondaryTextStyle}" FontSize="12"/>
                                                         </StackPanel>
-                                                        <Button Grid.Column="1" Content="Ver" Style="{StaticResource ModernDetailsButtonStyle}" Height="45" Width="100" FontSize="12" Margin="8,0,0,0" Click="VerDocumento_Click"/>
-                                                        <Button Grid.Column="2" Content="Descargar" Style="{StaticResource ModernDetailsButtonStyle}" Height="45" Width="100" FontSize="12" Margin="8,0,0,0" Click="DescargarDocumento_Click"/>
+                                                        <Button Grid.Column="1" Content="Ver" Style="{StaticResource ThemeAwareRoundedButtonStyle}" Height="45" Width="100" FontSize="12" Margin="8,0,0,0" Click="VerDocumento_Click"/>
+                                                        <Button Grid.Column="2" Content="Descargar" Style="{StaticResource ThemeAwareRoundedButtonStyle}" Height="45" Width="100" FontSize="12" Margin="8,0,0,0" Click="DescargarDocumento_Click"/>
                                                     </Grid>
                                                 </Border>
                                             </DataTemplate>

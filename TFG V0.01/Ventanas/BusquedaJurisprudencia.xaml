@@ -18,7 +18,18 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}" CornerRadius="20">
-                            <Image x:Name="ThemeIcon" Source="/TFG V0.01;component/Recursos/Iconos/sol.png" Width="20" Height="20"/>
+                            <Image x:Name="ThemeIcon" Width="20" Height="20">
+                                <Image.Style>
+                                    <Style TargetType="Image">
+                                        <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/luna.png"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                                                <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/sol.png"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
+                            </Image>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -29,6 +40,287 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <!-- Estilo para TextBox redondeado -->
+        <Style x:Key="RoundedTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Background" Value="#454545"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryDark}"/>
+            <Setter Property="CaretBrush" Value="{DynamicResource TextPrimaryDark}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="10" 
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                BorderBrush="{TemplateBinding BorderBrush}">
+                            <ScrollViewer x:Name="PART_ContentHost" 
+                                        Margin="10,2"
+                                        VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Background" Value="#FFFFFF"/>
+                    <Setter Property="Foreground" Value="{DynamicResource TextPrimaryLight}"/>
+                    <Setter Property="CaretBrush" Value="{DynamicResource TextPrimaryLight}"/>
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect Color="#CCCCCC" BlurRadius="5" ShadowDepth="2" Opacity="0.5"/>
+                        </Setter.Value>
+                    </Setter>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Estilo para ComboBox redondeado -->
+        <Style x:Key="RoundedComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Background" Value="#454545"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryDark}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="Padding" Value="10,5"/>
+                        <!-- **Forzar Foreground a blanco en modo oscuro por defecto** -->
+                        <Setter Property="Foreground" Value="#FFFFFF"/> 
+                        <Setter Property="Background" Value="Transparent"/> <!-- Fondo transparente por defecto -->
+
+                        <Style.Triggers>
+                            <!-- **Cambiar Foreground a oscuro solo en modo claro** -->
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                <Setter Property="Foreground" Value="{DynamicResource TextPrimaryLight}"/>
+                                <!-- Asegurar fondo transparente o un color claro en modo claro -->
+                                <Setter Property="Background" Value="Transparent"/>
+                            </DataTrigger>
+
+                            <!-- Estado MouseOver -->
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <!-- Color de fondo al pasar el ratón (ajustado para ambos temas) -->
+                                <Setter Property="Background" Value="{DynamicResource ButtonHoverLight}"/>
+                                <!-- Asegurar Foreground correcto al pasar el ratón (ya blanco por defecto en oscuro, oscuro en claro por DataTrigger) -->
+                            </Trigger>
+
+                            <!-- Estado Seleccionado -->
+                            <Trigger Property="IsSelected" Value="True">
+                                <!-- Color de fondo al seleccionar (ajustado para ambos temas) -->
+                                <Setter Property="Background" Value="{DynamicResource ButtonHoverDark}"/>
+                                <!-- Asegurar Foreground correcto al seleccionar (ya blanco por defecto en oscuro, oscuro en claro por DataTrigger) -->
+                            </Trigger>
+
+                            <!-- Ajustes específicos de fondo para MouseOver/Selected en modo claro si es necesario -->
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False"/>
+                                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True"/>
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="Background" Value="#EEE"/> <!-- Fondo más claro en hover modo claro -->
+                            </MultiDataTrigger>
+
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False"/>
+                                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}" Value="True"/>
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="Background" Value="#CCC"/> <!-- Fondo más claro en seleccionado modo claro -->
+                            </MultiDataTrigger>
+
+                        </Style.Triggers>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <Border x:Name="ComboBoxBorder"
+                                    Background="{TemplateBinding Background}" 
+                                    CornerRadius="10" 
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    BorderBrush="{TemplateBinding BorderBrush}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <ContentPresenter Grid.Column="0" 
+                                                    Content="{TemplateBinding SelectionBoxItem}"
+                                                    ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                                    ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                                    VerticalAlignment="Center"
+                                                    Margin="{TemplateBinding Padding}"/>
+                                    <ToggleButton Grid.Column="0" Grid.ColumnSpan="2"
+                                                x:Name="ToggleButton"
+                                                IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                                ClickMode="Press">
+                                        <ToggleButton.Template>
+                                            <ControlTemplate TargetType="ToggleButton">
+                                                <Border Background="Transparent" 
+                                                        BorderThickness="0"
+                                                        Padding="5">
+                                                    <Path Data="M0,0 L4,4 L8,0"
+                                                          Stroke="{DynamicResource TextPrimaryDark}"
+                                                          StrokeThickness="2"
+                                                          HorizontalAlignment="Center"
+                                                          VerticalAlignment="Center">
+                                                        <Path.Style>
+                                                            <Style TargetType="Path">
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                                                        <Setter Property="Stroke" Value="{DynamicResource TextPrimaryLight}"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Path.Style>
+                                                    </Path>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </ToggleButton.Template>
+                                    </ToggleButton>
+                                </Grid>
+                            </Border>
+                            <Popup x:Name="PART_Popup" 
+                                   AllowsTransparency="True" 
+                                   IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   PlacementTarget="{Binding ElementName=ComboBoxBorder}"
+                                   Placement="Bottom"
+                                   HorizontalOffset="-10"
+                                   VerticalOffset="2">
+                                <Border CornerRadius="10"
+                                        BorderThickness="1">
+                                    <!-- Asegurar que el fondo del popup cambia con el tema -->
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                             <!-- Fondo por defecto (Modo Oscuro) -->
+                                            <Setter Property="Background" Value="#3A3A3A"/>
+                                            <Setter Property="BorderBrush" Value="{DynamicResource ButtonHoverLight}"/>
+                                            <Style.Triggers>
+                                                <!-- Fondo y borde en Modo Claro -->
+                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                                    <Setter Property="Background" Value="#FFFFFF"/>
+                                                    <Setter Property="BorderBrush" Value="#DDD"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <ScrollViewer MaxHeight="200">
+                                        <!-- ItemsPresenter ya no necesita estilo Foreground directo aquí -->
+                                        <ItemsPresenter/>
+                                    </ScrollViewer>
+                                    <Border.Width>
+                                        <Binding RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type ComboBox}}" Path="ActualWidth"/>
+                                    </Border.Width>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Background" Value="#FFFFFF"/>
+                    <Setter Property="Foreground" Value="{DynamicResource TextPrimaryLight}"/>
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect Color="#CCCCCC" BlurRadius="5" ShadowDepth="2" Opacity="0.5"/>
+                        </Setter.Value>
+                    </Setter>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Estilo para DatePicker redondeado -->
+        <Style x:Key="RoundedDatePickerStyle" TargetType="DatePicker">
+            <Setter Property="Background" Value="#454545"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="DatePicker">
+                        <Grid>
+                            <Border Background="{TemplateBinding Background}" 
+                                    CornerRadius="10" 
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    BorderBrush="{TemplateBinding BorderBrush}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <DatePickerTextBox Grid.Column="0" 
+                                                      x:Name="PART_TextBox"
+                                                      Background="Transparent"
+                                                      BorderThickness="0"
+                                                      Padding="10,2">
+                                        <DatePickerTextBox.Style>
+                                            <Style TargetType="DatePickerTextBox">
+                                                <Setter Property="Foreground" Value="#FFF"/>
+                                                <Setter Property="CaretBrush" Value="#FFF"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                                        <Setter Property="Foreground" Value="#222"/>
+                                                        <Setter Property="CaretBrush" Value="#222"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DatePickerTextBox.Style>
+                                    </DatePickerTextBox>
+                                    <ToggleButton Grid.Column="1" 
+                                                x:Name="PART_Button"
+                                                Background="Transparent"
+                                                BorderThickness="0"
+                                                Padding="5"
+                                                IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+                                        <Path Data="M0,0 L4,4 L8,0"
+                                              StrokeThickness="2"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center">
+                                            <Path.Style>
+                                                <Style TargetType="Path">
+                                                    <Setter Property="Stroke" Value="{DynamicResource TextPrimaryDark}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                                            <Setter Property="Stroke" Value="{DynamicResource TextPrimaryLight}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Path.Style>
+                                        </Path>
+                                    </ToggleButton>
+                                </Grid>
+                            </Border>
+                            <Popup x:Name="PART_Popup" 
+                                   AllowsTransparency="True" 
+                                   IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   PlacementTarget="{Binding ElementName=PART_Button}"
+                                   Placement="Bottom">
+                                <Border Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="10">
+                                    <Calendar x:Name="PART_Calendar" 
+                                             Style="{DynamicResource {x:Type Calendar}}"/>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Background" Value="#FFFFFF"/>
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect Color="#CCCCCC" BlurRadius="5" ShadowDepth="2" Opacity="0.5"/>
+                        </Setter.Value>
+                    </Setter>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
         <!-- Botones redondeados -->
         <Style x:Key="RoundedButtonStyle" TargetType="{x:Type Button}">
             <Setter Property="Background" Value="#FFFFFF"/>
@@ -38,13 +330,17 @@
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Button}">
                         <Border x:Name="border" Background="{TemplateBinding Background}" 
-                    CornerRadius="20" BorderThickness="{TemplateBinding BorderThickness}" 
-                    BorderBrush="{TemplateBinding BorderBrush}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        CornerRadius="20" BorderThickness="{TemplateBinding BorderThickness}" 
+                        BorderBrush="{TemplateBinding BorderBrush}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                      RecognizesAccessKey="True"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -58,6 +354,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
         <!-- Easing para suavizar la animación -->
         <QuadraticEase x:Key="SmoothEase" EasingMode="EaseInOut" />
         <!-- Estilo de tarjeta -->
@@ -65,11 +362,11 @@
             <Setter Property="CornerRadius" Value="20"/>
             <Setter Property="Background">
                 <Setter.Value>
-                    <SolidColorBrush x:Name="colortarjeta" Color="#454545" Opacity="0.4"/>
+                    <SolidColorBrush Color="#282828" Opacity="0.8"/>
                 </Setter.Value>
             </Setter>
-            <Setter Property="BorderBrush" Value="#333" />
-            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Padding" Value="15"/>
             <Setter Property="Margin" Value="10"/>
             <Setter Property="Effect">
@@ -77,8 +374,117 @@
                     <DropShadowEffect Color="Black" BlurRadius="15" ShadowDepth="2" Opacity="0.3"/>
                 </Setter.Value>
             </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Background" Value="#F0F0F0"/>
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect Color="#AAAAAA" BlurRadius="15" ShadowDepth="2" Opacity="0.3"/>
+                        </Setter.Value>
+                    </Setter>
+                </DataTrigger>
+            </Style.Triggers>
         </Style>
 
+        <!-- Colores y estilos para el botón de cerrar -->
+        <SolidColorBrush x:Key="CloseButtonForegroundDark" Color="#FFFFFFFF"/>
+        <SolidColorBrush x:Key="CloseButtonForegroundLight" Color="#FF222222"/>
+        <SolidColorBrush x:Key="CloseButtonHover" Color="#FFFF5252"/>
+
+        <!--Colores para los botones-->
+        <SolidColorBrush x:Key="ButtonBackgroundDark" Color="#FFF"/>
+        <SolidColorBrush x:Key="ButtonBackgroundLight" Color="#FFF"/>
+        <SolidColorBrush x:Key="ButtonForegroundDark" Color="#222"/>
+        <SolidColorBrush x:Key="ButtonForegroundLight" Color="#222"/>
+        <SolidColorBrush x:Key="ButtonHoverDark" Color="#FF333333"/>
+        <SolidColorBrush x:Key="ButtonHoverLight" Color="#FFEEEEEE"/>
+        <SolidColorBrush x:Key="ButtonShadow" Color="#22000000"/>
+
+        <!-- Mesh Gradients accesibles globalmente -->
+        <RadialGradientBrush x:Key="Mesh1" Center="0.3,0.3" RadiusX="0.5" RadiusY="0.5">
+            <GradientStop Color="#de9cb8" Offset="0"/>
+            <GradientStop Color="#9dcde1" Offset="1"/>
+        </RadialGradientBrush>
+        <RadialGradientBrush x:Key="Mesh2" Center="0.7,0.7" RadiusX="0.6" RadiusY="0.6">
+            <GradientStop Color="#dc8eb8" Offset="0"/>
+            <GradientStop Color="#98d3ec" Offset="1"/>
+        </RadialGradientBrush>
+
+        <!-- Colores para el modo oscuro/claro -->
+        <SolidColorBrush x:Key="TextPrimaryDark" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="TextSecondaryDark" Color="#CCFFFFFF"/>
+        <SolidColorBrush x:Key="TextPrimaryLight" Color="#222222"/>
+        <SolidColorBrush x:Key="TextSecondaryLight" Color="#666666"/>
+
+        <!-- Estilo para textos primarios -->
+        <Style x:Key="PrimaryTextStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Foreground" Value="{StaticResource TextPrimaryLight}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Estilo para textos secundarios -->
+        <Style x:Key="SecondaryTextStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource TextSecondaryDark}"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Foreground" Value="{StaticResource TextSecondaryLight}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Estilo para los contenedores de lista de tareas/eventos/casos -->
+        <Style x:Key="ListItemContainerStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+            <Setter Property="Background">
+                <Setter.Value>
+                    <SolidColorBrush Color="#3A3A3A" Opacity="0.7"/>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl}, Path=(ItemsControl.AlternationIndex)}" Value="1">
+                </DataTrigger>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Background" Value="#E8E8E8"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Estilos específicos para los textos de los resultados -->
+        <Style x:Key="ResultadoTextBlockStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#FFF"/> <!-- Por defecto blanco (oscuro) -->
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Foreground" Value="#222"/> <!-- Negro en modo claro -->
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ResultadoBorderStyle" TargetType="Border">
+            <Setter Property="Background" Value="#3A3A3A"/> <!-- Fondo oscuro por defecto -->
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Background" Value="#FFF"/> <!-- Fondo claro en modo claro -->
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="VerDocumentoButtonStyle" TargetType="Button" BasedOn="{StaticResource RoundedButtonStyle}">
+            <Setter Property="Background" Value="#2563EB"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="MinWidth" Value="90"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,8,0,0"/>
+        </Style>
     </Window.Resources>
 
     <Grid>
@@ -89,7 +495,7 @@
         </Grid.ColumnDefinitions>
         <!-- Fondo -->
         <Grid.Background>
-            <ImageBrush x:Name="backgroundFondo" ImageSource="/TFG V0.01;component/Recursos/Background/oscuro/main.png"/>
+            <DrawingBrush x:Name="meshGradientBrush" Stretch="Fill"/>
         </Grid.Background>
         <!-- Navbar -->
         <controls:NavbarControl x:Name="navbar" Grid.Column="0" />
@@ -102,17 +508,17 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <TextBlock Text="Buscar Jurisprudencias" FontSize="24" FontWeight="Bold" Foreground="White" Margin="0,0,0,20"/>
+            <TextBlock Text="Buscar Jurisprudencias" FontSize="24" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,20" />
             <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="2*"/>
                     <ColumnDefinition Width="1.2*"/>
                 </Grid.ColumnDefinitions>
                 <!-- Tarjeta de filtros -->
-                <Border Style="{StaticResource CardStyle}" Grid.Column="0" Margin="0,0,10,0" VerticalAlignment="Stretch">
+                <Border Style="{StaticResource CardStyle}" Grid.Column="0" Margin="10" VerticalAlignment="Stretch">
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                         <StackPanel>
-                            <TextBlock Text="Filtros" FontSize="18" FontWeight="Bold" Foreground="White" Margin="0,0,0,10"/>
+                            <TextBlock Text="Filtros" FontSize="18" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,10" />
                             <Separator Margin="0,10,0,10"/>
 
                             <Grid>
@@ -122,19 +528,19 @@
                                 </Grid.ColumnDefinitions>
 
                                 <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                                    <TextBlock Text="Jurisdicción" FontWeight="Bold" Foreground="White"/>
+                                    <TextBlock Text="Jurisdicción" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
                                     <ComboBox x:Name="JurisdiccionComboBox" 
-                                              ItemsSource="{Binding}" 
+                                              ItemsSource="{Binding Jurisdicciones}" 
                                               SelectedItem="{Binding JurisdiccionSeleccionada, UpdateSourceTrigger=PropertyChanged}" 
-                                              Foreground="Black" />
+                                              Style="{StaticResource RoundedComboBoxStyle}"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="1">
-                                    <TextBlock Text="Tipo de resolución" FontWeight="Bold" Foreground="White"/>
+                                    <TextBlock Text="Tipo de resolución" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
                                     <ComboBox x:Name="TipoResolucionComboBox" 
-                                              ItemsSource="{Binding}" 
+                                              ItemsSource="{Binding TiposResolucion}" 
                                               SelectedItem="{Binding TipoResolucionSeleccionada, UpdateSourceTrigger=PropertyChanged}" 
-                                              Foreground="Black" />
+                                              Style="{StaticResource RoundedComboBoxStyle}"/>
                                 </StackPanel>
                             </Grid>
                             <Separator Margin="0,10,0,10"/>
@@ -146,24 +552,27 @@
                                 </Grid.ColumnDefinitions>
 
                                 <StackPanel Grid.Column="0">
-                                    <TextBlock Text="Órgano judicial" FontWeight="Bold" Foreground="White"/>
+                                    <TextBlock Text="Órgano judicial" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
                                     <ComboBox x:Name="OrganoJudicialComboBox" 
-                                              ItemsSource="{Binding}" 
+                                              ItemsSource="{Binding OrganosJudiciales}" 
                                               SelectedItem="{Binding OrganoJudicialSeleccionado, UpdateSourceTrigger=PropertyChanged}" 
-                                              Foreground="Black" />
+                                              Style="{StaticResource RoundedComboBoxStyle}"
+                                              Margin="0,0,10,0"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                    <TextBlock Text="Sección" FontWeight="Bold" Foreground="White"/>
-                                    <TextBox x:Name="SeccionTextBox" Text="{Binding Seccion, UpdateSourceTrigger=PropertyChanged}" Height="21"/>
+                                    <TextBlock Text="Sección" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
+                                    <TextBox x:Name="SeccionTextBox" Text="{Binding Seccion, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedTextBoxStyle}" Height="35" />
                                 </StackPanel>
+                                
+                                
                             </Grid>
-                            <TextBlock Text="Localización" FontWeight="Bold" Margin="0,10,0,0" Foreground="White"/>
+                            <TextBlock Text="Localización" FontWeight="Bold" Margin="0,10,0,0" Style="{StaticResource SecondaryTextStyle}" />
                             <Grid>
                                 <ComboBox x:Name="LocalizacionComboBox" 
-                                          ItemsSource="{Binding}" 
+                                          ItemsSource="{Binding Localizaciones}" 
                                           SelectedItem="{Binding LocalizacionSeleccionada, UpdateSourceTrigger=PropertyChanged}" 
-                                          Foreground="Black" />
+                                          Style="{StaticResource RoundedComboBoxStyle}"/>
                             </Grid>
 
                             <Separator Margin="0,10,0,10"/>
@@ -175,13 +584,13 @@
                                 </Grid.ColumnDefinitions>
 
                                 <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                                    <TextBlock Text="Nº ROJ" FontWeight="Bold" Foreground="White"/>
-                                    <TextBox x:Name="NumeroRojTextBox" Text="{Binding NumeroRoj, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Text="Nº ROJ" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
+                                    <TextBox x:Name="NumeroRojTextBox" Text="{Binding NumeroRoj, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedTextBoxStyle}" Height="35" VerticalContentAlignment="Center"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="1">
-                                    <TextBlock Text="ECLI" FontWeight="Bold" Foreground="White"/>
-                                    <TextBox x:Name="EcliTextBox" Text="{Binding Ecli, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Text="ECLI" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
+                                    <TextBox x:Name="EcliTextBox" Text="{Binding Ecli, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedTextBoxStyle}" Height="35" VerticalContentAlignment="Center"/>
                                 </StackPanel>
                             </Grid>
 
@@ -192,31 +601,33 @@
                                 </Grid.ColumnDefinitions>
 
                                 <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                                    <TextBlock Text="Nº Resolución" FontWeight="Bold" Foreground="White"/>
-                                    <TextBox x:Name="NumeroResolucionTextBox" Text="{Binding NumeroResolucion, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Text="Nº Resolución" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
+                                    <TextBox x:Name="NumeroResolucionTextBox" Text="{Binding NumeroResolucion, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedTextBoxStyle}" Height="35" VerticalContentAlignment="Center"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="1">
-                                    <TextBlock Text="Nº Recurso" FontWeight="Bold" Foreground="White"/>
-                                    <TextBox x:Name="NumeroRecursoTextBox" Text="{Binding NumeroRecurso, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Text="Nº Recurso" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
+                                    <TextBox x:Name="NumeroRecursoTextBox" Text="{Binding NumeroRecurso, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedTextBoxStyle}" Height="35" VerticalContentAlignment="Center"/>
                                 </StackPanel>
                             </Grid>
 
                             <Grid Margin="0,10,0,0">
+
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
 
                                 <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                                    <TextBlock Text="Fecha desde" FontWeight="Bold" Foreground="White"/>
-                                    <DatePicker x:Name="FechaDesdeDatePicker" SelectedDate="{Binding FechaDesde, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Text="Fecha desde" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
+                                    <DatePicker x:Name="FechaDesdeDatePicker" SelectedDate="{Binding FechaDesde, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedDatePickerStyle}" />
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="1">
-                                    <TextBlock Text="Fecha hasta" FontWeight="Bold" Foreground="White"/>
-                                    <DatePicker x:Name="FechaHastaDatePicker" SelectedDate="{Binding FechaHasta, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Text="Fecha hasta" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
+                                    <DatePicker x:Name="FechaHastaDatePicker" SelectedDate="{Binding FechaHasta, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedDatePickerStyle}" />
                                 </StackPanel>
+                                
                             </Grid>
 
                             <Separator Margin="0,10,0,10"/>
@@ -228,13 +639,13 @@
                                 </Grid.ColumnDefinitions>
 
                                 <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                                    <TextBlock Text="Ponente" FontWeight="Bold" Foreground="White"/>
-                                    <TextBox x:Name="PonenteTextBox" Text="{Binding Ponente, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Text="Ponente" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
+                                    <TextBox x:Name="PonenteTextBox" Text="{Binding Ponente, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedTextBoxStyle}" Height="35" VerticalContentAlignment="Center"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="1">
-                                    <TextBlock Text="Idioma" FontWeight="Bold" Foreground="White"/>
-                                    <ComboBox x:Name="IdiomaComboBox" SelectedItem="{Binding IdiomaSeleccionado, UpdateSourceTrigger=PropertyChanged}">
+                                    <TextBlock Text="Idioma" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
+                                    <ComboBox x:Name="IdiomaComboBox" SelectedItem="{Binding IdiomaSeleccionado, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedComboBoxStyle}">
                                         <ComboBoxItem Content="Todos"/>
                                         <ComboBoxItem Content="Español"/>
                                         <ComboBoxItem Content="Català"/>
@@ -253,8 +664,8 @@
                                 </Grid.ColumnDefinitions>
 
                                 <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                                    <TextBlock Text="Legislación" FontWeight="Bold" Foreground="White"/>
-                                    <TextBox x:Name="LegislacionTextBox" Text="{Binding Legislacion, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True" PreviewMouseLeftButtonUp="LegislacionTextBox_PreviewMouseLeftButtonUp"/>
+                                    <TextBlock Text="Legislación" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
+                                    <TextBox x:Name="LegislacionTextBox" Text="{Binding Legislacion, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True" PreviewMouseLeftButtonUp="LegislacionTextBox_PreviewMouseLeftButtonUp" Style="{StaticResource RoundedTextBoxStyle}" Height="35" VerticalContentAlignment="Center"/>
 
                                 </StackPanel>
                             </Grid>
@@ -262,14 +673,14 @@
                             <Separator Margin="0,10,0,10"/>
 
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
-                                <Button x:Name="LimpiarButton" Content="Limpiar" Style="{StaticResource RoundedButtonStyle}" Padding="10,5" Margin="0,0,10,0" Command="{Binding LimpiarCommand}"/>
-                                <Button x:Name="BuscarButton" Click="BuscarButton_Click" Content="Buscar" Style="{StaticResource RoundedButtonStyle}" Background="#2563EB" Foreground="White" Padding="10,5" />
+                                <Button x:Name="LimpiarButton" Content="Limpiar" Style="{StaticResource RoundedButtonStyle}" Padding="10,5" Margin="0,0,10,0" Command="{Binding LimpiarCommand}" Width="100"/>
+                                <Button x:Name="BuscarButton" Click="BuscarButton_Click" Content="Buscar" Style="{StaticResource RoundedButtonStyle}" Background="#2563EB" Foreground="White" Padding="10,5" Width="100"/>
                             </StackPanel>
                         </StackPanel>
                     </ScrollViewer>
                 </Border>
                 <!-- Tarjeta de resultados -->
-                <Border x:Name="ResultadosBorder" Style="{StaticResource CardStyle}" Grid.Column="1" VerticalAlignment="Stretch">
+                <Border x:Name="ResultadosBorder" Style="{StaticResource CardStyle}" Grid.Column="1" VerticalAlignment="Stretch" Margin="10">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -277,7 +688,7 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                        <TextBlock Text="Resultados" FontSize="18" FontWeight="Bold" Foreground="White" Margin="0,0,0,10" Grid.Row="0"/>
+                        <TextBlock Text="Resultados" FontSize="18" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,10" Grid.Row="0"/>
 
                         <ListBox x:Name="ResultadosListBox" Grid.Row="1" 
                                  ItemsSource="{Binding ResultadosBusqueda}" 
@@ -293,7 +704,7 @@
                                         <Setter.Value>
                                             <ControlTemplate TargetType="ListBoxItem">
                                                 <Border x:Name="Bd"
-                                                        Background="{TemplateBinding Background}"
+                                                        Background="{DynamicResource ButtonBackgroundDark}"
                                                         BorderBrush="{TemplateBinding BorderBrush}"
                                                         BorderThickness="{TemplateBinding BorderThickness}"
                                                         Padding="{TemplateBinding Padding}"
@@ -304,12 +715,21 @@
                                                 </Border>
                                                 <ControlTemplate.Triggers>
                                                     <Trigger Property="IsSelected" Value="True">
-                                                        <Setter TargetName="Bd" Property="Background" Value="#55FFFFFF" />
+                                                        <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ButtonHoverDark}" />
                                                         <Setter Property="Foreground" Value="White" />
                                                     </Trigger>
                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter TargetName="Bd" Property="Background" Value="#33FFFFFF" />
+                                                        <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ButtonHoverLight}" />
                                                     </Trigger>
+                                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                                        <Setter TargetName="Bd" Property="Background" Value="#FFFFFF"/>
+                                                        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryLight}"/>
+                                                        <Setter TargetName="Bd" Property="Effect">
+                                                            <Setter.Value>
+                                                                <DropShadowEffect Color="#CCCCCC" BlurRadius="5" ShadowDepth="1" Opacity="0.3"/>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                    </DataTrigger>
                                                 </ControlTemplate.Triggers>
                                             </ControlTemplate>
                                         </Setter.Value>
@@ -318,40 +738,40 @@
                             </ListBox.ItemContainerStyle>
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <Border BorderBrush="#555" BorderThickness="0,0,0,1" Padding="10">
+                                    <Border Style="{DynamicResource ResultadoBorderStyle}" BorderBrush="#555" BorderThickness="0,0,0,1" Padding="10">
                                         <StackPanel>
-                                            <TextBlock FontWeight="SemiBold" Foreground="White" Margin="0,0,0,5">
+                                            <TextBlock FontWeight="SemiBold" Style="{DynamicResource ResultadoTextBlockStyle}" Margin="0,0,0,5">
                                                 <Run Text="ROJ:"/>
-                                                <Run Text="{Binding Roj}" FontWeight="Normal"/>
+                                                <Run Text="{Binding Roj}" FontWeight="Normal" />
                                             </TextBlock>
-                                            <TextBlock Foreground="#DDDDDD" Margin="0,0,0,3" FontSize="11">
+                                            <TextBlock Style="{DynamicResource ResultadoTextBlockStyle}" Margin="0,0,0,3" FontSize="11">
                                                 <Run Text="ECLI:"/>
-                                                <Run Text="{Binding Ecli}"/>
+                                                <Run Text="{Binding Ecli}" />
                                             </TextBlock>
-                                            <TextBlock Foreground="#DDDDDD" Margin="0,0,0,3" FontSize="11">
+                                            <TextBlock Style="{DynamicResource ResultadoTextBlockStyle}" Margin="0,0,0,3" FontSize="11">
                                                 <Run Text="Fecha:"/>
-                                                <Run Text="{Binding FechaResolucion}"/>
+                                                <Run Text="{Binding FechaResolucion}" />
                                                  <Run Text="  |  "/>
                                                 <Run Text="Tipo: "/>
-                                                <Run Text="{Binding TipoResolucion}"/>
+                                                <Run Text="{Binding TipoResolucion}" />
                                             </TextBlock>
-                                            <TextBlock Foreground="#DDDDDD" Margin="0,0,0,3" FontSize="11">
+                                            <TextBlock Style="{DynamicResource ResultadoTextBlockStyle}" Margin="0,0,0,3" FontSize="11">
                                                 <Run Text="Órgano:"/>
-                                                <Run Text="{Binding OrganoJudicial}"/>
+                                                <Run Text="{Binding OrganoJudicial}" />
                                             </TextBlock>
-                                            <TextBlock Foreground="#DDDDDD" Margin="0,0,0,3" FontSize="11" TextWrapping="Wrap">
+                                            <TextBlock Style="{DynamicResource ResultadoTextBlockStyle}" Margin="0,0,0,3" FontSize="11" TextWrapping="Wrap">
                                                 <Run Text="Ponente:"/>
-                                                <Run Text="{Binding Ponente}"/>
+                                                <Run Text="{Binding Ponente}" />
                                             </TextBlock>
-                                            <TextBlock Text="Resumen:" FontWeight="SemiBold" Foreground="White" Margin="0,5,0,2"/>
-                                            <TextBlock Text="{Binding Resumen}" Foreground="#CCCCCC" TextWrapping="Wrap" MaxHeight="100" FontSize="12">
+                                            <TextBlock Text="Resumen:" FontWeight="SemiBold" Style="{DynamicResource ResultadoTextBlockStyle}" Margin="0,5,0,2"/>
+                                            <TextBlock Text="{Binding Resumen}" Style="{DynamicResource ResultadoTextBlockStyle}" TextWrapping="Wrap" MaxHeight="100" FontSize="12">
                                                 <TextBlock.ToolTip>
                                                     <ToolTip Background="#333" Foreground="White">
-                                                        <TextBlock Text="{Binding Resumen}" TextWrapping="Wrap" MaxWidth="400"/>
+                                                        <TextBlock Text="{Binding Resumen}" TextWrapping="Wrap" MaxWidth="400" />
                                                     </ToolTip>
                                                 </TextBlock.ToolTip>
                                             </TextBlock>
-                                            <Button Content="Ver Documento" Margin="0,8,0,0" Padding="8,3" FontSize="10" HorizontalAlignment="Left" Click="VerDocumentoButton_Click" CommandParameter="{Binding UrlDocumento}" Style="{StaticResource RoundedButtonStyle}" Background="#FF3C72C2" Height="Auto">
+                                            <Button Content="Ver Documento" Margin="0,8,0,0" Padding="8,3" FontSize="10" HorizontalAlignment="Left" Click="VerDocumentoButton_Click" CommandParameter="{Binding UrlDocumento}" Style="{StaticResource VerDocumentoButtonStyle}">
                                                 <Button.Effect>
                                                     <DropShadowEffect BlurRadius="5" ShadowDepth="1" Opacity="0.3"/>
                                                 </Button.Effect>
@@ -366,26 +786,23 @@
                                 Grid.Row="2" 
                                 Style="{StaticResource RoundedButtonStyle}" 
                                 Background="#FF5A8DEE" Foreground="White" 
-                                Padding="10,5" Margin="0,10,0,10"
+                                Padding="10,5" Margin="0,10,0,10" Width="200"
                                 HorizontalAlignment="Center"
                                 Click="CargarMasButton_Click"
                                 Visibility="Collapsed"/>
 
                         <TextBlock x:Name="ResultadosTextBlock" 
                                    Text="(Aquí aparecerán los resultados de la búsqueda)" 
-                                   Foreground="#CCCCCC" FontStyle="Italic" Margin="10" TextWrapping="Wrap"
+                                   FontStyle="Italic" Margin="10" TextWrapping="Wrap"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"
                                    Grid.Row="1">
                             <TextBlock.Style>
-                                <Style TargetType="TextBlock">
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource SecondaryTextStyle}">
                                     <Setter Property="Visibility" Value="Collapsed"/>
                                     <Style.Triggers>
-                                        <MultiDataTrigger>
-                                            <MultiDataTrigger.Conditions>
-                                                <Condition Binding="{Binding ResultadosBusqueda.Count}" Value="0"/>
-                                            </MultiDataTrigger.Conditions>
+                                        <DataTrigger Binding="{Binding ResultadosBusqueda.Count}" Value="0">
                                             <Setter Property="Visibility" Value="Visible"/>
-                                        </MultiDataTrigger>
+                                        </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
                             </TextBlock.Style>

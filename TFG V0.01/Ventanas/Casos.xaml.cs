@@ -87,6 +87,7 @@ namespace TFG_V0._01.Ventanas
         private Tarea _tareaSeleccionada;
         private Tarea tareaEditando = null;
         private bool esEdicionTarea = false;
+        private bool esEdicionDocumento = false;
 
         // Brushes y fondo animado (añadido de Home)
         private RadialGradientBrush mesh1Brush;
@@ -1113,263 +1114,6 @@ namespace TFG_V0._01.Ventanas
         }
         #endregion
        
-        private async void ModificarDocumento_Click(object sender, RoutedEventArgs e)
-        {
-            if (_documentoSeleccionado == null)
-            {
-                MessageBox.Show("Por favor, selecciona un documento para modificar.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Information);
-                return;
-            }
-
-            var ventana = new EditarDocumentoWindow(
-                _documentoSeleccionado.nombre,
-                _documentoSeleccionado.descripcion,
-                _documentoSeleccionado.tipo_documento
-            )
-            {
-                RutaArchivo = _documentoSeleccionado.ruta
-            };
-
-            if (ventana.ShowDialog() == true)
-            {
-                try
-                {
-                    _documentoSeleccionado.nombre = ventana.Nombre;
-                    _documentoSeleccionado.descripcion = ventana.Descripcion;
-                    _documentoSeleccionado.tipo_documento = ventana.TipoDocumento;
-                    if (!string.IsNullOrEmpty(ventana.RutaArchivo))
-                    {
-                        _documentoSeleccionado.ruta = ventana.RutaArchivo;
-                        _documentoSeleccionado.tamanio = new System.IO.FileInfo(ventana.RutaArchivo).Length.ToString();
-                    }
-
-                    await _supabaseDocumentos.ActualizarAsync(_documentoSeleccionado);
-                    await CargarDocumentosDelCaso(_casoSeleccionado.id);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error al modificar el documento: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-        }
-
-        private async void EliminarDocumento_Click(object sender, RoutedEventArgs e)
-        {
-            if (_documentoSeleccionado == null) return;
-
-            var result = MessageBox.Show("¿Está seguro de que desea eliminar este documento?", "Confirmar eliminación",
-                MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-            if (result == MessageBoxResult.Yes)
-            {
-                try
-                {
-                    await _supabaseDocumentos.EliminarAsync(_documentoSeleccionado.id);
-                    await CargarDocumentosDelCaso(_casoSeleccionado.id);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error al eliminar el documento: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-        }
-
-        private async void AgregarTarea_Click(object sender, RoutedEventArgs e)
-        {
-            MostrarGridEditarTarea();
-        }
-
-        private async void ModificarTarea_Click(object sender, RoutedEventArgs e)
-        {
-            if (_tareaSeleccionada == null)
-            {
-                MessageBox.Show("Por favor, seleccione una tarea para modificar.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Information);
-                return;
-            }
-            MostrarGridEditarTarea(_tareaSeleccionada);
-        }
-
-        private async void EliminarTarea_Click(object sender, RoutedEventArgs e)
-        {
-            if (_tareaSeleccionada == null) return;
-
-            var result = MessageBox.Show("¿Está seguro de que desea eliminar esta tarea?", "Confirmar eliminación",
-                MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-            if (result == MessageBoxResult.Yes)
-            {
-                try
-                {
-                    await _supabaseTareas.EliminarTarea(_tareaSeleccionada.id);
-                    await CargarTareasDelCaso(_casoSeleccionado.id);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error al eliminar la tarea: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-        }
-
-        private async void TareaCheckBox_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is CheckBox checkBox && checkBox.DataContext is Tarea tarea)
-            {
-                try
-                {
-                    await _supabaseTareas.ActualizarEstadoTarea(tarea.id, checkBox.IsChecked ?? false);
-                    await CargarTareasDelCaso(_casoSeleccionado.id);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error al actualizar el estado de la tarea: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-        }
-
-        private async Task CargarDocumentosDelCaso(int casoId)
-        {
-            try
-            {
-                await _supabaseDocumentos.InicializarAsync();
-                var documentos = await _supabaseDocumentos.ObtenerPorCasoAsync(casoId);
-                DocumentosList.ItemsSource = documentos;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error al cargar los documentos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private void DocumentosList_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            _documentoSeleccionado = DocumentosList.SelectedItem as Documento;
-        }
-
-        private void TareasList_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            _tareaSeleccionada = TareasList.SelectedItem as Tarea;
-        }
-
-        private void CasosList_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (sender is ComboBox combo && combo.SelectedItem is Caso caso)
-            {
-                _casoSeleccionado = caso;
-                if (_casoSeleccionado != null)
-                {
-                    CargarEventosDelCaso(_casoSeleccionado.id);
-                    CargarNotasDelCaso(_casoSeleccionado.id);
-                    CargarTareasDelCaso(_casoSeleccionado.id);
-                    CargarDocumentosDelCaso(_casoSeleccionado.id);
-                }
-            }
-        }
-
-        private async Task CargarEventosDelCaso(int casoId)
-        {
-            try
-            {
-                await _eventosCitasService.InicializarAsync();
-                var eventos = await _eventosCitasService.ObtenerEventosCitasPorCaso(casoId);
-                await _estadosEventosService.InicializarAsync();
-                var estados = await _estadosEventosService.ObtenerEstadosEventos();
-
-                var eventosConEstado = eventos.Select(e => new EventoViewModel
-                {
-                    Id = e.Id,
-                    Titulo = e.Titulo,
-                    Descripcion = e.Descripcion,
-                    Fecha = e.Fecha,
-                    EstadoNombre = estados.FirstOrDefault(s => s.Id == e.IdEstado)?.Nombre ?? "Sin estado",
-                    EstadoColor = ObtenerColorEstado(estados.FirstOrDefault(s => s.Id == e.IdEstado)?.Nombre),
-                    FechaInicio = e.FechaInicio,
-                    IdCaso = e.IdCaso
-                }).ToList();
-
-                EventosList.ItemsSource = eventosConEstado;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error al cargar los eventos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private async void AgregarDocumento_Click(object sender, RoutedEventArgs e)
-        {
-            if (_casoSeleccionado == null)
-            {
-                MessageBox.Show("Por favor, seleccione un caso primero.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Information);
-                return;
-            }
-
-            var ventana = new EditarDocumentoWindow();
-            if (ventana.ShowDialog() == true)
-            {
-                try
-                {
-                    var documento = new Documento
-                    {
-                        nombre = ventana.Nombre,
-                        descripcion = ventana.Descripcion,
-                        tipo_documento = ventana.TipoDocumento,
-                        ruta = ventana.RutaArchivo,
-                        id_caso = _casoSeleccionado.id,
-                        tamanio = !string.IsNullOrEmpty(ventana.RutaArchivo) ? new System.IO.FileInfo(ventana.RutaArchivo).Length.ToString() : null
-                    };
-
-                    await _supabaseDocumentos.InsertarAsync(documento);
-                    await CargarDocumentosDelCaso(_casoSeleccionado.id);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error al crear el documento: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-        }
-
-        private async void MostrarCasoPorId(int idCaso)
-        {
-            try
-            {
-                // Cargar el caso desde Supabase
-                await _casosService.InicializarAsync();
-                var caso = await _casosService.ObtenerPorIdAsync(idCaso);
-
-                if (caso != null)
-                {
-                    // Asignar el caso seleccionado
-                    CasoSeleccionado = caso;
-
-                    // Cargar datos relacionados
-                    await CargarDatosDelCaso(caso.id);
-
-                    // Seleccionar la fecha actual en el calendario
-                    var calendar = this.FindName("calendar") as CalendarControl;
-                    if (calendar != null)
-                    {
-                        calendar.SelectedDate = DateTime.Today;
-                        _fechaSeleccionada = DateTime.Today;
-                    }
-
-                    // Mostrar el grid de detalle y ocultar el buscador
-                    var contenidoCasos = this.FindName("ContenidoCasos") as UIElement;
-                    var buscador = this.FindName("Buscador") as UIElement;
-                    if (contenidoCasos != null) contenidoCasos.Visibility = Visibility.Visible;
-                    if (buscador != null) buscador.Visibility = Visibility.Collapsed;
-                }
-                else
-                {
-                    MessageBox.Show("No se encontró el caso solicitado.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Information);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error al cargar el caso: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        // Métodos para el panel deslizante de Notas
-
         private void MostrarGridEditarNota(Nota nota = null)
         {
             if (_casoSeleccionado == null)
@@ -1605,6 +1349,383 @@ namespace TFG_V0._01.Ventanas
             catch (Exception ex)
             {
                 MessageBox.Show($"Error al guardar la tarea: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void MostrarGridEditarDocumento(Documento documento = null)
+        {
+            // Configurar el grid
+            EditarDocumentoGrid.Visibility = Visibility.Visible;
+            OverlayPanel.Visibility = Visibility.Visible;
+
+            // Configurar tipos de documento
+            cbTipoDocumento.ItemsSource = new[] { "Contrato", "Factura", "Informe", "Otro" };
+
+            if (documento != null)
+            {
+                // Modo edición
+                txtNombreDocumento.Text = documento.nombre;
+                txtDescripcionDocumento.Text = documento.descripcion;
+                cbTipoDocumento.SelectedItem = documento.tipo_documento;
+                txtRutaArchivo.Text = documento.ruta;
+                _documentoSeleccionado = documento;
+                esEdicionDocumento = true;
+            }
+            else
+            {
+                // Modo creación
+                txtNombreDocumento.Text = "";
+                txtDescripcionDocumento.Text = "";
+                txtRutaArchivo.Text = "";
+                cbTipoDocumento.SelectedIndex = 0;
+                _documentoSeleccionado = null;
+                esEdicionDocumento = false;
+            }
+
+            // Animar la entrada
+            var animation = new DoubleAnimation
+            {
+                From = 400,
+                To = 0,
+                Duration = TimeSpan.FromSeconds(0.3),
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+            };
+            EditarDocumentoTransform.BeginAnimation(TranslateTransform.XProperty, animation);
+        }
+
+        private void CerrarEditarDocumento_Click(object sender, RoutedEventArgs e)
+        {
+            CerrarGridEditarDocumento();
+        }
+
+        private void CancelarDocumento_Click(object sender, RoutedEventArgs e)
+        {
+            CerrarGridEditarDocumento();
+        }
+
+        private void CerrarGridEditarDocumento()
+        {
+            var animation = new DoubleAnimation
+            {
+                From = 0,
+                To = 400,
+                Duration = TimeSpan.FromSeconds(0.3),
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseIn }
+            };
+            animation.Completed += (s, e) =>
+            {
+                EditarDocumentoGrid.Visibility = Visibility.Collapsed;
+                OverlayPanel.Visibility = Visibility.Collapsed;
+            };
+            EditarDocumentoTransform.BeginAnimation(TranslateTransform.XProperty, animation);
+        }
+
+        private async void GuardarDocumento_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtNombreDocumento.Text))
+            {
+                MessageBox.Show("Por favor, ingrese un nombre para el documento.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(txtRutaArchivo.Text))
+            {
+                MessageBox.Show("Por favor, seleccione un archivo.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                if (esEdicionDocumento && _documentoSeleccionado != null)
+                {
+                    // Modo edición
+                    _documentoSeleccionado.nombre = txtNombreDocumento.Text;
+                    _documentoSeleccionado.descripcion = txtDescripcionDocumento.Text;
+                    _documentoSeleccionado.tipo_documento = cbTipoDocumento.SelectedItem.ToString();
+                    if (!string.IsNullOrEmpty(txtRutaArchivo.Text))
+                    {
+                        _documentoSeleccionado.ruta = txtRutaArchivo.Text;
+                        _documentoSeleccionado.tamanio = new System.IO.FileInfo(txtRutaArchivo.Text).Length.ToString();
+                    }
+
+                    await _supabaseDocumentos.ActualizarAsync(_documentoSeleccionado);
+                }
+                else
+                {
+                    // Modo creación
+                    var nuevoDocumento = new Documento
+                    {
+                        nombre = txtNombreDocumento.Text,
+                        descripcion = txtDescripcionDocumento.Text,
+                        tipo_documento = cbTipoDocumento.SelectedItem.ToString(),
+                        ruta = txtRutaArchivo.Text,
+                        tamanio = new System.IO.FileInfo(txtRutaArchivo.Text).Length.ToString(),
+                        id_caso = _casoSeleccionado.id,
+                        fecha_subid = DateTime.Now
+                    };
+
+                    //await _supabaseDocumentos.CrearAsync(nuevoDocumento);
+                }
+
+                await CargarDocumentosDelCaso(_casoSeleccionado.id);
+                CerrarGridEditarDocumento();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al guardar el documento: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void DropZone_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effects = DragDropEffects.Copy;
+                DropZone.Background = new SolidColorBrush(Color.FromArgb(50, 33, 150, 243));
+            }
+        }
+
+        private void DropZone_DragLeave(object sender, DragEventArgs e)
+        {
+            DropZone.Background = new SolidColorBrush(Color.FromArgb(30, 255, 255, 255));
+        }
+
+        private void DropZone_Drop(object sender, DragEventArgs e)
+        {
+            DropZone.Background = new SolidColorBrush(Color.FromArgb(30, 255, 255, 255));
+
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                if (files != null && files.Length > 0)
+                {
+                    txtRutaArchivo.Text = files[0];
+                    if (string.IsNullOrEmpty(txtNombreDocumento.Text))
+                    {
+                        txtNombreDocumento.Text = System.IO.Path.GetFileNameWithoutExtension(files[0]);
+                    }
+                }
+            }
+        }
+
+        private void ExaminarDocumento_Click(object sender, RoutedEventArgs e)
+        {
+            var openFileDialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Filter = "Todos los archivos|*.*"
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                txtRutaArchivo.Text = openFileDialog.FileName;
+                if (string.IsNullOrEmpty(txtNombreDocumento.Text))
+                {
+                    txtNombreDocumento.Text = System.IO.Path.GetFileNameWithoutExtension(openFileDialog.FileName);
+                }
+            }
+        }
+
+        private async void AgregarDocumento_Click(object sender, RoutedEventArgs e)
+        {
+            if (_casoSeleccionado == null)
+            {
+                MessageBox.Show("Por favor, seleccione un caso primero.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            MostrarGridEditarDocumento();
+        }
+
+        private async void ModificarDocumento_Click(object sender, RoutedEventArgs e)
+        {
+            if (_documentoSeleccionado == null)
+            {
+                MessageBox.Show("Por favor, seleccione un documento para modificar.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            MostrarGridEditarDocumento(_documentoSeleccionado);
+        }
+
+        private async void EliminarDocumento_Click(object sender, RoutedEventArgs e)
+        {
+            if (_documentoSeleccionado == null) return;
+
+            var result = MessageBox.Show("¿Está seguro de que desea eliminar este documento?", "Confirmar eliminación",
+                MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    await _supabaseDocumentos.EliminarAsync(_documentoSeleccionado.id);
+                    await CargarDocumentosDelCaso(_casoSeleccionado.id);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error al eliminar el documento: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private async void AgregarTarea_Click(object sender, RoutedEventArgs e)
+        {
+            MostrarGridEditarTarea();
+        }
+
+        private async void ModificarTarea_Click(object sender, RoutedEventArgs e)
+        {
+            if (_tareaSeleccionada == null)
+            {
+                MessageBox.Show("Por favor, seleccione una tarea para modificar.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+            MostrarGridEditarTarea(_tareaSeleccionada);
+        }
+
+        private async void EliminarTarea_Click(object sender, RoutedEventArgs e)
+        {
+            if (_tareaSeleccionada == null) return;
+
+            var result = MessageBox.Show("¿Está seguro de que desea eliminar esta tarea?", "Confirmar eliminación",
+                MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    await _supabaseTareas.EliminarTarea(_tareaSeleccionada.id);
+                    await CargarTareasDelCaso(_casoSeleccionado.id);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error al eliminar la tarea: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private async void TareaCheckBox_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is CheckBox checkBox && checkBox.DataContext is Tarea tarea)
+            {
+                try
+                {
+                    await _supabaseTareas.ActualizarEstadoTarea(tarea.id, checkBox.IsChecked ?? false);
+                    await CargarTareasDelCaso(_casoSeleccionado.id);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error al actualizar el estado de la tarea: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private async Task CargarDocumentosDelCaso(int casoId)
+        {
+            try
+            {
+                await _supabaseDocumentos.InicializarAsync();
+                var documentos = await _supabaseDocumentos.ObtenerPorCasoAsync(casoId);
+                DocumentosList.ItemsSource = documentos;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar los documentos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void DocumentosList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            _documentoSeleccionado = DocumentosList.SelectedItem as Documento;
+        }
+
+        private void TareasList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            _tareaSeleccionada = TareasList.SelectedItem as Tarea;
+        }
+
+        private void CasosList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (sender is ComboBox combo && combo.SelectedItem is Caso caso)
+            {
+                _casoSeleccionado = caso;
+                if (_casoSeleccionado != null)
+                {
+                    CargarEventosDelCaso(_casoSeleccionado.id);
+                    CargarNotasDelCaso(_casoSeleccionado.id);
+                    CargarTareasDelCaso(_casoSeleccionado.id);
+                    CargarDocumentosDelCaso(_casoSeleccionado.id);
+                }
+            }
+        }
+
+        private async Task CargarEventosDelCaso(int casoId)
+        {
+            try
+            {
+                await _eventosCitasService.InicializarAsync();
+                var eventos = await _eventosCitasService.ObtenerEventosCitasPorCaso(casoId);
+                await _estadosEventosService.InicializarAsync();
+                var estados = await _estadosEventosService.ObtenerEstadosEventos();
+
+                var eventosConEstado = eventos.Select(e => new EventoViewModel
+                {
+                    Id = e.Id,
+                    Titulo = e.Titulo,
+                    Descripcion = e.Descripcion,
+                    Fecha = e.Fecha,
+                    EstadoNombre = estados.FirstOrDefault(s => s.Id == e.IdEstado)?.Nombre ?? "Sin estado",
+                    EstadoColor = ObtenerColorEstado(estados.FirstOrDefault(s => s.Id == e.IdEstado)?.Nombre),
+                    FechaInicio = e.FechaInicio,
+                    IdCaso = e.IdCaso
+                }).ToList();
+
+                EventosList.ItemsSource = eventosConEstado;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar los eventos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async void MostrarCasoPorId(int idCaso)
+        {
+            try
+            {
+                // Cargar el caso desde Supabase
+                await _casosService.InicializarAsync();
+                var caso = await _casosService.ObtenerPorIdAsync(idCaso);
+
+                if (caso != null)
+                {
+                    // Asignar el caso seleccionado
+                    CasoSeleccionado = caso;
+
+                    // Cargar datos relacionados
+                    await CargarDatosDelCaso(caso.id);
+
+                    // Seleccionar la fecha actual en el calendario
+                    var calendar = this.FindName("calendar") as CalendarControl;
+                    if (calendar != null)
+                    {
+                        calendar.SelectedDate = DateTime.Today;
+                        _fechaSeleccionada = DateTime.Today;
+                    }
+
+                    // Mostrar el grid de detalle y ocultar el buscador
+                    var contenidoCasos = this.FindName("ContenidoCasos") as UIElement;
+                    var buscador = this.FindName("Buscador") as UIElement;
+                    if (contenidoCasos != null) contenidoCasos.Visibility = Visibility.Visible;
+                    if (buscador != null) buscador.Visibility = Visibility.Collapsed;
+                }
+                else
+                {
+                    MessageBox.Show("No se encontró el caso solicitado.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar el caso: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

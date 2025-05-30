@@ -878,6 +878,135 @@
             </StackPanel>
         </Grid>
 
+        <!-- Grid deslizante para editar documentos -->
+        <Grid x:Name="EditarDocumentoGrid" 
+              Grid.Column="0" Grid.ColumnSpan="3"
+              Width="400"
+              HorizontalAlignment="Right"
+              Panel.ZIndex="1000"
+              Visibility="Collapsed"
+              Style="{StaticResource SlidePanelStyle}">
+            <Grid.RenderTransform>
+                <TranslateTransform x:Name="EditarDocumentoTransform" X="400"/>
+            </Grid.RenderTransform>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Encabezado -->
+            <Border Background="Transparent" Padding="20,15">
+                <Grid>
+                    <TextBlock Text="Editar Documento" 
+                             Style="{StaticResource PrimaryTextStyle}" 
+                             FontSize="20" 
+                             FontWeight="Bold"/>
+                    <Button x:Name="btnCerrarEditarDocumento" 
+                            Content="✕" 
+                            Style="{StaticResource NoBorderRoundedButtonStyle}"
+                            HorizontalAlignment="Right"
+                            Click="CerrarEditarDocumento_Click"/>
+                </Grid>
+            </Border>
+
+            <!-- Contenido -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="20">
+                    <!-- Nombre del documento -->
+                    <StackPanel Margin="0,0,0,15">
+                        <TextBlock Text="Nombre del documento" 
+                                 Style="{StaticResource PrimaryTextStyle}" 
+                                 FontWeight="SemiBold" 
+                                 Margin="0,0,0,5"/>
+                        <TextBox x:Name="txtNombreDocumento" 
+                                Style="{StaticResource RoundedTextBoxStyle}"/>
+                    </StackPanel>
+
+                    <!-- Tipo de documento -->
+                    <StackPanel Margin="0,0,0,15">
+                        <TextBlock Text="Tipo de documento" 
+                                 Style="{StaticResource PrimaryTextStyle}" 
+                                 FontWeight="SemiBold" 
+                                 Margin="0,0,0,5"/>
+                        <ComboBox x:Name="cbTipoDocumento" 
+                                 Style="{StaticResource ModernComboBoxStyle}"/>
+                    </StackPanel>
+
+                    <!-- Área de arrastrar y soltar -->
+                    <Border x:Name="DropZone"
+                            Background="#30FFFFFF"
+                            BorderBrush="#40FFFFFF"
+                            BorderThickness="2"
+                            CornerRadius="10"
+                            Height="150"
+                            Margin="0,0,0,15"
+                            AllowDrop="True"
+                            DragEnter="DropZone_DragEnter"
+                            DragLeave="DropZone_DragLeave"
+                            Drop="DropZone_Drop">
+                        <Grid>
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <TextBlock Text="📄" 
+                                         FontSize="32" 
+                                         HorizontalAlignment="Center" 
+                                         Margin="0,0,0,10"/>
+                                <TextBlock Text="Arrastra y suelta archivos aquí" 
+                                         Style="{StaticResource SecondaryTextStyle}" 
+                                         HorizontalAlignment="Center"/>
+                                <TextBlock Text="o" 
+                                         Style="{StaticResource SecondaryTextStyle}" 
+                                         HorizontalAlignment="Center" 
+                                         Margin="0,5"/>
+                                <Button Content="Seleccionar archivo" 
+                                        Style="{StaticResource RoundedButtonStyle}" 
+                                        Click="ExaminarDocumento_Click" 
+                                        Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- Ruta del archivo -->
+                    <StackPanel Margin="0,0,0,15">
+                        <TextBlock Text="Archivo seleccionado" 
+                                 Style="{StaticResource PrimaryTextStyle}" 
+                                 FontWeight="SemiBold" 
+                                 Margin="0,0,0,5"/>
+                        <TextBox x:Name="txtRutaArchivo" 
+                                Style="{StaticResource RoundedTextBoxStyle}" 
+                                IsReadOnly="True"/>
+                    </StackPanel>
+
+                    <!-- Descripción -->
+                    <StackPanel Margin="0,0,0,15">
+                        <TextBlock Text="Descripción" 
+                                 Style="{StaticResource PrimaryTextStyle}" 
+                                 FontWeight="SemiBold" 
+                                 Margin="0,0,0,5"/>
+                        <TextBox x:Name="txtDescripcionDocumento" 
+                                Style="{StaticResource RoundedTextBoxStyle}" 
+                                Height="100" 
+                                TextWrapping="Wrap" 
+                                AcceptsReturn="True"/>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- Botones -->
+            <StackPanel Grid.Row="2" 
+                      Orientation="Horizontal" 
+                      HorizontalAlignment="Right" 
+                      Margin="20">
+                <Button Content="Guardar" 
+                        Style="{StaticResource RoundedButtonStyle}" 
+                        Click="GuardarDocumento_Click" 
+                        Margin="0,0,10,0"/>
+                <Button Content="Cancelar" 
+                        Style="{StaticResource RoundedButtonStyle}" 
+                        Click="CancelarDocumento_Click"/>
+            </StackPanel>
+        </Grid>
+
         <!-- Overlay para cerrar al hacer clic fuera -->
         <Grid x:Name="OverlayPanel" 
               Grid.Column="0" Grid.ColumnSpan="3"

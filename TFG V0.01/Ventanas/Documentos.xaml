@@ -498,11 +498,11 @@
                     <StackPanel Margin="0,5">
                         <TextBlock Text="Tipo de Documento:" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
                         <WrapPanel>
-                            <CheckBox Content="PDF" Tag="PDF" IsChecked="False" Style="{StaticResource CheckBoxStyle}" Width="66"/>
-                            <CheckBox Content="Audio" Tag="AUD" IsChecked="False" Style="{StaticResource CheckBoxStyle}"/>
-                            <CheckBox Content="Imagen" Tag="IMG" IsChecked="False" Style="{StaticResource CheckBoxStyle}"/>
-                            <CheckBox Content="Video" Tag="VID" IsChecked="False" Style="{StaticResource CheckBoxStyle}" Width="66"/>
-                            <CheckBox Content="Otros" Tag="OTR" IsChecked="False" Style="{StaticResource CheckBoxStyle}"/>
+                            <CheckBox Content="PDF" Tag="PDF" IsChecked="True" Style="{StaticResource CheckBoxStyle}" Width="66"/>
+                            <CheckBox Content="Audio" Tag="AUD" IsChecked="True" Style="{StaticResource CheckBoxStyle}"/>
+                            <CheckBox Content="Imagen" Tag="IMG" IsChecked="True" Style="{StaticResource CheckBoxStyle}"/>
+                            <CheckBox Content="Video" Tag="VID" IsChecked="True" Style="{StaticResource CheckBoxStyle}" Width="66"/>
+                            <CheckBox Content="Otros" Tag="OTR" IsChecked="True" Style="{StaticResource CheckBoxStyle}"/>
                         </WrapPanel>
                     </StackPanel>
 

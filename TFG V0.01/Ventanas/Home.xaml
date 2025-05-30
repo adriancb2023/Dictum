@@ -401,6 +401,58 @@
                 </ScrollViewer>
             </Grid>
 
+            <!-- Panel deslizante para añadir tarea -->
+            <Grid x:Name="SlidePanelTarea" 
+                  Grid.RowSpan="3" 
+                  Width="400" 
+                  HorizontalAlignment="Right" 
+                  Panel.ZIndex="1000"
+                  Visibility="Collapsed">
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Background" Value="{StaticResource SlidePanelGradientDark}"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                <Setter Property="Background" Value="{StaticResource SlidePanelGradientLight}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+                <Grid.RenderTransform>
+                    <TranslateTransform x:Name="SlidePanelTareaTransform" X="400"/>
+                </Grid.RenderTransform>
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="20">
+                        <TextBlock Text="Añadir Nueva Tarea" FontSize="20" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,20"/>
+                        
+                        <!-- Título -->
+                        <TextBlock Text="Título" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
+                        <TextBox x:Name="txtTituloTarea" Margin="0,0,0,15" Padding="10" Background="#30FFFFFF"/>
+                        
+                        <!-- Descripción -->
+                        <TextBlock Text="Descripción" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
+                        <TextBox x:Name="txtDescripcionTarea" Margin="0,0,0,15" Padding="10" Background="#30FFFFFF" 
+                                 TextWrapping="Wrap" AcceptsReturn="True" Height="100" VerticalScrollBarVisibility="Auto"/>
+                        
+                        <!-- Estado -->
+                        <TextBlock Text="Estado" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
+                        <ComboBox x:Name="cmbEstadoTarea" Margin="0,0,0,15" Padding="10" Background="#30FFFFFF">
+                            <ComboBoxItem Content="Pendiente"/>
+                            <ComboBoxItem Content="En progreso"/>
+                            <ComboBoxItem Content="Finalizado"/>
+                        </ComboBox>
+                        
+                        <!-- Botones -->
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+                            <Button x:Name="btnCancelarTarea" Content="Cancelar" Style="{StaticResource ThemeAwareRoundedButtonStyle}" 
+                                    Margin="0,0,10,0" Padding="20,10" Click="btnCancelarTarea_Click"/>
+                            <Button x:Name="btnGuardarTarea" Content="Guardar" Style="{StaticResource ThemeAwareRoundedButtonStyle}" 
+                                    Padding="20,10"/>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+
             <!-- Overlay para cerrar al hacer clic fuera -->
             <Grid x:Name="OverlayPanel" 
                   Grid.RowSpan="3" 
@@ -701,7 +753,7 @@
                                     </ItemsControl>
                                 </ScrollViewer>
 
-                                <Button x:Name="btnAñadirTarea" Grid.Row="2" Content="+ Añadir Tarea" Style="{StaticResource ThemeAwareRoundedButtonStyle}" Margin="0,15,0,0" />
+                                <Button x:Name="btnAñadirTarea" Grid.Row="2" Content="+ Añadir Tarea" Style="{StaticResource ThemeAwareRoundedButtonStyle}" Margin="0,15,0,0" Click="btnAñadirTarea_Click"/>
                             </Grid>
                         </Border>
 

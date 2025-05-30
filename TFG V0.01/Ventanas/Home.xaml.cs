@@ -963,6 +963,10 @@ namespace TFG_V0._01.Ventanas
             {
                 HideSlidePanelDetalles();
             }
+            if (SlidePanelTarea.Visibility == Visibility.Visible)
+            {
+                CerrarPanelTarea();
+            }
         }
 
         // Método para manejar el guardado del caso
@@ -1239,5 +1243,52 @@ namespace TFG_V0._01.Ventanas
                 }
             }
         }
+
+        private void btnAñadirTarea_Click(object sender, RoutedEventArgs e)
+        {
+            // Mostrar el overlay
+            OverlayPanel.Visibility = Visibility.Visible;
+            
+            // Mostrar el panel deslizante
+            SlidePanelTarea.Visibility = Visibility.Visible;
+            
+            // Crear y ejecutar la animación
+            var animation = new DoubleAnimation
+            {
+                From = 400,
+                To = 0,
+                Duration = TimeSpan.FromMilliseconds(300),
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+            };
+            
+            SlidePanelTareaTransform.BeginAnimation(TranslateTransform.XProperty, animation);
+        }
+
+        private void btnCancelarTarea_Click(object sender, RoutedEventArgs e)
+        {
+            CerrarPanelTarea();
+        }
+
+        private void CerrarPanelTarea()
+        {
+            // Crear y ejecutar la animación de cierre
+            var animation = new DoubleAnimation
+            {
+                From = 0,
+                To = 400,
+                Duration = TimeSpan.FromMilliseconds(300),
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseIn }
+            };
+            
+            animation.Completed += (s, e) =>
+            {
+                SlidePanelTarea.Visibility = Visibility.Collapsed;
+                OverlayPanel.Visibility = Visibility.Collapsed;
+            };
+            
+            SlidePanelTareaTransform.BeginAnimation(TranslateTransform.XProperty, animation);
+        }
+
+        
     }
 }

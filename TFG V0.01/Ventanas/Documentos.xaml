@@ -347,8 +347,19 @@
                         Style="{StaticResource RoundedButtonStyle}"
                         Click="ToggleFiltros_Click">
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="/TFG V0.01;component/Recursos/Iconos/documentos2.png" Width="20" Height="20"/>
-                        <TextBlock Text="Filtros" Foreground="White" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                        <Image Source="/TFG V0.01;component/Recursos/Iconos/documentos2.png" Width="20" Height="20">
+                            <Image.Style>
+                                <Style TargetType="Image">
+                                    <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/documentos.png"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                            <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/documentos2.png"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Image.Style>
+                        </Image>
+                        <TextBlock Text="Filtros" Margin="8,0,0,0" VerticalAlignment="Center" Style="{StaticResource PrimaryTextStyle}"/>
                     </StackPanel>
                 </Button>
             </Grid>

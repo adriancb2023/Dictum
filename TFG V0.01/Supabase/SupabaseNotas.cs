@@ -57,11 +57,18 @@ namespace TFG_V0._01.Supabase
             return response.Models;
         }
 
-        public async Task<Nota> InsertarAsync(Nota nota)
+        public async Task InsertarAsync(NotaInsertDto notaDto)
         {
             await InicializarAsync().ConfigureAwait(false);
-            var response = await _client.From<Nota>().Insert(nota).ConfigureAwait(false);
-            return response.Models.Count > 0 ? response.Models[0] : null;
+
+            var nuevaNota = new Nota
+            {
+                IdCaso = notaDto.IdCaso,
+                Nombre = notaDto.Nombre,
+                Descripcion = notaDto.Descripcion
+            };
+
+            await _client.From<Nota>().Insert(new List<Nota> { nuevaNota }).ConfigureAwait(false);
         }
 
         public async Task ActualizarAsync(Nota nota)

@@ -13,6 +13,7 @@ namespace TFG_V0._01.Supabase.Models
     public class Nota : BaseModel, INotifyPropertyChanged
     {
         [PrimaryKey("id", true)]
+        [Column("id")]
         public int Id { get; set; }
 
         [Column("id_caso")]
@@ -24,13 +25,23 @@ namespace TFG_V0._01.Supabase.Models
         [Column("descripcion")]
         public string Descripcion { get; set; }
 
-        [Column("fecha_creacion")]
-        public DateTime? FechaCreacion { get; set; }
-
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+    }
+
+    [Table("notas")]
+    public class NotaInsertDto
+    {
+        [Column("id_caso")]
+        public int IdCaso { get; set; }
+
+        [Column("nombre")]
+        public string Nombre { get; set; }
+
+        [Column("descripcion")]
+        public string Descripcion { get; set; }
     }
 } 

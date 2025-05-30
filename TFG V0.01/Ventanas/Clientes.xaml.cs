@@ -28,6 +28,11 @@ namespace TFG_V0._01.Ventanas
         #region variables animacion
         private Storyboard fadeInStoryboard;
         private Storyboard shakeStoryboard;
+        private Storyboard meshAnimStoryboard; // Storyboard para la animación del gradiente de malla
+
+        // Brushes para el fondo animado
+        private RadialGradientBrush mesh1Brush;
+        private RadialGradientBrush mesh2Brush;
         #endregion
 
         #region variables
@@ -107,8 +112,10 @@ namespace TFG_V0._01.Ventanas
             _supabaseCasoEtiquetas = new SupabaseCasoEtiquetas();
             _supabaseEstados = new SupabaseEstados();
             _supabaseDocumentos = new SupabaseDocumentos();
+            InitializeAnimations(); // Asegúrate de que esto inicialice meshAnimStoryboard si no lo hace ya
+            FindMeshBrushes(); // Nuevo método para encontrar los pinceles en el XAML
             AplicarModoSistema();
-            InitializeAnimations();
+            IniciarAnimacionMesh(); // Iniciar la animación del gradiente
             _ = CargarClientesAsync();
             this.DataContext = this;
             _casosActivos = new ObservableCollection<Caso>();
@@ -275,8 +282,12 @@ namespace TFG_V0._01.Ventanas
         #region Aplicar modo oscuro/claro cargado por sistema
         private void AplicarModoSistema()
         {
+            this.Tag = MainWindow.isDarkTheme; // Usar Tag para que los estilos DataTrigger funcionen
             var button = this.FindName("ThemeButton") as Button;
             var icon = button?.Template.FindName("ThemeIcon", button) as Image;
+            // meshGradientBrush ya no se usa directamente para cambiar colores aquí
+
+            if (mesh1Brush == null || mesh2Brush == null) return; // Asegurarse de que los pinceles se encontraron
 
             if (MainWindow.isDarkTheme)
             {
@@ -285,7 +296,12 @@ namespace TFG_V0._01.Ventanas
                 {
                     icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/sol.png", UriKind.Relative));
                 }
-                backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString("pack://application:,,,/TFG V0.01;component/Recursos/Background/oscuro/main.png") as ImageSource;
+                // Colores mesh oscuro (copiar de Home.xaml.cs)
+                mesh1Brush.GradientStops[0].Color = (Color)ColorConverter.ConvertFromString("#8C7BFF");
+                mesh1Brush.GradientStops[1].Color = (Color)ColorConverter.ConvertFromString("#08a693");
+                mesh2Brush.GradientStops[0].Color = (Color)ColorConverter.ConvertFromString("#3a4d5f");
+                mesh2Brush.GradientStops[1].Color = (Color)ColorConverter.ConvertFromString("#272c3f");
+
                 navbar.ActualizarTema(true);
             }
             else
@@ -295,7 +311,12 @@ namespace TFG_V0._01.Ventanas
                 {
                     icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/luna.png", UriKind.Relative));
                 }
-                backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString("pack://application:,,,/TFG V0.01;component/Recursos/Background/claro/main.png") as ImageSource;
+                // Colores mesh claro (copiar de Home.xaml.cs)
+                mesh1Brush.GradientStops[0].Color = (Color)ColorConverter.ConvertFromString("#de9cb8");
+                mesh1Brush.GradientStops[1].Color = (Color)ColorConverter.ConvertFromString("#9dcde1");
+                mesh2Brush.GradientStops[0].Color = (Color)ColorConverter.ConvertFromString("#dc8eb8");
+                mesh2Brush.GradientStops[1].Color = (Color)ColorConverter.ConvertFromString("#98d3ec");
+
                 navbar.ActualizarTema(false);
             }
         }
@@ -314,37 +335,15 @@ namespace TFG_V0._01.Ventanas
         {
             // Alternar el estado del tema
             MainWindow.isDarkTheme = !MainWindow.isDarkTheme;
-
-            // Obtener el botón y el icono
-            var button = sender as Button;
-            var icon = button?.Template.FindName("ThemeIcon", button) as Image;
-
-            if (MainWindow.isDarkTheme)
+            AplicarModoSistema();
+            // Puedes añadir una animación de fade para la ventana si quieres
+            var fadeAnimation = new DoubleAnimation
             {
-                // Cambiar a modo oscuro
-                if (icon != null)
-                {
-                    icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/sol.png", UriKind.Relative));
-                }
-
-                backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString(
-                    "pack://application:,,,/TFG V0.01;component/Recursos/Background/oscuro/main.png") as ImageSource;
-
-                navbar.ActualizarTema(true);
-            }
-            else
-            {
-                // Cambiar a modo claro
-                if (icon != null)
-                {
-                    icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/luna.png", UriKind.Relative));
-                }
-
-                backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString(
-                    "pack://application:,,,/TFG V0.01;component/Recursos/Background/claro/main.png") as ImageSource;
-
-                navbar.ActualizarTema(false);
-            }
+                 From = 0.7, // o el valor actual
+                 To = 1,
+                 Duration = TimeSpan.FromMilliseconds(300) // duración de la transición
+            };
+            this.BeginAnimation(OpacityProperty, fadeAnimation);
         }
 
         #endregion
@@ -410,13 +409,14 @@ namespace TFG_V0._01.Ventanas
             DoubleAnimation shakeAnimation = new DoubleAnimation
             {
                 From = 0,
-                To = 1,
+                To = 5,
                 AutoReverse = true,
                 RepeatBehavior = new RepeatBehavior(3),
                 Duration = TimeSpan.FromSeconds(0.05)
             };
-
             shakeStoryboard.Children.Add(shakeAnimation);
+
+            // meshAnimStoryboard se inicializará en IniciarAnimacionMesh
         }
 
         private void BeginFadeInAnimation()
@@ -440,6 +440,69 @@ namespace TFG_V0._01.Ventanas
             };
 
             trans.BeginAnimation(TranslateTransform.XProperty, anim);
+        }
+
+        private void FindMeshBrushes()
+        {
+            // Intentar encontrar los pinceles de gradiente por nombre en los recursos
+            // Esto asume que los RadialGradientBrush Mesh1 y Mesh2 están definidos directamente en Window.Resources
+            if (this.Resources.Contains("Mesh1") && this.Resources["Mesh1"] is RadialGradientBrush brush1)
+            {
+                mesh1Brush = brush1;
+            }
+            if (this.Resources.Contains("Mesh2") && this.Resources["Mesh2"] is RadialGradientBrush brush2)
+            {
+                mesh2Brush = brush2;
+            }
+
+            // Si no se encontraron como recursos directos, buscar en el DrawingBrush
+            if (mesh1Brush == null || mesh2Brush == null)
+            {
+                if (this.FindName("meshGradientBrush") is DrawingBrush drawingBrush && drawingBrush.Drawing is DrawingGroup drawingGroup)
+                {
+                    if (drawingGroup.Children.Count >= 2 &&
+                        drawingGroup.Children[0] is GeometryDrawing geoDrawing1 && geoDrawing1.Brush is RadialGradientBrush radialBrush1 &&
+                        drawingGroup.Children[1] is GeometryDrawing geoDrawing2 && geoDrawing2.Brush is RadialGradientBrush radialBrush2)
+                    {
+                        mesh1Brush = radialBrush1;
+                        mesh2Brush = radialBrush2;
+                    }
+                }
+            }
+             // Importante: Si los pinceles se usan como StaticResource dentro del DrawingBrush, 
+             // obtener referencias a los recursos originales puede ser complicado. 
+             // Una alternativa es clonarlos si es necesario modificar sus propiedades (Center).
+        }
+
+        private void IniciarAnimacionMesh()
+        {
+            if (mesh1Brush == null || mesh2Brush == null) return; // Asegurarse de que los pinceles se encontraron
+
+            // Detener si ya existe
+            meshAnimStoryboard?.Stop();
+            meshAnimStoryboard = new Storyboard();
+
+            // Animar Center de mesh1
+            var anim1 = new PointAnimationUsingKeyFrames();
+            anim1.KeyFrames.Add(new EasingPointKeyFrame(new Point(0.3, 0.3), KeyTime.FromTimeSpan(TimeSpan.Zero)));
+            anim1.KeyFrames.Add(new EasingPointKeyFrame(new Point(0.7, 0.5), KeyTime.FromTimeSpan(TimeSpan.FromSeconds(4))) { EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut } });
+            anim1.KeyFrames.Add(new EasingPointKeyFrame(new Point(0.3, 0.3), KeyTime.FromTimeSpan(TimeSpan.FromSeconds(8))) { EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut } });
+            anim1.RepeatBehavior = RepeatBehavior.Forever;
+            Storyboard.SetTarget(anim1, mesh1Brush);
+            Storyboard.SetTargetProperty(anim1, new PropertyPath(RadialGradientBrush.CenterProperty));
+            meshAnimStoryboard.Children.Add(anim1);
+
+            // Animar Center de mesh2
+            var anim2 = new PointAnimationUsingKeyFrames();
+            anim2.KeyFrames.Add(new EasingPointKeyFrame(new Point(0.7, 0.7), KeyTime.FromTimeSpan(TimeSpan.Zero)));
+            anim2.KeyFrames.Add(new EasingPointKeyFrame(new Point(0.4, 0.4), KeyTime.FromTimeSpan(TimeSpan.FromSeconds(4))) { EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut } });
+            anim2.KeyFrames.Add(new EasingPointKeyFrame(new Point(0.7, 0.7), KeyTime.FromTimeSpan(TimeSpan.FromSeconds(8))) { EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut } });
+            anim2.RepeatBehavior = RepeatBehavior.Forever;
+            Storyboard.SetTarget(anim2, mesh2Brush);
+            Storyboard.SetTargetProperty(anim2, new PropertyPath(RadialGradientBrush.CenterProperty));
+            meshAnimStoryboard.Children.Add(anim2);
+
+            meshAnimStoryboard.Begin();
         }
         #endregion
 

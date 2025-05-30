@@ -151,7 +151,7 @@
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Background" Value="#50FFFFFF"/>
                 </Trigger>
-                 <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
                     <Setter Property="Background" Value="#30000000"/>
                     <Setter Property="BorderBrush" Value="#40000000"/>
                 </DataTrigger>
@@ -240,24 +240,27 @@
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Margin" Value="5"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="CheckBox">
                         <Grid>
                             <Border x:Name="Border" 
-                                    Background="{TemplateBinding Background}"
-                                    CornerRadius="10"
+                                    Background="#30FFFFFF"
+                                    CornerRadius="6"
                                     BorderThickness="1"
                                     BorderBrush="#40FFFFFF"
-                                    Width="20" 
-                                    Height="20">
+                                    Width="22" 
+                                    Height="22">
                                 <Path x:Name="CheckMark"
                                       Stroke="#FFFFFF"
                                       StrokeThickness="2"
-                                      Data="M 0,5 L 5,10 L 10,0"
-                                      Visibility="Collapsed"/>
+                                      Data="M 2,6 L 8,12 L 18,2"
+                                      Visibility="Collapsed"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"/>
                             </Border>
-                            <ContentPresenter Margin="25,0,0,0" 
+                            <ContentPresenter Margin="30,0,0,0" 
                                             VerticalAlignment="Center"/>
                         </Grid>
                         <ControlTemplate.Triggers>
@@ -265,10 +268,14 @@
                                 <Setter Property="Visibility" Value="Visible" TargetName="CheckMark"/>
                                 <Setter Property="Background" Value="#40FFFFFF" TargetName="Border"/>
                             </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#50FFFFFF" TargetName="Border"/>
+                            </Trigger>
                             <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
                                 <Setter Property="BorderBrush" Value="#40000000" TargetName="Border"/>
                                 <Setter Property="Stroke" Value="#222222" TargetName="CheckMark"/>
                                 <Setter Property="Background" Value="#30000000" TargetName="Border"/>
+                                <Setter Property="Foreground" Value="{StaticResource TextPrimaryLight}"/>
                             </DataTrigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -276,7 +283,7 @@
             </Setter>
         </Style>
 
-         <!-- Gradientes para el panel deslizante -->
+        <!-- Gradientes para el panel deslizante -->
         <LinearGradientBrush x:Key="SlidePanelGradientDark" StartPoint="0,0" EndPoint="1,1">
             <GradientStop Color="#070055" Offset="0"/>
             <GradientStop Color="#250055" Offset="1"/>
@@ -462,15 +469,14 @@
         <Grid x:Name="SlidePanelFiltros" 
               Grid.Column="2" Grid.RowSpan="3" 
               Style="{StaticResource FilterSlidePanelStyle}"
-              Visibility="Collapsed">
+              Visibility="Visible">
             <Grid.RenderTransform>
                 <TranslateTransform x:Name="SlidePanelFiltrosTransform" X="300"/>
             </Grid.RenderTransform>
-             <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel Margin="20">
-                     <TextBlock Text="Filtros de Documentos" FontSize="20" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,20"/>
-                    <!-- El contenido actual de PanelFiltros va aquí -->
-                     <StackPanel Margin="0,5">
+                    <TextBlock Text="Filtros de Documentos" FontSize="20" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,20"/>
+                    <StackPanel Margin="0,5">
                         <TextBlock Text="Cliente:" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
                         <ComboBox x:Name="ComboClientesPanel" Style="{StaticResource ComboBoxStyle}"
                                   ItemsSource="{Binding ListaClientes}"
@@ -492,8 +498,7 @@
                     <StackPanel Margin="0,5">
                         <TextBlock Text="Tipo de Documento:" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
                         <WrapPanel>
-                            <CheckBox Content="PDF" Tag="PDF" IsChecked="False" 
-                                      Style="{StaticResource CheckBoxStyle}"/>
+                            <CheckBox Content="PDF" Tag="PDF" IsChecked="False" Style="{StaticResource CheckBoxStyle}" Width="56"/>
                             <CheckBox Content="Audio" Tag="AUD" IsChecked="False" Style="{StaticResource CheckBoxStyle}"/>
                             <CheckBox Content="Imagen" Tag="IMG" IsChecked="False" Style="{StaticResource CheckBoxStyle}"/>
                             <CheckBox Content="Video" Tag="VID" IsChecked="False" Style="{StaticResource CheckBoxStyle}"/>
@@ -503,16 +508,15 @@
 
                     <!-- Botones de acción para filtros -->
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
-                         <Button Content="Aplicar" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,10,0" Padding="20,10"/>
-                         <Button Content="Restablecer" Style="{StaticResource RoundedButtonStyle}" Padding="20,10"/>
+                        <Button Content="Aplicar" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,10,0" Padding="20,10" Width="100"/>
+                        <Button Content="Restablecer" Style="{StaticResource RoundedButtonStyle}" Padding="20,10" Width="100"/>
                     </StackPanel>
                 </StackPanel>
             </ScrollViewer>
         </Grid>
 
-         <!-- Botón de tema -->
+        <!-- Botón de tema -->
         <Button x:Name="ThemeButton" Width="35" Height="35" Style="{StaticResource ThemeButtonStyle}" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,20,20" Click="ThemeButton_Click"/>
-
 
     </Grid>
 </Window>

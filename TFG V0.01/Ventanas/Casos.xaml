@@ -542,6 +542,26 @@
         <conv:CountToVisibilityConverter x:Key="CountToVisibilityConverter" />
         <conv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <conv:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
+
+        <!-- Gradientes para el panel deslizante -->
+        <LinearGradientBrush x:Key="SlidePanelGradientDark" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#070055" Offset="0"/>
+            <GradientStop Color="#250055" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="SlidePanelGradientLight" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#ee6ef5" Offset="0"/>
+            <GradientStop Color="#57b9ff" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- Estilo para el panel deslizante -->
+        <Style x:Key="SlidePanelStyle" TargetType="Grid">
+            <Setter Property="Background" Value="{StaticResource SlidePanelGradientDark}"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Background" Value="{StaticResource SlidePanelGradientLight}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
     </Window.Resources>
 
     <Grid>
@@ -559,6 +579,118 @@
         <controls:NavbarControl x:Name="navbar" Grid.Column="0" Tag="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}"/>
         <!-- Botón de tema claro/oscuro -->
         <Button x:Name="ThemeButton" Width="35" Height="35" Margin="0" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="ThemeButton_Click" Style="{StaticResource ThemeButtonStyle}" Grid.Column="2"/>
+
+        <!-- Grid deslizante para editar eventos -->
+        <Grid x:Name="EditarEventoGrid" 
+              Grid.Column="0" Grid.ColumnSpan="3"
+              Width="400"
+              HorizontalAlignment="Right"
+              Panel.ZIndex="1000"
+              Visibility="Collapsed"
+              Style="{StaticResource SlidePanelStyle}">
+            <Grid.RenderTransform>
+                <TranslateTransform x:Name="EditarEventoTransform" X="400"/>
+            </Grid.RenderTransform>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Encabezado -->
+            <Border Background="Transparent" Padding="20,15">
+                <Grid>
+                    <TextBlock Text="Editar Evento" 
+                             Style="{StaticResource PrimaryTextStyle}" 
+                             FontSize="20" 
+                             FontWeight="Bold"/>
+                    <Button x:Name="btnCerrarEditarEvento" 
+                            Content="✕" 
+                            Style="{StaticResource NoBorderRoundedButtonStyle}"
+                            HorizontalAlignment="Right"
+                            Click="CerrarEditarEvento_Click"/>
+                </Grid>
+            </Border>
+
+            <!-- Contenido -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="20">
+                    <TextBlock Text="Título" 
+                             Style="{StaticResource PrimaryTextStyle}" 
+                             FontWeight="SemiBold" 
+                             FontSize="15" 
+                             Margin="0,0,0,8"/>
+                    <TextBox x:Name="txtTituloEvento" 
+                            Background="#30FFFFFF" 
+                            Foreground="{StaticResource TextPrimaryDark}" 
+                            BorderThickness="1" 
+                            BorderBrush="#40FFFFFF" 
+                            Padding="10,5" 
+                            Height="30" 
+                            FontSize="15" 
+                            Margin="0,0,0,20"/>
+
+                    <TextBlock Text="Descripción" 
+                             Style="{StaticResource PrimaryTextStyle}" 
+                             FontWeight="SemiBold" 
+                             FontSize="15" 
+                             Margin="0,0,0,8"/>
+                    <TextBox x:Name="txtDescripcionEvento" 
+                            Background="#30FFFFFF" 
+                            Foreground="{StaticResource TextPrimaryDark}" 
+                            BorderThickness="1" 
+                            BorderBrush="#40FFFFFF" 
+                            Padding="10,5" 
+                            Height="60" 
+                            FontSize="15" 
+                            AcceptsReturn="True" 
+                            Margin="0,0,0,20"/>
+
+                    <TextBlock Text="Hora y minutos" 
+                             Style="{StaticResource PrimaryTextStyle}" 
+                             FontWeight="SemiBold" 
+                             FontSize="15" 
+                             Margin="0,0,0,8"/>
+                    <materialDesign:TimePicker x:Name="timePickerEvento" 
+                                             Margin="0,0,0,20" 
+                                             Height="32"/>
+
+                    <TextBlock Text="Estado" 
+                             Style="{StaticResource PrimaryTextStyle}" 
+                             FontWeight="SemiBold" 
+                             FontSize="15" 
+                             Margin="0,0,0,8"/>
+                    <ComboBox x:Name="cbEstadoEvento" 
+                             Margin="0,0,0,20" 
+                             DisplayMemberPath="Nombre" 
+                             SelectedValuePath="Id" 
+                             Style="{StaticResource ModernComboBoxStyle}"
+                             Height="44"/>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- Botones -->
+            <StackPanel Grid.Row="2" 
+                      Orientation="Horizontal" 
+                      HorizontalAlignment="Right" 
+                      Margin="20">
+                <Button Content="Guardar" 
+                        Style="{StaticResource RoundedButtonStyle}" 
+                        Click="GuardarEvento_Click" 
+                        Margin="0,0,10,0"/>
+                <Button Content="Cancelar" 
+                        Style="{StaticResource RoundedButtonStyle}" 
+                        Click="CancelarEvento_Click"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Overlay para cerrar al hacer clic fuera -->
+        <Grid x:Name="OverlayPanel" 
+              Grid.Column="0" Grid.ColumnSpan="3"
+              Background="#80000000" 
+              Panel.ZIndex="999"
+              Visibility="Collapsed"
+              MouseDown="OverlayPanel_MouseDown"/>
 
         <!-- Contenido principal -->
         <Grid Grid.Column="2" Margin="20">

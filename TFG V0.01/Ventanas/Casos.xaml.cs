@@ -846,31 +846,8 @@ namespace TFG_V0._01.Ventanas
         private async void AñadirEvento_Click(object sender, RoutedEventArgs e)
         {
             var estados = await ObtenerEstadosEventosAsync();
-            var ventana = new EditarEventoWindow(estados);
-            if (ventana.ShowDialog() == true)
-            {
-                var selectedTime = ventana.HoraMinuto ?? DateTime.Now;
-                // Crear la fecha completa con la fecha seleccionada y la hora elegida
-                var fechaEvento = new DateTime(
-                    _fechaSeleccionada.Year,
-                    _fechaSeleccionada.Month,
-                    _fechaSeleccionada.Day,
-                    selectedTime.Hour,
-                    selectedTime.Minute,
-                    0
-                );
-                var nuevoEvento = new EventoCita
-                {
-                    Titulo = ventana.TituloEvento,
-                    Descripcion = ventana.DescripcionEvento,
-                    Fecha = fechaEvento, // Asignar la fecha completa
-                    FechaInicio = new TimeSpan(selectedTime.Hour, selectedTime.Minute, 0),
-                    IdEstado = ventana.EstadoSeleccionado.Id,
-                    IdCaso = CasoSeleccionado?.id ?? 0
-                };
-                await _eventosCitasService.InsertarEventoCita(nuevoEvento);
-                await CargarEventosDelDia(); // Recargar la lista tras añadir
-            }
+            // Mostrar el grid deslizante en lugar de la ventana
+            MostrarGridEditarEvento(null, estados);
         }
 
         private async void ModificarEvento_Click(object sender, RoutedEventArgs e)
@@ -879,32 +856,143 @@ namespace TFG_V0._01.Ventanas
             {
                 var evento = await _eventosCitasService.ObtenerEventoCita(vm.Id);
                 var estados = await ObtenerEstadosEventosAsync();
-                var ventana = new EditarEventoWindow(
-                    estados,
-                    evento.Titulo,
-                    evento.Descripcion,
-                    DateTime.Today.Add(evento.FechaInicio),
-                    evento.IdEstado
-                );
-                if (ventana.ShowDialog() == true)
-                {
-                    evento.Titulo = ventana.TituloEvento;
-                    evento.Descripcion = ventana.DescripcionEvento;
-
-                    // Get the selected time or use current time as fallback
-                    var selectedTime = ventana.HoraMinuto ?? DateTime.Now;
-
-                    // Create a TimeSpan with just the hours and minutes
-                    evento.FechaInicio = new TimeSpan(selectedTime.Hour, selectedTime.Minute, 0);
-
-                    evento.IdEstado = ventana.EstadoSeleccionado.Id;
-                    await _eventosCitasService.ActualizarEventoCita(evento);
-                    await CargarEventosDelDia();
-                }
+                // Mostrar el grid deslizante en lugar de la ventana
+                MostrarGridEditarEvento(evento, estados);
             }
             else
             {
                 MessageBox.Show("Selecciona un evento para modificar.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private void MostrarGridEditarEvento(EventoCita evento = null, List<EstadoEvento> estados = null)
+        {
+            // Configurar el grid
+            EditarEventoGrid.Visibility = Visibility.Visible;
+            OverlayPanel.Visibility = Visibility.Visible;
+            cbEstadoEvento.ItemsSource = estados;
+
+            if (evento != null)
+            {
+                // Modo edición
+                txtTituloEvento.Text = evento.Titulo;
+                txtDescripcionEvento.Text = evento.Descripcion;
+                timePickerEvento.SelectedTime = DateTime.Today.Add(evento.FechaInicio);
+                cbEstadoEvento.SelectedValue = evento.IdEstado;
+                eventoEditando = evento;
+                esEdicion = true;
+            }
+            else
+            {
+                // Modo creación
+                txtTituloEvento.Text = "";
+                txtDescripcionEvento.Text = "";
+                timePickerEvento.SelectedTime = DateTime.Now;
+                if (estados?.Count > 0)
+                    cbEstadoEvento.SelectedIndex = 0;
+                eventoEditando = null;
+                esEdicion = false;
+            }
+
+            // Animar la entrada
+            var animation = new DoubleAnimation
+            {
+                From = 400,
+                To = 0,
+                Duration = TimeSpan.FromSeconds(0.3),
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+            };
+            EditarEventoTransform.BeginAnimation(TranslateTransform.XProperty, animation);
+        }
+
+        private void CerrarEditarEvento_Click(object sender, RoutedEventArgs e)
+        {
+            CerrarGridEditarEvento();
+        }
+
+        private void CancelarEvento_Click(object sender, RoutedEventArgs e)
+        {
+            CerrarGridEditarEvento();
+        }
+
+        private void OverlayPanel_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            CerrarGridEditarEvento();
+        }
+
+        private void CerrarGridEditarEvento()
+        {
+            var animation = new DoubleAnimation
+            {
+                From = 0,
+                To = 400,
+                Duration = TimeSpan.FromSeconds(0.3),
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseIn }
+            };
+            animation.Completed += (s, e) => 
+            {
+                EditarEventoGrid.Visibility = Visibility.Collapsed;
+                OverlayPanel.Visibility = Visibility.Collapsed;
+            };
+            EditarEventoTransform.BeginAnimation(TranslateTransform.XProperty, animation);
+        }
+
+        private async void GuardarEvento_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtTituloEvento.Text))
+            {
+                MessageBox.Show("El título es obligatorio.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            if (cbEstadoEvento.SelectedItem == null)
+            {
+                MessageBox.Show("Selecciona un estado.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                var selectedTime = timePickerEvento.SelectedTime ?? DateTime.Now;
+                var fechaEvento = new DateTime(
+                    _fechaSeleccionada.Year,
+                    _fechaSeleccionada.Month,
+                    _fechaSeleccionada.Day,
+                    selectedTime.Hour,
+                    selectedTime.Minute,
+                    0
+                );
+
+                if (esEdicion && eventoEditando != null)
+                {
+                    // Modificar evento existente
+                    eventoEditando.Titulo = txtTituloEvento.Text;
+                    eventoEditando.Descripcion = txtDescripcionEvento.Text;
+                    eventoEditando.Fecha = fechaEvento;
+                    eventoEditando.FechaInicio = new TimeSpan(selectedTime.Hour, selectedTime.Minute, 0);
+                    eventoEditando.IdEstado = ((EstadoEvento)cbEstadoEvento.SelectedItem).Id;
+                    await _eventosCitasService.ActualizarEventoCita(eventoEditando);
+                }
+                else
+                {
+                    // Crear nuevo evento
+                    var nuevoEvento = new EventoCita
+                    {
+                        Titulo = txtTituloEvento.Text,
+                        Descripcion = txtDescripcionEvento.Text,
+                        Fecha = fechaEvento,
+                        FechaInicio = new TimeSpan(selectedTime.Hour, selectedTime.Minute, 0),
+                        IdEstado = ((EstadoEvento)cbEstadoEvento.SelectedItem).Id,
+                        IdCaso = CasoSeleccionado?.id ?? 0
+                    };
+                    await _eventosCitasService.InsertarEventoCita(nuevoEvento);
+                }
+
+                await CargarEventosDelDia();
+                CerrarGridEditarEvento();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al guardar el evento: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

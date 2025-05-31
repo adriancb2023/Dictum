@@ -24,19 +24,25 @@ namespace TFG_V0._01.Supabase
         public async Task<List<Tarea>> ObtenerTareasDelCaso(int casoId)
             => (await _client.From<Tarea>().Where(x => x.id_caso == casoId).Get()).Models;
 
-        public Task ActualizarTarea(Tarea tarea)
-            => _client.From<Tarea>().Update(tarea);
+        public Task ActualizarTarea(int id, TareaUpdateDto tarea)
+            => _client.From<Tarea>()
+                .Where(x => x.id == id)
+                .Set(x => x.titulo, tarea.titulo)
+                .Set(x => x.descripcion, tarea.descripcion)
+                .Set(x => x.fecha_creacion, tarea.fecha_creacion)
+                .Set(x => x.fecha_fin, tarea.fecha_fin)
+                .Set(x => x.id_caso, tarea.id_caso)
+                .Set(x => x.prioridad, tarea.prioridad)
+                .Set(x => x.estado, tarea.estado)
+                .Update();
 
         public Task ActualizarAsync(Tarea tarea)
             => _client.From<Tarea>().Update(tarea);
 
-        public Task CrearTarea(Tarea tarea)
-            => _client.From<Tarea>().Insert(tarea);
+        public Task CrearTarea(TareaInsertDto tarea)
+            => _client.From<TareaInsertDto>().Insert(tarea);
 
         public Task EliminarTarea(int id)
             => _client.From<Tarea>().Where(x => x.id == id).Delete();
-
-        public Task ActualizarEstadoTarea(int id, bool completada)
-            => _client.From<Tarea>().Where(x => x.id == id).Set(x => x.completada, completada).Update();
     }
 }

@@ -715,7 +715,9 @@
                                                             <ColumnDefinition Width="*"/>
                                                         </Grid.ColumnDefinitions>
                                                         <CheckBox Grid.Column="0" Margin="0,0,10,0" VerticalAlignment="Center"
-                                                                      Checked="CheckBox_TareaFinalizada"/>
+                                                                      IsChecked="{Binding completada, Mode=TwoWay}"
+                                                                      Checked="CheckBox_TareaFinalizada"
+                                                                      Unchecked="CheckBox_TareaFinalizada"/>
                                                         <StackPanel Grid.Column="1">
                                                             <TextBlock Text="{Binding titulo}" Style="{StaticResource PrimaryTextStyle}" TextWrapping="Wrap"/>
                                                             <TextBlock Text="{Binding descripcion}" Style="{StaticResource SecondaryTextStyle}" FontSize="12" Margin="0,5,0,0"/>

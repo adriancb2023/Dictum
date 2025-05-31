@@ -593,7 +593,7 @@ namespace TFG_V0._01.Ventanas
 
                 // Procesar tareas
                 var tareas = await tareasTask;
-                var tareasPendientes = tareas.Where(t => t.estado != "Finalizado").ToList();
+                var tareasPendientes = tareas.Where(t => t.estado != "Completada").ToList();
                 TareasPendientes = tareasPendientes.Count();
 
                 TareasPendientesLista.Clear();
@@ -749,7 +749,17 @@ namespace TFG_V0._01.Ventanas
             try
             {
                 await _tareasService.InicializarAsync();
-                await _tareasService.ActualizarAsync(tarea);
+                var updateDto = new TFG_V0._01.Supabase.Models.TareaUpdateDto
+                {
+                    titulo = tarea.titulo,
+                    descripcion = tarea.descripcion,
+                    fecha_creacion = tarea.fecha_creacion,
+                    fecha_fin = tarea.fecha_fin,
+                    id_caso = tarea.id_caso,
+                    prioridad = tarea.prioridad,
+                    estado = tarea.estado
+                };
+                await _tareasService.ActualizarTarea(tarea.id.Value, updateDto);
             }
             catch (Exception ex)
             {
@@ -828,8 +838,18 @@ namespace TFG_V0._01.Ventanas
             {
                 try
                 {
-                    tarea.estado = checkBox.IsChecked ?? false ? "Finalizado" : "Pendiente";
+                    if (checkBox.IsChecked == true)
+                    {
+                        if (tarea.estado != "Completada")
+                            tarea.estadoAnterior = tarea.estado;
+                        tarea.estado = "Completada";
+                    }
+                    else
+                    {
+                        tarea.estado = !string.IsNullOrEmpty(tarea.estadoAnterior) ? tarea.estadoAnterior : "Pendiente";
+                    }
                     await ActualizarTarea(tarea);
+                    // No refrescar la lista aquí, para que la tarea siga visible hasta que el usuario refresque manualmente o cambie de ventana
                 }
                 catch (Exception ex)
                 {

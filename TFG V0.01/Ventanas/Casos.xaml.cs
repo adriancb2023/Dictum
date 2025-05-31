@@ -732,6 +732,11 @@ namespace TFG_V0._01.Ventanas
             {
                 await _supabaseTareas.InicializarAsync();
                 var tareas = await _supabaseTareas.ObtenerTareasDelCaso(casoId);
+                // Inicializar la propiedad 'completada' según el estado
+                foreach (var tarea in tareas)
+                {
+                    tarea.completada = tarea.estado == "Completada";
+                }
                 _tareasDelCaso = tareas;
                 TareasList.ItemsSource = tareas;
             }
@@ -1251,7 +1256,7 @@ namespace TFG_V0._01.Ventanas
                 txtTituloTarea.Text = tarea.titulo;
                 txtDescripcionTarea.Text = tarea.descripcion;
                 cbPrioridadTarea.SelectedItem = tarea.prioridad;
-                dpFechaVencimientoTarea.SelectedDate = tarea.fecha_vencimiento;
+                dpFechaVencimientoTarea.SelectedDate = tarea.fecha_fin;
                 cbEstadoTarea.SelectedItem = tarea.estado;
                 tareaEditando = tarea;
                 esEdicionTarea = true;
@@ -1326,22 +1331,32 @@ namespace TFG_V0._01.Ventanas
                     tareaEditando.titulo = txtTituloTarea.Text;
                     tareaEditando.descripcion = txtDescripcionTarea.Text;
                     tareaEditando.prioridad = cbPrioridadTarea.SelectedItem.ToString();
-                    tareaEditando.fecha_vencimiento = dpFechaVencimientoTarea.SelectedDate.Value;
+                    tareaEditando.fecha_fin = dpFechaVencimientoTarea.SelectedDate.Value;
                     tareaEditando.estado = cbEstadoTarea.SelectedItem.ToString();
-                    await _supabaseTareas.ActualizarTarea(tareaEditando);
+                    var updateDto = new TFG_V0._01.Supabase.Models.TareaUpdateDto
+                    {
+                        titulo = tareaEditando.titulo,
+                        descripcion = tareaEditando.descripcion,
+                        fecha_creacion = tareaEditando.fecha_creacion,
+                        fecha_fin = tareaEditando.fecha_fin,
+                        id_caso = tareaEditando.id_caso,
+                        prioridad = tareaEditando.prioridad,
+                        estado = tareaEditando.estado
+                    };
+                    await _supabaseTareas.ActualizarTarea(tareaEditando.id.Value, updateDto);
                 }
                 else
                 {
                     // Crear nueva tarea
-                    var nuevaTarea = new Tarea
+                    var nuevaTarea = new TFG_V0._01.Supabase.Models.TareaInsertDto
                     {
                         titulo = txtTituloTarea.Text,
                         descripcion = txtDescripcionTarea.Text,
                         prioridad = cbPrioridadTarea.SelectedItem.ToString(),
-                        fecha_vencimiento = dpFechaVencimientoTarea.SelectedDate.Value,
+                        fecha_fin = dpFechaVencimientoTarea.SelectedDate.Value,
                         estado = cbEstadoTarea.SelectedItem.ToString(),
                         id_caso = _casoSeleccionado.id,
-                        completada = false
+                        fecha_creacion = DateTime.Now
                     };
                     await _supabaseTareas.CrearTarea(nuevaTarea);
                 }
@@ -1599,36 +1614,14 @@ namespace TFG_V0._01.Ventanas
         {
             if (_tareaSeleccionada == null) return;
 
-            var result = MessageBox.Show("¿Está seguro de que desea eliminar esta tarea?", "Confirmar eliminación",
-                MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-            if (result == MessageBoxResult.Yes)
+            if (_tareaSeleccionada.id.HasValue)
             {
-                try
-                {
-                    await _supabaseTareas.EliminarTarea(_tareaSeleccionada.id);
-                    await CargarTareasDelCaso(_casoSeleccionado.id);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error al eliminar la tarea: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+                await _supabaseTareas.EliminarTarea(_tareaSeleccionada.id.Value);
+                await CargarTareasDelCaso(_casoSeleccionado.id);
             }
-        }
-
-        private async void TareaCheckBox_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is CheckBox checkBox && checkBox.DataContext is Tarea tarea)
+            else
             {
-                try
-                {
-                    await _supabaseTareas.ActualizarEstadoTarea(tarea.id, checkBox.IsChecked ?? false);
-                    await CargarTareasDelCaso(_casoSeleccionado.id);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error al actualizar el estado de la tarea: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+                MessageBox.Show("La tarea seleccionada no tiene un ID válido.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -1821,6 +1814,33 @@ namespace TFG_V0._01.Ventanas
                 catch (Exception ex)
                 {
                     MessageBox.Show($"Error al descargar el documento: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private async void TareaCheckBox_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is CheckBox checkBox && checkBox.DataContext is Tarea tarea)
+            {
+                try
+                {
+                    var updateDto = new TFG_V0._01.Supabase.Models.TareaUpdateDto
+                    {
+                        titulo = tarea.titulo,
+                        descripcion = tarea.descripcion,
+                        fecha_creacion = tarea.fecha_creacion,
+                        fecha_fin = tarea.fecha_fin,
+                        id_caso = tarea.id_caso,
+                        prioridad = tarea.prioridad,
+                        estado = tarea.estado
+                    };
+                    await _supabaseTareas.ActualizarTarea(tarea.id.Value, updateDto);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error al actualizar el estado de la tarea: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    // Revertir el cambio en caso de error
+                    tarea.completada = !tarea.completada;
                 }
             }
         }

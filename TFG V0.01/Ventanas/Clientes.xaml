@@ -434,6 +434,64 @@
             </Style.Triggers>
         </Style>
 
+        <!-- Estilo para el panel de edición -->
+        <Style x:Key="EditPanelStyle" TargetType="Border">
+            <Setter Property="Background" Value="#CC222222"/>
+            <Setter Property="CornerRadius" Value="15"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="15" ShadowDepth="2" Color="Black" Opacity="0.3"/>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Background" Value="#CCFFFFFF"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Estilo para los campos de edición -->
+        <Style x:Key="EditFieldStyle" TargetType="StackPanel">
+            <Setter Property="Margin" Value="0,0,0,10"/>
+        </Style>
+
+        <!-- Estilo para las etiquetas de edición -->
+        <Style x:Key="EditLabelStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource TextSecondaryDark}"/>
+            <Setter Property="Margin" Value="0,0,0,5"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Foreground" Value="{StaticResource TextSecondaryLight}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Estilo para los TextBox de edición -->
+        <Style x:Key="EditTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource RoundedTextBoxStyle}">
+            <Setter Property="Background" Value="#40FFFFFF"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderColorDark}"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Background" Value="#40000000"/>
+                    <Setter Property="Foreground" Value="{StaticResource TextPrimaryLight}"/>
+                    <Setter Property="BorderBrush" Value="{StaticResource BorderColorLight}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Estilo para los botones de edición -->
+        <Style x:Key="EditButtonStyle" TargetType="Button" BasedOn="{StaticResource ThemeAwareRoundedButtonStyle}">
+            <Setter Property="Width" Value="100"/>
+            <Setter Property="Margin" Value="0,10,10,0"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+
     </Window.Resources>
 
     <Grid>
@@ -576,30 +634,58 @@
                                 </StackPanel>
 
                                 <!-- Panel de edición -->
-                                <Border x:Name="EditPersonalInfoPanel" Background="#CC222222" CornerRadius="15" Padding="20" Visibility="{Binding IsEditPersonalInfoVisible, Converter={StaticResource BoolToVisibilityConverter}}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Opacity="0.97">
+                                <Border x:Name="EditPersonalInfoPanel" Style="{StaticResource EditPanelStyle}" Visibility="{Binding IsEditPersonalInfoVisible, Converter={StaticResource BoolToVisibilityConverter}}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
                                     <StackPanel>
-                                        <TextBlock Text="{Binding EditFechaContrato, StringFormat='Fecha de contrato: {0:dd/MM/yyyy}'}" Style="{StaticResource PrimaryTextStyle}" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
-                                        <TextBlock Text="Nombre:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,5"/>
-                                        <TextBox Text="{Binding EditNombre, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedTextBoxStyle}" Margin="0,0,0,10"/>
-                                        <TextBlock Text="Primer Apellido:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,5"/>
-                                        <TextBox Text="{Binding EditApellido1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedTextBoxStyle}" Margin="0,0,0,10"/>
-                                        <TextBlock Text="Segundo Apellido:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,5"/>
-                                        <TextBox Text="{Binding EditApellido2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedTextBoxStyle}" Margin="0,0,0,10"/>
-                                        <TextBlock Text="DNI:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,5"/>
-                                        <TextBox Text="{Binding EditDNI, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedTextBoxStyle}" Margin="0,0,0,10"/>
-                                        <TextBlock Text="Teléfono 1:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,5"/>
-                                        <TextBox Text="{Binding EditTelefono1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedTextBoxStyle}" Margin="0,0,0,10"/>
-                                        <TextBlock Text="Teléfono 2:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,5"/>
-                                        <TextBox Text="{Binding EditTelefono2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedTextBoxStyle}" Margin="0,0,0,10"/>
-                                        <TextBlock Text="Email 1:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,5"/>
-                                        <TextBox Text="{Binding EditEmail1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedTextBoxStyle}" Margin="0,0,0,10"/>
-                                        <TextBlock Text="Email 2:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,5"/>
-                                        <TextBox Text="{Binding EditEmail2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedTextBoxStyle}" Margin="0,0,0,10"/>
-                                        <TextBlock Text="Dirección:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,5"/>
-                                        <TextBox Text="{Binding EditDireccion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedTextBoxStyle}" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                                        <TextBlock Text="{Binding EditFechaContrato, StringFormat='Fecha de contrato: {0:dd/MM/yyyy}'}" Style="{StaticResource PrimaryTextStyle}" FontWeight="Bold" FontSize="16" Margin="0,0,0,20"/>
+                                        
+                                        <StackPanel Style="{StaticResource EditFieldStyle}">
+                                            <TextBlock Text="Nombre:" Style="{StaticResource EditLabelStyle}"/>
+                                            <TextBox Text="{Binding EditNombre, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource EditTextBoxStyle}"/>
+                                        </StackPanel>
+
+                                        <StackPanel Style="{StaticResource EditFieldStyle}">
+                                            <TextBlock Text="Primer Apellido:" Style="{StaticResource EditLabelStyle}"/>
+                                            <TextBox Text="{Binding EditApellido1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource EditTextBoxStyle}"/>
+                                        </StackPanel>
+
+                                        <StackPanel Style="{StaticResource EditFieldStyle}">
+                                            <TextBlock Text="Segundo Apellido:" Style="{StaticResource EditLabelStyle}"/>
+                                            <TextBox Text="{Binding EditApellido2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource EditTextBoxStyle}"/>
+                                        </StackPanel>
+
+                                        <StackPanel Style="{StaticResource EditFieldStyle}">
+                                            <TextBlock Text="DNI:" Style="{StaticResource EditLabelStyle}"/>
+                                            <TextBox Text="{Binding EditDNI, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource EditTextBoxStyle}"/>
+                                        </StackPanel>
+
+                                        <StackPanel Style="{StaticResource EditFieldStyle}">
+                                            <TextBlock Text="Teléfono 1:" Style="{StaticResource EditLabelStyle}"/>
+                                            <TextBox Text="{Binding EditTelefono1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource EditTextBoxStyle}"/>
+                                        </StackPanel>
+
+                                        <StackPanel Style="{StaticResource EditFieldStyle}">
+                                            <TextBlock Text="Teléfono 2:" Style="{StaticResource EditLabelStyle}"/>
+                                            <TextBox Text="{Binding EditTelefono2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource EditTextBoxStyle}"/>
+                                        </StackPanel>
+
+                                        <StackPanel Style="{StaticResource EditFieldStyle}">
+                                            <TextBlock Text="Email 1:" Style="{StaticResource EditLabelStyle}"/>
+                                            <TextBox Text="{Binding EditEmail1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource EditTextBoxStyle}"/>
+                                        </StackPanel>
+
+                                        <StackPanel Style="{StaticResource EditFieldStyle}">
+                                            <TextBlock Text="Email 2:" Style="{StaticResource EditLabelStyle}"/>
+                                            <TextBox Text="{Binding EditEmail2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource EditTextBoxStyle}"/>
+                                        </StackPanel>
+
+                                        <StackPanel Style="{StaticResource EditFieldStyle}">
+                                            <TextBlock Text="Dirección:" Style="{StaticResource EditLabelStyle}"/>
+                                            <TextBox Text="{Binding EditDireccion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource EditTextBoxStyle}" TextWrapping="Wrap"/>
+                                        </StackPanel>
+
                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                            <Button Content="Guardar" Style="{StaticResource ThemeAwareRoundedButtonStyle}" Width="100" Margin="0,10,10,0" Click="GuardarInformacion_Click"/>
-                                            <Button Content="Cancelar" Style="{StaticResource ThemeAwareRoundedButtonStyle}" Width="100" Margin="0,10,0,0" Click="CancelarInformacion_Click"/>
+                                            <Button Content="Guardar" Style="{StaticResource EditButtonStyle}" Click="GuardarInformacion_Click"/>
+                                            <Button Content="Cancelar" Style="{StaticResource EditButtonStyle}" Margin="10,10,0,0" Click="CancelarInformacion_Click"/>
                                         </StackPanel>
                                     </StackPanel>
                                 </Border>

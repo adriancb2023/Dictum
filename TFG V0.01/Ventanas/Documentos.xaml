@@ -398,7 +398,7 @@
 
             <!-- Paneles de Documentos -->
             <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Margin="0,20,0,0">
-                <ItemsControl x:Name="DocumentPanels" ItemsSource="{Binding DocumentPanelsCollection}">
+                <ItemsControl x:Name="DocumentPanels">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <UniformGrid Columns="2"/>
@@ -478,21 +478,24 @@
                     <TextBlock Text="Filtros de Documentos" FontSize="20" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,20"/>
                     <StackPanel Margin="0,5">
                         <TextBlock Text="Cliente:" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
-                        <ComboBox x:Name="ComboClientesPanel" Style="{StaticResource ComboBoxStyle}"
+                        <ComboBox x:Name="ComboClientesPanel"
                                   ItemsSource="{Binding ListaClientes}"
-                                  DisplayMemberPath="nombre_cliente"/>
+                                  DisplayMemberPath="nombre_cliente"
+                                  SelectionChanged="ComboClientes_SelectionChanged"
+                                  Width="200" Height="35"/>
                     </StackPanel>
 
                     <StackPanel Margin="0,5">
                         <TextBlock Text="Caso:" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
-                        <ComboBox x:Name="ComboCasosPanel" Style="{StaticResource ComboBoxStyle}"
+                        <ComboBox x:Name="ComboCasosPanel"
                                   ItemsSource="{Binding ListaCasosFiltrados}"
-                                  DisplayMemberPath="titulo"/>
+                                  DisplayMemberPath="titulo"
+                                  Width="200" Height="35"/>
                     </StackPanel>
 
                     <StackPanel Margin="0,5">
                         <TextBlock Text="Fecha:" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
-                        <DatePicker x:Name="FiltroFechaPanel" Width="200" Height="35"/>
+                        <DatePicker x:Name="FiltroFechaPanel" Width="200" Height="35" Language="es-ES" SelectedDateFormat="Short"/>
                     </StackPanel>
 
                     <StackPanel Margin="0,5">
@@ -508,8 +511,8 @@
 
                     <!-- Botones de acción para filtros -->
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
-                        <Button Content="Aplicar" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,10,0" Padding="20,10" Width="100"/>
-                        <Button Content="Restablecer" Style="{StaticResource RoundedButtonStyle}" Padding="20,10" Width="100"/>
+                        <Button Content="Aplicar" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,10,0" Padding="20,10" Width="100" Click="AplicarFiltros_Click"/>
+                        <Button Content="Restablecer" Style="{StaticResource RoundedButtonStyle}" Padding="20,10" Width="100" Click="RestablecerFiltros_Click"/>
                     </StackPanel>
                 </StackPanel>
             </ScrollViewer>

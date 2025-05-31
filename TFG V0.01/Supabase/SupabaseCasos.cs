@@ -116,19 +116,7 @@ namespace TFG_V0._01.Supabase
         public async Task InsertarAsync(CasoInsertDto caso)
         {
             await InicializarAsync().ConfigureAwait(false);
-
-            var nuevoCaso = new Caso
-            {
-                id_cliente = caso.id_cliente,
-                titulo = caso.titulo,
-                descripcion = caso.descripcion,
-                fecha_inicio = caso.fecha_inicio,
-                id_estado = caso.id_estado,
-                id_tipo_caso = caso.id_tipo_caso,
-                referencia = caso.referencia
-            };
-
-            await _client.From<Caso>().Insert(new List<Caso> { nuevoCaso }).ConfigureAwait(false);
+            await _client.From<CasoInsertDto>().Insert(new List<CasoInsertDto> { caso }).ConfigureAwait(false);
         }
 
         public async Task ActualizarAsync(Caso caso)

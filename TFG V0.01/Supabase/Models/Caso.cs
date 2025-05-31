@@ -55,26 +55,20 @@ namespace TFG_V0._01.Supabase.Models
 
     // DTO para inserción
     [Table("casos")]
-    public class CasoInsertDto
+    public class CasoInsertDto : BaseModel
     {
         [Column("id_cliente")]
         public int id_cliente { get; set; }
-
         [Column("titulo")]
         public string titulo { get; set; }
-
         [Column("descripcion")]
         public string descripcion { get; set; }
-
         [Column("fecha_inicio")]
         public DateTime fecha_inicio { get; set; }
-
         [Column("id_estado")]
         public int id_estado { get; set; }
-
         [Column("id_tipo_caso")]
         public int id_tipo_caso { get; set; }
-
         [Column("referencia")]
         public string referencia { get; set; }
     }

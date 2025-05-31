@@ -14,6 +14,7 @@ using TFG_V0._01.Controladores;
 using System.ComponentModel;
 using System.Windows.Media.Imaging;
 using TFG_V0._01.Supabase.Models;
+using System.Threading.Tasks;
 
 namespace TFG_V0._01.Ventanas
 {
@@ -35,6 +36,8 @@ namespace TFG_V0._01.Ventanas
         private DrawingBrush? _meshGradientBrush;
 
         public ObservableCollection<DocumentPanel> DocumentPanelsCollection { get; set; } = new();
+        public ObservableCollection<Cliente> ListaClientes { get; set; } = new();
+        public ObservableCollection<Caso> ListaCasosFiltrados { get; set; } = new();
 
         public event PropertyChangedEventHandler? PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName)
@@ -45,6 +48,8 @@ namespace TFG_V0._01.Ventanas
 
         public Documentos()
         {
+            System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("es-ES");
+            System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("es-ES");
             InitializeComponent();
             DataContext = this;
 
@@ -61,8 +66,10 @@ namespace TFG_V0._01.Ventanas
             };
 
             InitializeDocumentPanels();
+            DocumentPanels.ItemsSource = DocumentPanelsCollection;
             InitializeMeshGradient();
             UpdateTheme();
+            _ = CargarClientesAsync();
         }
 
         #region 🌓 Aplicar modo oscuro/claro cargado por sistema
@@ -135,7 +142,7 @@ namespace TFG_V0._01.Ventanas
         #region Inicialización de Paneles
         private void InitializeDocumentPanels()
         {
-            DocumentPanelsCollection = new ObservableCollection<DocumentPanel>();
+            DocumentPanelsCollection.Clear();
             var panelTypes = new[] { "PDF", "IMG", "VID", "AUD", "OTR" };
             var panelTitles = new[] { "Documentos PDF", "Imágenes", "Videos", "Audios", "Otros Documentos" };
 
@@ -149,8 +156,6 @@ namespace TFG_V0._01.Ventanas
                     IsOddPanel = i % 2 == 0
                 });
             }
-
-            DocumentPanels.ItemsSource = DocumentPanelsCollection;
         }
         #endregion
 
@@ -210,41 +215,169 @@ namespace TFG_V0._01.Ventanas
             }
         }
 
-        private void ComboClientes_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void AplicarFiltros_Click(object sender, RoutedEventArgs e)
         {
-            // TODO: Implement client selection change logic
-            // Nota: Este manejador se llama desde el ComboBox en el panel de filtros.
-            // Asegúrate de que el x:Name del ComboBox en el panel deslizante sea ComboClientesPanel
-            var selectedClient = ComboClientesPanel.SelectedItem;
-            if (selectedClient != null)
+            await FiltrarYMostrarDocumentosAsync();
+            HideSlidePanelFiltros();
+        }
+
+        private async void RestablecerFiltros_Click(object sender, RoutedEventArgs e)
+        {
+            ComboClientesPanel.SelectedItem = null;
+            ComboCasosPanel.SelectedItem = null;
+            FiltroFechaPanel.SelectedDate = null;
+            // Buscar el WrapPanel de tipos de documento de forma robusta
+            var tipoDocWrapPanel = FindVisualChildren<WrapPanel>(SlidePanelFiltros)
+                .FirstOrDefault(wp => wp.Children.OfType<CheckBox>().Any(cb => cb.Tag != null));
+            if (tipoDocWrapPanel != null)
             {
-                // Update cases list based on selected client
-                // Update documents list based on selected client
+                foreach (var child in tipoDocWrapPanel.Children)
+                    if (child is CheckBox cb) cb.IsChecked = true;
+            }
+            await FiltrarYMostrarDocumentosAsync();
+        }
+
+        private async void ComboClientes_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var cliente = ComboClientesPanel.SelectedItem as TFG_V0._01.Supabase.Models.Cliente;
+            ListaCasosFiltrados.Clear();
+            ComboCasosPanel.SelectedItem = null;
+            if (cliente != null)
+            {
+                var casosService = new TFG_V0._01.Supabase.SupabaseCasos();
+                var casos = await casosService.ObtenerTodosAsync();
+                foreach (var caso in casos.Where(c => c.id_cliente == cliente.id))
+                    ListaCasosFiltrados.Add(caso);
             }
         }
 
-        private void ComboCasos_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async Task FiltrarYMostrarDocumentosAsync()
         {
-            // TODO: Implement case selection change logic
-            // Nota: Este manejador se llama desde el ComboBox en el panel de filtros.
-            // Asegúrate de que el x:Name del ComboBox en el panel deslizante sea ComboCasosPanel
-            var selectedCase = ComboCasosPanel.SelectedItem;
-            if (selectedCase != null)
+            var clienteSeleccionado = ComboClientesPanel.SelectedItem as TFG_V0._01.Supabase.Models.Cliente;
+            var casoSeleccionado = ComboCasosPanel.SelectedItem as TFG_V0._01.Supabase.Models.Caso;
+            var fechaSeleccionada = FiltroFechaPanel.SelectedDate;
+
+            // Buscar el WrapPanel de tipos de documento de forma robusta
+            var tipoDocWrapPanel = FindVisualChildren<WrapPanel>(SlidePanelFiltros)
+                .FirstOrDefault(wp => wp.Children.OfType<CheckBox>().Any(cb => cb.Tag != null));
+            var extensionesSeleccionadas = new List<string>();
+            var incluirOtros = false;
+            if (tipoDocWrapPanel != null)
             {
-                // Update documents list based on selected case
+                foreach (var child in tipoDocWrapPanel.Children)
+                {
+                    if (child is CheckBox cb && cb.IsChecked == true && cb.Tag is string tipo)
+                    {
+                        switch (tipo)
+                        {
+                            case "PDF":
+                                extensionesSeleccionadas.Add(".pdf");
+                                break;
+                            case "AUD":
+                                extensionesSeleccionadas.AddRange(new[] { ".mp3", ".wav", ".ogg", ".aac", ".flac" });
+                                break;
+                            case "IMG":
+                                extensionesSeleccionadas.AddRange(new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff" });
+                                break;
+                            case "VID":
+                                extensionesSeleccionadas.AddRange(new[] { ".mp4", ".avi", ".mov", ".wmv", ".mkv", ".webm" });
+                                break;
+                            case "OTR":
+                                incluirOtros = true;
+                                break;
+                        }
+                    }
+                }
+            }
+
+            var documentosService = new TFG_V0._01.Supabase.SupabaseDocumentos();
+            var documentos = await documentosService.ObtenerTodosAsync();
+
+            if (clienteSeleccionado != null)
+                documentos = documentos.Where(d => d.Caso != null && d.Caso.id_cliente == clienteSeleccionado.id).ToList();
+
+            if (casoSeleccionado != null)
+                documentos = documentos.Where(d => d.id_caso == casoSeleccionado.id).ToList();
+
+            if (fechaSeleccionada != null)
+                documentos = documentos.Where(d => d.fecha_subid.Date == fechaSeleccionada.Value.Date).ToList();
+
+            if (extensionesSeleccionadas.Any() || incluirOtros)
+            {
+                documentos = documentos.Where(d =>
+                    extensionesSeleccionadas.Contains(NormalizarExtension(d.extension_archivo))
+                    || (incluirOtros && !EsExtensionClasica(d.extension_archivo))
+                ).ToList();
+            }
+
+            // Si no hay tipos seleccionados y no está marcado 'Otros', muestra todos los paneles vacíos
+            bool mostrarTodos = !extensionesSeleccionadas.Any() && !incluirOtros;
+
+            foreach (var panel in DocumentPanelsCollection)
+            {
+                if (mostrarTodos ||
+                    extensionesSeleccionadas.Any(ext => GetTipoPanelPorExtension(ext) == panel.Type) ||
+                    (incluirOtros && panel.Type == "OTR"))
+                {
+                    panel.IsVisible = true;
+                    panel.Files.Clear();
+                }
+                else
+                {
+                    panel.IsVisible = false;
+                    panel.Files.Clear();
+                }
+            }
+
+            // Añade archivos a los paneles visibles
+            foreach (var doc in documentos)
+            {
+                string tipoPanel = GetTipoPanelPorExtension(doc.extension_archivo);
+                var panel = DocumentPanelsCollection.FirstOrDefault(p => p.Type.Equals(tipoPanel, StringComparison.OrdinalIgnoreCase) && p.IsVisible);
+                if (panel != null)
+                {
+                    var file = new DocumentFile
+                    {
+                        Id = doc.id?.ToString() ?? string.Empty,
+                        Name = doc.nombre,
+                        Path = doc.ruta,
+                        Type = tipoPanel,
+                        UploadDate = doc.fecha_subid,
+                        Size = 0
+                    };
+                    panel.Files.Add(file);
+                }
             }
         }
 
-        private void FiltroFecha_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        // Normaliza la extensión a ".ext" en minúsculas
+        private string NormalizarExtension(string ext)
         {
-            // TODO: Implement date filter change logic
-             // Nota: Este manejador se llama desde el DatePicker en el panel de filtros.
-            // Asegúrate de que el x:Name del DatePicker en el panel deslizante sea FiltroFechaPanel
-            var selectedDate = FiltroFechaPanel.SelectedDate;
-            if (selectedDate.HasValue)
-            {
-                // Filter documents based on selected date
-            }
+            if (string.IsNullOrWhiteSpace(ext)) return "";
+            ext = ext.Trim().ToLower();
+            if (!ext.StartsWith(".")) ext = "." + ext;
+            return ext;
+        }
+
+        // Función auxiliar para saber si una extensión es clásica (PDF, audio, imagen, video)
+        private bool EsExtensionClasica(string ext)
+        {
+            var e = NormalizarExtension(ext);
+            return e == ".pdf"
+                || new[] { ".mp3", ".wav", ".ogg", ".aac", ".flac" }.Contains(e)
+                || new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff" }.Contains(e)
+                || new[] { ".mp4", ".avi", ".mov", ".wmv", ".mkv", ".webm" }.Contains(e);
+        }
+
+        // Función auxiliar para mapear extensión a tipo de panel
+        private string GetTipoPanelPorExtension(string ext)
+        {
+            var e = NormalizarExtension(ext);
+            if (e == ".pdf") return "PDF";
+            if (new[] { ".mp3", ".wav", ".ogg", ".aac", ".flac" }.Contains(e)) return "AUD";
+            if (new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff" }.Contains(e)) return "IMG";
+            if (new[] { ".mp4", ".avi", ".mov", ".wmv", ".mkv", ".webm" }.Contains(e)) return "VID";
+            return "OTR";
         }
 
         private void DragOver(object sender, DragEventArgs e)
@@ -468,6 +601,36 @@ namespace TFG_V0._01.Ventanas
              if (icon != null)
                  icon.Source = new BitmapImage(new Uri(GetIconoTema(), UriKind.Relative));
         }
+
+        private async Task CargarClientesAsync()
+        {
+            var clientesService = new TFG_V0._01.Supabase.SupabaseClientes();
+            var clientes = await clientesService.ObtenerClientesAsync();
+            ListaClientes.Clear();
+            foreach (var c in clientes)
+                ListaClientes.Add(c);
+        }
+
+        // Helper para buscar visualmente hijos de un tipo
+        public static IEnumerable<T> FindVisualChildren<T>(DependencyObject depObj) where T : DependencyObject
+        {
+            if (depObj != null)
+            {
+                for (int i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
+                {
+                    DependencyObject child = VisualTreeHelper.GetChild(depObj, i);
+                    if (child != null && child is T t)
+                    {
+                        yield return t;
+                    }
+
+                    foreach (T childOfChild in FindVisualChildren<T>(child))
+                    {
+                        yield return childOfChild;
+                    }
+                }
+            }
+        }
     }
 
     public class DocumentPanel : INotifyPropertyChanged
@@ -503,8 +666,11 @@ namespace TFG_V0._01.Ventanas
             get => _isVisible;
             set
             {
-                _isVisible = value;
-                OnPropertyChanged(nameof(IsVisible));
+                if (_isVisible != value)
+                {
+                    _isVisible = value;
+                    OnPropertyChanged(nameof(IsVisible));
+                }
             }
         }
 

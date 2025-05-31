@@ -176,7 +176,19 @@ namespace TFG_V0._01.Ventanas
             {
                 await _supabaseClientes.InicializarAsync();
                 await _supabaseClientes.ActualizarClienteAsync(cliente);
+                int? idActualizado = cliente.id;
                 await CargarClientesAsync();
+
+                // Vuelve a seleccionar el cliente actualizado
+                if (idActualizado.HasValue)
+                {
+                    var actualizado = ListaClientes.FirstOrDefault(c => c.id == idActualizado);
+                    if (actualizado != null)
+                    {
+                        SelectedCliente = actualizado;
+                        OnPropertyChanged(nameof(SelectedCliente));
+                    }
+                }
             }
             catch (Exception ex)
             {

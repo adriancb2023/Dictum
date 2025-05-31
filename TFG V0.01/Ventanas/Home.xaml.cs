@@ -475,7 +475,6 @@ namespace TFG_V0._01.Ventanas
             resumenEventos.Text = t.ResumenEventos;
             listaTareas.Text = t.ListaTareas;
             btnAñadirTarea.Content = t.BtnAñadirTarea;
-            btnVerTodosCasos.Content = t.BtnVerTodosCasos;
             casosRecientes.Text = t.CasosRecientes;
             ncasos.Text = t.NCasos;
             Ccliente.Text = t.CCliente;

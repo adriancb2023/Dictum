@@ -603,7 +603,6 @@ namespace TFG_V0._01.Ventanas
             if (combo != null)
             {
                 _clientesView = CollectionViewSource.GetDefaultView(combo.ItemsSource);
-                combo.IsTextSearchEnabled = false;
             }
         }
 
@@ -616,13 +615,12 @@ namespace TFG_V0._01.Ventanas
             _clientesView.Filter = item =>
             {
                 var cliente = item as Cliente;
-                return cliente != null && (
-                    (cliente.nombre_cliente?.ToLower().Contains(text) ?? false) ||
-                    (cliente.email1?.ToLower().Contains(text) ?? false)
-                );
+                if (cliente == null) return false;
+
+                var nombreCompleto = cliente.nombre_cliente?.ToLower() ?? "";
+                return nombreCompleto.Contains(text);
             };
             _clientesView.Refresh();
-            combo.IsDropDownOpen = true;
         }
 
         private void ComboClientes_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -644,10 +642,10 @@ namespace TFG_V0._01.Ventanas
             if (button?.TemplatedParent is ComboBox combo)
             {
                 combo.SelectedItem = null;
+                _clientesView?.Refresh();
             }
         }
 
-        // Evento para ver documento
         private void VerDocumento_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -667,7 +665,6 @@ namespace TFG_V0._01.Ventanas
             }
         }
 
-        // Evento para descargar documento
         private async void DescargarDocumento_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button btn && btn.DataContext is Documento doc)
@@ -715,46 +712,6 @@ namespace TFG_V0._01.Ventanas
                     MessageBox.Show($"Error al descargar el documento: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
-        }
-
-
-        private void ClientesComboBox_DropDownOpened(object sender, EventArgs e)
-        {
-            ExpandComboBoxContainer();
-        }
-
-        private void ClientesComboBox_DropDownClosed(object sender, EventArgs e)
-        {
-            CollapseComboBoxContainer();
-        }
-
-        private void ExpandComboBoxContainer()
-        {
-            var anim = new DoubleAnimation
-            {
-                To = 300, // altura expandida
-                Duration = TimeSpan.FromMilliseconds(200)
-            };
-            ComboBoxContainer.BeginAnimation(HeightProperty, anim);
-        }
-
-        private void CollapseComboBoxContainer()
-        {
-            var anim = new DoubleAnimation
-            {
-                To = 40, // altura contraída
-                Duration = TimeSpan.FromMilliseconds(200)
-            };
-            ComboBoxContainer.BeginAnimation(HeightProperty, anim);
-        }
-
-        private void atras(object sender, RoutedEventArgs e)
-        {
-            ClientDetailsGrid.Visibility = Visibility.Collapsed;
-            ClientesComboBox.SelectedItem = -1;
-            ClientesComboBox.SelectedItem = null;
-            ClientSelectorGrid.Visibility = Visibility.Visible;
-
         }
     }
 }

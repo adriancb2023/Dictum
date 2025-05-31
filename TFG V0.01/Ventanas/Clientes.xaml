@@ -6,6 +6,7 @@
         xmlns:controls="clr-namespace:TFG_V0._01.Controladores"
         xmlns:local="clr-namespace:TFG_V0._01.Ventanas"
         xmlns:conv="clr-namespace:TFG_V0._01.Converters"
+        xmlns:System="clr-namespace:System.Windows.Media;assembly=PresentationFramework"
         mc:Ignorable="d"
         Title="Clientes" Height="850" Width="1200"
         WindowStartupLocation="CenterScreen">
@@ -85,13 +86,8 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Button}">
-                        <Border x:Name="border" Background="{TemplateBinding Background}" 
-                        CornerRadius="20" BorderThickness="{TemplateBinding BorderThickness}" 
-                        BorderBrush="{TemplateBinding BorderBrush}">
-                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
-                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                      RecognizesAccessKey="True"
-                                      TextElement.Foreground="{TemplateBinding Foreground}"/>
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="20" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" RecognizesAccessKey="True" TextElement.Foreground="{TemplateBinding Foreground}"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -121,13 +117,8 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Button}">
-                        <Border x:Name="border" 
-                                Background="{TemplateBinding Background}" 
-                                CornerRadius="20" 
-                                BorderThickness="{TemplateBinding BorderThickness}" 
-                                BorderBrush="{TemplateBinding BorderBrush}">
-                            <ContentPresenter HorizontalAlignment="Center" 
-                                            VerticalAlignment="Center"/>
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="20" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -154,12 +145,8 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Button}">
-                        <Border x:Name="border" Background="{TemplateBinding Background}" 
-                                CornerRadius="20" BorderThickness="{TemplateBinding BorderThickness}" 
-                                BorderBrush="{TemplateBinding BorderBrush}">
-                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
-                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                      RecognizesAccessKey="True"/>
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="20" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" RecognizesAccessKey="True"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -191,64 +178,39 @@
             <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
             <Setter Property="BorderBrush" Value="{StaticResource BorderColorDark}"/>
             <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10,5"/>
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type ComboBox}">
+                    <ControlTemplate TargetType="ComboBox">
                         <Grid>
-                            <Border
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="10">
-                                <ToggleButton
-                                    Name="MainToggle"
-                                    Grid.Column="0"
-                                    Focusable="False"
-                                    IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
-                                    Background="Transparent"
-                                    BorderThickness="0">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="30"/>
-                                        </Grid.ColumnDefinitions>
-                                        <ContentPresenter
-                                            Grid.Column="0"
-                                            Content="{TemplateBinding SelectedItem}"
-                                            ContentTemplate="{TemplateBinding ItemTemplate}"
-                                            Margin="10,0,0,0"
-                                            VerticalAlignment="Center"
-                                            HorizontalAlignment="Stretch"/>
-                                        <Path
-                                            Grid.Column="1"
-                                            Data="M0,0 L4,4 L8,0"
-                                            Stroke="{TemplateBinding Foreground}"
-                                            StrokeThickness="2"
-                                            Width="20"
-                                            Height="20"
-                                            Margin="0,0,10,0"
-                                            VerticalAlignment="Center"
-                                            HorizontalAlignment="Right"/>
-                                    </Grid>
-                                </ToggleButton>
+                            <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition Width="35"/>
+                                    </Grid.ColumnDefinitions>
+                                    <ContentPresenter Grid.Column="0" Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}" Margin="10,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+                                    <ToggleButton Grid.Column="1" IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" ClickMode="Press" Focusable="False">
+                                        <ToggleButton.Style>
+                                            <Style TargetType="ToggleButton">
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="ToggleButton">
+                                                            <Border Background="Transparent" Width="30">
+                                                                <Path Data="M0,0 L4,4 L8,0" Stroke="{TemplateBinding Foreground}" StrokeThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                            </Border>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Style>
+                                        </ToggleButton.Style>
+                                    </ToggleButton>
+                                </Grid>
                             </Border>
-                            <Popup 
-                                IsOpen="{TemplateBinding IsDropDownOpen}" 
-                                Placement="Bottom"
-                                AllowsTransparency="True" 
-                                Focusable="False"
-                                PopupAnimation="Slide"
-                                Panel.ZIndex="9999">
-                                <Grid MaxHeight="{TemplateBinding MaxDropDownHeight}"
-                                      MinWidth="{Binding Path=ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
-                                    <Border Background="{StaticResource CardBackgroundDark}" 
-                                            BorderBrush="{StaticResource BorderColorDark}"
-                                            BorderThickness="1" 
-                                            CornerRadius="10" 
-                                            Margin="0,5,0,0"
-                                            Effect="{StaticResource DropShadowEffect}">
-                                        <ScrollViewer SnapsToDevicePixels="True"
-                                                    Margin="5">
+                            <Popup IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom" AllowsTransparency="True" Focusable="False" PopupAnimation="Slide" Panel.ZIndex="9999">
+                                <Grid MaxHeight="{TemplateBinding MaxDropDownHeight}" MinWidth="{Binding Path=ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
+                                    <Border Background="{StaticResource CardBackgroundDark}" BorderBrush="{StaticResource BorderColorDark}" BorderThickness="1" CornerRadius="10" Margin="0,5,0,0" Effect="{StaticResource DropShadowEffect}">
+                                        <ScrollViewer SnapsToDevicePixels="True" Margin="5">
                                             <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained"/>
                                         </ScrollViewer>
                                     </Border>
@@ -273,8 +235,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type ToggleButton}">
                         <Border Background="Transparent" Width="30">
-                            <Path Data="M0,0 L4,4 L8,0" Stroke="White" StrokeThickness="2"
-                                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <Path Data="M0,0 L4,4 L8,0" Stroke="White" StrokeThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                     </ControlTemplate>
                 </Setter.Value>
@@ -364,9 +325,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
-                                CornerRadius="12"
-                                SnapsToDevicePixels="True">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="12" SnapsToDevicePixels="True">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -397,65 +356,28 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="ComboBox">
                         <Grid>
-                            <Border
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="10">
+                            <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="10">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition/>
                                         <ColumnDefinition Width="35"/>
                                         <ColumnDefinition Width="30"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBox x:Name="PART_EditableTextBox"
-                                            Grid.Column="0"
-                                            Text="{Binding Text, RelativeSource={RelativeSource TemplatedParent}, UpdateSourceTrigger=PropertyChanged}"
-                                            Background="Transparent"
-                                            Foreground="White"
-                                            BorderThickness="0"
-                                            Padding="10,0,0,0"
-                                            VerticalAlignment="Center"/>
+                                    <TextBox x:Name="PART_EditableTextBox" Grid.Column="0" Text="{Binding Text, RelativeSource={RelativeSource TemplatedParent}, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" Foreground="White" BorderThickness="0" Padding="10,0,0,0" VerticalAlignment="Center"/>
                                     <!-- Botón X -->
-                                    <Button x:Name="ClearButton"
-                                            Grid.Column="1"
-                                            Content="✖"
-                                            Width="25" Height="25"
-                                            Margin="5,0,0,0"
-                                            Foreground="Red"
-                                            Background="Transparent"
-                                            BorderThickness="0"
-                                            Visibility="{Binding SelectedItem, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource NullToVisibilityConverter}}"
-                                            Click="ClearComboBox_Click"/>
+                                    <Button x:Name="ClearButton" Grid.Column="1" Content="✖" Width="25" Height="25" Margin="5,0,0,0" Foreground="Red" Background="Transparent" BorderThickness="0" Visibility="{Binding SelectedItem, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource NullToVisibilityConverter}}" Click="ClearComboBox_Click"/>
                                     <!-- Flecha desplegable -->
-                                    <ToggleButton
-                                        Grid.Column="2"
-                                        IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
-                                        ClickMode="Press"
-                                        Focusable="False">
+                                    <ToggleButton Grid.Column="2" IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" ClickMode="Press" Focusable="False">
                                         <ToggleButton.Style>
                                             <Style TargetType="ToggleButton" BasedOn="{StaticResource ComboBoxToggleButtonStyle}"/>
                                         </ToggleButton.Style>
                                     </ToggleButton>
                                 </Grid>
                             </Border>
-                            <Popup 
-                                IsOpen="{TemplateBinding IsDropDownOpen}" 
-                                Placement="Bottom"
-                                AllowsTransparency="True" 
-                                Focusable="False"
-                                PopupAnimation="Slide"
-                                Panel.ZIndex="9999">
-                                <Grid MaxHeight="{TemplateBinding MaxDropDownHeight}"
-                                      MinWidth="{Binding Path=ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
-                                    <Border Background="#90454545" 
-                                            BorderBrush="#40FFFFFF"
-                                            BorderThickness="1" 
-                                            CornerRadius="10" 
-                                            Margin="0,5,0,0"
-                                            Effect="{StaticResource DropShadowEffect}">
-                                        <ScrollViewer SnapsToDevicePixels="True"
-                                                    Margin="5">
+                            <Popup IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom" AllowsTransparency="True" Focusable="False" PopupAnimation="Slide" Panel.ZIndex="9999">
+                                <Grid MaxHeight="{TemplateBinding MaxDropDownHeight}" MinWidth="{Binding Path=ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
+                                    <Border Background="#90454545" BorderBrush="#40FFFFFF" BorderThickness="1" CornerRadius="10" Margin="0,5,0,0" Effect="{StaticResource DropShadowEffect}">
+                                        <ScrollViewer SnapsToDevicePixels="True" Margin="5">
                                             <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained"/>
                                         </ScrollViewer>
                                     </Border>
@@ -477,13 +399,8 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
-                        <Border Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="10">
-                            <ScrollViewer x:Name="PART_ContentHost" 
-                                        Margin="{TemplateBinding Padding}"
-                                        VerticalAlignment="Center"/>
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="10">
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" VerticalAlignment="Center"/>
                         </Border>
                     </ControlTemplate>
                 </Setter.Value>
@@ -560,9 +477,9 @@
 
                         <!-- Contenedor superior: título + combo -->
                         <StackPanel Grid.Row="0" Margin="20">
-                            <TextBlock Text="Seleccionar Cliente" FontSize="24" Style="{StaticResource PrimaryTextStyle}" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                            <TextBlock Text="Seleccionar Cliente" FontSize="24" Style="{StaticResource PrimaryTextStyle}" HorizontalAlignment="Center" Margin="0,0,0,30"/>
                             <Grid x:Name="ComboBoxContainer" Height="40">
-                                <ComboBox x:Name="ClientesComboBox" Style="{StaticResource ComboBoxWithClearStyle}" IsEditable="True" StaysOpenOnEdit="True" IsTextSearchEnabled="False" MaxDropDownHeight="300" Loaded="ComboClientes_Loaded" KeyUp="ComboClientes_KeyUp" SelectionChanged="ComboClientes_SelectionChanged" DropDownOpened="ClientesComboBox_DropDownOpened" DropDownClosed="ClientesComboBox_DropDownClosed" ItemsSource="{Binding ListaClientes}" SelectedItem="{Binding SelectedCliente, Mode=TwoWay}"/>
+                                <ComboBox x:Name="ClientesComboBox" Width="400" Height="30" Margin="0" Loaded="ComboClientes_Loaded" KeyUp="ComboClientes_KeyUp" SelectionChanged="ComboClientes_SelectionChanged" ItemsSource="{Binding ListaClientes}" SelectedItem="{Binding SelectedCliente, Mode=TwoWay}"/>
                             </Grid>
                         </StackPanel>
 
@@ -589,31 +506,14 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Button Grid.Column="0" 
-                            Style="{StaticResource ThemeAwareRoundedButtonStyle}" 
-                            Margin="0,0,20,0"
-                            Height="45"
-                            Width="90"
-                            Click="atras">
+                    <Button Grid.Column="0" Style="{StaticResource ThemeAwareRoundedButtonStyle}" Margin="0,0,20,0" Height="45" Width="90">
                         <StackPanel Orientation="Horizontal">
-                            <Image x:Name="volver" Source="/TFG V0.01;component/Recursos/Iconos/volver.png" 
-                                   Width="24" 
-                                   Height="24" 
-                                   VerticalAlignment="Center"/>
-                            <TextBlock Text="Volver" 
-                                       Margin="10,0,0,0" 
-                                       VerticalAlignment="Center"/>
+                            <Image x:Name="volver" Source="/TFG V0.01;component/Recursos/Iconos/volver.png" Width="24" Height="24" VerticalAlignment="Center"/>
+                            <TextBlock Text="Volver" Margin="10,0,0,0" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
 
-                    <TextBlock Grid.Column="1" 
-                               x:Name="ClienteNombreHeader" 
-                               Text="{Binding SelectedCliente.nombre_cliente}"
-                               Style="{StaticResource PrimaryTextStyle}"
-                               FontSize="24" 
-                               FontWeight="Bold"
-                               VerticalAlignment="Center"
-                               TextWrapping="Wrap"/>
+                    <TextBlock Grid.Column="1" x:Name="ClienteNombreHeader" Text="{Binding SelectedCliente.nombre_cliente}" Style="{StaticResource PrimaryTextStyle}" FontSize="24" FontWeight="Bold" VerticalAlignment="Center" TextWrapping="Wrap"/>
                 </Grid>
                 
                 <!-- Contenido de los detalles -->
@@ -637,13 +537,8 @@
                         <Border Style="{StaticResource CardStyle}" Grid.Column="0" Grid.Row="0" Margin="0,0,0,10">
                             <Grid>
                                 <!-- Vista normal (no edición) -->
-                                <StackPanel x:Name="PersonalInfoPanel"
-                                            Visibility="{Binding IsEditPersonalInfoVisible, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                                    <TextBlock Text="{Binding SelectedCliente.fecha_contrato, StringFormat='Fecha de contrato: {0:dd/MM/yyyy}'}"
-                                               Style="{StaticResource PrimaryTextStyle}"
-                                               FontWeight="Bold"
-                                               FontSize="16"
-                                               Margin="0,0,0,10"/>
+                                <StackPanel x:Name="PersonalInfoPanel" Visibility="{Binding IsEditPersonalInfoVisible, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                    <TextBlock Text="{Binding SelectedCliente.fecha_contrato, StringFormat='Fecha de contrato: {0:dd/MM/yyyy}'}" Style="{StaticResource PrimaryTextStyle}" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
                                     <TextBlock Text="{Binding SelectedCliente.nombre_cliente}" Style="{StaticResource PrimaryTextStyle}" FontSize="16" Margin="0,0,0,10"/>
                                     <TextBlock Text="DNI:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,2"/>
                                     <TextBlock Text="{Binding SelectedCliente.id}" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,8"/>
@@ -657,28 +552,13 @@
                                     <TextBlock Text="{Binding SelectedCliente.email2}" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,8"/>
                                     <TextBlock Text="Dirección:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,2"/>
                                     <TextBlock Text="{Binding SelectedCliente.direccion}" Style="{StaticResource PrimaryTextStyle}" TextWrapping="Wrap" Margin="0,0,0,8"/>
-                                    <Button Content="Editar Información"
-                                            Style="{StaticResource ThemeAwareRoundedButtonStyle}"
-                                            HorizontalAlignment="Right"
-                                            Margin="0,10,0,0"
-                                            Click="EditarInformacion_Click" Height="45" Width="150"/>
+                                    <Button Content="Editar Información" Style="{StaticResource ThemeAwareRoundedButtonStyle}" HorizontalAlignment="Right" Margin="0,10,0,0" Click="EditarInformacion_Click" Height="45" Width="150"/>
                                 </StackPanel>
 
                                 <!-- Panel de edición -->
-                                <Border x:Name="EditPersonalInfoPanel"
-                                        Background="#CC222222"
-                                        CornerRadius="15"
-                                        Padding="20"
-                                        Visibility="{Binding IsEditPersonalInfoVisible, Converter={StaticResource BoolToVisibilityConverter}}"
-                                        VerticalAlignment="Stretch"
-                                        HorizontalAlignment="Stretch"
-                                        Opacity="0.97">
+                                <Border x:Name="EditPersonalInfoPanel" Background="#CC222222" CornerRadius="15" Padding="20" Visibility="{Binding IsEditPersonalInfoVisible, Converter={StaticResource BoolToVisibilityConverter}}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Opacity="0.97">
                                     <StackPanel>
-                                        <TextBlock Text="{Binding EditFechaContrato, StringFormat='Fecha de contrato: {0:dd/MM/yyyy}'}"
-                                                   Style="{StaticResource PrimaryTextStyle}"
-                                                   FontWeight="Bold"
-                                                   FontSize="16"
-                                                   Margin="0,0,0,10"/>
+                                        <TextBlock Text="{Binding EditFechaContrato, StringFormat='Fecha de contrato: {0:dd/MM/yyyy}'}" Style="{StaticResource PrimaryTextStyle}" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
                                         <TextBlock Text="Nombre:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,5"/>
                                         <TextBox Text="{Binding EditNombre, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedTextBoxStyle}" Margin="0,0,0,10"/>
                                         <TextBlock Text="Primer Apellido:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,5"/>
@@ -718,16 +598,10 @@
                                     <Button Grid.Column="1" Content="Nuevo Caso" Style="{StaticResource ThemeAwareRoundedButtonStyle}" Height="45" Width="120" Padding="15,0"/>
                                 </Grid>
                                 <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="300" Margin="0,10,0,0">
-                                    <ListView x:Name="CasosActivosList"
-                                              Background="Transparent"
-                                              BorderThickness="0"
-                                              Margin="0,15,0,0"
-                                              ItemsSource="{Binding CasosActivos}"
-                                              ItemContainerStyle="{StaticResource StretchingListViewItemStyle}">
+                                    <ListView x:Name="CasosActivosList" Background="Transparent" BorderThickness="0" Margin="0,15,0,0" ItemsSource="{Binding CasosActivos}" ItemContainerStyle="{StaticResource StretchingListViewItemStyle}">
                                         <ListView.ItemTemplate>
                                             <DataTemplate>
-                                                <Border Style="{StaticResource ListItemContainerStyle}"
-                                                        HorizontalAlignment="Stretch">
+                                                <Border Style="{StaticResource ListItemContainerStyle}" HorizontalAlignment="Stretch">
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="Auto"/>
@@ -746,13 +620,7 @@
                                                             <TextBlock Text="{Binding Estado.nombre}" Style="{StaticResource SecondaryTextStyle}" FontSize="13" Margin="0,2,0,0"/>
                                                         </StackPanel>
                                                         <!-- Botón detalles -->
-                                                        <Button Grid.Column="2"
-                                                                Content="Ver Detalles"
-                                                                Style="{StaticResource ThemeAwareRoundedButtonStyle}"
-                                                                Command="{Binding DataContext.VerDetallesCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                                CommandParameter="{Binding}"
-                                                                VerticalAlignment="Center"
-                                                                Margin="12,0,0,0" Height="45" Width="120"/>
+                                                        <Button Grid.Column="2" Content="Ver Detalles" Style="{StaticResource ThemeAwareRoundedButtonStyle}" Command="{Binding DataContext.VerDetallesCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" VerticalAlignment="Center" Margin="12,0,0,0" Height="45" Width="120"/>
                                                     </Grid>
                                                 </Border>
                                             </DataTemplate>
@@ -766,16 +634,10 @@
                         <Border Style="{StaticResource CardStyle}" Grid.Column="0" Grid.Row="4" Margin="0,0,0,10">
                             <StackPanel>
                                 <TextBlock Text="Historial de Casos" FontWeight="SemiBold" Style="{StaticResource PrimaryTextStyle}" FontSize="20" Margin="0,0,0,15"/>
-                                <ListView x:Name="HistorialCasosList"
-                                          Background="Transparent"
-                                          BorderThickness="0"
-                                          MaxHeight="300"
-                                          ItemsSource="{Binding HistorialCasos}"
-                                          ItemContainerStyle="{StaticResource StretchingListViewItemStyle}">
+                                <ListView x:Name="HistorialCasosList" Background="Transparent" BorderThickness="0" MaxHeight="300" ItemsSource="{Binding HistorialCasos}" ItemContainerStyle="{StaticResource StretchingListViewItemStyle}">
                                     <ListView.ItemTemplate>
                                         <DataTemplate>
-                                            <Border Style="{StaticResource ListItemContainerStyle}"
-                                                    HorizontalAlignment="Stretch">
+                                            <Border Style="{StaticResource ListItemContainerStyle}" HorizontalAlignment="Stretch">
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="Auto"/>
@@ -805,15 +667,10 @@
                             <StackPanel>
                                 <TextBlock Text="Documentos del Cliente" FontWeight="SemiBold" Style="{StaticResource PrimaryTextStyle}" FontSize="20" Margin="0,0,0,15"/>
                                 <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="1150">
-                                    <ListView x:Name="DocumentosClienteList"
-                                              Background="Transparent"
-                                              BorderThickness="0"
-                                              ItemsSource="{Binding DocumentosCliente}"
-                                              ItemContainerStyle="{StaticResource StretchingListViewItemStyle}">
+                                    <ListView x:Name="DocumentosClienteList" Background="Transparent" BorderThickness="0" ItemsSource="{Binding DocumentosCliente}" ItemContainerStyle="{StaticResource StretchingListViewItemStyle}">
                                         <ListView.ItemTemplate>
                                             <DataTemplate>
-                                                <Border Style="{StaticResource ListItemContainerStyle}"
-                                                        HorizontalAlignment="Stretch">
+                                                <Border Style="{StaticResource ListItemContainerStyle}" HorizontalAlignment="Stretch">
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="*"/>

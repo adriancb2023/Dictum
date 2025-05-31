@@ -4,11 +4,273 @@
        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
        xmlns:local="clr-namespace:TFG_V0._01.Ventanas"
+       xmlns:controls="clr-namespace:TFG_V0._01.Controladores"
        mc:Ignorable="d"
-       Title="Legislacion" Height="450" Width="800">
+       Title="Legislacion" Height="450" Width="800"
+       WindowStartupLocation="CenterScreen">
 
-   
-   <Grid>
+    <Window.Resources>
+        <!-- Estilo para el botón de cambio de tema -->
+        <Style x:Key="ThemeButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="20">
+                            <Image x:Name="ThemeIcon" Width="20" Height="20">
+                                <Image.Style>
+                                    <Style TargetType="Image">
+                                        <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/luna.png"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                                                <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/sol.png"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
+                            </Image>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Opacity" Value="0.8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Estilo para TextBox redondeado -->
+        <Style x:Key="RoundedTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Background" Value="#454545"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryDark}"/>
+            <Setter Property="CaretBrush" Value="{DynamicResource TextPrimaryDark}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="10" 
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                BorderBrush="{TemplateBinding BorderBrush}">
+                            <ScrollViewer x:Name="PART_ContentHost" 
+                                        Margin="10,2"
+                                        VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Background" Value="#FFFFFF"/>
+                    <Setter Property="Foreground" Value="{DynamicResource TextPrimaryLight}"/>
+                    <Setter Property="CaretBrush" Value="{DynamicResource TextPrimaryLight}"/>
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect Color="#CCCCCC" BlurRadius="5" ShadowDepth="2" Opacity="0.5"/>
+                        </Setter.Value>
+                    </Setter>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Estilo para DatePicker redondeado -->
+        <Style x:Key="RoundedDatePickerStyle" TargetType="DatePicker">
+            <Setter Property="Background" Value="#454545"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="DatePicker">
+                        <Grid>
+                            <Border Background="{TemplateBinding Background}" 
+                                    CornerRadius="10" 
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    BorderBrush="{TemplateBinding BorderBrush}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <DatePickerTextBox Grid.Column="0" 
+                                                      x:Name="PART_TextBox"
+                                                      Background="Transparent"
+                                                      BorderThickness="0"
+                                                      Padding="10,2">
+                                        <DatePickerTextBox.Style>
+                                            <Style TargetType="DatePickerTextBox">
+                                                <Setter Property="Foreground" Value="#FFF"/>
+                                                <Setter Property="CaretBrush" Value="#FFF"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                                        <Setter Property="Foreground" Value="#222"/>
+                                                        <Setter Property="CaretBrush" Value="#222"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DatePickerTextBox.Style>
+                                    </DatePickerTextBox>
+                                    <ToggleButton Grid.Column="1" 
+                                                x:Name="PART_Button"
+                                                Background="Transparent"
+                                                BorderThickness="0"
+                                                Padding="5"
+                                                IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+                                        <Path Data="M0,0 L4,4 L8,0"
+                                              StrokeThickness="2"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center">
+                                            <Path.Style>
+                                                <Style TargetType="Path">
+                                                    <Setter Property="Stroke" Value="{DynamicResource TextPrimaryDark}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                                            <Setter Property="Stroke" Value="{DynamicResource TextPrimaryLight}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Path.Style>
+                                        </Path>
+                                    </ToggleButton>
+                                </Grid>
+                            </Border>
+                            <Popup x:Name="PART_Popup" 
+                                   AllowsTransparency="True" 
+                                   IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   PlacementTarget="{Binding ElementName=PART_Button}"
+                                   Placement="Bottom">
+                                <Border Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="10">
+                                    <Calendar x:Name="PART_Calendar" 
+                                             Style="{DynamicResource {x:Type Calendar}}"/>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Background" Value="#FFFFFF"/>
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect Color="#CCCCCC" BlurRadius="5" ShadowDepth="2" Opacity="0.5"/>
+                        </Setter.Value>
+                    </Setter>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Botones redondeados -->
+        <Style x:Key="RoundedButtonStyle" TargetType="{x:Type Button}">
+            <Setter Property="Background" Value="#FFFFFF"/>
+            <Setter Property="Foreground" Value="#333333"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Height" Value="45"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" 
+                        CornerRadius="20" BorderThickness="{TemplateBinding BorderThickness}" 
+                        BorderBrush="{TemplateBinding BorderBrush}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                      RecognizesAccessKey="True"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="aqua" TargetName="border"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="true">
+                                <Setter Property="Background" Value="#DDDDDD" TargetName="border"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Estilo de tarjeta -->
+        <Style x:Key="CardStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="20"/>
+            <Setter Property="Background">
+                <Setter.Value>
+                    <SolidColorBrush Color="#282828" Opacity="0.8"/>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="15"/>
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="Black" BlurRadius="15" ShadowDepth="2" Opacity="0.3"/>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Background" Value="#F0F0F0"/>
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect Color="#AAAAAA" BlurRadius="15" ShadowDepth="2" Opacity="0.3"/>
+                        </Setter.Value>
+                    </Setter>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Colores y estilos para el botón de cerrar -->
+        <SolidColorBrush x:Key="CloseButtonForegroundDark" Color="#FFFFFFFF"/>
+        <SolidColorBrush x:Key="CloseButtonForegroundLight" Color="#FF222222"/>
+        <SolidColorBrush x:Key="CloseButtonHover" Color="#FFFF5252"/>
+
+        <!--Colores para los botones-->
+        <SolidColorBrush x:Key="ButtonBackgroundDark" Color="#FFF"/>
+        <SolidColorBrush x:Key="ButtonBackgroundLight" Color="#FFF"/>
+        <SolidColorBrush x:Key="ButtonForegroundDark" Color="#222"/>
+        <SolidColorBrush x:Key="ButtonForegroundLight" Color="#222"/>
+        <SolidColorBrush x:Key="ButtonHoverDark" Color="#FF333333"/>
+        <SolidColorBrush x:Key="ButtonHoverLight" Color="#FFEEEEEE"/>
+        <SolidColorBrush x:Key="ButtonShadow" Color="#22000000"/>
+
+        <!-- Colores para el modo oscuro/claro -->
+        <SolidColorBrush x:Key="TextPrimaryDark" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="TextSecondaryDark" Color="#CCFFFFFF"/>
+        <SolidColorBrush x:Key="TextPrimaryLight" Color="#222222"/>
+        <SolidColorBrush x:Key="TextSecondaryLight" Color="#666666"/>
+
+        <!-- Estilo para textos primarios -->
+        <Style x:Key="PrimaryTextStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Foreground" Value="{StaticResource TextPrimaryLight}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Estilo para textos secundarios -->
+        <Style x:Key="SecondaryTextStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource TextSecondaryDark}"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Foreground" Value="{StaticResource TextSecondaryLight}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="AUTO" />
             <ColumnDefinition Width="2" />
@@ -16,72 +278,95 @@
         </Grid.ColumnDefinitions>
         <!-- Fondo -->
         <Grid.Background>
-           <ImageBrush x:Name="backgroundFondo" ImageSource="/TFG V0.01;component/Recursos/Background/oscuro/main.png"/>
-       </Grid.Background>
+            <DrawingBrush x:Name="meshGradientBrush" Stretch="Fill"/>
+        </Grid.Background>
 
-       <!-- Contenido Principal -->
-       <StackPanel Margin="20">
-           <TextBlock Text="Utilice el buscador de disposiciones para buscar normas que son citadas en las distintas resoluciones del fondo documental." TextWrapping="Wrap" Margin="0,0,0,10" Foreground="White"/>
-           <Grid>
-               <Grid.ColumnDefinitions>
-                   <ColumnDefinition Width="*"/>
-                   <ColumnDefinition Width="Auto"/>
-               </Grid.ColumnDefinitions>
-               <TextBox Grid.Column="0" Margin="0,0,10,0"/>
-               <Button Grid.Column="1" Content="🔍" Width="30"/>
-           </Grid>
-           <Grid Margin="0,10,0,0">
-               <Grid.ColumnDefinitions>
-                   <ColumnDefinition Width="*"/>
-                   <ColumnDefinition Width="*"/>
-                   <ColumnDefinition Width="*"/>
-               </Grid.ColumnDefinitions>
-               <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                   <TextBlock Text="Nº Oficial" FontWeight="Bold" Foreground="White"/>
-                   <TextBox/>
-               </StackPanel>
-               <StackPanel Grid.Column="1" Margin="0,0,10,0">
-                   <TextBlock Text="Nº BOE" FontWeight="Bold" Foreground="White"/>
-                   <TextBox/>
-               </StackPanel>
-               <StackPanel Grid.Column="2">
-                   <TextBlock Text="Nº Refer." FontWeight="Bold" Foreground="White"/>
-                   <TextBox/>
-               </StackPanel>
-           </Grid>
-           <Grid Margin="0,10,0,0">
-               <Grid.ColumnDefinitions>
-                   <ColumnDefinition Width="*"/>
-                   <ColumnDefinition Width="*"/>
-                   <ColumnDefinition Width="*"/>
-               </Grid.ColumnDefinitions>
-               <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                   <TextBlock Text="Rango" FontWeight="Bold" Foreground="White"/>
-                   <TextBox/>
-               </StackPanel>
-               <StackPanel Grid.Column="1" Margin="0,0,10,0">
-                   <TextBlock Text="Órgano" FontWeight="Bold" Foreground="White"/>
-                   <TextBox/>
-               </StackPanel>
-               <StackPanel Grid.Column="2">
-                   <TextBlock Text="Materia" FontWeight="Bold" Foreground="White"/>
-                   <TextBox/>
-               </StackPanel>
-           </Grid>
-           <Grid Margin="0,10,0,0">
-               <Grid.ColumnDefinitions>
-                   <ColumnDefinition Width="*"/>
-                   <ColumnDefinition Width="*"/>
-               </Grid.ColumnDefinitions>
-               <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                   <TextBlock Text="Fª Public." FontWeight="Bold" Foreground="White"/>
-                   <DatePicker/>
-               </StackPanel>
-               <StackPanel Grid.Column="1">
-                   <TextBlock Text="Fª Dispos." FontWeight="Bold" Foreground="White"/>
-                   <DatePicker/>
-               </StackPanel>
-           </Grid>
-       </StackPanel>
-   </Grid>
+        <!-- Claro/Oscuro  -->
+        <Button x:Name="ThemeButton" Width="35" Height="35" Margin="0" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="ThemeButton_Click" Style="{StaticResource ThemeButtonStyle}" Grid.Column="2"/>
+
+        <!-- Contenido Principal -->
+        <Border Style="{StaticResource CardStyle}" Grid.Column="2" Margin="20">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <TextBlock Text="Utilice el buscador de disposiciones para buscar normas que son citadas en las distintas resoluciones del fondo documental." 
+                              Style="{StaticResource PrimaryTextStyle}"
+                              TextWrapping="Wrap" Margin="0,0,0,10"/>
+                    
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBox Grid.Column="0" Margin="0,0,10,0" Style="{StaticResource RoundedTextBoxStyle}"/>
+
+                        <Button Grid.Column="1" Content="🔬🔭🔍🔎🆗📖🧠" Width="200" Style="{StaticResource RoundedButtonStyle}"/>
+                    </Grid>
+                    
+                    <Grid Margin="0,10,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                            <TextBlock Text="Nº Oficial" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}"/>
+                            <TextBox Style="{StaticResource RoundedTextBoxStyle}"/>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Column="1" Margin="0,0,10,0">
+                            <TextBlock Text="Nº BOE" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}"/>
+                            <TextBox Style="{StaticResource RoundedTextBoxStyle}"/>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Nº Refer." FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}"/>
+                            <TextBox Style="{StaticResource RoundedTextBoxStyle}"/>
+                        </StackPanel>
+                    </Grid>
+                    
+                    <Grid Margin="0,10,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                            <TextBlock Text="Rango" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}"/>
+                            <TextBox Style="{StaticResource RoundedTextBoxStyle}"/>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Column="1" Margin="0,0,10,0">
+                            <TextBlock Text="Órgano" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}"/>
+                            <TextBox Style="{StaticResource RoundedTextBoxStyle}"/>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Materia" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}"/>
+                            <TextBox Style="{StaticResource RoundedTextBoxStyle}"/>
+                        </StackPanel>
+                    </Grid>
+                    
+                    <Grid Margin="0,10,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                            <TextBlock Text="Fª Public." FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}"/>
+                            <DatePicker Style="{StaticResource RoundedDatePickerStyle}"/>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="Fª Dispos." FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}"/>
+                            <DatePicker Style="{StaticResource RoundedDatePickerStyle}"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+    </Grid>
 </Window>

@@ -1,11 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
+using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Media.Effects;
+using System.Windows.Shapes;
+using TFG_V0._01.Controladores;
+using System.ComponentModel;
 using System.Windows.Media.Imaging;
 using TFG_V0._01.Supabase.Models;
 
@@ -19,12 +25,14 @@ namespace TFG_V0._01.Ventanas
         #endregion
 
         #region Propiedades y Variables
-        private bool isDarkMode = true; // CS0414: El campo está asignado pero nunca se usa. Si no lo necesitas, elimínalo.
         private bool isFiltrosPanelVisible = false;
         private readonly Duration animationDuration = new Duration(TimeSpan.FromSeconds(0.3));
         private readonly DoubleAnimation fadeInAnimation;
         private readonly DoubleAnimation fadeOutAnimation;
         private readonly DoubleAnimation shakeAnimation;
+        private Point lastMousePosition;
+        private bool isDragging = false;
+        private DrawingBrush? _meshGradientBrush;
 
         public ObservableCollection<DocumentPanel> DocumentPanelsCollection { get; set; } = new();
 
@@ -53,39 +61,20 @@ namespace TFG_V0._01.Ventanas
             };
 
             InitializeDocumentPanels();
-            AplicarModoSistema();
+            InitializeMeshGradient();
+            UpdateTheme();
         }
 
         #region 🌓 Aplicar modo oscuro/claro cargado por sistema
-        private void AplicarModoSistema()
-        {
-            var button = FindName("ThemeButton") as Button;
-            var icon = button?.Template.FindName("ThemeIcon", button) as Image;
-
-            if (icon != null)
-                icon.Source = new BitmapImage(new Uri(GetIconoTema(), UriKind.Relative));
-
-            backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString(GetBackgroundPath()) as ImageSource;
-
-            navbar.ActualizarTema(MainWindow.isDarkTheme);
-        }
-
         private string GetIconoTema() =>
             MainWindow.isDarkTheme
                 ? "/TFG V0.01;component/Recursos/Iconos/sol.png"
                 : "/TFG V0.01;component/Recursos/Iconos/luna.png";
 
-        private string GetBackgroundPath() =>
-            MainWindow.isDarkTheme
-                ? "pack://application:,,,/TFG V0.01;component/Recursos/Background/oscuro/main.png"
-                : "pack://application:,,,/TFG V0.01;component/Recursos/Background/claro/main.png";
-
         private void ThemeButton_Click(object sender, RoutedEventArgs e)
         {
             MainWindow.isDarkTheme = !MainWindow.isDarkTheme;
-            AplicarModoSistema();
-            var fadeAnimation = CrearFadeAnimation(0.7, 0.9, 0.3, true);
-            backgroundFondo.BeginAnimation(OpacityProperty, fadeAnimation);
+            UpdateTheme();
         }
         #endregion
 
@@ -168,14 +157,65 @@ namespace TFG_V0._01.Ventanas
         #region Filtros y Manejo de Documentos
         private void ToggleFiltros_Click(object sender, RoutedEventArgs e)
         {
-            isFiltrosPanelVisible = !isFiltrosPanelVisible;
-            PanelFiltros.Visibility = isFiltrosPanelVisible ? Visibility.Visible : Visibility.Collapsed;
+            if (SlidePanelFiltros.Visibility == Visibility.Collapsed)
+            {
+                ShowSlidePanelFiltros();
+            }
+            else
+            {
+                HideSlidePanelFiltros();
+            }
+        }
+
+        private void ShowSlidePanelFiltros()
+        {
+            SlidePanelFiltros.Visibility = Visibility.Visible;
+            OverlayPanel.Visibility = Visibility.Visible;
+
+            var slideInAnimation = new DoubleAnimation
+            {
+                From = SlidePanelFiltros.ActualWidth,
+                To = 0,
+                Duration = TimeSpan.FromMilliseconds(300),
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+            };
+
+            SlidePanelFiltrosTransform.BeginAnimation(TranslateTransform.XProperty, slideInAnimation);
+        }
+
+        private void HideSlidePanelFiltros()
+        {
+            var slideOutAnimation = new DoubleAnimation
+            {
+                From = 0,
+                To = SlidePanelFiltros.ActualWidth,
+                Duration = TimeSpan.FromMilliseconds(300),
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseIn }
+            };
+
+            slideOutAnimation.Completed += (s, e) =>
+            {
+                SlidePanelFiltros.Visibility = Visibility.Collapsed;
+                OverlayPanel.Visibility = Visibility.Collapsed;
+            };
+
+            SlidePanelFiltrosTransform.BeginAnimation(TranslateTransform.XProperty, slideOutAnimation);
+        }
+
+        private void OverlayPanel_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (SlidePanelFiltros.Visibility == Visibility.Visible)
+            {
+                HideSlidePanelFiltros();
+            }
         }
 
         private void ComboClientes_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             // TODO: Implement client selection change logic
-            var selectedClient = ComboClientes.SelectedItem;
+            // Nota: Este manejador se llama desde el ComboBox en el panel de filtros.
+            // Asegúrate de que el x:Name del ComboBox en el panel deslizante sea ComboClientesPanel
+            var selectedClient = ComboClientesPanel.SelectedItem;
             if (selectedClient != null)
             {
                 // Update cases list based on selected client
@@ -186,7 +226,9 @@ namespace TFG_V0._01.Ventanas
         private void ComboCasos_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             // TODO: Implement case selection change logic
-            var selectedCase = ComboCasos.SelectedItem;
+            // Nota: Este manejador se llama desde el ComboBox en el panel de filtros.
+            // Asegúrate de que el x:Name del ComboBox en el panel deslizante sea ComboCasosPanel
+            var selectedCase = ComboCasosPanel.SelectedItem;
             if (selectedCase != null)
             {
                 // Update documents list based on selected case
@@ -196,14 +238,16 @@ namespace TFG_V0._01.Ventanas
         private void FiltroFecha_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
         {
             // TODO: Implement date filter change logic
-            var selectedDate = FiltroFecha.SelectedDate;
+             // Nota: Este manejador se llama desde el DatePicker en el panel de filtros.
+            // Asegúrate de que el x:Name del DatePicker en el panel deslizante sea FiltroFechaPanel
+            var selectedDate = FiltroFechaPanel.SelectedDate;
             if (selectedDate.HasValue)
             {
                 // Filter documents based on selected date
             }
         }
 
-        private void DropZone_DragOver(object sender, DragEventArgs e)
+        private void DragOver(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
@@ -341,6 +385,89 @@ namespace TFG_V0._01.Ventanas
             }
         }
         #endregion
+
+        private void InitializeMeshGradient()
+        {
+            _meshGradientBrush = new DrawingBrush();
+            var drawing = new DrawingGroup();
+            
+            // Crear el primer gradiente
+            var gradient1 = new RadialGradientBrush
+            {
+                Center = new Point(0.3, 0.3),
+                RadiusX = 0.5,
+                RadiusY = 0.5,
+                GradientStops = new GradientStopCollection
+                {
+                    new GradientStop(Color.FromRgb(222, 156, 184), 0),
+                    new GradientStop(Color.FromRgb(157, 205, 225), 1)
+                }
+            };
+
+            // Crear el segundo gradiente
+            var gradient2 = new RadialGradientBrush
+            {
+                Center = new Point(0.7, 0.7),
+                RadiusX = 0.6,
+                RadiusY = 0.6,
+                GradientStops = new GradientStopCollection
+                {
+                    new GradientStop(Color.FromRgb(220, 142, 184), 0),
+                    new GradientStop(Color.FromRgb(152, 211, 236), 1)
+                }
+            };
+
+            // Añadir los gradientes al drawing
+            drawing.Children.Add(new GeometryDrawing(gradient1, null, new RectangleGeometry(new Rect(0, 0, 1, 1))));
+            drawing.Children.Add(new GeometryDrawing(gradient2, null, new RectangleGeometry(new Rect(0, 0, 1, 1))));
+
+            _meshGradientBrush.Drawing = drawing;
+            _meshGradientBrush.Viewport = new Rect(0, 0, 1, 1);
+            _meshGradientBrush.ViewportUnits = BrushMappingMode.RelativeToBoundingBox;
+            _meshGradientBrush.TileMode = TileMode.None;
+
+            // Aplicar el brush al fondo
+            this.Background = _meshGradientBrush;
+        }
+
+        private void UpdateTheme()
+        {
+            // Actualizar el Tag de la ventana para que los estilos del XAML reaccionen
+            this.Tag = MainWindow.isDarkTheme;
+
+            // Actualizar los colores del gradiente
+            if (_meshGradientBrush != null && _meshGradientBrush.Drawing is DrawingGroup drawingGroup && drawingGroup.Children.Count == 2)
+            {
+                if (drawingGroup.Children[0] is GeometryDrawing gd1 && gd1.Brush is RadialGradientBrush gradient1 &&
+                    drawingGroup.Children[1] is GeometryDrawing gd2 && gd2.Brush is RadialGradientBrush gradient2)
+                {
+                    if (MainWindow.isDarkTheme)
+                    {
+                        // Colores para modo oscuro (iguales a Home.xaml.cs)
+                        gradient1.GradientStops[0].Color = (Color)ColorConverter.ConvertFromString("#8C7BFF");
+                        gradient1.GradientStops[1].Color = (Color)ColorConverter.ConvertFromString("#08a693"); // Tono verde azulado oscuro
+                        gradient2.GradientStops[0].Color = (Color)ColorConverter.ConvertFromString("#3a4d5f"); // Tono gris azulado oscuro
+                        gradient2.GradientStops[1].Color = (Color)ColorConverter.ConvertFromString("#272c3f"); // Tono gris oscuro
+                    }
+                    else
+                    {
+                        // Colores para modo claro (iguales a Home.xaml.cs)
+                        gradient1.GradientStops[0].Color = (Color)ColorConverter.ConvertFromString("#de9cb8");
+                        gradient1.GradientStops[1].Color = (Color)ColorConverter.ConvertFromString("#9dcde1");
+                        gradient2.GradientStops[0].Color = (Color)ColorConverter.ConvertFromString("#dc8eb8");
+                        gradient2.GradientStops[1].Color = (Color)ColorConverter.ConvertFromString("#98d3ec");
+                    }
+                }
+            }
+             // Actualizar el tema de la Navbar (si es necesario)
+            navbar.ActualizarTema(MainWindow.isDarkTheme);
+             // Actualizar el icono del botón de tema
+             var button = FindName("ThemeButton") as Button;
+             var icon = button?.Template.FindName("ThemeIcon", button) as Image;
+
+             if (icon != null)
+                 icon.Source = new BitmapImage(new Uri(GetIconoTema(), UriKind.Relative));
+        }
     }
 
     public class DocumentPanel : INotifyPropertyChanged

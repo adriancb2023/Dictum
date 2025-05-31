@@ -1,4 +1,5 @@
-﻿<Window x:Class="TFG_V0._01.Ventanas.Documentos"
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Window x:Class="TFG_V0._01.Ventanas.Documentos"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -11,24 +12,16 @@
         WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
-
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-
         <converters:BoolToNumberConverter x:Key="BoolToNumberConverter"/>
 
-        <!-- Document Card Style -->
-        <Style x:Key="DocumentCardStyle" TargetType="Border">
-            <Setter Property="Background" Value="#40000000"/>
-            <Setter Property="BorderBrush" Value="#40FFFFFF"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="10"/>
-            <Setter Property="Margin" Value="10"/>
-            <Setter Property="Padding" Value="10"/>
-            <Setter Property="MinWidth" Value="250"/>
-            <Setter Property="MinHeight" Value="150"/>
-        </Style>
+        <!-- Estilos base -->
+        <SolidColorBrush x:Key="TextPrimaryDark" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="TextSecondaryDark" Color="#CCFFFFFF"/>
+        <SolidColorBrush x:Key="TextPrimaryLight" Color="#222222"/>
+        <SolidColorBrush x:Key="TextSecondaryLight" Color="#666666"/>
 
-        <!-- Estilos existentes -->
+        <!-- Estilo para el botón de tema -->
         <Style x:Key="ThemeButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -37,7 +30,18 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}" CornerRadius="20">
-                            <Image x:Name="ThemeIcon" Source="/TFG V0.01;component/Recursos/Iconos/sol.png" Width="20" Height="20"/>
+                            <Image x:Name="ThemeIcon" Width="20" Height="20">
+                                <Image.Style>
+                                    <Style TargetType="Image">
+                                        <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/luna.png"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                                                <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/sol.png"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
+                            </Image>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -49,50 +53,90 @@
             </Setter>
         </Style>
 
-        <!-- Estilo para el botón de filtros -->
-        <Style x:Key="FilterButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="#30FFFFFF"/>
-            <Setter Property="Foreground" Value="White"/>
+        <!-- Estilo para tarjetas -->
+        <Style x:Key="CardStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="20"/>
+            <Setter Property="Background">
+                <Setter.Value>
+                    <SolidColorBrush Color="#282828" Opacity="0.8"/>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="BorderBrush" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="15,8"/>
-            <Setter Property="Height" Value="50"/>
-            <Setter Property="Width" Value="120"/>
+            <Setter Property="Padding" Value="15"/>
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="Black" BlurRadius="15" ShadowDepth="2" Opacity="0.3"/>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Background" Value="#F0F0F0"/>
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect Color="#AAAAAA" BlurRadius="15" ShadowDepth="2" Opacity="0.3"/>
+                        </Setter.Value>
+                    </Setter>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Estilo para textos primarios -->
+        <Style x:Key="PrimaryTextStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Foreground" Value="{StaticResource TextPrimaryLight}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Estilo para textos secundarios -->
+        <Style x:Key="SecondaryTextStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource TextSecondaryDark}"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Foreground" Value="{StaticResource TextSecondaryLight}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Estilo para botones redondeados -->
+        <Style x:Key="RoundedButtonStyle" TargetType="{x:Type Button}">
+            <Setter Property="Background" Value="#FFFFFF"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Height" Value="45"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="20">
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <Image Source="/TFG V0.01;component/Recursos/Iconos/documentos2.png" Width="20" Height="20"/>
-                                <TextBlock Text="Filtros" Foreground="White" Margin="8,0,0,0" VerticalAlignment="Center"/>
-                            </StackPanel>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" 
+                        CornerRadius="20" BorderThickness="{TemplateBinding BorderThickness}" 
+                        BorderBrush="{TemplateBinding BorderBrush}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                      RecognizesAccessKey="True"
+                                      TextElement.Foreground="{TemplateBinding Foreground}"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#50FFFFFF"/>
+                                <Setter Property="Background" Value="aqua" TargetName="border"/>
                             </Trigger>
+                            <Trigger Property="IsPressed" Value="true">
+                                <Setter Property="Background" Value="#DDDDDD" TargetName="border"/>
+                            </Trigger>
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                <Setter Property="Background" Value="#30000000" TargetName="border"/>
+                            </DataTrigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-        </Style>
-
-        <!-- Estilo para los ComboBox -->
-        <Style x:Key="FilterComboBoxStyle" TargetType="ComboBox">
-            <Setter Property="Background" Value="#30FFFFFF"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#40FFFFFF"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Height" Value="35"/>
-            <Setter Property="Width" Value="200"/>
-            <Setter Property="Margin" Value="5"/>
-        </Style>
-
-        <!-- Estilo para los CheckBox -->
-        <Style x:Key="FilterCheckBoxStyle" TargetType="CheckBox">
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Margin" Value="5"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
 
         <!-- Estilo para el panel de drop -->
@@ -107,8 +151,161 @@
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Background" Value="#50FFFFFF"/>
                 </Trigger>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Background" Value="#30000000"/>
+                    <Setter Property="BorderBrush" Value="#40000000"/>
+                </DataTrigger>
             </Style.Triggers>
         </Style>
+
+        <!-- Mesh Gradients -->
+        <RadialGradientBrush x:Key="Mesh1" Center="0.3,0.3" RadiusX="0.5" RadiusY="0.5">
+            <GradientStop Color="#de9cb8" Offset="0"/>
+            <GradientStop Color="#9dcde1" Offset="1"/>
+        </RadialGradientBrush>
+        <RadialGradientBrush x:Key="Mesh2" Center="0.7,0.7" RadiusX="0.6" RadiusY="0.6">
+            <GradientStop Color="#dc8eb8" Offset="0"/>
+            <GradientStop Color="#98d3ec" Offset="1"/>
+        </RadialGradientBrush>
+
+        <!-- Estilo para ComboBox -->
+        <Style x:Key="ComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Background" Value="#30FFFFFF"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Height" Value="45"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="20" 
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <Grid>
+                                <ContentPresenter HorizontalAlignment="Left" 
+                                                VerticalAlignment="Center" 
+                                                Margin="{TemplateBinding Padding}"/>
+                                <ToggleButton x:Name="ToggleButton" 
+                                            IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                            ClickMode="Press">
+                                    <ToggleButton.Template>
+                                        <ControlTemplate TargetType="ToggleButton">
+                                            <Border x:Name="ToggleButtonBorder" 
+                                                    Background="Transparent" 
+                                                    BorderThickness="0">
+                                                <Path x:Name="Arrow" 
+                                                      Fill="#666666" 
+                                                      HorizontalAlignment="Center" 
+                                                      VerticalAlignment="Center" 
+                                                      Data="M0,0 L4,4 L8,0 Z"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </ToggleButton.Template>
+                                </ToggleButton>
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Background" Value="#30000000"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Estilo para ListBox -->
+        <Style x:Key="ListBoxStyle" TargetType="ListBox">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <ScrollViewer Focusable="False" Padding="{TemplateBinding Padding}">
+                                <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                            </ScrollViewer>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Estilo para CheckBox -->
+        <Style x:Key="CheckBoxStyle" TargetType="CheckBox">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <Grid>
+                            <Border x:Name="Border" 
+                                    Background="#30FFFFFF"
+                                    CornerRadius="6"
+                                    BorderThickness="1"
+                                    BorderBrush="#40FFFFFF"
+                                    Width="22" 
+                                    Height="22" Margin="0,0,40,0">
+                                <Path x:Name="CheckMark"
+                                      Stroke="#FFFFFF"
+                                      StrokeThickness="2"
+                                      Data="M 2,6 L 8,12 L 18,2"
+                                      Visibility="Collapsed"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"/>
+                            </Border>
+                            <ContentPresenter Margin="30,0,0,0" 
+                                            VerticalAlignment="Center"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter Property="Visibility" Value="Visible" TargetName="CheckMark"/>
+                                <Setter Property="Background" Value="#40FFFFFF" TargetName="Border"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#50FFFFFF" TargetName="Border"/>
+                            </Trigger>
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                <Setter Property="BorderBrush" Value="#40000000" TargetName="Border"/>
+                                <Setter Property="Stroke" Value="#222222" TargetName="CheckMark"/>
+                                <Setter Property="Background" Value="#30000000" TargetName="Border"/>
+                                <Setter Property="Foreground" Value="{StaticResource TextPrimaryLight}"/>
+                            </DataTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Gradientes para el panel deslizante -->
+        <LinearGradientBrush x:Key="SlidePanelGradientDark" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#070055" Offset="0"/>
+            <GradientStop Color="#250055" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="SlidePanelGradientLight" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#ee6ef5" Offset="0"/>
+            <GradientStop Color="#57b9ff" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- Estilo para el panel deslizante de filtros -->
+        <Style x:Key="FilterSlidePanelStyle" TargetType="Grid">
+            <Setter Property="Background" Value="{StaticResource SlidePanelGradientDark}"/>
+            <Setter Property="Width" Value="300"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="Panel.ZIndex" Value="1000"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Background" Value="{StaticResource SlidePanelGradientLight}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
     </Window.Resources>
 
     <Grid>
@@ -120,29 +317,25 @@
 
         <!-- Fondo -->
         <Grid.Background>
-            <ImageBrush x:Name="backgroundFondo" ImageSource="/TFG V0.01;component/Recursos/Background/oscuro/main.png"/>
+            <DrawingBrush x:Name="meshGradientBrush" Stretch="Fill"/>
         </Grid.Background>
 
         <!-- Navbar -->
-        <controls:NavbarControl x:Name="navbar" Grid.Column="0" />
-
-        <!-- Botón de tema -->
-        <Button x:Name="ThemeButton" Width="35" Height="35" Margin="0" 
-                HorizontalAlignment="Right" VerticalAlignment="Bottom" 
-                Click="ThemeButton_Click" Style="{StaticResource ThemeButtonStyle}" 
-                Grid.Column="2"/>
+        <controls:NavbarControl x:Name="navbar" Grid.Column="0" >
+            <controls:NavbarControl.Effect>
+                <DropShadowEffect BlurRadius="20" ShadowDepth="0" Color="Black" Opacity="0.3"/>
+            </controls:NavbarControl.Effect>
+        </controls:NavbarControl>
 
         <!-- Contenido principal -->
         <Grid Grid.Column="2" Margin="20">
+            <Grid.Effect>
+                <DropShadowEffect BlurRadius="20" ShadowDepth="0" Color="Black" Opacity="0.3"/>
+            </Grid.Effect>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <!-- Header -->
                 <RowDefinition Height="Auto"/>
-                <!-- Filtros -->
-                <RowDefinition Height="Auto"/>
-                <!-- Zona Drop -->
                 <RowDefinition Height="*"/>
-                <!-- Documentos -->
             </Grid.RowDefinitions>
 
             <!-- Header -->
@@ -153,91 +346,49 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
-                    <TextBlock Text="Gestión de Documentos" FontSize="24" FontWeight="Bold" Foreground="White"/>
-                    <TextBlock Text="Visualiza y administra tus documentos" FontSize="16" Foreground="#CCFFFFFF" Margin="0,5,0,0"/>
+                    <TextBlock Text="Gestión de Documentos" FontSize="24" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}"/>
+                    <TextBlock Text="Visualiza y administra tus documentos" FontSize="16" Style="{StaticResource SecondaryTextStyle}" Margin="0,5,0,0"/>
                 </StackPanel>
 
                 <Button Grid.Column="1" x:Name="btnFiltros" 
-                        Style="{StaticResource FilterButtonStyle}"
-                        Click="ToggleFiltros_Click"/>
-            </Grid>
-
-            <!-- Panel de Filtros -->
-            <Grid Grid.Row="1" x:Name="PanelFiltros" Visibility="Collapsed" Margin="0,20">
-                <Border Background="#30000000" CornerRadius="10" Padding="20">
-                    <WrapPanel>
-                        <!-- Filtro Cliente -->
-                        <StackPanel Margin="10,5">
-                            <TextBlock Text="Cliente:" Foreground="White" Margin="0,0,0,5"/>
-                            <ComboBox x:Name="ComboClientes" Style="{StaticResource FilterComboBoxStyle}"
-                                      ItemsSource="{Binding ListaClientes}"
-                                      DisplayMemberPath="nombre_cliente"
-                                      SelectionChanged="ComboClientes_SelectionChanged"/>
-                        </StackPanel>
-
-                        <!-- Filtro Caso -->
-                        <StackPanel Margin="10,5">
-                            <TextBlock Text="Caso:" Foreground="White" Margin="0,0,0,5"/>
-                            <ComboBox x:Name="ComboCasos" Style="{StaticResource FilterComboBoxStyle}"
-                                      ItemsSource="{Binding ListaCasosFiltrados}"
-                                      DisplayMemberPath="titulo"
-                                      SelectionChanged="ComboCasos_SelectionChanged"/>
-                        </StackPanel>
-
-                        <!-- Filtro Fecha -->
-                        <StackPanel Margin="10,5">
-                            <TextBlock Text="Fecha:" Foreground="White" Margin="0,0,0,5"/>
-                            <DatePicker x:Name="FiltroFecha" Width="200" Height="35"
-                                        SelectedDateChanged="FiltroFecha_SelectedDateChanged"/>
-                        </StackPanel>
-
-                        <!-- Filtros de Tipo -->
-                        <StackPanel Margin="10,5">
-                            <TextBlock Text="Tipo de Documento:" Foreground="White" Margin="0,0,0,5"/>
-                            <WrapPanel>
-                                <CheckBox Content="PDF" Tag="PDF" IsChecked="False" Style="{StaticResource FilterCheckBoxStyle}" Checked="TipoDocumento_Changed" Unchecked="TipoDocumento_Changed"/>
-                                <CheckBox Content="Audio" Tag="AUD" IsChecked="False" Style="{StaticResource FilterCheckBoxStyle}" Checked="TipoDocumento_Changed" Unchecked="TipoDocumento_Changed"/>
-                                <CheckBox Content="Imagen" Tag="IMG" IsChecked="False" Style="{StaticResource FilterCheckBoxStyle}" Checked="TipoDocumento_Changed" Unchecked="TipoDocumento_Changed"/>
-                                <CheckBox Content="Video" Tag="VID" IsChecked="False" Style="{StaticResource FilterCheckBoxStyle}" Checked="TipoDocumento_Changed" Unchecked="TipoDocumento_Changed"/>
-                                <CheckBox Content="Otros" Tag="OTR" IsChecked="False" Style="{StaticResource FilterCheckBoxStyle}" Checked="TipoDocumento_Changed" Unchecked="TipoDocumento_Changed"/>
-                            </WrapPanel>
-                        </StackPanel>
-
-                        <!-- Filtros Adicionales -->
-                        <Expander Header="Más Filtros" Foreground="White" Margin="10,5">
-                            <WrapPanel>
-                                <StackPanel Margin="5">
-                                    <TextBlock Text="Tamaño:" Foreground="White"/>
-                                    <ComboBox Style="{StaticResource FilterComboBoxStyle}">
-                                        <ComboBoxItem Content="Cualquier tamaño"/>
-                                        <ComboBoxItem Content="Menos de 1MB"/>
-                                        <ComboBoxItem Content="1MB - 10MB"/>
-                                        <ComboBoxItem Content="Más de 10MB"/>
-                                    </ComboBox>
-                                </StackPanel>
-
-                                <StackPanel Margin="5">
-                                    <TextBlock Text="Ordenar por:" Foreground="White"/>
-                                    <ComboBox Style="{StaticResource FilterComboBoxStyle}">
-                                        <ComboBoxItem Content="Nombre (A-Z)"/>
-                                        <ComboBoxItem Content="Nombre (Z-A)"/>
-                                        <ComboBoxItem Content="Más recientes"/>
-                                        <ComboBoxItem Content="Más antiguos"/>
-                                    </ComboBox>
-                                </StackPanel>
-                            </WrapPanel>
-                        </Expander>
-                    </WrapPanel>
-                </Border>
+                        Style="{StaticResource RoundedButtonStyle}"
+                        Click="ToggleFiltros_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="/TFG V0.01;component/Recursos/Iconos/documentos2.png" Width="20" Height="20">
+                            <Image.Style>
+                                <Style TargetType="Image">
+                                    <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/documentos.png"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                            <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/documentos2.png"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Image.Style>
+                        </Image>
+                        <TextBlock Text="Filtros" Margin="8,0,0,0" VerticalAlignment="Center" Style="{StaticResource PrimaryTextStyle}"/>
+                    </StackPanel>
+                </Button>
             </Grid>
 
             <!-- Zona de Drop -->
-            <Border Grid.Row="2" Style="{StaticResource DropZoneStyle}"
-                    AllowDrop="True" Drop="DropZone_Drop" DragOver="DropZone_DragOver">
+            <Border Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource DropZoneStyle}"
+                    AllowDrop="True" Drop="DropZone_Drop" DragOver="DragOver">
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20">
-                    <Image Source="/TFG V0.01;component/Recursos/Iconos/upload.png" Width="32" Height="32" Margin="0,0,0,10"/>
+                    <Image Source="/TFG V0.01;component/Recursos/Iconos/upload.png" Width="32" Height="32" Margin="0,0,0,10">
+                        <Image.Style>
+                            <Style TargetType="Image">
+                                <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/upload.png"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                        <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/upload2.png"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Image.Style>
+                    </Image>
                     <TextBlock Text="Arrastra archivos aquí o haz clic para seleccionar" 
-                               Foreground="White" TextAlignment="Center"/>
+                               Style="{StaticResource PrimaryTextStyle}" TextAlignment="Center"/>
                     <Button Content="Seleccionar Archivos" 
                             Style="{StaticResource RoundedButtonStyle}"
                             Click="SelectFiles_Click"
@@ -246,7 +397,7 @@
             </Border>
 
             <!-- Paneles de Documentos -->
-            <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto" >
+            <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Margin="0,20,0,0">
                 <ItemsControl x:Name="DocumentPanels" ItemsSource="{Binding DocumentPanelsCollection}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -255,18 +406,18 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border Style="{StaticResource DocumentCardStyle}"
+                            <Border Style="{StaticResource CardStyle}"
                                     Visibility="{Binding IsVisible, Converter={StaticResource BoolToVisibilityConverter}}"
                                     Grid.ColumnSpan="{Binding IsOddPanel, Converter={StaticResource BoolToNumberConverter}}">
                                 <StackPanel>
                                     <TextBlock Text="{Binding Title}" 
                                                FontSize="16" FontWeight="Bold" 
-                                               Foreground="White" 
+                                               Style="{StaticResource PrimaryTextStyle}" 
                                                Margin="10"/>
                                     <ListBox ItemsSource="{Binding Files}" 
                                              Background="Transparent"
                                              BorderThickness="0"
-                                             Foreground="White">
+                                             Style="{StaticResource ListBoxStyle}">
                                         <ListBox.ItemTemplate>
                                             <DataTemplate>
                                                 <Grid Margin="5">
@@ -277,16 +428,19 @@
                                                     </Grid.ColumnDefinitions>
                                                     <TextBlock Text="{Binding Name}" 
                                                                Grid.Column="0"
+                                                               Style="{StaticResource PrimaryTextStyle}"
                                                                VerticalAlignment="Center"/>
                                                     <Button Grid.Column="1"
                                                             Margin="5,0"
                                                             Click="OpenFile_Click"
+                                                            Style="{StaticResource RoundedButtonStyle}"
                                                             ToolTip="Abrir">
                                                         <Image Source="/TFG V0.01;component/Recursos/Iconos/open.png" 
                                                                Width="16" Height="16"/>
                                                     </Button>
                                                     <Button Grid.Column="2"
                                                             Click="DeleteFile_Click"
+                                                            Style="{StaticResource RoundedButtonStyle}"
                                                             ToolTip="Eliminar">
                                                         <Image Source="/TFG V0.01;component/Recursos/Iconos/delete.png" 
                                                                Width="16" Height="16"/>
@@ -302,5 +456,67 @@
                 </ItemsControl>
             </ScrollViewer>
         </Grid>
+
+        <!-- Overlay para cerrar al hacer clic fuera -->
+        <Grid x:Name="OverlayPanel" 
+                  Grid.Column="2" Grid.RowSpan="3" 
+                  Background="#80000000" 
+                  Panel.ZIndex="999"
+                  Visibility="Collapsed"
+                  MouseDown="OverlayPanel_MouseDown"/>
+
+        <!-- Panel deslizante de Filtros -->
+        <Grid x:Name="SlidePanelFiltros" 
+              Grid.Column="2" Grid.RowSpan="3" 
+              Style="{StaticResource FilterSlidePanelStyle}"
+              Visibility="Collapsed">
+            <Grid.RenderTransform>
+                <TranslateTransform x:Name="SlidePanelFiltrosTransform" X="300"/>
+            </Grid.RenderTransform>
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="20">
+                    <TextBlock Text="Filtros de Documentos" FontSize="20" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,20"/>
+                    <StackPanel Margin="0,5">
+                        <TextBlock Text="Cliente:" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
+                        <ComboBox x:Name="ComboClientesPanel" Style="{StaticResource ComboBoxStyle}"
+                                  ItemsSource="{Binding ListaClientes}"
+                                  DisplayMemberPath="nombre_cliente"/>
+                    </StackPanel>
+
+                    <StackPanel Margin="0,5">
+                        <TextBlock Text="Caso:" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
+                        <ComboBox x:Name="ComboCasosPanel" Style="{StaticResource ComboBoxStyle}"
+                                  ItemsSource="{Binding ListaCasosFiltrados}"
+                                  DisplayMemberPath="titulo"/>
+                    </StackPanel>
+
+                    <StackPanel Margin="0,5">
+                        <TextBlock Text="Fecha:" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
+                        <DatePicker x:Name="FiltroFechaPanel" Width="200" Height="35"/>
+                    </StackPanel>
+
+                    <StackPanel Margin="0,5">
+                        <TextBlock Text="Tipo de Documento:" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
+                        <WrapPanel>
+                            <CheckBox Content="PDF" Tag="PDF" IsChecked="True" Style="{StaticResource CheckBoxStyle}" Width="66"/>
+                            <CheckBox Content="Audio" Tag="AUD" IsChecked="True" Style="{StaticResource CheckBoxStyle}"/>
+                            <CheckBox Content="Imagen" Tag="IMG" IsChecked="True" Style="{StaticResource CheckBoxStyle}"/>
+                            <CheckBox Content="Video" Tag="VID" IsChecked="True" Style="{StaticResource CheckBoxStyle}" Width="66"/>
+                            <CheckBox Content="Otros" Tag="OTR" IsChecked="True" Style="{StaticResource CheckBoxStyle}"/>
+                        </WrapPanel>
+                    </StackPanel>
+
+                    <!-- Botones de acción para filtros -->
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+                        <Button Content="Aplicar" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,10,0" Padding="20,10" Width="100"/>
+                        <Button Content="Restablecer" Style="{StaticResource RoundedButtonStyle}" Padding="20,10" Width="100"/>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+
+        <!-- Botón de tema -->
+        <Button x:Name="ThemeButton" Width="35" Height="35" Style="{StaticResource ThemeButtonStyle}" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,20,20" Click="ThemeButton_Click"/>
+
     </Grid>
 </Window>

@@ -56,6 +56,16 @@ namespace TFG_V0._01.Ventanas.SubVentanas
             }
         }
 
+        public void ResetFields()
+        {
+            txtTitulo.Clear();
+            txtDescripcion.Clear();
+            cmbClientes.SelectedItem = null;
+            cmbTiposCaso.SelectedItem = null;
+            cmbEstados.SelectedItem = null;
+            dpFechaInicio.SelectedDate = DateTime.Now;
+        }
+
         private async void btnGuardar_Click(object sender, RoutedEventArgs e)
         {
             try

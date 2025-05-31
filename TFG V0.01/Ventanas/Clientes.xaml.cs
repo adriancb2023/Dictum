@@ -122,6 +122,20 @@ namespace TFG_V0._01.Ventanas
             _ = CargarCasosActivosAsync();
             VerDetallesCommand = new RelayCommand<Caso>(VerDetalles);
             _ = CargarEstadosAsync();
+
+            // Suscribirse a los eventos del control AñadirCasoWindow
+            if (AddCasoControl != null)
+            {
+                AddCasoControl.CasoGuardado += (s, e) =>
+                {
+                    HideSlidePanelCaso();
+                    _ = CargarCasosActivosAsync();
+                };
+                AddCasoControl.CasoCancelado += (s, e) =>
+                {
+                    HideSlidePanelCaso();
+                };
+            }
         }
         #endregion
 
@@ -630,7 +644,12 @@ namespace TFG_V0._01.Ventanas
 
         private void OverlayPanel_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (SlidePanelDetalles.Visibility == Visibility.Visible)
+            if (SlidePanelCaso.Visibility == Visibility.Visible)
+            {
+                HideSlidePanelCaso();
+                AddCasoControl.ResetFields();
+            }
+            else if (SlidePanelDetalles.Visibility == Visibility.Visible)
             {
                 HideSlidePanelDetalles();
             }
@@ -783,6 +802,52 @@ namespace TFG_V0._01.Ventanas
                     MessageBox.Show($"Error al descargar el documento: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
+        }
+
+        private void btnNuevoCaso_Click(object sender, RoutedEventArgs e)
+        {
+            ShowSlidePanelCaso();
+        }
+
+        private void ShowSlidePanelCaso()
+        {
+            SlidePanelCaso.Visibility = Visibility.Visible;
+            OverlayPanel.Visibility = Visibility.Visible;
+            DoubleAnimation slideInAnimation = new DoubleAnimation
+            {
+                From = 400,
+                To = 0,
+                Duration = TimeSpan.FromMilliseconds(300),
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+            };
+
+            SlidePanelCasoTransform.BeginAnimation(TranslateTransform.XProperty, slideInAnimation);
+        }
+
+        private void HideSlidePanelCaso()
+        {
+            DoubleAnimation slideOutAnimation = new DoubleAnimation
+            {
+                From = 0,
+                To = 400,
+                Duration = TimeSpan.FromMilliseconds(300),
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseIn }
+            };
+
+            slideOutAnimation.Completed += (s, e) =>
+            {
+                SlidePanelCaso.Visibility = Visibility.Collapsed;
+                OverlayPanel.Visibility = Visibility.Collapsed;
+            };
+
+            SlidePanelCasoTransform.BeginAnimation(TranslateTransform.XProperty, slideOutAnimation);
+        }
+
+        private void btnVolver_Click(object sender, RoutedEventArgs e)
+        {
+            ClientDetailsGrid.Visibility = Visibility.Collapsed;
+            ClientSelectorGrid.Visibility = Visibility.Visible;
+            ClientesComboBox.SelectedItem = null;
         }
     }
 }

@@ -38,11 +38,10 @@ namespace TFG_V0._01.Supabase
             return result;
         }
 
-        public async Task InsertarClienteAsync(Cliente cliente)
+        public async Task InsertarClienteAsync(ClienteInsertDto cliente)
         {
             await EnsureInitializedAsync();
-            Console.WriteLine($"ID antes de insertar: {cliente.id}");
-            await _client.From<Cliente>().Insert(cliente);
+            await _client.From<ClienteInsertDto>().Insert(cliente);
         }
 
         public async Task ActualizarClienteAsync(Cliente cliente)

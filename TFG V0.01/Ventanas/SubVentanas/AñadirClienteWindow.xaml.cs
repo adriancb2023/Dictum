@@ -41,7 +41,7 @@ namespace TFG_V0._01.Ventanas.SubVentanas
                 if (!ValidarCampos())
                     return;
 
-                var nuevoCliente = new Cliente
+                var nuevoCliente = new ClienteInsertDto
                 {
                     nombre = txtNombre.Text.Trim(),
                     apellido1 = txtApellido1.Text.Trim(),

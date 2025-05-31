@@ -161,7 +161,19 @@ namespace TFG_V0._01.Ventanas
             try
             {
                 await _supabaseClientes.InicializarAsync();
-                await _supabaseClientes.InsertarClienteAsync(nuevoCliente);
+                var nuevoClienteDto = new ClienteInsertDto
+                {
+                    nombre = nuevoCliente.nombre,
+                    apellido1 = nuevoCliente.apellido1,
+                    apellido2 = nuevoCliente.apellido2,
+                    email1 = nuevoCliente.email1,
+                    email2 = nuevoCliente.email2,
+                    telf1 = nuevoCliente.telf1,
+                    telf2 = nuevoCliente.telf2,
+                    direccion = nuevoCliente.direccion,
+                    fecha_contrato = nuevoCliente.fecha_contrato
+                };
+                await _supabaseClientes.InsertarClienteAsync(nuevoClienteDto);
                 await CargarClientesAsync();
             }
             catch (Exception ex)

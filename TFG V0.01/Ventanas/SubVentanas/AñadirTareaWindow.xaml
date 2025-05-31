@@ -53,7 +53,6 @@
                           Margin="0,0,0,15" Height="30">
                     <ComboBoxItem Content="Pendiente"/>
                     <ComboBoxItem Content="En Progreso"/>
-                    <ComboBoxItem Content="Completada"/>
                 </ComboBox>
             </StackPanel>
         </ScrollViewer>

@@ -29,14 +29,13 @@ namespace TFG_V0._01.Ventanas.SubVentanas
                 if (_notaOriginal == null)
                 {
                     // Crear nueva nota
-                    var nuevaNota = new Nota
+                    var nuevaNotaDto = new NotaInsertDto
                     {
                         IdCaso = _idCaso,
                         Nombre = Nombre,
                         Descripcion = Descripcion,
-                        FechaCreacion = DateTime.Now
                     };
-                    await _notasService.InsertarAsync(nuevaNota);
+                    await _notasService.InsertarAsync(nuevaNotaDto);
                 }
                 else
                 {

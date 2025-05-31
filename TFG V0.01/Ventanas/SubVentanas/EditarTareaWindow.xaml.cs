@@ -68,7 +68,7 @@ namespace TFG_V0._01.Ventanas.SubVentanas
             FechaVencimiento = fechaVencimiento;
             Prioridad = prioridad;
             Prioridades = new ObservableCollection<string> { "Alta", "Media", "Baja" };
-            EstadosDisponibles = new ObservableCollection<string> { "Pendiente", "En progreso", "Completada" };
+            EstadosDisponibles = new ObservableCollection<string> { "Pendiente", "En progreso" };
             EstadoSeleccionado = string.IsNullOrEmpty(estado) ? EstadosDisponibles[0] : estado;
         }
 

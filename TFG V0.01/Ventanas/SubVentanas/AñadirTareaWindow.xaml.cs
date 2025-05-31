@@ -33,13 +33,12 @@ namespace TFG_V0._01.Ventanas.SubVentanas
                     return;
                 }
 
-                var tarea = new Tarea
+                var tarea = new TFG_V0._01.Supabase.Models.TareaInsertDto
                 {
                     titulo = txtTitulo.Text,
                     descripcion = txtDescripcion.Text,
                     fecha_creacion = DateTime.Now,
-                    fecha_vencimiento = dpFechaVencimiento.SelectedDate,
-                    completada = false,
+                    fecha_fin = dpFechaVencimiento.SelectedDate,
                     id_caso = _idCaso,
                     prioridad = (cmbPrioridad.SelectedItem as ComboBoxItem)?.Content.ToString(),
                     estado = (cmbEstado.SelectedItem as ComboBoxItem)?.Content.ToString()

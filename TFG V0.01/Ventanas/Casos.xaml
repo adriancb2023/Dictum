@@ -12,6 +12,15 @@
         WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
+        <!-- Converters -->
+        <conv:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+        <conv:EstadoToColorConverter x:Key="EstadoToColorConverter"/>
+        <conv:EventoColorDotConverter x:Key="EventoColorDotConverter"/>
+        <conv:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+        <conv:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
+        <conv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <conv:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
+
         <!-- Estilos y Brushes temáticos de Home -->
         <SolidColorBrush x:Key="TextPrimaryDark" Color="#FFFFFF"/>
         <SolidColorBrush x:Key="TextSecondaryDark" Color="#CCFFFFFF"/>
@@ -534,15 +543,6 @@
             </Style.Triggers>
         </Style>
 
-        <!-- Estilo para el ToggleButton del ComboBox -->
-        <conv:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
-        <conv:EstadoToColorConverter x:Key="EstadoToColorConverter" />
-        <conv:EventoColorDotConverter x:Key="EventoColorDotConverter" />
-        <conv:StringToVisibilityConverter x:Key="StringToVisibilityConverter" />
-        <conv:CountToVisibilityConverter x:Key="CountToVisibilityConverter" />
-        <conv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
-        <conv:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
-
         <!-- Gradientes para el panel deslizante -->
         <LinearGradientBrush x:Key="SlidePanelGradientDark" StartPoint="0,0" EndPoint="1,1">
             <GradientStop Color="#070055" Offset="0"/>
@@ -930,7 +930,9 @@
                                  FontWeight="SemiBold" 
                                  Margin="0,0,0,5"/>
                         <ComboBox x:Name="cbTipoDocumento" 
-                                 Style="{StaticResource ModernComboBoxStyle}"/>
+                                 Style="{StaticResource ModernComboBoxStyle}"
+                                 DisplayMemberPath="Nombre"
+                                 SelectedValuePath="Id"/>
                     </StackPanel>
 
                     <!-- Área de arrastrar y soltar -->
@@ -975,19 +977,6 @@
                         <TextBox x:Name="txtRutaArchivo" 
                                 Style="{StaticResource RoundedTextBoxStyle}" 
                                 IsReadOnly="True"/>
-                    </StackPanel>
-
-                    <!-- Descripción -->
-                    <StackPanel Margin="0,0,0,15">
-                        <TextBlock Text="Descripción" 
-                                 Style="{StaticResource PrimaryTextStyle}" 
-                                 FontWeight="SemiBold" 
-                                 Margin="0,0,0,5"/>
-                        <TextBox x:Name="txtDescripcionDocumento" 
-                                Style="{StaticResource RoundedTextBoxStyle}" 
-                                Height="100" 
-                                TextWrapping="Wrap" 
-                                AcceptsReturn="True"/>
                     </StackPanel>
                 </StackPanel>
             </ScrollViewer>
@@ -1335,20 +1324,27 @@
                                                         HorizontalAlignment="Stretch">
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="Auto"/>
                                                             <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
                                                         </Grid.ColumnDefinitions>
                                                         <!-- Info del documento -->
-                                                        <StackPanel Grid.Column="1">
+                                                        <StackPanel Grid.Column="0">
                                                             <TextBlock Text="{Binding nombre}" 
                                                                        Style="{StaticResource PrimaryTextStyle}"
                                                                        FontWeight="SemiBold"/>
-                                                            <TextBlock Text="{Binding descripcion}" 
+                                                            <TextBlock Text="{Binding TipoDocumento.Nombre}" 
                                                                        Style="{StaticResource SecondaryTextStyle}"
                                                                        FontSize="12"/>
-                                                            <TextBlock Text="{Binding tipo_documento}" 
+                                                            <TextBlock Text="{Binding extension_archivo, StringFormat='Ext: {0}'}" 
                                                                        Style="{StaticResource SecondaryTextStyle}"
                                                                        FontSize="12"/>
+                                                            <TextBlock Text="{Binding fecha_subid, StringFormat='Subido: {0:dd/MM/yyyy HH:mm}'}" 
+                                                                       Style="{StaticResource SecondaryTextStyle}"
+                                                                       FontSize="12"/>
+                                                        </StackPanel>
+                                                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                                            <Button Content="Ver" Margin="0,0,8,0" CommandParameter="{Binding}" Click="VerDocumento_Click"/>
+                                                            <Button Content="Descargar" CommandParameter="{Binding}" Click="DescargarDocumento_Click"/>
                                                         </StackPanel>
                                                     </Grid>
                                                 </Border>
@@ -1399,7 +1395,7 @@
                                                     </Grid.ColumnDefinitions>
                                                     <!-- Checkbox de tarea -->
                                                     <CheckBox Grid.Column="0" 
-                                                            IsChecked="{Binding completada}"
+                                                            IsChecked="{Binding completada, Mode=TwoWay}"
                                                             Click="TareaCheckBox_Click"
                                                             Margin="0,0,12,0"/>
                                                     <!-- Info de la tarea -->

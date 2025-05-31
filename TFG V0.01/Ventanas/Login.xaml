@@ -32,9 +32,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Button}">
-                        <Border x:Name="border" Background="{TemplateBinding Background}" 
-                                CornerRadius="8" BorderThickness="{TemplateBinding BorderThickness}" 
-                                BorderBrush="{TemplateBinding BorderBrush}">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="8" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -123,12 +121,8 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type TextBox}">
-                        <Border x:Name="border" Background="{TemplateBinding Background}" 
-                                CornerRadius="8" BorderThickness="{TemplateBinding BorderThickness}" 
-                                BorderBrush="{TemplateBinding BorderBrush}">
-                            <ScrollViewer x:Name="PART_ContentHost" Focusable="false" 
-                                          HorizontalScrollBarVisibility="Hidden" 
-                                          VerticalScrollBarVisibility="Hidden"/>
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="8" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}">
+                            <ScrollViewer x:Name="PART_ContentHost" Focusable="false" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="true">
@@ -156,12 +150,8 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type PasswordBox}">
-                        <Border x:Name="border" Background="{TemplateBinding Background}" 
-                                CornerRadius="8" BorderThickness="{TemplateBinding BorderThickness}" 
-                                BorderBrush="{TemplateBinding BorderBrush}">
-                            <ScrollViewer x:Name="PART_ContentHost" Focusable="false" 
-                                          HorizontalScrollBarVisibility="Hidden" 
-                                          VerticalScrollBarVisibility="Hidden"/>
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="8" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}">
+                            <ScrollViewer x:Name="PART_ContentHost" Focusable="false" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="true">
@@ -182,14 +172,19 @@
         <Style x:Key="SecondaryButton" TargetType="{x:Type Button}" BasedOn="{StaticResource ModernButton}">
             <Setter Property="Background" Value="#20FFFFFF"/>
             <Setter Property="Foreground" Value="#FFFFFF"/>
+           
             <Style.Triggers>
+                
                 <Trigger Property="IsMouseOver" Value="true">
                     <Setter Property="Background" Value="#40FFFFFF"/>
                 </Trigger>
+                
                 <Trigger Property="IsPressed" Value="true">
                     <Setter Property="Background" Value="#50FFFFFF"/>
                 </Trigger>
+                
             </Style.Triggers>
+            
         </Style>
 
         <!-- Estilo para botones terciarios -->
@@ -199,22 +194,25 @@
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Cursor" Value="Hand"/>
+            
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Button}">
-                        <Border Background="{TemplateBinding Background}" 
-                                BorderThickness="{TemplateBinding BorderThickness}" 
-                                BorderBrush="{TemplateBinding BorderBrush}">
+                        
+                        <Border Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
+                        
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="true">
                                 <Setter Property="Foreground" Value="#FFFFFF"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
+                        
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+            
         </Style>
 
         <!-- Mesh Gradients accesibles globalmente -->
@@ -222,49 +220,47 @@
             <GradientStop Color="#de9cb8" Offset="0"/>
             <GradientStop Color="#9dcde1" Offset="1"/>
         </RadialGradientBrush>
+        
         <RadialGradientBrush x:Key="Mesh2" Center="0.7,0.7" RadiusX="0.6" RadiusY="0.6">
             <GradientStop Color="#dc8eb8" Offset="0"/>
             <GradientStop Color="#98d3ec" Offset="1"/>
         </RadialGradientBrush>
+        
     </Window.Resources>
 
     <Border CornerRadius="20" Background="#FF1A1A2E" MouseDown="Border_MouseDown">
         <Grid x:Name="MainGrid">
+            
             <!-- Overlay para oscurecer el fondo -->
             <Border x:Name="OverlayDark" Background="#80000000" CornerRadius="0" Visibility="Collapsed"/>
 
-
             <!-- Botón de cerrar -->
-            <Button x:Name="CloseButton" Content="✖" FontSize="20" Width="30" Height="30" 
-                    HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,15,15,0"
-                    Background="Transparent" 
-                    Foreground="{DynamicResource CloseButtonForegroundDark}"
-                    BorderThickness="0"
-                    Click="CloseButton_Click" Cursor="Hand">
+            <Button x:Name="CloseButton" Content="✖" FontSize="20" Width="30" Height="30" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,15,15,0" Background="Transparent" Foreground="{DynamicResource CloseButtonForegroundDark}"
+                    BorderThickness="0" Click="CloseButton_Click" Cursor="Hand">
+                
                 <Button.Style>
                     <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                        
                         <Setter Property="Foreground" Value="{DynamicResource CloseButtonForegroundDark}"/>
+                        
                         <Style.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter Property="Foreground" Value="{DynamicResource CloseButtonHover}"/>
                             </Trigger>
                         </Style.Triggers>
+                        
                     </Style>
                 </Button.Style>
             </Button>
 
             <!-- Claro/Oscuro -->
-            <Button x:Name="ThemeButton" Width="40" Height="40" Margin="15,15,0,0" 
-                    HorizontalAlignment="Left" VerticalAlignment="Top" 
-                    Click="ThemeButton_Click" Style="{StaticResource ThemeButtonStyle}"/>
+            <Button x:Name="ThemeButton" Width="40" Height="40" Margin="15,15,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Click="ThemeButton_Click" Style="{StaticResource ThemeButtonStyle}"/>
 
             <!-- Contenedor principal -->
-            <Border x:Name="FormBorder" Width="350" Height="450" CornerRadius="15" 
-                    Background="#40FFFFFF" VerticalAlignment="Center">
+            <Border x:Name="FormBorder" Width="350" Height="450" CornerRadius="15" Background="#40FFFFFF" VerticalAlignment="Center">
+                
                 <Border.Effect>
-                    <DropShadowEffect BlurRadius="15" Direction="-90" 
-                                      RenderingBias="Quality" ShadowDepth="2" 
-                                      Color="#20000000"/>
+                    <DropShadowEffect BlurRadius="15" Direction="-90" RenderingBias="Quality" ShadowDepth="2" Color="#20000000"/>
                 </Border.Effect>
 
                 <Grid Margin="30">
@@ -276,44 +272,40 @@
 
                     <!-- Encabezado -->
                     <StackPanel Grid.Row="0" Margin="0,0,0,20">
-                        <TextBlock x:Name="Titulo" Text="Bienvenido" FontSize="28" 
-                                   FontWeight="Bold" HorizontalAlignment="Center" 
-                                   Foreground="White" FontFamily="Segoe UI" Margin="0,0,0,5"/>
-                        <TextBlock x:Name="subTitulo" Text="Inicia sesión para continuar" FontSize="14" 
-                                   HorizontalAlignment="Center" Foreground="#CCFFFFFF" 
-                                   FontFamily="Segoe UI"/>
+                        <TextBlock x:Name="Titulo" Text="Bienvenido" FontSize="28" FontWeight="Bold" HorizontalAlignment="Center" Foreground="White" FontFamily="Segoe UI" Margin="0,0,0,5"/>
+                        <TextBlock x:Name="subTitulo" Text="Inicia sesión para continuar" FontSize="14" HorizontalAlignment="Center" Foreground="#CCFFFFFF" FontFamily="Segoe UI"/>
                     </StackPanel>
 
                     <!-- Formulario -->
                     <StackPanel Grid.Row="1" VerticalAlignment="Center" Margin="20">
+                        
                         <StackPanel>
-                            <TextBox x:Name="UsernameTextBox" Style="{StaticResource ModernTextBox}" 
-                                     GotFocus="TextBox_GotFocus" LostFocus="TextBox_LostFocus"/>
+                            <TextBox x:Name="UsernameTextBox" Style="{StaticResource ModernTextBox}" GotFocus="TextBox_GotFocus" LostFocus="TextBox_LostFocus"/>
                         </StackPanel>
+                        
                         <StackPanel Margin="0,12,0,0">
-                            <PasswordBox x:Name="PasswordBox" Style="{StaticResource ModernPasswordBox}" 
-                                         GotFocus="PasswordBox_GotFocus" LostFocus="PasswordBox_LostFocus"/>
+                            <PasswordBox x:Name="PasswordBox" Style="{StaticResource ModernPasswordBox}" GotFocus="PasswordBox_GotFocus" LostFocus="PasswordBox_LostFocus"/>
                         </StackPanel>
 
                         <!-- Mensaje de error -->
-                        <TextBlock x:Name="errorLogin" Text="Email o contraseña incorrectos" 
-                                   Margin="5,0,0,0" Visibility="Collapsed" Foreground="#FFFF5252" 
-                                   FontFamily="Segoe UI" FontSize="13"/>
+                        <TextBlock x:Name="errorLogin" Text="Email o contraseña incorrectos" Margin="5,0,0,0" Visibility="Collapsed" Foreground="#FFFF5252" FontFamily="Segoe UI" FontSize="13"/>
 
                         <!-- Botones -->
-                        <Button x:Name="btnIniciarSecion" Content="Iniciar Sesión" Margin="0,10,0,5" 
-                                Style="{StaticResource ModernButton}" Click="Loguearse"/>
+                        <Button x:Name="btnIniciarSecion" Content="Iniciar Sesión" Margin="0,10,0,5" Style="{StaticResource ModernButton}" Click="Loguearse"/>
 
-                        <Button x:Name="btnRegistrarse" Content="Registrarse" Margin="0,5,0,0" 
-                                Style="{StaticResource SecondaryButton}" Click="irRegistrarse"/>
+                        <Button x:Name="btnRegistrarse" Content="Registrarse" Margin="0,5,0,0" Style="{StaticResource SecondaryButton}" Click="irRegistrarse"/>
+                        
                     </StackPanel>
 
                     <!-- Footer -->
-                    <Button Grid.Row="2" Content="Acceso rápido" 
-                            Style="{StaticResource TertiaryButton}" 
-                            HorizontalAlignment="Center" Click="saltarInicio"/>
+                    <Button Grid.Row="2" Content="Acceso rápido" Style="{StaticResource TertiaryButton}" HorizontalAlignment="Center" Click="saltarInicio"/>
+                    
                 </Grid>
+                
             </Border>
+            
         </Grid>
+        
     </Border>
+    
 </Window>

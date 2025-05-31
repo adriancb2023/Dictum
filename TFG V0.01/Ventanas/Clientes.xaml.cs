@@ -565,11 +565,82 @@ namespace TFG_V0._01.Ventanas
             var estadoCorrecto = _estadosDisponibles.FirstOrDefault(e => e.id == caso.id_estado);
             caso.Estado = estadoCorrecto;
 
-            var ventana = new EditarCasoWindow(caso, _estadosDisponibles);
-            if (ventana.ShowDialog() == true)
+            // Actualizar la información en el panel deslizante
+            PopupTitulo.Text = $"Caso #{caso.referencia}";
+            PopupDescripcion.Text = caso.descripcion;
+            PopupCliente.Text = $"Cliente: {caso.Cliente?.nombre ?? "No especificado"}";
+            PopupTipo.Text = $"Tipo: {caso.TipoCaso?.nombre ?? "No especificado"}";
+            PopupEstado.Text = $"Estado: {caso.Estado?.nombre ?? "No especificado"}";
+            PopupFecha.Text = $"Fecha de inicio: {caso.fecha_inicio:dd/MM/yyyy}";
+
+            // Cargar documentos relacionados
+            _ = CargarDocumentosDelCaso(caso.id);
+
+            // Mostrar el panel deslizante
+            ShowSlidePanelDetalles();
+        }
+
+        private async Task CargarDocumentosDelCaso(int idCaso)
+        {
+            try
             {
-                // Aquí puedes guardar el caso actualizado en la base de datos
-                // await _supabaseCasos.ActualizarAsync(caso);
+                await _supabaseDocumentos.InicializarAsync();
+                var documentos = await _supabaseDocumentos.ObtenerPorCasoAsync(idCaso);
+                PopupDocumentos.ItemsSource = documentos;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar documentos: {ex.Message}");
+            }
+        }
+
+        private void ShowSlidePanelDetalles()
+        {
+            SlidePanelDetalles.Visibility = Visibility.Visible;
+            OverlayPanel.Visibility = Visibility.Visible;
+            DoubleAnimation slideInAnimation = new DoubleAnimation
+            {
+                From = 400,
+                To = 0,
+                Duration = TimeSpan.FromMilliseconds(300),
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+            };
+
+            SlidePanelDetallesTransform.BeginAnimation(TranslateTransform.XProperty, slideInAnimation);
+        }
+
+        private void HideSlidePanelDetalles()
+        {
+            DoubleAnimation slideOutAnimation = new DoubleAnimation
+            {
+                From = 0,
+                To = 400,
+                Duration = TimeSpan.FromMilliseconds(300),
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseIn }
+            };
+
+            slideOutAnimation.Completed += (s, e) =>
+            {
+                SlidePanelDetalles.Visibility = Visibility.Collapsed;
+                OverlayPanel.Visibility = Visibility.Collapsed;
+            };
+
+            SlidePanelDetallesTransform.BeginAnimation(TranslateTransform.XProperty, slideOutAnimation);
+        }
+
+        private void OverlayPanel_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (SlidePanelDetalles.Visibility == Visibility.Visible)
+            {
+                HideSlidePanelDetalles();
+            }
+        }
+
+        private void MostrarDetallesCaso_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.DataContext is Caso caso)
+            {
+                VerDetalles(caso);
             }
         }
 

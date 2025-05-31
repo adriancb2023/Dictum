@@ -414,6 +414,26 @@
             </Style.Triggers>
         </Style>
 
+        <!-- Gradientes para el panel deslizante -->
+        <LinearGradientBrush x:Key="SlidePanelGradientDark" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#070055" Offset="0"/>
+            <GradientStop Color="#250055" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="SlidePanelGradientLight" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#ee6ef5" Offset="0"/>
+            <GradientStop Color="#57b9ff" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- Estilo para el panel deslizante -->
+        <Style x:Key="SlidePanelStyle" TargetType="Grid">
+            <Setter Property="Background" Value="{StaticResource SlidePanelGradientDark}"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Background" Value="{StaticResource SlidePanelGradientLight}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
     </Window.Resources>
 
     <Grid>
@@ -620,7 +640,7 @@
                                                             <TextBlock Text="{Binding Estado.nombre}" Style="{StaticResource SecondaryTextStyle}" FontSize="13" Margin="0,2,0,0"/>
                                                         </StackPanel>
                                                         <!-- Botón detalles -->
-                                                        <Button Grid.Column="2" Content="Ver Detalles" Style="{StaticResource ThemeAwareRoundedButtonStyle}" Command="{Binding DataContext.VerDetallesCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" VerticalAlignment="Center" Margin="12,0,0,0" Height="45" Width="120"/>
+                                                        <Button Grid.Column="2" Content="Ver Detalles" Style="{StaticResource ThemeAwareRoundedButtonStyle}" Click="MostrarDetallesCaso_Click" CommandParameter="{Binding}" VerticalAlignment="Center" Margin="12,0,0,0" Height="45" Width="120"/>
                                                     </Grid>
                                                 </Border>
                                             </DataTemplate>
@@ -693,6 +713,56 @@
                             </StackPanel>
                         </Border>
                     </Grid>
+                </ScrollViewer>
+            </Grid>
+
+            <!-- Overlay para cerrar al hacer clic fuera -->
+            <Grid x:Name="OverlayPanel" 
+                  Grid.RowSpan="3" 
+                  Background="#80000000" 
+                  Panel.ZIndex="999"
+                  Visibility="Collapsed"
+                  MouseDown="OverlayPanel_MouseDown"/>
+
+            <!-- Panel deslizante para detalles del caso -->
+            <Grid x:Name="SlidePanelDetalles" 
+                  Grid.RowSpan="3" 
+                  Width="400" 
+                  HorizontalAlignment="Right" 
+                  Panel.ZIndex="1000"
+                  Visibility="Collapsed">
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Background" Value="{StaticResource SlidePanelGradientDark}"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                <Setter Property="Background" Value="{StaticResource SlidePanelGradientLight}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+                <Grid.RenderTransform>
+                    <TranslateTransform x:Name="SlidePanelDetallesTransform" X="400"/>
+                </Grid.RenderTransform>
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="20">
+                        <TextBlock x:Name="PopupTitulo" FontSize="20" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}"/>
+                        <TextBlock x:Name="PopupDescripcion" FontSize="14" Style="{StaticResource SecondaryTextStyle}" Margin="0,10,0,0" TextWrapping="Wrap"/>
+                        <TextBlock x:Name="PopupCliente" FontSize="14" Style="{StaticResource SecondaryTextStyle}" Margin="0,10,0,0"/>
+                        <TextBlock x:Name="PopupTipo" FontSize="14" Style="{StaticResource SecondaryTextStyle}" Margin="0,5,0,0"/>
+                        <TextBlock x:Name="PopupEstado" FontSize="14" Style="{StaticResource SecondaryTextStyle}" Margin="0,5,0,0"/>
+                        <TextBlock x:Name="PopupFecha" FontSize="14" Style="{StaticResource SecondaryTextStyle}" Margin="0,5,0,0"/>
+
+                        <!-- Documentos Relacionados -->
+                        <TextBlock Text="Documentos" FontSize="16" FontWeight="SemiBold" Style="{StaticResource PrimaryTextStyle}" Margin="0,20,0,5"/>
+                        <ItemsControl x:Name="PopupDocumentos" Margin="0,5,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding nombre}" Style="{StaticResource SecondaryTextStyle}" Margin="0,2"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
                 </ScrollViewer>
             </Grid>
 

@@ -139,6 +139,19 @@
             </Setter>
         </Style>
 
+        <!-- Estilo de botón redondeado que cambia con el tema -->
+        <Style x:Key="ThemeAwareRoundedButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource RoundedButtonStyle}">
+            <Setter Property="Foreground" Value="#333333"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Background" Value="#30000000"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                    <Setter Property="Background" Value="#30FFFFFF"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
         <!-- Estilo para el panel de drop -->
         <Style x:Key="DropZoneStyle" TargetType="Border">
             <Setter Property="Background" Value="#30FFFFFF"/>
@@ -351,8 +364,8 @@
                 </StackPanel>
 
                 <Button Grid.Column="1" x:Name="btnFiltros" 
-                        Style="{StaticResource RoundedButtonStyle}"
-                        Click="ToggleFiltros_Click">
+                        Style="{StaticResource ThemeAwareRoundedButtonStyle}"
+                        Click="ToggleFiltros_Click" Width="100">
                     <StackPanel Orientation="Horizontal">
                         <Image Source="/TFG V0.01;component/Recursos/Iconos/documentos2.png" Width="20" Height="20">
                             <Image.Style>

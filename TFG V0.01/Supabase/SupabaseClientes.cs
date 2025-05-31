@@ -8,6 +8,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Configuration;
+using TFG_V0._01.Models;
 
 namespace TFG_V0._01.Supabase
 {
@@ -47,7 +48,20 @@ namespace TFG_V0._01.Supabase
         public async Task ActualizarClienteAsync(Cliente cliente)
         {
             await EnsureInitializedAsync();
-            await _client.From<Cliente>().Update(cliente);
+
+            await _client
+                .From<Cliente>()
+                .Where(x => x.id == cliente.id)
+                .Set(x => x.nombre, cliente.nombre)
+                .Set(x => x.apellido1, cliente.apellido1)
+                .Set(x => x.apellido2, cliente.apellido2)
+                .Set(x => x.email1, cliente.email1)
+                .Set(x => x.email2, cliente.email2)
+                .Set(x => x.telf1, cliente.telf1)
+                .Set(x => x.telf2, cliente.telf2)
+                .Set(x => x.direccion, cliente.direccion)
+                .Set(x => x.fecha_contrato, cliente.fecha_contrato)
+                .Update();
         }
 
         public async Task EliminarClienteAsync(int id)

@@ -14,15 +14,25 @@ namespace TFG_V0._01.Supabase.Models
     {
         [PrimaryKey("id", true)]
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Column("id")]
         public int? id { get; set; }
+        [Column("nombre")]
         public string nombre { get; set; }
+        [Column("apellido1")]
         public string apellido1 { get; set; }
+        [Column("apellido2")]
         public string apellido2 { get; set; }
+        [Column("email1")]
         public string email1 { get; set; }
+        [Column("email2")]
         public string email2 { get; set; }
+        [Column("telf1")]
         public string telf1 { get; set; }
+        [Column("telf2")]
         public string telf2 { get; set; }
+        [Column("direccion")]
         public string direccion { get; set; }
+        [Column("fecha_contrato")]
         public DateTime fecha_contrato { get; set; }
 
         [JsonIgnore]

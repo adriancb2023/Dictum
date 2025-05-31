@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup Label="Globals">
-    <WebView2DispatchAdapterNamespace>Dictum</WebView2DispatchAdapterNamespace>
+    <WebView2DispatchAdapterNamespace></WebView2DispatchAdapterNamespace>
   </PropertyGroup>
 
   <PropertyGroup>

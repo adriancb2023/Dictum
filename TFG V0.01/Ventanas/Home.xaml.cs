@@ -18,6 +18,7 @@ using TFG_V0._01.Supabase.Models;
 using TFG_V0._01.Ventanas.SubVentanas;
 using SupabaseCaso = TFG_V0._01.Supabase.Models.Caso;
 using SupabaseTarea = TFG_V0._01.Supabase.Models.Tarea;
+using System.Windows.Threading;
 
 namespace TFG_V0._01.Ventanas
 {
@@ -27,6 +28,9 @@ namespace TFG_V0._01.Ventanas
         private Storyboard fadeInStoryboard;
         private Storyboard shakeStoryboard;
         private Storyboard meshAnimStoryboard;
+        private DispatcherTimer progressTimer;
+        private DateTime startTime;
+        private readonly TimeSpan duration = TimeSpan.FromSeconds(2.0);
 
         // Brushes y fondo animado
         private RadialGradientBrush mesh1Brush;
@@ -272,12 +276,16 @@ namespace TFG_V0._01.Ventanas
         #region ⌛ Patalla de carga
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            // Asegurarse de que el overlay de carga esté visible antes de cualquier operación asíncrona
+            LoadingOverlay.Visibility = Visibility.Visible;
+            StartLoadingAnimation();
+
             if (MainWindow.tipoBBDD)
             {
                 await CargarDatosDashboard();
-                CargarScoreCasos();
-                CargarCasosRecientes();
-                CargarScoreDocumentos();
+                // CargarScoreCasos(); // Estos ya se llaman dentro de CargarDatosDashboard
+                // CargarCasosRecientes();
+                // CargarScoreDocumentos();
             }
             else
             {
@@ -290,6 +298,8 @@ namespace TFG_V0._01.Ventanas
                 AddCasoControl.CasoGuardado += OnCasoGuardado;
                 AddCasoControl.CasoCancelado += OnCasoCancelado;
             }
+            // Ocultar el overlay de carga después de que los datos se hayan cargado
+            // La animación de desvanecimiento del overlay se maneja en UpdateProgressArc
         }
         #endregion
 
@@ -572,6 +582,72 @@ namespace TFG_V0._01.Ventanas
             Storyboard.SetTargetProperty(anim2, new PropertyPath(RadialGradientBrush.CenterProperty));
             meshAnimStoryboard.Children.Add(anim2);
             meshAnimStoryboard.Begin();
+        }
+        #endregion
+
+        #region Animación de Carga
+        private void StartLoadingAnimation()
+        {
+            startTime = DateTime.Now;
+            progressTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(16) // ~60fps para animación suave
+            };
+            progressTimer.Tick += UpdateProgressArc;
+            progressTimer.Start();
+        }
+
+        private void UpdateProgressArc(object sender, EventArgs e)
+        {
+            TimeSpan elapsed = DateTime.Now - startTime;
+            double progress = Math.Min(elapsed.TotalMilliseconds / duration.TotalMilliseconds, 1.0);
+            double angle = progress * 360;
+
+            UpdateArc(angle);
+
+            // Actualizar texto de porcentaje
+            int percentage = (int)(progress * 100);
+            PercentageText.Text = $"{percentage}%";
+
+            if (progress >= 1.0)
+            {
+                progressTimer.Stop();
+
+                // Animación de finalización
+                DoubleAnimation fadeOut = new DoubleAnimation
+                {
+                    From = 1.0,
+                    To = 0.0,
+                    Duration = TimeSpan.FromSeconds(0.5)
+                };
+
+                fadeOut.Completed += (s, args) => LoadingOverlay.Visibility = Visibility.Collapsed;
+                LoadingOverlay.BeginAnimation(OpacityProperty, fadeOut);
+            }
+        }
+
+        private void UpdateArc(double angle)
+        {
+            double radius = 90;
+            double centerX = 100;
+            double centerY = 100;
+
+            double startAngle = -90; // Comenzar desde arriba
+            double endAngle = startAngle + angle;
+
+            double startRadians = (Math.PI / 180) * startAngle;
+            double endRadians = (Math.PI / 180) * endAngle;
+
+            double startX = centerX + radius * Math.Cos(startRadians);
+            double startY = centerY + radius * Math.Sin(startRadians);
+
+            double endX = centerX + radius * Math.Cos(endRadians);
+            double endY = centerY + radius * Math.Sin(endRadians);
+
+            // Actualizar la figura del arco
+            ProgressFigure.StartPoint = new Point(startX, startY);
+            ProgressArc.Point = new Point(endX, endY);
+            ProgressArc.IsLargeArc = angle > 180;
         }
         #endregion
 

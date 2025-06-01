@@ -65,12 +65,14 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Button}">
                         <Border x:Name="border" Background="{TemplateBinding Background}" 
-                        CornerRadius="20" BorderThickness="{TemplateBinding BorderThickness}" 
-                        BorderBrush="{TemplateBinding BorderBrush}">
+                                CornerRadius="20" BorderThickness="{TemplateBinding BorderThickness}" 
+                                BorderBrush="{TemplateBinding BorderBrush}">
                             <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
-                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                      RecognizesAccessKey="True"
-                                      TextElement.Foreground="{TemplateBinding Foreground}"/>
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              RecognizesAccessKey="True"
+                                              Content="{TemplateBinding Content}"
+                                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                                              TextElement.Foreground="{TemplateBinding Foreground}"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -95,9 +97,11 @@
             <Style.Triggers>
                 <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
                     <Setter Property="Background" Value="#30000000"/>
+                    <Setter Property="Foreground" Value="{StaticResource TextPrimaryLight}"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
                     <Setter Property="Background" Value="#30FFFFFF"/>
+                    <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
                 </DataTrigger>
             </Style.Triggers>
         </Style>
@@ -115,7 +119,9 @@
                                 BorderBrush="{TemplateBinding BorderBrush}">
                             <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                              RecognizesAccessKey="True"/>
+                                              RecognizesAccessKey="True"
+                                              Content="{TemplateBinding Content}"
+                                              ContentTemplate="{TemplateBinding ContentTemplate}"/>
                         </Border>
                          <ControlTemplate.Triggers>
                             <!-- Anular triggers de hover/press del estilo base -->
@@ -427,7 +433,7 @@
 
         <!-- Contenido -->
         <!-- Dashboard Content for Grid Column="2" -->
-        <Grid Grid.Column="2" Margin="20">
+        <Grid x:Name="ContentGrid" Grid.Column="2" Margin="20">
              <Grid.Effect>
                 <DropShadowEffect BlurRadius="20" ShadowDepth="0" Color="Black" Opacity="0.3"/>
             </Grid.Effect>
@@ -1035,6 +1041,60 @@
                 </Grid>
             </Border>
 
+        </Grid>
+
+        <!-- Overlay de carga -->
+        <Grid x:Name="LoadingOverlay" Grid.ColumnSpan="3" Panel.ZIndex="9999" Background="#80000000" Visibility="Collapsed">
+            <Grid Width="200" Height="200">
+                <!-- Arco de progreso dinámico con gradiente mejorado -->
+                <Path x:Name="ProgressPath" StrokeThickness="8" 
+                      StrokeStartLineCap="Round" StrokeEndLineCap="Round">
+                    <Path.Stroke>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#de9cb8" Offset="0"/>
+                            <GradientStop Color="#9dcde1" Offset="0.33"/>
+                            <GradientStop Color="#dc8eb8" Offset="0.66"/>
+                            <GradientStop Color="#98d3ec" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Path.Stroke>
+                    <Path.Effect>
+                        <BlurEffect Radius="1"/>
+                    </Path.Effect>
+                    <Path.Data>
+                        <PathGeometry>
+                            <PathFigure x:Name="ProgressFigure" StartPoint="100,20">
+                                <ArcSegment x:Name="ProgressArc" Point="100,20" 
+                                            Size="90,90" SweepDirection="Clockwise" 
+                                            IsLargeArc="False"/>
+                            </PathFigure>
+                        </PathGeometry>
+                    </Path.Data>
+                </Path>
+                <!-- Panel central transparente -->
+                <Border Width="130" Height="130" CornerRadius="65"
+                        Background="Transparent">
+                </Border>
+
+                <!-- Contenedor del texto con animación suave -->
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <TextBlock x:Name="PercentageText" Text="0%" FontSize="42"
+                               Foreground="#FFFFFF" HorizontalAlignment="Center"
+                               FontWeight="Light" FontFamily="Segoe UI">
+                        <TextBlock.Effect>
+                            <DropShadowEffect BlurRadius="3" ShadowDepth="1" 
+                                              Color="#40000000"/>
+                        </TextBlock.Effect>
+                    </TextBlock>
+                    <TextBlock x:Name="LoadingText" Text="Cargando" FontSize="16"
+                               Foreground="#CCFFFFFF" HorizontalAlignment="Center"
+                               Margin="0,5,0,0" FontFamily="Segoe UI Light">
+                        <TextBlock.Effect>
+                            <DropShadowEffect BlurRadius="2" ShadowDepth="1"
+                                              Color="#40000000"/>
+                        </TextBlock.Effect>
+                    </TextBlock>
+                </StackPanel>
+            </Grid>
         </Grid>
 
     </Grid>

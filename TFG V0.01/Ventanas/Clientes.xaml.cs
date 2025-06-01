@@ -813,22 +813,30 @@ namespace TFG_V0._01.Ventanas
             }
         }
 
-        private void VerDocumento_Click(object sender, RoutedEventArgs e)
+        private async void VerDocumento_Click(object sender, RoutedEventArgs e)
         {
-            try
+            if (sender is Button btn && btn.DataContext is Documento doc)
             {
-                if (sender is Button btn && btn.DataContext is Documento doc)
+                try
                 {
-                    var detallesWindow = new SubVentanas.DetallesDocumentoWindow(doc)
+                    var storage = new TFG_V0._01.Supabase.SupaBaseStorage();
+                    await storage.InicializarAsync();
+                    // Descargar el archivo desde Supabase Storage usando solo el nombre del archivo
+                    var fileBytes = await storage.DescargarArchivoAsync("documentos", System.IO.Path.GetFileName(doc.ruta));
+                    // Guardar en una ruta temporal
+                    string tempPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), System.IO.Path.GetFileName(doc.ruta));
+                    await File.WriteAllBytesAsync(tempPath, fileBytes);
+                    // Abrir el archivo
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
                     {
-                        Owner = this
-                    };
-                    detallesWindow.ShowDialog();
+                        FileName = tempPath,
+                        UseShellExecute = true
+                    });
                 }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error al abrir detalles: " + ex.Message);
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"No se pudo abrir el documento: {ex.Message}");
+                }
             }
         }
 

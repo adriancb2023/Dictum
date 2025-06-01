@@ -435,18 +435,86 @@ namespace TFG_V0._01.Ventanas
             e.Handled = true;
         }
 
+        private bool PuedeGuardarDocumento()
+        {
+            var clienteSeleccionado = ComboClientesPanel.SelectedItem as TFG_V0._01.Supabase.Models.Cliente;
+            var casoSeleccionado = ComboCasosPanel.SelectedItem as TFG_V0._01.Supabase.Models.Caso;
+
+            if (clienteSeleccionado == null || casoSeleccionado == null)
+            {
+                MessageBox.Show("Debes seleccionar un cliente y un caso antes de guardar el documento.", "Selección requerida", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+            return true;
+        }
+
+        private async Task GuardarDocumentoAsync(string filePath)
+        {
+            if (!PuedeGuardarDocumento())
+                return;
+
+            if (string.IsNullOrWhiteSpace(filePath) || !System.IO.File.Exists(filePath))
+            {
+                MessageBox.Show("Por favor, seleccione un archivo válido.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                var clienteSeleccionado = ComboClientesPanel.SelectedItem as TFG_V0._01.Supabase.Models.Cliente;
+                var casoSeleccionado = ComboCasosPanel.SelectedItem as TFG_V0._01.Supabase.Models.Caso;
+
+                // Subir archivo a Supabase Storage
+                var storage = new TFG_V0._01.Supabase.SupaBaseStorage();
+                await storage.InicializarAsync();
+                string extension = System.IO.Path.GetExtension(filePath);
+                string uniqueName = $"{System.IO.Path.GetFileNameWithoutExtension(filePath)}_{Guid.NewGuid()}{extension}";
+                string storagePath = await storage.SubirArchivoAsync("documentos", filePath, uniqueName);
+
+                // Guardar registro en la base de datos
+                var documento = new TFG_V0._01.Supabase.Models.Documento.DocumentoInsertDto
+                {
+                    nombre = System.IO.Path.GetFileNameWithoutExtension(filePath),
+                    ruta = storagePath,
+                    fecha_subid = DateTime.Now,
+                    id_caso = casoSeleccionado.id,
+                    tipo_documento = 1, // Ajusta según tu lógica de tipos
+                    extension_archivo = extension
+                };
+
+                var documentosService = new TFG_V0._01.Supabase.SupabaseDocumentos();
+                await documentosService.InicializarAsync();
+                await documentosService.InsertarAsync(documento);
+
+                MessageBox.Show("Documento guardado correctamente.", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
+                // Aquí puedes refrescar la lista de documentos si lo necesitas
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al guardar el documento: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         private void DropZone_Drop(object sender, DragEventArgs e)
         {
+            if (!PuedeGuardarDocumento())
+                return;
+
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-                // TODO: Handle dropped files
-                // ProcessFiles(files);
+                if (files != null && files.Length > 0)
+                {
+                    _ = GuardarDocumentoAsync(files[0]);
+                }
             }
         }
 
         private void SelectFiles_Click(object sender, RoutedEventArgs e)
         {
+            if (!PuedeGuardarDocumento())
+                return;
+
             var openFileDialog = new Microsoft.Win32.OpenFileDialog
             {
                 Multiselect = true,
@@ -455,8 +523,10 @@ namespace TFG_V0._01.Ventanas
 
             if (openFileDialog.ShowDialog() == true)
             {
-                // TODO: Handle selected files
-                // ProcessFiles(openFileDialog.FileNames);
+                foreach (var file in openFileDialog.FileNames)
+                {
+                    _ = GuardarDocumentoAsync(file);
+                }
             }
         }
 

@@ -77,14 +77,13 @@ namespace TFG_V0._01.Ventanas.SubVentanas
                 }
 
                 var casoSeleccionado = (Caso)CasoComboBox.SelectedItem;
-                var nuevoContacto = new TFG_V0._01.Supabase.Models.Contacto
+                var nuevoContacto = new ContactoInsertDto
                 {
                     id_caso = casoSeleccionado.id,
                     nombre = NombreTextBox.Text.Trim(),
                     tipo = RolComboBox.SelectedItem.ToString(),
                     telefono = TelefonoTextBox.Text.Trim(),
-                    email = EmailTextBox.Text.Trim(),
-                    id = null // Asegúrate de que no se envía el id
+                    email = EmailTextBox.Text.Trim()
                 };
 
                 await _contactosService.InsertarAsync(nuevoContacto);

@@ -620,7 +620,7 @@
                                     <TextBlock Text="{Binding SelectedCliente.fecha_contrato, StringFormat='Fecha de contrato: {0:dd/MM/yyyy}'}" Style="{StaticResource PrimaryTextStyle}" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
                                     <TextBlock Text="{Binding SelectedCliente.nombre_cliente}" Style="{StaticResource PrimaryTextStyle}" FontSize="16" Margin="0,0,0,10"/>
                                     <TextBlock Text="DNI:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,2"/>
-                                    <TextBlock Text="{Binding SelectedCliente.id}" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,8"/>
+                                    <TextBlock Text="{Binding SelectedCliente.dni}" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,8"/>
                                     <TextBlock Text="Teléfono 1:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,2"/>
                                     <TextBlock Text="{Binding SelectedCliente.telf1}" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,8"/>
                                     <TextBlock Text="Teléfono 2:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,2"/>

@@ -261,6 +261,147 @@
             SelectedBrush="#FF2196F3"
             UnselectedBrush="Transparent"/>
         <conv:StringToBrushConverter x:Key="StringToBrushConverter" />
+
+        <!-- ModernComboBoxStyle - Copiado de Casos.xaml -->
+        <Style x:Key="ModernComboBoxStyle" TargetType="{x:Type ComboBox}">
+            <Setter Property="Background" Value="#30FFFFFF"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
+            <Setter Property="BorderBrush" Value="#40FFFFFF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="Padding" Value="10,5"/>
+                        <Setter Property="Foreground" Value="#FFFFFF"/>
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                <Setter Property="Foreground" Value="{StaticResource TextPrimaryLight}"/>
+                                <Setter Property="Background" Value="Transparent"/>
+                            </DataTrigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#30000000"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="#50000000"/>
+                            </Trigger>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False"/>
+                                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True"/>
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="Background" Value="#30FFFFFF"/>
+                            </MultiDataTrigger>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False"/>
+                                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}" Value="True"/>
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="Background" Value="#50FFFFFF"/>
+                            </MultiDataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <Border x:Name="ComboBoxBorder"
+                                    Background="{TemplateBinding Background}"
+                                    CornerRadius="10"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    BorderBrush="{TemplateBinding BorderBrush}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <ContentPresenter Grid.Column="0"
+                                              Content="{TemplateBinding SelectionBoxItem}"
+                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                              ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              Margin="{TemplateBinding Padding}"/>
+                                    <ToggleButton Grid.Column="0" Grid.ColumnSpan="2"
+                                                x:Name="ToggleButton"
+                                                IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                                ClickMode="Press">
+                                        <ToggleButton.Template>
+                                            <ControlTemplate TargetType="ToggleButton">
+                                                <Border Background="Transparent"
+                                                        BorderThickness="0">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <Path Grid.Column="1" Data="M0,0 L4,4 L8,0"
+                                                            Stroke="{Binding RelativeSource={RelativeSource AncestorType=ComboBox}, Path=Foreground}"
+                                                            StrokeThickness="2"
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center"/>
+                                                    </Grid>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </ToggleButton.Template>
+                                    </ToggleButton>
+                                </Grid>
+                            </Border>
+                            <Popup x:Name="PART_Popup"
+                                   AllowsTransparency="True"
+                                   IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   PlacementTarget="{Binding ElementName=ComboBoxBorder}" 
+                                   Placement="Bottom">
+                                <Border CornerRadius="10"
+                                        BorderThickness="1" MaxHeight="200"
+                                        MinWidth="{Binding Path=ActualWidth, ElementName=ComboBoxBorder}">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="#3A3A3A"/>
+                                            <Setter Property="BorderBrush" Value="#555"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                                    <Setter Property="Background" Value="#FFFFFF"/>
+                                                    <Setter Property="BorderBrush" Value="#CCC"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <ScrollViewer SnapsToDevicePixels="True">
+                                        <ItemsPresenter />
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Background" Value="#FFFFFF"/>
+                    <Setter Property="Foreground" Value="{StaticResource TextPrimaryLight}"/>
+                    <Setter Property="BorderBrush" Value="#CCCCCC"/>
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect Color="#CCCCCC" BlurRadius="5" ShadowDepth="2" Opacity="0.5"/>
+                        </Setter.Value>
+                    </Setter>
+                </DataTrigger>
+                 <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                    <Setter Property="Background" Value="#30FFFFFF"/>
+                    <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
+                     <Setter Property="BorderBrush" Value="#40FFFFFF"/>
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect Color="Black" BlurRadius="5" ShadowDepth="2" Opacity="0.3"/>
+                        </Setter.Value>
+                    </Setter>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
     </Window.Resources>
 
     <Grid>
@@ -402,10 +543,10 @@
             </Grid>
 
             <!-- Panel deslizante para añadir tarea -->
-            <Grid x:Name="SlidePanelTarea" 
-                  Grid.RowSpan="3" 
-                  Width="400" 
-                  HorizontalAlignment="Right" 
+            <Grid x:Name="SlidePanelTarea"
+                  Grid.RowSpan="3"
+                  Width="400"
+                  HorizontalAlignment="Right"
                   Panel.ZIndex="1000"
                   Visibility="Collapsed">
                 <Grid.Style>
@@ -422,32 +563,48 @@
                     <TranslateTransform x:Name="SlidePanelTareaTransform" X="400"/>
                 </Grid.RenderTransform>
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <StackPanel Margin="20">
-                        <TextBlock Text="Añadir Nueva Tarea" FontSize="20" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,20"/>
-                        
+                    <StackPanel Margin="20" DataContext="{Binding RelativeSource={RelativeSource AncestorType=Window}}">
                         <!-- Título -->
-                        <TextBlock Text="Título" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
-                        <TextBox x:Name="txtTituloTarea" Margin="0,0,0,15" Padding="10" Background="#30FFFFFF"/>
-                        
+                        <TextBlock Text="Añadir Tarea" FontWeight="Bold" FontSize="18" Margin="0,0,0,20"/>
+
+                        <!-- ComboBox para seleccionar el caso -->
+                        <TextBlock Text="Caso asociado:" Margin="0,0,0,5"/>
+                        <ComboBox x:Name="cbCasoTarea"
+                                  Width="250"
+                                  ItemsSource="{Binding CasosDisponibles}"
+                                  DisplayMemberPath="referencia"
+                                  SelectedValuePath="id"
+                                  SelectedValue="{Binding SelectedCasoId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  Margin="0,0,0,15"/>
+
+                        <!-- Título de la tarea -->
+                        <TextBlock Text="Título:" Margin="0,0,0,5"/>
+                        <TextBox x:Name="txtTituloTarea" Width="250" Margin="0,0,0,15"/>
+
                         <!-- Descripción -->
-                        <TextBlock Text="Descripción" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
-                        <TextBox x:Name="txtDescripcionTarea" Margin="0,0,0,15" Padding="10" Background="#30FFFFFF" 
-                                 TextWrapping="Wrap" AcceptsReturn="True" Height="100" VerticalScrollBarVisibility="Auto"/>
-                        
+                        <TextBlock Text="Descripción:" Margin="0,0,0,5"/>
+                        <TextBox x:Name="txtDescripcionTarea" Width="250" Height="60" TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,15"/>
+
+                        <!-- Fecha de vencimiento -->
+                        <TextBlock Text="Fecha de vencimiento:" Margin="0,0,0,5"/>
+                        <DatePicker x:Name="dpFechaVencimientoTarea" Width="250" Margin="0,0,0,15"/>
+
+                        <!-- Prioridad -->
+                        <TextBlock Text="Prioridad:" Margin="0,0,0,5"/>
+                        <ComboBox x:Name="cbPrioridadTarea"
+                                  Width="250"
+                                  Margin="0,0,0,15"/>
+
                         <!-- Estado -->
-                        <TextBlock Text="Estado" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
-                        <ComboBox x:Name="cmbEstadoTarea" Margin="0,0,0,15" Padding="10" Background="#30FFFFFF">
-                            <ComboBoxItem Content="Pendiente"/>
-                            <ComboBoxItem Content="En progreso"/>
-                            <ComboBoxItem Content="Finalizado"/>
-                        </ComboBox>
-                        
+                        <TextBlock Text="Estado:" Margin="0,0,0,5"/>
+                        <ComboBox x:Name="cbEstadoTarea"
+                                  Width="250"
+                                  Margin="0,0,0,15"/>
+
                         <!-- Botones -->
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
-                            <Button x:Name="btnCancelarTarea" Content="Cancelar" Style="{StaticResource ThemeAwareRoundedButtonStyle}" 
-                                    Margin="0,0,10,0" Padding="20,10" Click="btnCancelarTarea_Click"/>
-                            <Button x:Name="btnGuardarTarea" Content="Guardar" Style="{StaticResource ThemeAwareRoundedButtonStyle}" 
-                                    Padding="20,10"/>
+                            <Button Content="Guardar" Width="100" Margin="0,0,10,0" Click="GuardarTarea_Click"/>
+                            <Button Content="Cancelar" Width="100" Click="CancelarTarea_Click"/>
                         </StackPanel>
                     </StackPanel>
                 </ScrollViewer>
@@ -708,19 +865,31 @@
                                     <ItemsControl ItemsSource="{Binding TareasPendientesLista}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <Border Style="{StaticResource ListItemContainerStyle}">
+                                                <Border Background="#50FFFFFF"
+                                                        CornerRadius="16"
+                                                        Padding="18"
+                                                        Margin="0,8"
+                                                        Effect="{StaticResource DropShadowEffect}"
+                                                        HorizontalAlignment="Stretch">
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="Auto"/>
                                                             <ColumnDefinition Width="*"/>
                                                         </Grid.ColumnDefinitions>
-                                                        <CheckBox Grid.Column="0" Margin="0,0,10,0" VerticalAlignment="Center"
-                                                                      IsChecked="{Binding completada, Mode=TwoWay}"
-                                                                      Checked="CheckBox_TareaFinalizada"
-                                                                      Unchecked="CheckBox_TareaFinalizada"/>
+                                                        <!-- Checkbox de tarea -->
+                                                        <CheckBox Grid.Column="0" 
+                                                                IsChecked="{Binding completada, Mode=TwoWay}"
+                                                                Click="TareaCheckBox_Click"
+                                                                Margin="0,0,12,0"/>
+                                                        <!-- Info de la tarea -->
                                                         <StackPanel Grid.Column="1">
-                                                            <TextBlock Text="{Binding titulo}" Style="{StaticResource PrimaryTextStyle}" TextWrapping="Wrap"/>
-                                                            <TextBlock Text="{Binding descripcion}" Style="{StaticResource SecondaryTextStyle}" FontSize="12" Margin="0,5,0,0"/>
+                                                            <TextBlock Text="{Binding titulo}" 
+                                                                     Style="{StaticResource PrimaryTextStyle}" 
+                                                                     TextWrapping="Wrap"/>
+                                                            <TextBlock Text="{Binding descripcion}" 
+                                                                     Style="{StaticResource SecondaryTextStyle}" 
+                                                                     FontSize="12" 
+                                                                     Margin="0,5,0,0"/>
                                                             <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
                                                                 <Border CornerRadius="5" Padding="5,2" Margin="0,0,10,0">
                                                                     <Border.Style>
@@ -733,7 +902,7 @@
                                                                                 <DataTrigger Binding="{Binding estado}" Value="En progreso">
                                                                                     <Setter Property="Background" Value="#4CAF50"/>
                                                                                 </DataTrigger>
-                                                                                <DataTrigger Binding="{Binding estado}" Value="Finalizado">
+                                                                                <DataTrigger Binding="{Binding estado}" Value="Completada">
                                                                                     <Setter Property="Background" Value="#F44336"/>
                                                                                 </DataTrigger>
                                                                             </Style.Triggers>
@@ -741,6 +910,9 @@
                                                                     </Border.Style>
                                                                     <TextBlock Text="{Binding estado}" Foreground="White" FontSize="12"/>
                                                                 </Border>
+                                                                <TextBlock Text="{Binding fecha_fin, StringFormat='{}{0:dd/MM/yyyy}'}" 
+                                                                         Style="{StaticResource SecondaryTextStyle}" 
+                                                                         FontSize="12"/>
                                                             </StackPanel>
                                                         </StackPanel>
                                                     </Grid>

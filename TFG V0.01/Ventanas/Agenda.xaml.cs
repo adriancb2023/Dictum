@@ -19,6 +19,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using TFG_V0._01.Supabase.Models;
 using System.Windows.Threading;
+using Newtonsoft.Json;
 
 namespace TFG_V0._01.Ventanas
 {
@@ -47,10 +48,17 @@ namespace TFG_V0._01.Ventanas
         private DateTime _fechaSeleccionada;
         private Dictionary<DateTime, string> _diasConEventoColor;
         private System.Windows.Threading.DispatcherTimer _timerActualizacion;
+        private ObservableCollection<Contacto> _contactos;
 
         // Colecciones para los ComboBox de Contacto
         private ObservableCollection<TFG_V0._01.Supabase.Models.Caso> _casosParaContacto;
         private ObservableCollection<string> _rolesParaContacto;
+
+        public ObservableCollection<Contacto> Contactos
+        {
+            get => _contactos;
+            set { _contactos = value; OnPropertyChanged(); }
+        }
 
         public ObservableCollection<EventoViewModel> EventosDelDia
         {
@@ -83,6 +91,8 @@ namespace TFG_V0._01.Ventanas
             set { _rolesParaContacto = value; OnPropertyChanged(); }
         }
 
+        public ObservableCollection<TFG_V0._01.Supabase.Models.Caso> Casos { get; set; } = new ObservableCollection<TFG_V0._01.Supabase.Models.Caso>();
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -99,7 +109,6 @@ namespace TFG_V0._01.Ventanas
             InitializeAnimations();
             CrearFondoAnimado();
             AplicarModoSistema();
-            InitializeTimeComboBox();
 
             _eventosCitasService = new SupabaseEventosCitas();
             _estadosEventosService = new SupabaseEstadosEventos();
@@ -109,6 +118,7 @@ namespace TFG_V0._01.Ventanas
             EventosDelDia = new ObservableCollection<EventoViewModel>();
             EventosDeHoy = new ObservableCollection<EventoViewModel>();
             DiasConEventoColor = new Dictionary<DateTime, string>();
+            Contactos = new ObservableCollection<Contacto>();
 
             // Inicializar colecciones para Contacto
             CasosParaContacto = new ObservableCollection<TFG_V0._01.Supabase.Models.Caso>();
@@ -125,6 +135,8 @@ namespace TFG_V0._01.Ventanas
             // Cargar datos iniciales (incluyendo datos para Contacto)
             CargarDatosIniciales();
             CargarDatosContactoAsync();
+            CargarCasosAsync();
+            _ = CargarContactosAsync(); // Fire and forget, but properly handled
         }
         #endregion
 
@@ -325,20 +337,7 @@ namespace TFG_V0._01.Ventanas
         #endregion
 
         #region Inicialización de controles
-        private void InitializeTimeComboBox()
-        {
-            // Añadir horas en formato 24h al ComboBox
-            for (int hour = 0; hour < 24; hour++)
-            {
-                for (int minute = 0; minute < 60; minute += 30)
-                {
-                    string time = $"{hour:D2}:{minute:D2}";
-                    EventTimeComboBox.Items.Add(time);
-                }
-            }
-            // Seleccionar la hora actual por defecto
-            EventTimeComboBox.SelectedIndex = 0;
-        }
+        // El método InitializeTimeComboBox ha sido eliminado ya que ya no usamos EventTimeComboBox
         #endregion
 
         #region Gestión de paneles deslizantes
@@ -358,7 +357,7 @@ namespace TFG_V0._01.Ventanas
             }
         }
 
-        private void ShowNewEventPanel()
+        private async void ShowNewEventPanel()
         {
             // Asegurarse de que el otro panel esté oculto
             if (SlidePanel.Visibility == Visibility.Visible)
@@ -366,11 +365,32 @@ namespace TFG_V0._01.Ventanas
                 HideNewContactPanel();
             }
 
+            try
+            {
+                // Cargar los estados de eventos
+                var estados = await _estadosEventosService.ObtenerEstadosEventos();
+                cbEstadoEvento.ItemsSource = estados;
+                if (estados?.Count > 0)
+                {
+                    cbEstadoEvento.SelectedIndex = 0;
+                }
+                // Cargar los casos
+                var casos = await _casosService.ObtenerTodosCasosManualAsync();
+                cbCasoEvento.ItemsSource = casos;
+                if (casos?.Count > 0)
+                {
+                    cbCasoEvento.SelectedIndex = 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar los estados o casos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
             // Limpiar los campos del formulario
             EventTitleTextBox.Clear();
             EventDescriptionTextBox.Clear();
-            EventLocationTextBox.Clear();
-            ParticipantsListBox.Items.Clear();
+            timePickerEvento.SelectedTime = DateTime.Now;
 
             // Mostrar el panel y el overlay
             NewEventPanel.Visibility = Visibility.Visible;
@@ -417,11 +437,23 @@ namespace TFG_V0._01.Ventanas
             }
 
             // Limpiar los campos del formulario
-            ContactCasoComboBox.SelectedItem = null;
-            ContactNombreTextBox.Clear();
-            ContactRolComboBox.SelectedItem = null;
-            ContactTelefonoTextBox.Clear();
+            ContactTitleTextBox.Clear();
+            ContactPhoneTextBox.Clear();
             ContactEmailTextBox.Clear();
+            cbEstadoContacto.SelectedItem = null;
+
+            // Cargar los tipos de contacto
+            var tiposContacto = new List<string>
+            {
+                "Abogado",
+                "Cliente",
+                "Testigo",
+                "Perito",
+                "Juez",
+                "Secretario Judicial",
+                "Otro"
+            };
+            cbEstadoContacto.ItemsSource = tiposContacto;
 
             // Mostrar el panel y el overlay
             SlidePanel.Visibility = Visibility.Visible;
@@ -479,7 +511,7 @@ namespace TFG_V0._01.Ventanas
             DateTime? selectedDate = MainCalendar.SelectedDate;
             if (selectedDate.HasValue)
             {
-                EventDatePicker.SelectedDate = selectedDate;
+                _fechaSeleccionada = selectedDate.Value;
                 ShowNewEventPanel();
             }
         }
@@ -672,5 +704,192 @@ namespace TFG_V0._01.Ventanas
             }
         }
         #endregion
+
+        private async void GuardarEvento_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(EventTitleTextBox.Text))
+            {
+                MessageBox.Show("El título es obligatorio.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            if (cbEstadoEvento.SelectedItem == null)
+            {
+                MessageBox.Show("Selecciona un estado.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            if (cbCasoEvento.SelectedItem == null)
+            {
+                MessageBox.Show("Selecciona un caso.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                var selectedTime = timePickerEvento.SelectedTime ?? DateTime.Now;
+                var fechaEvento = new DateTime(
+                    _fechaSeleccionada.Year,
+                    _fechaSeleccionada.Month,
+                    _fechaSeleccionada.Day,
+                    selectedTime.Hour,
+                    selectedTime.Minute,
+                    0
+                );
+
+                // Crear nuevo evento
+                var nuevoEvento = new EventoCita
+                {
+                    Titulo = EventTitleTextBox.Text,
+                    Descripcion = EventDescriptionTextBox.Text,
+                    Fecha = fechaEvento,
+                    FechaInicio = new TimeSpan(selectedTime.Hour, selectedTime.Minute, 0),
+                    IdEstado = ((EstadoEvento)cbEstadoEvento.SelectedItem).Id,
+                    IdCaso = cbCasoEvento.SelectedValue != null ? (int)cbCasoEvento.SelectedValue : 0
+                };
+                await _eventosCitasService.InsertarEventoCita(nuevoEvento);
+
+                await CargarEventosDelDia();
+                await CargarEventosDeHoy();
+                HideNewEventPanel();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al guardar el evento: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async void MostrarGridEditarEvento(EventoCita evento = null)
+        {
+            // Configurar el grid
+            NewEventPanel.Visibility = Visibility.Visible;
+            OverlayPanel.Visibility = Visibility.Visible;
+
+            // Cargar estados de eventos
+            var estados = await ObtenerEstadosEventosAsync();
+            cbEstadoEvento.ItemsSource = estados;
+
+            if (evento != null)
+            {
+                // Modo edición
+                EventTitleTextBox.Text = evento.Titulo;
+                EventDescriptionTextBox.Text = evento.Descripcion;
+                timePickerEvento.SelectedTime = DateTime.Today.Add(evento.FechaInicio);
+                cbEstadoEvento.SelectedValue = evento.IdEstado;
+                eventoEditando = evento;
+                esEdicion = true;
+            }
+            else
+            {
+                // Modo creación
+                EventTitleTextBox.Text = "";
+                EventDescriptionTextBox.Text = "";
+                timePickerEvento.SelectedTime = DateTime.Now;
+                if (estados?.Count > 0)
+                    cbEstadoEvento.SelectedIndex = 0;
+                eventoEditando = null;
+                esEdicion = false;
+            }
+
+            // Animar la entrada
+            var animation = new DoubleAnimation
+            {
+                From = 400,
+                To = 0,
+                Duration = TimeSpan.FromSeconds(0.3),
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+            };
+            NewEventPanelTransform.BeginAnimation(TranslateTransform.XProperty, animation);
+        }
+
+        private async Task<List<EstadoEvento>> ObtenerEstadosEventosAsync()
+        {
+            try
+            {
+                return await _estadosEventosService.ObtenerEstadosEventos();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al obtener los estados de eventos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return new List<EstadoEvento>();
+            }
+        }
+
+        // Variables necesarias para el manejo de eventos
+        private EventoCita eventoEditando = null;
+        private bool esEdicion = false;
+
+        private async void GuardarContacto_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(ContactTitleTextBox.Text))
+            {
+                MessageBox.Show("El nombre es obligatorio.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            if (cbEstadoContacto.SelectedItem == null)
+            {
+                MessageBox.Show("Selecciona un tipo de contacto.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            if (cbCasoContacto.SelectedItem == null)
+            {
+                MessageBox.Show("Selecciona un caso.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                // Crear nuevo contacto usando el DTO
+                var nuevoContacto = new ContactoInsertDto
+                {
+                    nombre = ContactTitleTextBox.Text,
+                    tipo = ((string)cbEstadoContacto.SelectedItem),
+                    telefono = ContactPhoneTextBox.Text,
+                    email = ContactEmailTextBox.Text,
+                    id_caso = ((Caso)cbCasoContacto.SelectedItem).id
+                };
+
+                await _contactosService.InsertarAsync(nuevoContacto);
+                await CargarContactosAsync(); // Recargar la lista de contactos
+                HideNewContactPanel();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al guardar el contacto: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async void CargarCasosAsync()
+        {
+            try
+            {
+                var casos = await _casosService.ObtenerTodosAsync();
+                Casos.Clear();
+                foreach (var caso in casos)
+                    Casos.Add(caso);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar los casos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async Task CargarContactosAsync()
+        {
+            try
+            {
+                var contactos = await _contactosService.ObtenerTodosAsync();
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    Contactos.Clear();
+                    foreach (var contacto in contactos)
+                    {
+                        Contactos.Add(contacto);
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar los contactos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
     }
 }

@@ -54,6 +54,7 @@ namespace TFG_V0._01.Supabase
                 .Set(x => x.nombre, cliente.nombre)
                 .Set(x => x.apellido1, cliente.apellido1)
                 .Set(x => x.apellido2, cliente.apellido2)
+                .Set(x => x.dni, cliente.dni)
                 .Set(x => x.email1, cliente.email1)
                 .Set(x => x.email2, cliente.email2)
                 .Set(x => x.telf1, cliente.telf1)

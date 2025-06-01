@@ -34,6 +34,8 @@ namespace TFG_V0._01.Supabase.Models
         public string direccion { get; set; }
         [Column("fecha_contrato")]
         public DateTime fecha_contrato { get; set; }
+        [Column("dni")]
+        public string dni { get; set; }
 
         [JsonIgnore]
         public string nombre_cliente => $"{nombre} {apellido1} {apellido2}";
@@ -65,5 +67,7 @@ namespace TFG_V0._01.Supabase.Models
         public string direccion { get; set; }
         [Column("fecha_contrato")]
         public DateTime fecha_contrato { get; set; }
+        [Column("dni")]
+        public string dni { get; set; }
     }
 }

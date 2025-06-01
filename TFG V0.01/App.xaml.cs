@@ -4,6 +4,9 @@ using System.Windows;
 using Supabase.Storage;
 using Client = Supabase.Client;
 using SupabaseOptions = Supabase.SupabaseOptions;
+using Microsoft.Extensions.Configuration;
+using System.IO;
+using System.Reflection;
 
 namespace TFG_V0._01
 {
@@ -13,19 +16,34 @@ namespace TFG_V0._01
     public partial class App : Application
     {
         private static Client supabaseClient;
+        private static IConfiguration configuration;
 
         public static Client Supabase => supabaseClient;
+        public static IConfiguration Configuration => configuration;
 
         protected override async void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+
+            // Get the directory where the application is running
+            var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            
+            // Build configuration
+            configuration = new ConfigurationBuilder()
+                .SetBasePath(baseDirectory)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .Build();
 
             var options = new SupabaseOptions
             {
                 AutoConnectRealtime = false
             };
 
-            supabaseClient = new Client("https://ddwyrkqxpmwlznjfjrwv.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkd3lya3F4cG13bHpuamZqcnd2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQzOTcwNjQsImV4cCI6MjA1OTk3MzA2NH0.G2LzHWbC09LC69bj9wONzhD_a6AfFI1ZYFuQ3KD7XhI", options);
+            // Get Supabase configuration from appsettings.json
+            var supabaseUrl = configuration["Supabase:Url"];
+            var supabaseKey = configuration["Supabase:AnonKey"];
+
+            supabaseClient = new Client(supabaseUrl, supabaseKey, options);
             await supabaseClient.InitializeAsync();
         }
     }

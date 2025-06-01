@@ -24,6 +24,9 @@ namespace TFG_V0._01.Supabase
         public async Task<List<Tarea>> ObtenerTareasDelCaso(int casoId)
             => (await _client.From<Tarea>().Where(x => x.id_caso == casoId).Get()).Models;
 
+        public async Task<List<Tarea>> ObtenerTareasPendientes()
+            => (await _client.From<Tarea>().Where(x => x.estado != "Completada").Get()).Models;
+
         public Task ActualizarTarea(int id, TareaUpdateDto tarea)
             => _client.From<Tarea>()
                 .Where(x => x.id == id)

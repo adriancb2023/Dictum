@@ -3,6 +3,10 @@ using System.Threading.Tasks;
 using Supabase;
 using TFG_V0._01.Supabase.Models;
 using Client = Supabase.Client;
+using System;
+using Supabase.Postgrest;
+using Supabase.Postgrest.Models;
+using Supabase.Postgrest.Responses;
 
 namespace TFG_V0._01.Supabase
 {
@@ -23,21 +27,21 @@ namespace TFG_V0._01.Supabase
             return result.Models;
         }
 
-        public Task InsertarAsync(Contacto entidad)
+        public async Task InsertarAsync(ContactoInsertDto dto)
         {
-            // Create a new Contacto object without the id
-            var contactoInsert = new Contacto
+            try
             {
-                id_caso = entidad.id_caso,
-                nombre = entidad.nombre,
-                tipo = entidad.tipo,
-                telefono = entidad.telefono,
-                email = entidad.email
-            };
-            return _client.From<Contacto>().Insert(new[] { contactoInsert });
+                var response = await _client.From<ContactoInsertDto>()
+                    .Insert(new[] { dto });
+                // Si no hay excepción, consideramos éxito aunque no haya modelos devueltos
+            }
+            catch (Exception ex)
+            {
+                throw new System.Exception($"Excepción al insertar contacto: {ex.Message}", ex);
+            }
         }
 
-        public Task ActualizarAsync(Contacto entidad) =>
+        public Task<ModeledResponse<Contacto>> ActualizarAsync(Contacto entidad) =>
             _client.From<Contacto>().Update(entidad);
 
         public Task EliminarAsync(int id) =>

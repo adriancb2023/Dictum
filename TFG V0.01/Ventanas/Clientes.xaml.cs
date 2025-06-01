@@ -230,7 +230,7 @@ namespace TFG_V0._01.Ventanas
             EditNombre = SelectedCliente.nombre;
             EditApellido1 = SelectedCliente.apellido1;
             EditApellido2 = SelectedCliente.apellido2;
-            EditDNI = SelectedCliente.id.ToString();
+            EditDNI = SelectedCliente.dni;
             EditTelefono1 = SelectedCliente.telf1;
             EditTelefono2 = SelectedCliente.telf2;
             EditEmail1 = SelectedCliente.email1;
@@ -240,6 +240,47 @@ namespace TFG_V0._01.Ventanas
             IsEditPersonalInfoVisible = true;
         }
 
+        private bool IsValidDni(string dni)
+        {
+            return IsValidDniFormat(dni) && IsValidDniLetter(dni);
+        }
+
+        private bool IsValidDniFormat(string dni)
+        {
+            return System.Text.RegularExpressions.Regex.IsMatch(dni, @"^\d{8}[A-HJ-NP-TV-Z]$", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        }
+
+        private bool IsValidDniLetter(string dni)
+        {
+            if (dni == null || dni.Length != 9) return false;
+            string letras = "TRWAGMYFPDXBNJZSQVHLCKE";
+            if (!int.TryParse(dni.Substring(0, 8), out int numero)) return false;
+            char letraEsperada = letras[numero % 23];
+            return char.ToUpper(dni[8]) == letraEsperada;
+        }
+
+        private bool IsValidNie(string nie)
+        {
+            if (nie == null || nie.Length != 9) return false;
+            string letras = "TRWAGMYFPDXBNJZSQVHLCKE";
+            char first = char.ToUpper(nie[0]);
+            if (first != 'X' && first != 'Y' && first != 'Z') return false;
+            string nieNum = nie;
+            switch (first)
+            {
+                case 'X': nieNum = "0" + nie.Substring(1); break;
+                case 'Y': nieNum = "1" + nie.Substring(1); break;
+                case 'Z': nieNum = "2" + nie.Substring(1); break;
+            }
+            if (!int.TryParse(nieNum.Substring(0, 8), out int numero)) return false;
+            char letraEsperada = letras[numero % 23];
+            return char.ToUpper(nie[8]) == letraEsperada;
+        }
+
+        private bool IsValidNif(string nif)
+        {
+            return IsValidDni(nif) || IsValidNie(nif);
+        }
 
         private async void GuardarInformacion_Click(object sender, RoutedEventArgs e)
         {
@@ -253,11 +294,26 @@ namespace TFG_V0._01.Ventanas
                 SelectedCliente.telf1 != EditTelefono1 ||
                 SelectedCliente.telf2 != EditTelefono2 ||
                 SelectedCliente.direccion != EditDireccion ||
-                SelectedCliente.id.ToString() != EditDNI;
+                SelectedCliente.dni != EditDNI;
 
             if (!hayCambios)
             {
                 IsEditPersonalInfoVisible = false;
+                return;
+            }
+
+            // Comprobar si el DNI ya existe en otro cliente
+            var clientesExistentes = await _supabaseClientes.ObtenerClientesAsync();
+            if (clientesExistentes.Any(c => c.dni != null && c.dni.Equals(EditDNI, StringComparison.OrdinalIgnoreCase) && c.id != SelectedCliente.id))
+            {
+                MessageBox.Show($"El DNI '{EditDNI}' ya existe en la base de datos. Por favor, introduce un DNI único.", "DNI duplicado", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // Validar formato y letra del NIF (DNI o NIE) antes de guardar
+            if (!IsValidNif(EditDNI))
+            {
+                MessageBox.Show("El DNI/NIE introducido no es válido. Debe tener el formato y la letra correctos según el algoritmo oficial.", "Identificador no válido", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -270,10 +326,7 @@ namespace TFG_V0._01.Ventanas
             SelectedCliente.telf1 = EditTelefono1;
             SelectedCliente.telf2 = EditTelefono2;
             SelectedCliente.direccion = EditDireccion;
-
-            // Actualiza el DNI solo si es un número válido
-            if (int.TryParse(EditDNI, out int nuevoId))
-                SelectedCliente.id = nuevoId;
+            SelectedCliente.dni = EditDNI;
 
             IsEditPersonalInfoVisible = false;
             await ActualizarClienteAsync(SelectedCliente);
@@ -284,7 +337,7 @@ namespace TFG_V0._01.Ventanas
             EditNombre = SelectedCliente.nombre;
             EditApellido1 = SelectedCliente.apellido1;
             EditApellido2 = SelectedCliente.apellido2;
-            EditDNI = SelectedCliente.id.ToString();
+            EditDNI = SelectedCliente.dni;
             EditTelefono1 = SelectedCliente.telf1;
             EditTelefono2 = SelectedCliente.telf2;
             EditEmail1 = SelectedCliente.email1;

@@ -66,7 +66,17 @@ namespace TFG_V0._01.Ventanas
 
         private ObservableCollection<Estado> _estadosDisponibles = new ObservableCollection<Estado>();
 
-        public ObservableCollection<SupabaseTarea> TareasPendientesLista { get; set; } = new ObservableCollection<SupabaseTarea>();
+        private readonly SupabaseTareas _supabaseTareas;
+        private ObservableCollection<Tarea> _tareasPendientesLista;
+        public ObservableCollection<Tarea> TareasPendientesLista
+        {
+            get => _tareasPendientesLista;
+            set
+            {
+                _tareasPendientesLista = value;
+                OnPropertyChanged(nameof(TareasPendientesLista));
+            }
+        }
 
         public ObservableCollection<string> EstadosDisponibles { get; set; } = new ObservableCollection<string> { "Pendiente", "En progreso", "Finalizado" };
 
@@ -198,11 +208,30 @@ namespace TFG_V0._01.Ventanas
         public ICommand SeleccionarDiaCommand { get; set; }
         #endregion
 
+        #region 🎨 Variables adicionales
+        private ObservableCollection<Caso> _casosDisponibles = new ObservableCollection<Caso>();
+        public ObservableCollection<Caso> CasosDisponibles
+        {
+            get => _casosDisponibles;
+            set { _casosDisponibles = value; OnPropertyChanged(); }
+        }
+
+        private int? _selectedCasoId;
+        public int? SelectedCasoId
+        {
+            get => _selectedCasoId;
+            set { _selectedCasoId = value; OnPropertyChanged(); }
+        }
+        #endregion
+
         #region ⚡ Inicializacion
         public Home()
         {
             InitializeComponent();
-            DataContext = this;
+            this.DataContext = this;
+            _supabaseTareas = new SupabaseTareas();
+            TareasPendientesLista = new ObservableCollection<Tarea>();
+            CargarTareasPendientes();
 
             CargarIdioma(MainWindow.idioma);
 
@@ -234,6 +263,9 @@ namespace TFG_V0._01.Ventanas
 
             SeleccionarDiaCommand = new RelayCommand<DateTime>(SeleccionarDia);
             InicializarSemanaActual();
+
+            CasosDisponibles = new ObservableCollection<Caso>();
+            SelectedCasoId = null;
         }
         #endregion
 
@@ -1258,24 +1290,37 @@ namespace TFG_V0._01.Ventanas
             }
         }
 
-        private void btnAñadirTarea_Click(object sender, RoutedEventArgs e)
+        private async void btnAñadirTarea_Click(object sender, RoutedEventArgs e)
         {
-            // Mostrar el overlay
-            OverlayPanel.Visibility = Visibility.Visible;
-            
-            // Mostrar el panel deslizante
+            // Configurar el grid
             SlidePanelTarea.Visibility = Visibility.Visible;
-            
-            // Crear y ejecutar la animación
+            OverlayPanel.Visibility = Visibility.Visible;
+
+            // Configurar prioridades
+            cbPrioridadTarea.ItemsSource = new[] { "Alta", "Media", "Baja" };
+            cbPrioridadTarea.SelectedIndex = 1; // Media por defecto
+
+            // Configurar estados
+            cbEstadoTarea.ItemsSource = new[] { "Pendiente", "En progreso", "Completada" };
+            cbEstadoTarea.SelectedIndex = 0; // Pendiente por defecto
+
+            // Limpiar campos
+            txtTituloTarea.Text = "";
+            txtDescripcionTarea.Text = "";
+            dpFechaVencimientoTarea.SelectedDate = DateTime.Now.AddDays(7); // Una semana por defecto
+
+            // Animar la entrada
             var animation = new DoubleAnimation
             {
                 From = 400,
                 To = 0,
-                Duration = TimeSpan.FromMilliseconds(300),
-                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+                Duration = TimeSpan.FromSeconds(0.3),
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
             };
-            
             SlidePanelTareaTransform.BeginAnimation(TranslateTransform.XProperty, animation);
+
+            await CargarCasosDisponibles();
+            SelectedCasoId = null;
         }
 
         private void btnCancelarTarea_Click(object sender, RoutedEventArgs e)
@@ -1303,6 +1348,121 @@ namespace TFG_V0._01.Ventanas
             SlidePanelTareaTransform.BeginAnimation(TranslateTransform.XProperty, animation);
         }
 
-        
+        private async Task CargarTareasPendientes()
+        {
+            try
+            {
+                await _supabaseTareas.InicializarAsync();
+                var tareas = await _supabaseTareas.ObtenerTareasPendientes();
+                // Inicializar la propiedad 'completada' según el estado
+                foreach (var tarea in tareas)
+                {
+                    tarea.completada = tarea.estado == "Completada";
+                }
+                TareasPendientesLista.Clear();
+                foreach (var tarea in tareas)
+                {
+                    TareasPendientesLista.Add(tarea);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar las tareas: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async void TareaCheckBox_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is CheckBox checkBox && checkBox.DataContext is Tarea tarea)
+            {
+                try
+                {
+                    tarea.estado = checkBox.IsChecked == true ? "Completada" : "Pendiente";
+                    var updateDto = new TFG_V0._01.Supabase.Models.TareaUpdateDto
+                    {
+                        titulo = tarea.titulo,
+                        descripcion = tarea.descripcion,
+                        fecha_creacion = tarea.fecha_creacion,
+                        fecha_fin = tarea.fecha_fin,
+                        id_caso = tarea.id_caso,
+                        prioridad = tarea.prioridad,
+                        estado = tarea.estado
+                    };
+                    await _supabaseTareas.ActualizarTarea(tarea.id.Value, updateDto);
+                    await Task.Run(() => CargarTareasPendientes()); // Wrap the void method in Task.Run
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error al actualizar el estado de la tarea: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    // Revertir el cambio en caso de error
+                    tarea.completada = !tarea.completada;
+                }
+            }
+        }
+
+        private async void GuardarTarea_Click(object sender, RoutedEventArgs e)
+        {
+            // Validación básica
+            if (string.IsNullOrWhiteSpace(txtTituloTarea.Text))
+            {
+                MessageBox.Show("El título es obligatorio.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            if (dpFechaVencimientoTarea.SelectedDate == null)
+            {
+                MessageBox.Show("La fecha de vencimiento es obligatoria.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            if (cbPrioridadTarea.SelectedItem == null)
+            {
+                MessageBox.Show("La prioridad es obligatoria.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            if (cbEstadoTarea.SelectedItem == null)
+            {
+                MessageBox.Show("El estado es obligatorio.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                if (SelectedCasoId == null)
+                {
+                    MessageBox.Show("Debes seleccionar un caso.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+                var tarea = new TFG_V0._01.Supabase.Models.TareaInsertDto
+                {
+                    titulo = txtTituloTarea.Text,
+                    descripcion = txtDescripcionTarea.Text,
+                    fecha_creacion = DateTime.Now,
+                    fecha_fin = dpFechaVencimientoTarea.SelectedDate,
+                    prioridad = cbPrioridadTarea.SelectedItem.ToString(),
+                    estado = cbEstadoTarea.SelectedItem.ToString(),
+                    id_caso = SelectedCasoId
+                };
+
+                await _supabaseTareas.CrearTarea(tarea);
+                await CargarTareasPendientes();
+                CerrarPanelTarea();
+                MessageBox.Show("Tarea creada correctamente.", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al guardar la tarea: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void CancelarTarea_Click(object sender, RoutedEventArgs e)
+        {
+            CerrarPanelTarea();
+        }
+
+        private async Task CargarCasosDisponibles()
+        {
+            await _supabaseCasos.InicializarAsync();
+            var casos = await _supabaseCasos.ObtenerTodosAsync();
+            CasosDisponibles = new ObservableCollection<Caso>(casos);
+        }
     }
 }

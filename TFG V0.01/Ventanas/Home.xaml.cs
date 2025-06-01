@@ -25,66 +25,50 @@ namespace TFG_V0._01.Ventanas
     public partial class Home : Window, INotifyPropertyChanged
     {
         #region 🎬 variables animacion
-        private Storyboard fadeInStoryboard;
-        private Storyboard shakeStoryboard;
-        private Storyboard meshAnimStoryboard;
+        private static Storyboard fadeInStoryboard;
+        private static Storyboard shakeStoryboard;
+        private static Storyboard meshAnimStoryboard;
+        private static RadialGradientBrush mesh1Brush;
+        private static RadialGradientBrush mesh2Brush;
         private DispatcherTimer progressTimer;
         private DateTime startTime;
         private readonly TimeSpan duration = TimeSpan.FromSeconds(2.0);
 
-        // Brushes y fondo animado
-        private RadialGradientBrush mesh1Brush;
-        private RadialGradientBrush mesh2Brush;
-
+        static Home()
+        {
+            fadeInStoryboard = new Storyboard();
+            shakeStoryboard = new Storyboard();
+            meshAnimStoryboard = new Storyboard();
+            mesh1Brush = new RadialGradientBrush();
+            mesh2Brush = new RadialGradientBrush();
+        }
         #endregion
 
         #region 📊 variables
         private readonly SupabaseAutentificacion _authService;
-
         private readonly SupabaseClientes _clientesService;
-
         private readonly SupabaseCasos _supabaseCasos;
-
         private readonly SupabaseEventosCitas _eventosCitasService;
-
         private readonly SupabaseDocumentos _documentosService;
-
         private readonly SupabaseTareas _tareasService;
 
+        private ObservableCollection<Estado> _estadosDisponibles = new();
+        private ObservableCollection<Tarea> _tareasPendientesLista = new();
+        private ObservableCollection<CasoViewModel> _casosRecientesLista = new();
+        private ObservableCollection<EventoCita> _eventosProximosLista = new();
+        private ObservableCollection<DiaSemanaModel> _diasSemana = new();
+        private ObservableCollection<Caso> _casosDisponibles = new();
+        private ObservableCollection<EventoCita> _eventosDiaSeleccionado = new();
 
-        public ICommand VerDetallesCommand { get; }
-
-        private int _clientCount;
-
-        private int _previousClientCount;
-
-        private string _clientCountChange;
-
-        private int _casosActivos;
-
-        private int _documentos;
-
-        private int _tareasPendientes;
-
-        private int _casosRecientes;
-
-        private ObservableCollection<Estado> _estadosDisponibles = new ObservableCollection<Estado>();
-
-        private readonly SupabaseTareas _supabaseTareas;
-        private ObservableCollection<Tarea> _tareasPendientesLista;
         public ObservableCollection<Tarea> TareasPendientesLista
         {
             get => _tareasPendientesLista;
             set
             {
                 _tareasPendientesLista = value;
-                OnPropertyChanged(nameof(TareasPendientesLista));
+                OnPropertyChanged();
             }
         }
-
-        public ObservableCollection<string> EstadosDisponibles { get; set; } = new ObservableCollection<string> { "Pendiente", "En progreso", "Finalizado" };
-
-        private ObservableCollection<CasoViewModel> _casosRecientesLista;
 
         public ObservableCollection<CasoViewModel> CasosRecientesLista
         {
@@ -95,6 +79,58 @@ namespace TFG_V0._01.Ventanas
                 OnPropertyChanged();
             }
         }
+
+        public ObservableCollection<EventoCita> EventosProximosLista
+        {
+            get => _eventosProximosLista;
+            set
+            {
+                _eventosProximosLista = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ObservableCollection<DiaSemanaModel> DiasSemana
+        {
+            get => _diasSemana;
+            set
+            {
+                _diasSemana = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ObservableCollection<Caso> CasosDisponibles
+        {
+            get => _casosDisponibles;
+            set
+            {
+                _casosDisponibles = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ObservableCollection<EventoCita> EventosDiaSeleccionado
+        {
+            get => _eventosDiaSeleccionado;
+            set
+            {
+                _eventosDiaSeleccionado = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ICommand VerDetallesCommand { get; }
+
+        #region 📊 Propiedades
+        private int _clientCount;
+        private int _previousClientCount;
+        private string _clientCountChange;
+        private int _casosActivos;
+        private int _documentos;
+        private int _tareasPendientes;
+        private int _casosRecientes;
+        private int _eventosProximos;
 
         public int ClientCount
         {
@@ -127,42 +163,74 @@ namespace TFG_V0._01.Ventanas
         public int CasosActivos
         {
             get => _casosActivos;
-            set { _casosActivos = value; OnPropertyChanged(); }
+            set
+            {
+                if (_casosActivos != value)
+                {
+                    _casosActivos = value;
+                    OnPropertyChanged();
+                }
+            }
         }
 
         public int Documentos
         {
             get => _documentos;
-            set { _documentos = value; OnPropertyChanged(); }
+            set
+            {
+                if (_documentos != value)
+                {
+                    _documentos = value;
+                    OnPropertyChanged();
+                }
+            }
         }
 
         public int TareasPendientes
         {
             get => _tareasPendientes;
-            set { _tareasPendientes = value; OnPropertyChanged(); }
+            set
+            {
+                if (_tareasPendientes != value)
+                {
+                    _tareasPendientes = value;
+                    OnPropertyChanged();
+                }
+            }
         }
 
         public int CasosRecientes
         {
             get => _casosRecientes;
-            set { _casosRecientes = value; OnPropertyChanged(); }
+            set
+            {
+                if (_casosRecientes != value)
+                {
+                    _casosRecientes = value;
+                    OnPropertyChanged();
+                }
+            }
         }
+
+        public int EventosProximos
+        {
+            get => _eventosProximos;
+            set
+            {
+                if (_eventosProximos != value)
+                {
+                    _eventosProximos = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+        #endregion
 
         private DateOnly fechaActual = DateOnly.FromDateTime(DateTime.Now);
 
         private string mesText;
 
         private string anio;
-
-        private int _eventosProximos;
-
-        public ObservableCollection<EventoCita> EventosProximosLista { get; set; } = new ObservableCollection<EventoCita>();
-
-        public int EventosProximos
-        {
-            get => _eventosProximos;
-            set { _eventosProximos = value; OnPropertyChanged(); }
-        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -192,8 +260,7 @@ namespace TFG_V0._01.Ventanas
         #endregion
 
         #region 🎨 Variables adicionales
-        public ObservableCollection<DiaSemanaModel> DiasSemana { get; set; } = new ObservableCollection<DiaSemanaModel>();
-        public ObservableCollection<EventoCita> EventosDiaSeleccionado { get; set; } = new ObservableCollection<EventoCita>();
+        public ObservableCollection<string> EstadosDisponibles { get; set; } = new ObservableCollection<string> { "Pendiente", "En progreso", "Finalizado" };
 
         private DiaSemanaModel _diaSeleccionado;
         public DiaSemanaModel DiaSeleccionado
@@ -213,13 +280,6 @@ namespace TFG_V0._01.Ventanas
         #endregion
 
         #region 🎨 Variables adicionales
-        private ObservableCollection<Caso> _casosDisponibles = new ObservableCollection<Caso>();
-        public ObservableCollection<Caso> CasosDisponibles
-        {
-            get => _casosDisponibles;
-            set { _casosDisponibles = value; OnPropertyChanged(); }
-        }
-
         private int? _selectedCasoId;
         public int? SelectedCasoId
         {
@@ -233,7 +293,7 @@ namespace TFG_V0._01.Ventanas
         {
             InitializeComponent();
             this.DataContext = this;
-            _supabaseTareas = new SupabaseTareas();
+            _tareasService = new SupabaseTareas();
             TareasPendientesLista = new ObservableCollection<Tarea>();
             CargarTareasPendientes();
 
@@ -276,30 +336,29 @@ namespace TFG_V0._01.Ventanas
         #region ⌛ Patalla de carga
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            // Asegurarse de que el overlay de carga esté visible antes de cualquier operación asíncrona
-            LoadingOverlay.Visibility = Visibility.Visible;
-            StartLoadingAnimation();
-
-            if (MainWindow.tipoBBDD)
+            try 
             {
-                await CargarDatosDashboard();
-                // CargarScoreCasos(); // Estos ya se llaman dentro de CargarDatosDashboard
-                // CargarCasosRecientes();
-                // CargarScoreDocumentos();
-            }
-            else
-            {
+                LoadingOverlay.Visibility = Visibility.Visible;
+                StartLoadingAnimation();
 
-            }
+                if (MainWindow.tipoBBDD)
+                {
+                    await Task.WhenAll(
+                        CargarDatosDashboard(),
+                        InicializarServiciosSupabase()
+                    );
+                }
 
-            // Suscribirse a los eventos del control AddCasoControl
-            if (AddCasoControl != null)
-            {
-                AddCasoControl.CasoGuardado += OnCasoGuardado;
-                AddCasoControl.CasoCancelado += OnCasoCancelado;
+                if (AddCasoControl != null)
+                {
+                    AddCasoControl.CasoGuardado += OnCasoGuardado;
+                    AddCasoControl.CasoCancelado += OnCasoCancelado;
+                }
             }
-            // Ocultar el overlay de carga después de que los datos se hayan cargado
-            // La animación de desvanecimiento del overlay se maneja en UpdateProgressArc
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error durante la carga inicial: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
         #endregion
 
@@ -1428,8 +1487,8 @@ namespace TFG_V0._01.Ventanas
         {
             try
             {
-                await _supabaseTareas.InicializarAsync();
-                var tareas = await _supabaseTareas.ObtenerTareasPendientes();
+                await _tareasService.InicializarAsync();
+                var tareas = await _tareasService.ObtenerTareasPendientes();
                 // Inicializar la propiedad 'completada' según el estado
                 foreach (var tarea in tareas)
                 {
@@ -1464,7 +1523,7 @@ namespace TFG_V0._01.Ventanas
                         prioridad = tarea.prioridad,
                         estado = tarea.estado
                     };
-                    await _supabaseTareas.ActualizarTarea(tarea.id.Value, updateDto);
+                    await _tareasService.ActualizarTarea(tarea.id.Value, updateDto);
                     await Task.Run(() => CargarTareasPendientes()); // Wrap the void method in Task.Run
                 }
                 catch (Exception ex)
@@ -1518,7 +1577,7 @@ namespace TFG_V0._01.Ventanas
                     id_caso = SelectedCasoId
                 };
 
-                await _supabaseTareas.CrearTarea(tarea);
+                await _tareasService.CrearTarea(tarea);
                 await CargarTareasPendientes();
                 CerrarPanelTarea();
                 MessageBox.Show("Tarea creada correctamente.", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);

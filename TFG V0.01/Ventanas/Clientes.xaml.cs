@@ -838,41 +838,28 @@ namespace TFG_V0._01.Ventanas
             {
                 try
                 {
+                    // Create a SaveFileDialog to let the user choose where to save the file
                     var saveFileDialog = new Microsoft.Win32.SaveFileDialog
                     {
-                        FileName = doc.nombre,
-                        Filter = "Todos los archivos|*.*",
-                        Title = "Guardar documento"
+                        FileName = doc.nombre + doc.extension_archivo,
+                        DefaultExt = doc.extension_archivo,
+                        Filter = $"Archivos {doc.extension_archivo}|*{doc.extension_archivo}|Todos los archivos|*.*"
                     };
 
                     if (saveFileDialog.ShowDialog() == true)
                     {
-                        // Verificar si el archivo existe
-                        if (!File.Exists(doc.ruta))
-                        {
-                            MessageBox.Show("El archivo original no se encuentra disponible.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                            return;
-                        }
+                        // Initialize Supabase Storage
+                        var storage = new TFG_V0._01.Supabase.SupaBaseStorage();
+                        await storage.InicializarAsync();
 
-                        // Verificar si el directorio de destino existe
-                        var directory = System.IO.Path.GetDirectoryName(saveFileDialog.FileName);
-                        if (!Directory.Exists(directory))
-                        {
-                            Directory.CreateDirectory(directory);
-                        }
+                        // Download the file from Supabase Storage usando solo el nombre del archivo
+                        var fileBytes = await storage.DescargarArchivoAsync("documentos", System.IO.Path.GetFileName(doc.ruta));
 
-                        // Copiar el archivo
-                        File.Copy(doc.ruta, saveFileDialog.FileName, true);
+                        // Save the file to the selected location
+                        await File.WriteAllBytesAsync(saveFileDialog.FileName, fileBytes);
+
                         MessageBox.Show("Documento descargado correctamente.", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
-                }
-                catch (UnauthorizedAccessException)
-                {
-                    MessageBox.Show("No tiene permisos para guardar el archivo en la ubicación seleccionada.", "Error de permisos", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-                catch (IOException ex)
-                {
-                    MessageBox.Show($"Error al acceder al archivo: {ex.Message}", "Error de E/S", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
                 catch (Exception ex)
                 {

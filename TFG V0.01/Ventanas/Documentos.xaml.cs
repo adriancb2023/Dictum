@@ -70,6 +70,8 @@ namespace TFG_V0._01.Ventanas
             InitializeMeshGradient();
             UpdateTheme();
             _ = CargarClientesAsync();
+            ComboClientesPanel.SelectedItem = null;
+            ComboClientes_SelectionChanged(null, null);
         }
 
         #region 🌓 Aplicar modo oscuro/claro cargado por sistema
@@ -242,13 +244,28 @@ namespace TFG_V0._01.Ventanas
             var cliente = ComboClientesPanel.SelectedItem as TFG_V0._01.Supabase.Models.Cliente;
             ListaCasosFiltrados.Clear();
             ComboCasosPanel.SelectedItem = null;
+
+            var casosService = new TFG_V0._01.Supabase.SupabaseCasos();
+            var casos = await casosService.ObtenerTodosAsync();
+
             if (cliente != null)
             {
-                var casosService = new TFG_V0._01.Supabase.SupabaseCasos();
-                var casos = await casosService.ObtenerTodosAsync();
+                // Solo los casos del cliente seleccionado
                 foreach (var caso in casos.Where(c => c.id_cliente == cliente.id))
                     ListaCasosFiltrados.Add(caso);
             }
+            else
+            {
+                // TODOS los casos si no hay cliente seleccionado
+                foreach (var caso in casos)
+                    ListaCasosFiltrados.Add(caso);
+            }
+            await FiltrarYMostrarDocumentosAsync();
+        }
+
+        private async void ComboCasosPanel_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            await FiltrarYMostrarDocumentosAsync();
         }
 
         private async Task FiltrarYMostrarDocumentosAsync()
@@ -290,14 +307,39 @@ namespace TFG_V0._01.Ventanas
                 }
             }
 
+            // Si no hay ningún filtro seleccionado, vacía todos los paneles y sal del método
+            bool sinFiltros = clienteSeleccionado == null
+                && casoSeleccionado == null
+                && fechaSeleccionada == null
+                && !(extensionesSeleccionadas.Any() || incluirOtros);
+
+            if (sinFiltros)
+            {
+                foreach (var panel in DocumentPanelsCollection)
+                {
+                    panel.Files.Clear();
+                    panel.IsVisible = true;
+                }
+                return;
+            }
+
             var documentosService = new TFG_V0._01.Supabase.SupabaseDocumentos();
             var documentos = await documentosService.ObtenerTodosAsync();
 
             if (clienteSeleccionado != null)
+            {
                 documentos = documentos.Where(d => d.Caso != null && d.Caso.id_cliente == clienteSeleccionado.id).ToList();
-
-            if (casoSeleccionado != null)
+                
+                // Si se seleccionó un caso específico (y no es la opción "Todos los casos")
+                if (casoSeleccionado != null && casoSeleccionado.id != -1)
+                {
+                    documentos = documentos.Where(d => d.id_caso == casoSeleccionado.id).ToList();
+                }
+            }
+            else if (casoSeleccionado != null && casoSeleccionado.id != -1)
+            {
                 documentos = documentos.Where(d => d.id_caso == casoSeleccionado.id).ToList();
+            }
 
             if (fechaSeleccionada != null)
                 documentos = documentos.Where(d => d.fecha_subid.Date == fechaSeleccionada.Value.Date).ToList();

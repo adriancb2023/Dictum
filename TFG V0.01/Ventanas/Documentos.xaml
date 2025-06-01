@@ -503,7 +503,8 @@
                         <ComboBox x:Name="ComboCasosPanel"
                                   ItemsSource="{Binding ListaCasosFiltrados}"
                                   DisplayMemberPath="titulo"
-                                  Width="200" Height="35"/>
+                                  Width="200" Height="35"
+                                  SelectionChanged="ComboCasosPanel_SelectionChanged"/>
                     </StackPanel>
 
                     <StackPanel Margin="0,5">

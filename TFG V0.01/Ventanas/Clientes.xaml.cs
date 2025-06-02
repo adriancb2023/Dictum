@@ -821,11 +821,18 @@ namespace TFG_V0._01.Ventanas
                 {
                     var storage = new TFG_V0._01.Supabase.SupaBaseStorage();
                     await storage.InicializarAsync();
-                    // Descargar el archivo desde Supabase Storage usando solo el nombre del archivo
-                    var fileBytes = await storage.DescargarArchivoAsync("documentos", System.IO.Path.GetFileName(doc.ruta));
+
+                    // Usar la ruta relativa completa (por si hay subcarpetas)
+                    string rutaRelativa = doc.ruta;
+                    string nombreArchivo = System.IO.Path.GetFileName(rutaRelativa);
+                    string tempPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), nombreArchivo);
+
+                    // Descargar el archivo como byte[] desde Supabase
+                    var fileBytes = await storage.DescargarArchivoAsync("documentos", rutaRelativa);
+
                     // Guardar en una ruta temporal
-                    string tempPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), System.IO.Path.GetFileName(doc.ruta));
-                    await File.WriteAllBytesAsync(tempPath, fileBytes);
+                    await System.IO.File.WriteAllBytesAsync(tempPath, fileBytes);
+
                     // Abrir el archivo
                     System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
                     {
@@ -835,7 +842,7 @@ namespace TFG_V0._01.Ventanas
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"No se pudo abrir el documento: {ex.Message}");
+                    MessageBox.Show($"No se pudo abrir el documento: {ex.Message}\nRuta: {((Documento)btn.DataContext).ruta}");
                 }
             }
         }
@@ -846,7 +853,7 @@ namespace TFG_V0._01.Ventanas
             {
                 try
                 {
-                    // Create a SaveFileDialog to let the user choose where to save the file
+                    // Crear el SaveFileDialog para que el usuario elija la ubicación
                     var saveFileDialog = new Microsoft.Win32.SaveFileDialog
                     {
                         FileName = doc.nombre + doc.extension_archivo,
@@ -856,22 +863,25 @@ namespace TFG_V0._01.Ventanas
 
                     if (saveFileDialog.ShowDialog() == true)
                     {
-                        // Initialize Supabase Storage
+                        // Inicializar Supabase Storage
                         var storage = new TFG_V0._01.Supabase.SupaBaseStorage();
                         await storage.InicializarAsync();
 
-                        // Download the file from Supabase Storage usando solo el nombre del archivo
-                        var fileBytes = await storage.DescargarArchivoAsync("documentos", System.IO.Path.GetFileName(doc.ruta));
+                        // Usar la ruta relativa completa (por si hay subcarpetas)
+                        string rutaRelativa = doc.ruta;
 
-                        // Save the file to the selected location
-                        await File.WriteAllBytesAsync(saveFileDialog.FileName, fileBytes);
+                        // Descargar el archivo como byte[] desde Supabase
+                        var fileBytes = await storage.DescargarArchivoAsync("documentos", rutaRelativa);
+
+                        // Guardar el archivo en la ubicación seleccionada
+                        await System.IO.File.WriteAllBytesAsync(saveFileDialog.FileName, fileBytes);
 
                         MessageBox.Show("Documento descargado correctamente.", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Error al descargar el documento: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"Error al descargar el documento: {ex.Message}\nRuta: {((Documento)btn.DataContext).ruta}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }

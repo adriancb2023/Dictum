@@ -306,7 +306,7 @@
                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                               Margin="{TemplateBinding Padding}"/>
                                     <!-- ToggleButton para abrir/cerrar desplegable -->
-                                    <ToggleButton Grid.Column="0" Grid.ColumnSpan="2"
+                                    <ToggleButton Grid.Column="1"
                                                 x:Name="ToggleButton"
                                                 IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
                                                 ClickMode="Press">
@@ -786,7 +786,8 @@
                              DisplayMemberPath="Nombre" 
                              SelectedValuePath="Id" 
                              Style="{StaticResource ModernComboBoxStyle}"
-                             Height="44"/>
+                             Height="44"
+                             PreviewMouseLeftButtonDown="ComboBox_PreviewMouseLeftButtonDown"/>
                 </StackPanel>
             </ScrollViewer>
 
@@ -963,7 +964,8 @@
                              Margin="0,0,0,8"/>
                     <ComboBox x:Name="cbPrioridadTarea" 
                              Style="{StaticResource ModernComboBoxStyle}"
-                             Margin="0,0,0,20"/>
+                             Margin="0,0,0,20"
+                             PreviewMouseLeftButtonDown="ComboBox_PreviewMouseLeftButtonDown"/>
 
                     <TextBlock Text="Fecha de vencimiento" 
                              Style="{StaticResource PrimaryTextStyle}" 
@@ -980,7 +982,8 @@
                              Margin="0,0,0,8"/>
                     <ComboBox x:Name="cbEstadoTarea" 
                              Style="{StaticResource ModernComboBoxStyle}"
-                             Margin="0,0,0,20"/>
+                             Margin="0,0,0,20"
+                             PreviewMouseLeftButtonDown="ComboBox_PreviewMouseLeftButtonDown"/>
                 </StackPanel>
             </ScrollViewer>
 
@@ -1053,7 +1056,8 @@
                         <ComboBox x:Name="cbTipoDocumento" 
                                  Style="{StaticResource ModernComboBoxStyle}"
                                  DisplayMemberPath="Nombre"
-                                 SelectedValuePath="Id"/>
+                                 SelectedValuePath="Id"
+                                 PreviewMouseLeftButtonDown="ComboBox_PreviewMouseLeftButtonDown"/>
                     </StackPanel>
 
                     <!-- Área de arrastrar y soltar -->

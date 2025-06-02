@@ -5,9 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TFG_V0._01.Ventanas"
         xmlns:controls="clr-namespace:TFG_V0._01.Controladores"
+        xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         mc:Ignorable="d"
         Title="BusquedaJurisprudencia" Height="850" Width="1200"
-        WindowStartupLocation="CenterScreen" >
+        WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <!-- Estilo para el botón de cambio de tema -->
         <Style x:Key="ThemeButtonStyle" TargetType="Button">
@@ -810,6 +811,65 @@
                     </Grid>
                 </Border>
             </Grid>
+        </Grid>
+
+        <!-- Overlay para cerrar el panel -->
+        <Grid x:Name="OverlayPanel" 
+              Grid.Column="2" 
+              Background="#80000000" 
+              Visibility="Collapsed"
+              MouseLeftButtonDown="OverlayPanel_MouseLeftButtonDown">
+        </Grid>
+
+        <!-- Panel deslizante con WebView -->
+        <Grid x:Name="WebViewPanel" 
+              Grid.Column="2" 
+              Width="900" 
+              Height="650"
+              HorizontalAlignment="Center"
+              VerticalAlignment="Center"
+              Visibility="Collapsed">
+            <Grid.RenderTransform>
+                <TranslateTransform x:Name="WebViewPanelTransform" Y="650"/>
+            </Grid.RenderTransform>
+            <Border Background="{DynamicResource ButtonBackgroundDark}" 
+                    CornerRadius="10" 
+                    BorderThickness="1" 
+                    BorderBrush="{DynamicResource ButtonHoverLight}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <!-- Barra de título -->
+                    <Grid Background="{DynamicResource ButtonHoverDark}" 
+                          Height="40" 
+                          MouseLeftButtonDown="WebViewPanel_MouseLeftButtonDown">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Documento" 
+                                 Foreground="White" 
+                                 VerticalAlignment="Center" 
+                                 Margin="10,0,0,0"/>
+                        <Button Grid.Column="1" 
+                                Content="✕" 
+                                Width="40" 
+                                Height="40" 
+                                Background="Transparent" 
+                                BorderThickness="0"
+                                Foreground="White"
+                                Click="CerrarWebView_Click"/>
+                    </Grid>
+
+                    <!-- WebView -->
+                    <wv2:WebView2 x:Name="DocumentWebView" 
+                                 Grid.Row="1" 
+                                 Margin="10"/>
+                </Grid>
+            </Border>
         </Grid>
     </Grid>
 </Window>

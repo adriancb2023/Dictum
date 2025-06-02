@@ -1,5 +1,7 @@
 ﻿using JurisprudenciaApi.Controllers;
 using JurisprudenciaApi.Models;
+using Microsoft.Web.WebView2.Core;
+using Microsoft.Web.WebView2.Wpf;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel; // Para ObservableCollection
@@ -531,8 +533,8 @@ namespace TFG_V0._01.Ventanas
                 {
                     try
                     {
-                        // Abrir la URL en el navegador por defecto
-                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute = true });
+                        // Mostrar el panel y cargar la URL
+                        MostrarWebView(url);
                     }
                     catch (Exception ex)
                     {
@@ -544,6 +546,90 @@ namespace TFG_V0._01.Ventanas
                     MessageBox.Show("La URL del documento no está disponible.", "Información", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
+        }
+
+        private async void MostrarWebView(string url)
+        {
+            try
+            {
+                // Mostrar el overlay
+                OverlayPanel.Visibility = Visibility.Visible;
+                
+                // Mostrar el panel
+                WebViewPanel.Visibility = Visibility.Visible;
+                
+                // Inicializar WebView2 si es necesario
+                if (DocumentWebView.CoreWebView2 == null)
+                {
+                    await DocumentWebView.EnsureCoreWebView2Async();
+                    
+                    // Configurar el WebView para PDFs
+                    DocumentWebView.CoreWebView2.Settings.IsStatusBarEnabled = false;
+                    DocumentWebView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
+                    DocumentWebView.CoreWebView2.Settings.IsPinchZoomEnabled = true;
+                    DocumentWebView.CoreWebView2.Settings.AreBrowserAcceleratorKeysEnabled = false;
+                    
+                    // Configurar el tamaño inicial
+                    // DocumentWebView.Width = WebViewPanel.ActualWidth - 20; // Restar el margen
+                    // DocumentWebView.Height = WebViewPanel.ActualHeight - 50; // Restar el margen y la barra de título
+                }
+                
+                // Cargar la URL del PDF
+                DocumentWebView.CoreWebView2.Navigate(url);
+                
+                // Animar la entrada del panel
+                var animation = new DoubleAnimation
+                {
+                    From = 600,
+                    To = 0,
+                    Duration = TimeSpan.FromMilliseconds(300),
+                    EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+                };
+                WebViewPanelTransform.BeginAnimation(TranslateTransform.YProperty, animation);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar el documento: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                CerrarWebView();
+            }
+        }
+
+        private void CerrarWebView_Click(object sender, RoutedEventArgs e)
+        {
+            CerrarWebView();
+        }
+
+        private void OverlayPanel_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            CerrarWebView();
+        }
+
+        private void WebViewPanel_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ClickCount == 2)
+            {
+                CerrarWebView();
+            }
+        }
+
+        private void CerrarWebView()
+        {
+            // Animar la salida del panel
+            var animation = new DoubleAnimation
+            {
+                From = 0,
+                To = 600,
+                Duration = TimeSpan.FromMilliseconds(300),
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseIn }
+            };
+            
+            animation.Completed += (s, e) =>
+            {
+                WebViewPanel.Visibility = Visibility.Collapsed;
+                OverlayPanel.Visibility = Visibility.Collapsed;
+            };
+            
+            WebViewPanelTransform.BeginAnimation(TranslateTransform.YProperty, animation);
         }
         #endregion
 

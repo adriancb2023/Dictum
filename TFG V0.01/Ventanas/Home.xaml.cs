@@ -18,69 +18,57 @@ using TFG_V0._01.Supabase.Models;
 using TFG_V0._01.Ventanas.SubVentanas;
 using SupabaseCaso = TFG_V0._01.Supabase.Models.Caso;
 using SupabaseTarea = TFG_V0._01.Supabase.Models.Tarea;
+using System.Windows.Threading;
 
 namespace TFG_V0._01.Ventanas
 {
     public partial class Home : Window, INotifyPropertyChanged
     {
         #region 🎬 variables animacion
-        private Storyboard fadeInStoryboard;
-        private Storyboard shakeStoryboard;
-        private Storyboard meshAnimStoryboard;
+        private static Storyboard fadeInStoryboard;
+        private static Storyboard shakeStoryboard;
+        private static Storyboard meshAnimStoryboard;
+        private static RadialGradientBrush mesh1Brush;
+        private static RadialGradientBrush mesh2Brush;
+        private DispatcherTimer progressTimer;
+        private DateTime startTime;
+        private readonly TimeSpan duration = TimeSpan.FromSeconds(2.0);
 
-        // Brushes y fondo animado
-        private RadialGradientBrush mesh1Brush;
-        private RadialGradientBrush mesh2Brush;
-
+        static Home()
+        {
+            fadeInStoryboard = new Storyboard();
+            shakeStoryboard = new Storyboard();
+            meshAnimStoryboard = new Storyboard();
+            mesh1Brush = new RadialGradientBrush();
+            mesh2Brush = new RadialGradientBrush();
+        }
         #endregion
 
         #region 📊 variables
         private readonly SupabaseAutentificacion _authService;
-
         private readonly SupabaseClientes _clientesService;
-
         private readonly SupabaseCasos _supabaseCasos;
-
         private readonly SupabaseEventosCitas _eventosCitasService;
-
         private readonly SupabaseDocumentos _documentosService;
-
         private readonly SupabaseTareas _tareasService;
 
+        private ObservableCollection<Estado> _estadosDisponibles = new();
+        private ObservableCollection<Tarea> _tareasPendientesLista = new();
+        private ObservableCollection<CasoViewModel> _casosRecientesLista = new();
+        private ObservableCollection<EventoCita> _eventosProximosLista = new();
+        private ObservableCollection<DiaSemanaModel> _diasSemana = new();
+        private ObservableCollection<Caso> _casosDisponibles = new();
+        private ObservableCollection<EventoCita> _eventosDiaSeleccionado = new();
 
-        public ICommand VerDetallesCommand { get; }
-
-        private int _clientCount;
-
-        private int _previousClientCount;
-
-        private string _clientCountChange;
-
-        private int _casosActivos;
-
-        private int _documentos;
-
-        private int _tareasPendientes;
-
-        private int _casosRecientes;
-
-        private ObservableCollection<Estado> _estadosDisponibles = new ObservableCollection<Estado>();
-
-        private readonly SupabaseTareas _supabaseTareas;
-        private ObservableCollection<Tarea> _tareasPendientesLista;
         public ObservableCollection<Tarea> TareasPendientesLista
         {
             get => _tareasPendientesLista;
             set
             {
                 _tareasPendientesLista = value;
-                OnPropertyChanged(nameof(TareasPendientesLista));
+                OnPropertyChanged();
             }
         }
-
-        public ObservableCollection<string> EstadosDisponibles { get; set; } = new ObservableCollection<string> { "Pendiente", "En progreso", "Finalizado" };
-
-        private ObservableCollection<CasoViewModel> _casosRecientesLista;
 
         public ObservableCollection<CasoViewModel> CasosRecientesLista
         {
@@ -91,6 +79,58 @@ namespace TFG_V0._01.Ventanas
                 OnPropertyChanged();
             }
         }
+
+        public ObservableCollection<EventoCita> EventosProximosLista
+        {
+            get => _eventosProximosLista;
+            set
+            {
+                _eventosProximosLista = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ObservableCollection<DiaSemanaModel> DiasSemana
+        {
+            get => _diasSemana;
+            set
+            {
+                _diasSemana = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ObservableCollection<Caso> CasosDisponibles
+        {
+            get => _casosDisponibles;
+            set
+            {
+                _casosDisponibles = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ObservableCollection<EventoCita> EventosDiaSeleccionado
+        {
+            get => _eventosDiaSeleccionado;
+            set
+            {
+                _eventosDiaSeleccionado = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ICommand VerDetallesCommand { get; }
+
+        #region 📊 Propiedades
+        private int _clientCount;
+        private int _previousClientCount;
+        private string _clientCountChange;
+        private int _casosActivos;
+        private int _documentos;
+        private int _tareasPendientes;
+        private int _casosRecientes;
+        private int _eventosProximos;
 
         public int ClientCount
         {
@@ -123,42 +163,74 @@ namespace TFG_V0._01.Ventanas
         public int CasosActivos
         {
             get => _casosActivos;
-            set { _casosActivos = value; OnPropertyChanged(); }
+            set
+            {
+                if (_casosActivos != value)
+                {
+                    _casosActivos = value;
+                    OnPropertyChanged();
+                }
+            }
         }
 
         public int Documentos
         {
             get => _documentos;
-            set { _documentos = value; OnPropertyChanged(); }
+            set
+            {
+                if (_documentos != value)
+                {
+                    _documentos = value;
+                    OnPropertyChanged();
+                }
+            }
         }
 
         public int TareasPendientes
         {
             get => _tareasPendientes;
-            set { _tareasPendientes = value; OnPropertyChanged(); }
+            set
+            {
+                if (_tareasPendientes != value)
+                {
+                    _tareasPendientes = value;
+                    OnPropertyChanged();
+                }
+            }
         }
 
         public int CasosRecientes
         {
             get => _casosRecientes;
-            set { _casosRecientes = value; OnPropertyChanged(); }
+            set
+            {
+                if (_casosRecientes != value)
+                {
+                    _casosRecientes = value;
+                    OnPropertyChanged();
+                }
+            }
         }
+
+        public int EventosProximos
+        {
+            get => _eventosProximos;
+            set
+            {
+                if (_eventosProximos != value)
+                {
+                    _eventosProximos = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+        #endregion
 
         private DateOnly fechaActual = DateOnly.FromDateTime(DateTime.Now);
 
         private string mesText;
 
         private string anio;
-
-        private int _eventosProximos;
-
-        public ObservableCollection<EventoCita> EventosProximosLista { get; set; } = new ObservableCollection<EventoCita>();
-
-        public int EventosProximos
-        {
-            get => _eventosProximos;
-            set { _eventosProximos = value; OnPropertyChanged(); }
-        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -188,8 +260,7 @@ namespace TFG_V0._01.Ventanas
         #endregion
 
         #region 🎨 Variables adicionales
-        public ObservableCollection<DiaSemanaModel> DiasSemana { get; set; } = new ObservableCollection<DiaSemanaModel>();
-        public ObservableCollection<EventoCita> EventosDiaSeleccionado { get; set; } = new ObservableCollection<EventoCita>();
+        public ObservableCollection<string> EstadosDisponibles { get; set; } = new ObservableCollection<string> { "Pendiente", "En progreso", "Finalizado" };
 
         private DiaSemanaModel _diaSeleccionado;
         public DiaSemanaModel DiaSeleccionado
@@ -209,13 +280,6 @@ namespace TFG_V0._01.Ventanas
         #endregion
 
         #region 🎨 Variables adicionales
-        private ObservableCollection<Caso> _casosDisponibles = new ObservableCollection<Caso>();
-        public ObservableCollection<Caso> CasosDisponibles
-        {
-            get => _casosDisponibles;
-            set { _casosDisponibles = value; OnPropertyChanged(); }
-        }
-
         private int? _selectedCasoId;
         public int? SelectedCasoId
         {
@@ -229,7 +293,7 @@ namespace TFG_V0._01.Ventanas
         {
             InitializeComponent();
             this.DataContext = this;
-            _supabaseTareas = new SupabaseTareas();
+            _tareasService = new SupabaseTareas();
             TareasPendientesLista = new ObservableCollection<Tarea>();
             CargarTareasPendientes();
 
@@ -272,23 +336,28 @@ namespace TFG_V0._01.Ventanas
         #region ⌛ Patalla de carga
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            if (MainWindow.tipoBBDD)
+            try 
             {
-                await CargarDatosDashboard();
-                CargarScoreCasos();
-                CargarCasosRecientes();
-                CargarScoreDocumentos();
-            }
-            else
-            {
+                LoadingOverlay.Visibility = Visibility.Visible;
+                StartLoadingAnimation();
 
-            }
+                if (MainWindow.tipoBBDD)
+                {
+                    await Task.WhenAll(
+                        CargarDatosDashboard(),
+                        InicializarServiciosSupabase()
+                    );
+                }
 
-            // Suscribirse a los eventos del control AddCasoControl
-            if (AddCasoControl != null)
+                if (AddCasoControl != null)
+                {
+                    AddCasoControl.CasoGuardado += OnCasoGuardado;
+                    AddCasoControl.CasoCancelado += OnCasoCancelado;
+                }
+            }
+            catch (Exception ex)
             {
-                AddCasoControl.CasoGuardado += OnCasoGuardado;
-                AddCasoControl.CasoCancelado += OnCasoCancelado;
+                MessageBox.Show($"Error durante la carga inicial: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
         #endregion
@@ -572,6 +641,72 @@ namespace TFG_V0._01.Ventanas
             Storyboard.SetTargetProperty(anim2, new PropertyPath(RadialGradientBrush.CenterProperty));
             meshAnimStoryboard.Children.Add(anim2);
             meshAnimStoryboard.Begin();
+        }
+        #endregion
+
+        #region Animación de Carga
+        private void StartLoadingAnimation()
+        {
+            startTime = DateTime.Now;
+            progressTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(16) // ~60fps para animación suave
+            };
+            progressTimer.Tick += UpdateProgressArc;
+            progressTimer.Start();
+        }
+
+        private void UpdateProgressArc(object sender, EventArgs e)
+        {
+            TimeSpan elapsed = DateTime.Now - startTime;
+            double progress = Math.Min(elapsed.TotalMilliseconds / duration.TotalMilliseconds, 1.0);
+            double angle = progress * 360;
+
+            UpdateArc(angle);
+
+            // Actualizar texto de porcentaje
+            int percentage = (int)(progress * 100);
+            PercentageText.Text = $"{percentage}%";
+
+            if (progress >= 1.0)
+            {
+                progressTimer.Stop();
+
+                // Animación de finalización
+                DoubleAnimation fadeOut = new DoubleAnimation
+                {
+                    From = 1.0,
+                    To = 0.0,
+                    Duration = TimeSpan.FromSeconds(0.5)
+                };
+
+                fadeOut.Completed += (s, args) => LoadingOverlay.Visibility = Visibility.Collapsed;
+                LoadingOverlay.BeginAnimation(OpacityProperty, fadeOut);
+            }
+        }
+
+        private void UpdateArc(double angle)
+        {
+            double radius = 90;
+            double centerX = 100;
+            double centerY = 100;
+
+            double startAngle = -90; // Comenzar desde arriba
+            double endAngle = startAngle + angle;
+
+            double startRadians = (Math.PI / 180) * startAngle;
+            double endRadians = (Math.PI / 180) * endAngle;
+
+            double startX = centerX + radius * Math.Cos(startRadians);
+            double startY = centerY + radius * Math.Sin(startRadians);
+
+            double endX = centerX + radius * Math.Cos(endRadians);
+            double endY = centerY + radius * Math.Sin(endRadians);
+
+            // Actualizar la figura del arco
+            ProgressFigure.StartPoint = new Point(startX, startY);
+            ProgressArc.Point = new Point(endX, endY);
+            ProgressArc.IsLargeArc = angle > 180;
         }
         #endregion
 
@@ -1352,8 +1487,8 @@ namespace TFG_V0._01.Ventanas
         {
             try
             {
-                await _supabaseTareas.InicializarAsync();
-                var tareas = await _supabaseTareas.ObtenerTareasPendientes();
+                await _tareasService.InicializarAsync();
+                var tareas = await _tareasService.ObtenerTareasPendientes();
                 // Inicializar la propiedad 'completada' según el estado
                 foreach (var tarea in tareas)
                 {
@@ -1388,7 +1523,7 @@ namespace TFG_V0._01.Ventanas
                         prioridad = tarea.prioridad,
                         estado = tarea.estado
                     };
-                    await _supabaseTareas.ActualizarTarea(tarea.id.Value, updateDto);
+                    await _tareasService.ActualizarTarea(tarea.id.Value, updateDto);
                     await Task.Run(() => CargarTareasPendientes()); // Wrap the void method in Task.Run
                 }
                 catch (Exception ex)
@@ -1452,7 +1587,7 @@ namespace TFG_V0._01.Ventanas
                     id_caso = SelectedCasoId
                 };
 
-                await _supabaseTareas.CrearTarea(tarea);
+                await _tareasService.CrearTarea(tarea);
                 await CargarTareasPendientes();
                 CerrarPanelTarea();
                 ResetFieldsTarea();

@@ -558,7 +558,7 @@ namespace TFG_V0._01.Ventanas
             }
         }
 
-        private void OpenFile_Click(object sender, RoutedEventArgs e)
+        private async void OpenFile_Click(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
             var file = button?.DataContext as DocumentFile;
@@ -566,27 +566,53 @@ namespace TFG_V0._01.Ventanas
             {
                 try
                 {
+                    // Mostrar indicador de carga
+                    button.IsEnabled = false;
+                    var originalContent = button.Content;
+                    button.Content = new ProgressBar { IsIndeterminate = true, Width = 16, Height = 16 };
+
+                    var storage = new TFG_V0._01.Supabase.SupaBaseStorage();
+                    await storage.InicializarAsync();
+
+                    string tempDir = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "TFG_Documentos");
+                    System.IO.Directory.CreateDirectory(tempDir);
+
+                    // Extraer solo el nombre del archivo de la ruta
+                    string nombreArchivo = System.IO.Path.GetFileName(file.Path);
+                    string tempFilePath = System.IO.Path.Combine(tempDir, nombreArchivo);
+
+                    // Descargar el archivo como byte[] desde Supabase
+                    var fileBytes = await storage.DescargarArchivoAsync("documentos", nombreArchivo);
+
+                    // Guardar el archivo en disco
+                    await System.IO.File.WriteAllBytesAsync(tempFilePath, fileBytes);
+
+                    // Abrir el archivo con la aplicación predeterminada
                     System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
                     {
-                        FileName = file.Path,
+                        FileName = tempFilePath,
                         UseShellExecute = true
                     });
+
+                    button.Content = originalContent;
+                    button.IsEnabled = true;
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Error al abrir el archivo: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"Error al abrir el archivo: {ex.Message}\nRuta: {file.Path}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    button.IsEnabled = true;
                 }
             }
         }
 
-        private void DeleteFile_Click(object sender, RoutedEventArgs e)
+        private async void DeleteFile_Click(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
             var file = button?.DataContext as DocumentFile;
             if (file != null)
             {
                 var result = MessageBox.Show(
-                    $"¿Estás seguro de que deseas eliminar el archivo '{file.Name}'?",
+                    $"¿Estás seguro de que deseas eliminar el archivo '{file.Name}' solo de la base de datos? (No se eliminará del almacenamiento)",
                     "Confirmar eliminación",
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Warning);
@@ -595,13 +621,28 @@ namespace TFG_V0._01.Ventanas
                 {
                     try
                     {
-                        // TODO: Implement file deletion logic
-                        // DeleteFile(file);
-                        // Update UI
+                        var documentosService = new TFG_V0._01.Supabase.SupabaseDocumentos();
+                        await documentosService.InicializarAsync();
+                        int idDocumento;
+                        if (int.TryParse(file.Id, out idDocumento) && idDocumento > 0)
+                        {
+                            await documentosService.EliminarAsync(idDocumento);
+                        }
+                        else
+                        {
+                            // Fallback: buscar por ruta si no hay id
+                            var docs = await documentosService.ObtenerTodosAsync();
+                            var doc = docs.FirstOrDefault(d => d.ruta == file.Path);
+                            if (doc != null && doc.id.HasValue)
+                                await documentosService.EliminarAsync(doc.id.Value);
+                        }
+                        MessageBox.Show($"Documento eliminado de la base de datos.", "Eliminado", MessageBoxButton.OK, MessageBoxImage.Information);
+                        // Refrescar la lista de documentos
+                        await FiltrarYMostrarDocumentosAsync();
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Error al eliminar el archivo: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show($"Error al eliminar el documento de la base de datos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 }
             }

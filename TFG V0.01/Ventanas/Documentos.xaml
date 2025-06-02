@@ -503,34 +503,37 @@
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="*"/>
                                                         <ColumnDefinition Width="Auto"/>
-                                                        <ColumnDefinition Width="Auto"/>
                                                     </Grid.ColumnDefinitions>
                                                     <TextBlock Text="{Binding Name}" 
                                                                Grid.Column="0"
                                                                Style="{StaticResource PrimaryTextStyle}"
                                                                VerticalAlignment="Center"/>
-                                                    <Button Grid.Column="1"
+
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Column="1">
+                                                    <Button 
                                                             Margin="5,0"
                                                             Click="OpenFile_Click"
-                                                            Style="{StaticResource RoundedButtonStyle}"
-                                                            ToolTip="Abrir">
+                                                            ToolTip="Abrir"
+                                                            Width="30" Height="30" Padding="0"
+                                                            Style="{StaticResource RoundedButtonStyle}">
                                                         <Image Width="16" Height="16">
                                                             <Image.Style>
                                                                 <Style TargetType="Image">
-                                                                    <Setter Property="Source" Value="/Recursos/Iconos/ver.png"/>
+                                                                    <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/ver.png"/>
                                                                     <Style.Triggers>
                                                                         <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
-                                                                            <Setter Property="Source" Value="/Recursos/Iconos/ver2.png"/>
+                                                                            <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/ver2.png"/>
                                                                         </DataTrigger>
                                                                     </Style.Triggers>
                                                                 </Style>
                                                             </Image.Style>
                                                         </Image>
                                                     </Button>
-                                                    <Button Grid.Column="2"
+                                                    <Button 
                                                             Click="DeleteFile_Click"
-                                                            Style="{StaticResource RoundedButtonStyle}"
-                                                            ToolTip="Eliminar">
+                                                            ToolTip="Eliminar"
+                                                            Width="30" Height="30" Padding="0"
+                                                            Style="{StaticResource RoundedButtonStyle}">
                                                         <Image Width="16" Height="16">
                                                             <Image.Style>
                                                                 <Style TargetType="Image">
@@ -544,6 +547,7 @@
                                                             </Image.Style>
                                                         </Image>
                                                     </Button>
+                                                    </StackPanel>
                                                 </Grid>
                                             </DataTemplate>
                                         </ListBox.ItemTemplate>

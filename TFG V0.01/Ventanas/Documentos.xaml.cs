@@ -38,6 +38,7 @@ namespace TFG_V0._01.Ventanas
         public ObservableCollection<DocumentPanel> DocumentPanelsCollection { get; set; } = new();
         public ObservableCollection<Cliente> ListaClientes { get; set; } = new();
         public ObservableCollection<Caso> ListaCasosFiltrados { get; set; } = new();
+        public ObservableCollection<Caso> ListaCasos { get; set; } = new();
 
         public event PropertyChangedEventHandler? PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName)
@@ -223,20 +224,42 @@ namespace TFG_V0._01.Ventanas
             HideSlidePanelFiltros();
         }
 
-        private async void RestablecerFiltros_Click(object sender, RoutedEventArgs e)
+        private void RestablecerFiltros_Click(object sender, RoutedEventArgs e)
         {
+            // Desactivar temporalmente los eventos de los ComboBox
+            ComboClientesPanel.SelectionChanged -= ComboClientes_SelectionChanged;
+            ComboCasosPanel.SelectionChanged -= ComboCasosPanel_SelectionChanged;
+
+            // Limpiar los filtros
             ComboClientesPanel.SelectedItem = null;
             ComboCasosPanel.SelectedItem = null;
             FiltroFechaPanel.SelectedDate = null;
-            // Buscar el WrapPanel de tipos de documento de forma robusta
-            var tipoDocWrapPanel = FindVisualChildren<WrapPanel>(SlidePanelFiltros)
-                .FirstOrDefault(wp => wp.Children.OfType<CheckBox>().Any(cb => cb.Tag != null));
-            if (tipoDocWrapPanel != null)
+
+            // Limpiar los checkboxes de tipo de documento
+            foreach (CheckBox checkBox in FindVisualChildren<CheckBox>(SlidePanelFiltros))
             {
-                foreach (var child in tipoDocWrapPanel.Children)
-                    if (child is CheckBox cb) cb.IsChecked = true;
+                checkBox.IsChecked = true;
             }
-            await FiltrarYMostrarDocumentosAsync();
+
+            // Limpiar las tarjetas de documentos
+            if (DocumentPanels.ItemsSource != null)
+            {
+                var documentos = DocumentPanels.ItemsSource as ObservableCollection<DocumentPanel>;
+                if (documentos != null)
+                {
+                    foreach (var panel in documentos)
+                    {
+                        panel.Files.Clear();
+                    }
+                }
+            }
+
+            // Actualizar la lista de casos
+            ListaCasosFiltrados = new ObservableCollection<Caso>(ListaCasos);
+
+            // Reactivar los eventos de los ComboBox
+            ComboClientesPanel.SelectionChanged += ComboClientes_SelectionChanged;
+            ComboCasosPanel.SelectionChanged += ComboCasosPanel_SelectionChanged;
         }
 
         private async void ComboClientes_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -247,6 +270,11 @@ namespace TFG_V0._01.Ventanas
 
             var casosService = new TFG_V0._01.Supabase.SupabaseCasos();
             var casos = await casosService.ObtenerTodosAsync();
+
+            // Actualizar ListaCasos con todos los casos
+            ListaCasos.Clear();
+            foreach (var caso in casos)
+                ListaCasos.Add(caso);
 
             if (cliente != null)
             {

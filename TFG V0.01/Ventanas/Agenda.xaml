@@ -661,12 +661,23 @@
                         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                             <StackPanel>
                                 <TextBlock Text="Eventos del día seleccionado" Style="{StaticResource PrimaryTextStyle}" FontSize="18" FontWeight="Bold" Margin="0,0,0,15"/>
-                                <ListView x:Name="EventosDelDiaList" ItemsSource="{Binding EventosDelDia, RelativeSource={RelativeSource AncestorType=Window}}" Background="Transparent" BorderThickness="0">
+                                <ListView x:Name="EventosDelDiaList" ItemsSource="{Binding EventosDelDia, RelativeSource={RelativeSource AncestorType=Window}}" Background="Transparent" BorderThickness="0" HorizontalAlignment="Stretch">
+                                    <ListView.ItemContainerStyle>
+                                        <Style TargetType="ListViewItem">
+                                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                        </Style>
+                                    </ListView.ItemContainerStyle>
+                                    <ListView.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <VirtualizingStackPanel HorizontalAlignment="Stretch"/>
+                                        </ItemsPanelTemplate>
+                                    </ListView.ItemsPanel>
                                     <ListView.ItemTemplate>
                                         <DataTemplate>
-                                            <Border Style="{StaticResource ListItemContainerStyle}">
-                                                <Grid>
+                                            <Border Style="{StaticResource ListItemContainerStyle}" HorizontalAlignment="Stretch">
+                                                <Grid HorizontalAlignment="Stretch">
                                                     <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto"/>
                                                         <RowDefinition Height="Auto"/>
                                                         <RowDefinition Height="Auto"/>
                                                         <RowDefinition Height="Auto"/>
@@ -676,10 +687,16 @@
                                                         <ColumnDefinition Width="Auto"/>
                                                     </Grid.ColumnDefinitions>
                                                     <TextBlock Text="{Binding Titulo}" Style="{StaticResource PrimaryTextStyle}" FontWeight="Bold" Grid.Row="0" Grid.Column="0"/>
-                                                    <TextBlock Text="{Binding FechaInicio, StringFormat='{}{0:hh\\:mm}'}" Style="{StaticResource PrimaryTextStyle}" Grid.Row="0" Grid.Column="1" Margin="10,0,0,0"/>
+                                                    <!-- Hora como pill -->
+                                                    <Border Background="#FFF3E0" CornerRadius="8" Padding="8,2" Margin="10,0,0,0" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding FechaInicio, StringFormat='{}{0:hh\\:mm}'}" Foreground="#FF8A00" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center"/>
+                                                    </Border>
                                                     <TextBlock Text="{Binding Descripcion}" Style="{StaticResource SecondaryTextStyle}" Grid.Row="1" Grid.Column="0" TextWrapping="Wrap" Margin="0,5,0,0"/>
-                                                    <TextBlock Text="{Binding IdCaso, StringFormat='Caso #{0}'}" Style="{StaticResource SecondaryTextStyle}" Grid.Row="2" Grid.Column="0" Margin="0,5,0,0"/>
-                                                    <Border Background="{Binding EstadoColor, Converter={StaticResource StringToBrushConverter}}" CornerRadius="5" Width="10" Height="10" Grid.Row="2" Grid.Column="1" Margin="10,0,0,0"/>
+                                                    <TextBlock Text="{Binding NombreCaso}" Style="{StaticResource SecondaryTextStyle}" Grid.Row="2" Grid.Column="0" Margin="0,5,0,0"/>
+                                                    <Border Background="{Binding EstadoColor, Converter={StaticResource StringToBrushConverter}}"
+                                                            CornerRadius="8" Padding="8,2" Margin="10,0,0,0" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding EstadoNombre}" Foreground="White" FontWeight="SemiBold" FontSize="13"/>
+                                                    </Border>
                                                 </Grid>
                                             </Border>
                                         </DataTemplate>
@@ -700,12 +717,23 @@
                         <TextBlock Text="Eventos de Hoy" Style="{StaticResource PrimaryTextStyle}" FontSize="18" FontWeight="Bold" Margin="0,0,0,15"/>
                         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                             <StackPanel>
-                                <ListView x:Name="EventosDeHoyList" ItemsSource="{Binding EventosDeHoy, RelativeSource={RelativeSource AncestorType=Window}}" Background="Transparent" BorderThickness="0">
+                                <ListView x:Name="EventosDeHoyList" ItemsSource="{Binding EventosDeHoy, RelativeSource={RelativeSource AncestorType=Window}}" Background="Transparent" BorderThickness="0" HorizontalAlignment="Stretch">
+                                    <ListView.ItemContainerStyle>
+                                        <Style TargetType="ListViewItem">
+                                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                        </Style>
+                                    </ListView.ItemContainerStyle>
+                                    <ListView.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <VirtualizingStackPanel HorizontalAlignment="Stretch"/>
+                                        </ItemsPanelTemplate>
+                                    </ListView.ItemsPanel>
                                     <ListView.ItemTemplate>
                                         <DataTemplate>
-                                            <Border Style="{StaticResource ListItemContainerStyle}">
-                                                <Grid>
+                                            <Border Style="{StaticResource ListItemContainerStyle}" HorizontalAlignment="Stretch">
+                                                <Grid HorizontalAlignment="Stretch">
                                                     <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto"/>
                                                         <RowDefinition Height="Auto"/>
                                                         <RowDefinition Height="Auto"/>
                                                         <RowDefinition Height="Auto"/>
@@ -715,10 +743,16 @@
                                                         <ColumnDefinition Width="Auto"/>
                                                     </Grid.ColumnDefinitions>
                                                     <TextBlock Text="{Binding Titulo}" Style="{StaticResource PrimaryTextStyle}" FontWeight="Bold" Grid.Row="0" Grid.Column="0"/>
-                                                    <TextBlock Text="{Binding FechaInicio, StringFormat='{}{0:hh\\:mm}'}" Style="{StaticResource PrimaryTextStyle}" Grid.Row="0" Grid.Column="1" Margin="10,0,0,0"/>
+                                                    <!-- Hora como pill -->
+                                                    <Border Background="#FFF3E0" CornerRadius="8" Padding="8,2" Margin="10,0,0,0" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding FechaInicio, StringFormat='{}{0:hh\\:mm}'}" Foreground="#FF8A00" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center"/>
+                                                    </Border>
                                                     <TextBlock Text="{Binding Descripcion}" Style="{StaticResource SecondaryTextStyle}" Grid.Row="1" Grid.Column="0" TextWrapping="Wrap" Margin="0,5,0,0"/>
-                                                    <TextBlock Text="{Binding IdCaso, StringFormat='Caso #{0}'}" Style="{StaticResource SecondaryTextStyle}" Grid.Row="2" Grid.Column="0" Margin="0,5,0,0"/>
-                                                    <Border Background="{Binding EstadoColor, Converter={StaticResource StringToBrushConverter}}" CornerRadius="5" Width="10" Height="10" Grid.Row="2" Grid.Column="1" Margin="10,0,0,0"/>
+                                                    <TextBlock Text="{Binding NombreCaso}" Style="{StaticResource SecondaryTextStyle}" Grid.Row="2" Grid.Column="0" Margin="0,5,0,0"/>
+                                                    <Border Background="{Binding EstadoColor, Converter={StaticResource StringToBrushConverter}}"
+                                                            CornerRadius="8" Padding="8,2" Margin="10,0,0,0" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding EstadoNombre}" Foreground="White" FontWeight="SemiBold" FontSize="13"/>
+                                                    </Border>
                                                 </Grid>
                                             </Border>
                                         </DataTemplate>
@@ -743,12 +777,25 @@
                                 <ListView x:Name="ContactosList" 
                                          ItemsSource="{Binding Contactos, RelativeSource={RelativeSource AncestorType=Window}}" 
                                          Background="Transparent" 
-                                         BorderThickness="0">
+                                         BorderThickness="0" 
+                                         HorizontalAlignment="Stretch">
+                                    <ListView.ItemContainerStyle>
+                                        <Style TargetType="ListViewItem">
+                                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                        </Style>
+                                    </ListView.ItemContainerStyle>
+                                    <ListView.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <VirtualizingStackPanel HorizontalAlignment="Stretch"/>
+                                        </ItemsPanelTemplate>
+                                    </ListView.ItemsPanel>
                                     <ListView.ItemTemplate>
                                         <DataTemplate>
-                                            <Border Style="{StaticResource ListItemContainerStyle}">
-                                                <Grid>
+                                            <Border Style="{StaticResource ListItemContainerStyle}" HorizontalAlignment="Stretch">
+                                                <Grid HorizontalAlignment="Stretch">
                                                     <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
                                                         <RowDefinition Height="Auto"/>
                                                         <RowDefinition Height="Auto"/>
                                                         <RowDefinition Height="Auto"/>
@@ -769,14 +816,20 @@
                                                              Margin="10,0,0,0"/>
                                                     <TextBlock Text="{Binding telefono}" 
                                                              Style="{StaticResource SecondaryTextStyle}" 
-                                                             Grid.Row="1" 
+                                                             Grid.Row="2" 
                                                              Grid.Column="0" 
                                                              Margin="0,5,0,0"/>
                                                     <TextBlock Text="{Binding email}" 
                                                              Style="{StaticResource SecondaryTextStyle}" 
-                                                             Grid.Row="2" 
+                                                             Grid.Row="3" 
                                                              Grid.Column="0" 
                                                              Margin="0,5,0,0"/>
+                                                    <TextBlock Text="{Binding NombreCaso}"
+                                                               Style="{StaticResource SecondaryTextStyle}"
+                                                               Grid.Row="3"
+                                                               Grid.Column="1"
+                                                               Margin="10,5,0,0"
+                                                               Foreground="{Binding ColorCaso}"/>
                                                 </Grid>
                                             </Border>
                                         </DataTemplate>

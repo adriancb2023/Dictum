@@ -586,6 +586,8 @@
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="10,8"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Height" Value="40"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
@@ -593,33 +595,11 @@
                                 CornerRadius="10"
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 BorderBrush="{TemplateBinding BorderBrush}">
-                            <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}"/>
+                            <ScrollViewer x:Name="PART_ContentHost"/>
                         </Border>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
-                    <Setter Property="Background" Value="#FFFFFF"/>
-                    <Setter Property="Foreground" Value="{StaticResource TextPrimaryLight}"/>
-                    <Setter Property="BorderBrush" Value="#CCCCCC"/>
-                    <Setter Property="Effect">
-                        <Setter.Value>
-                            <DropShadowEffect Color="#CCCCCC" BlurRadius="5" ShadowDepth="2" Opacity="0.5"/>
-                        </Setter.Value>
-                    </Setter>
-                </DataTrigger>
-                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
-                    <Setter Property="Background" Value="#30FFFFFF"/>
-                    <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
-                    <Setter Property="BorderBrush" Value="#40FFFFFF"/>
-                    <Setter Property="Effect">
-                        <Setter.Value>
-                            <DropShadowEffect Color="Black" BlurRadius="5" ShadowDepth="2" Opacity="0.3"/>
-                        </Setter.Value>
-                    </Setter>
-                </DataTrigger>
-            </Style.Triggers>
         </Style>
     </Window.Resources>
 
@@ -855,68 +835,62 @@
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Height="696">
                     <StackPanel Margin="20">
                         <TextBlock Text="Título" 
-                                 Style="{StaticResource PrimaryTextStyle}" 
-                                 FontWeight="SemiBold" 
-                                 FontSize="15" 
-                                 Margin="0,0,0,8"/>
+                                   Style="{StaticResource PrimaryTextStyle}" 
+                                   FontWeight="SemiBold" 
+                                   FontSize="15" 
+                                   Margin="0,0,0,8"/>
                         <TextBox x:Name="EventTitleTextBox" 
-                                Background="#30FFFFFF" 
-                                Foreground="{StaticResource TextPrimaryDark}" 
-                                BorderThickness="1" 
-                                BorderBrush="#40FFFFFF" 
-                                Padding="10,5" 
+                                Style="{StaticResource ModernTextBoxStyle}"
                                 Height="30" 
-                                FontSize="15" 
+                                FontSize="10" 
                                 Margin="0,0,0,20"/>
 
                         <TextBlock Text="Descripción" 
-                                 Style="{StaticResource PrimaryTextStyle}" 
-                                 FontWeight="SemiBold" 
-                                 FontSize="15" 
-                                 Margin="0,0,0,8"/>
+                                   Style="{StaticResource PrimaryTextStyle}" 
+                                   FontWeight="SemiBold" 
+                                   FontSize="10" 
+                                   Margin="0,0,0,8"/>
                         <TextBox x:Name="EventDescriptionTextBox" 
-                                Background="#30FFFFFF" 
-                                Foreground="{StaticResource TextPrimaryDark}" 
-                                BorderThickness="1" 
-                                BorderBrush="#40FFFFFF" 
-                                Padding="10,5" 
+                                Style="{StaticResource ModernTextBoxStyle}"
                                 Height="60" 
-                                FontSize="15" 
+                                FontSize="10" 
                                 AcceptsReturn="True" 
                                 Margin="0,0,0,20"/>
 
                         <TextBlock Text="Hora y minutos" 
-                                 Style="{StaticResource PrimaryTextStyle}" 
-                                 FontWeight="SemiBold" 
-                                 FontSize="15" 
-                                 Margin="0,0,0,8"/>
+                                   Style="{StaticResource PrimaryTextStyle}" 
+                                   FontWeight="SemiBold" 
+                                   FontSize="15" 
+                                   Margin="0,0,0,8"/>
                         <materialDesign:TimePicker x:Name="timePickerEvento" 
                                                  Margin="0,0,0,20" 
                                                  Height="32"/>
 
                         <TextBlock Text="Estado" 
-                                 Style="{StaticResource PrimaryTextStyle}" 
-                                 FontWeight="SemiBold" 
-                                 FontSize="15" 
-                                 Margin="0,0,0,8"/>
+                                   Style="{StaticResource PrimaryTextStyle}" 
+                                   FontWeight="SemiBold" 
+                                   FontSize="15" 
+                                   Margin="0,0,0,8"/>
                         <ComboBox x:Name="cbEstadoEvento" 
-                                 Margin="0,0,0,20" 
+                                 Margin="0,0,0,15"
                                  DisplayMemberPath="Nombre" 
                                  SelectedValuePath="Id" 
                                  Style="{StaticResource ModernComboBoxStyle}"
-                                 Height="44"/>
+                                 Height="35"
+                                 FontSize="10"/>
 
                         <TextBlock Text="Caso" 
-                                 Style="{StaticResource PrimaryTextStyle}" 
-                                 FontWeight="SemiBold" 
-                                 FontSize="15" 
-                                 Margin="0,0,0,8"/>
+                                   Style="{StaticResource PrimaryTextStyle}" 
+                                   FontWeight="SemiBold" 
+                                   FontSize="15" 
+                                   Margin="0,0,0,8"/>
                         <ComboBox x:Name="cbCasoEvento"
                                  ItemsSource="{Binding Casos}"
                                  DisplayMemberPath="titulo"
                                  SelectedValuePath="id"
                                  Style="{StaticResource ModernComboBoxStyle}"
-                                 Height="44"/>
+                                 Height="35"
+                                 FontSize="10"/>
                     </StackPanel>
                 </ScrollViewer>
 
@@ -968,71 +942,61 @@
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="20">
                         <TextBlock Text="Nombre" 
-                                 Style="{StaticResource PrimaryTextStyle}" 
-                                 FontWeight="SemiBold" 
-                                 FontSize="15" 
-                                 Margin="0,0,0,8"/>
+                                   Style="{StaticResource PrimaryTextStyle}" 
+                                   FontWeight="SemiBold" 
+                                   FontSize="15" 
+                                   Margin="0,0,0,8"/>
                         <TextBox x:Name="ContactTitleTextBox" 
-                                Background="#30FFFFFF" 
-                                Foreground="{StaticResource TextPrimaryDark}" 
-                                BorderThickness="1" 
-                                BorderBrush="#40FFFFFF" 
-                                Padding="10,5" 
+                                Style="{StaticResource ModernTextBoxStyle}"
                                 Height="30" 
-                                FontSize="15" 
+                                FontSize="10" 
                                 Margin="0,0,0,20"/>
 
                         <TextBlock Text="Tipo de Contacto" 
-                                 Style="{StaticResource PrimaryTextStyle}" 
-                                 FontWeight="SemiBold" 
-                                 FontSize="15" 
-                                 Margin="0,0,0,8"/>
+                                   Style="{StaticResource PrimaryTextStyle}" 
+                                   FontWeight="SemiBold" 
+                                   FontSize="15" 
+                                   Margin="0,0,0,8"/>
                         <ComboBox x:Name="cbEstadoContacto" 
-                                 Margin="0,0,0,20" 
+                                 Margin="0,0,0,15" 
                                  Style="{StaticResource ModernComboBoxStyle}"
-                                 Height="44"/>
+                                 Height="35"
+                                 FontSize="10"/>
 
                         <TextBlock Text="Caso asociado"
-                                 Style="{StaticResource PrimaryTextStyle}"
-                                 FontWeight="SemiBold"
-                                 FontSize="15"
-                                 Margin="0,0,0,8"/>
+                                   Style="{StaticResource PrimaryTextStyle}"
+                                   FontWeight="SemiBold"
+                                   FontSize="15"
+                                   Margin="0,0,0,8"/>
                         <ComboBox x:Name="cbCasoContacto"
                                  ItemsSource="{Binding CasosParaContacto}"
                                  DisplayMemberPath="titulo"
                                  SelectedValuePath="id"
-                                 Margin="0,0,0,20"
+                                 Margin="0,0,0,15"
                                  Style="{StaticResource ModernComboBoxStyle}"
-                                 Height="44"/>
+                                 Height="35"
+                                 FontSize="10"/>
 
                         <TextBlock Text="Teléfono" 
-                                 Style="{StaticResource PrimaryTextStyle}" 
-                                 FontWeight="SemiBold" 
-                                 FontSize="15" 
-                                 Margin="0,0,0,8"/>
+                                   Style="{StaticResource PrimaryTextStyle}" 
+                                   FontWeight="SemiBold" 
+                                   FontSize="15" 
+                                   Margin="0,0,0,8"/>
                         <TextBox x:Name="ContactPhoneTextBox" 
-                                Background="#30FFFFFF" 
-                                Foreground="{StaticResource TextPrimaryDark}" 
-                                BorderThickness="1" 
-                                BorderBrush="#40FFFFFF" 
-                                Padding="10,5" 
+                                Style="{StaticResource ModernTextBoxStyle}"
                                 Height="30" 
-                                FontSize="15" 
+                                FontSize="10" 
                                 Margin="0,0,0,20"/>
 
                         <TextBlock Text="Email" 
-                                 Style="{StaticResource PrimaryTextStyle}" 
-                                 FontWeight="SemiBold" 
-                                 FontSize="15" 
-                                 Margin="0,0,0,8"/>
+                                   Style="{StaticResource PrimaryTextStyle}" 
+                                   FontWeight="SemiBold" 
+                                   FontSize="15" 
+                                   Margin="0,0,0,8"/>
                         <TextBox x:Name="ContactEmailTextBox" 
-                                Background="#30FFFFFF" 
-                                Foreground="{StaticResource TextPrimaryDark}" 
-                                BorderThickness="1" 
-                                BorderBrush="#40FFFFFF" 
-                                Padding="10,5" 
+                                Style="{StaticResource ModernTextBoxStyle}"
                                 Height="30" 
-                                FontSize="15" 
+                                FontSize="10" 
                                 Margin="0,0,0,20"/>
                     </StackPanel>
                 </ScrollViewer>

@@ -670,6 +670,19 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
+
+        <DataTemplate x:Key="CasoComboTemplate">
+            <StackPanel Orientation="Horizontal" Margin="5">
+                <Ellipse Width="16" Height="16" Margin="0,0,8,0">
+                    <Ellipse.Fill>
+                        <Binding Path="Estado.nombre" Converter="{StaticResource EstadoToColorConverter}"/>
+                    </Ellipse.Fill>
+                </Ellipse>
+                <TextBlock Text="{Binding referencia}" Style="{StaticResource PrimaryTextStyle}" FontWeight="Bold" Margin="0,0,10,0"/>
+                <TextBlock Text="{Binding titulo}" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,10,0"/>
+                <TextBlock Text="{Binding Estado.nombre}" Style="{StaticResource SecondaryTextStyle}"/>
+            </StackPanel>
+        </DataTemplate>
     </Window.Resources>
 
     <Grid>
@@ -1162,7 +1175,8 @@
                                           KeyUp="ComboCasosFiltrados_KeyUp"
                                           SelectionChanged="ComboCasosFiltrados_SelectionChanged"
                                           ItemsSource="{Binding CasosFiltrados}"
-                                          SelectedItem="{Binding SelectedCasoFiltrado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="400">
+                                          SelectedItem="{Binding SelectedCasoFiltrado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          Width="400">
                                     <ComboBox.ItemTemplate>
                                         <DataTemplate>
                                             <StackPanel Orientation="Horizontal" Margin="5">
@@ -1171,8 +1185,9 @@
                                                         <Binding Path="Estado.nombre" Converter="{StaticResource EstadoToColorConverter}"/>
                                                     </Ellipse.Fill>
                                                 </Ellipse>
-                                                <TextBlock Text="{Binding titulo}" Style="{StaticResource PrimaryTextStyle}" FontWeight="Bold" FontSize="15"/>
-                                                <TextBlock Text="{Binding descripcion}" Style="{StaticResource SecondaryTextStyle}" FontSize="13" Margin="8,0,0,0"/>
+                                                <TextBlock Text="{Binding referencia}" Style="{StaticResource PrimaryTextStyle}" FontWeight="Bold" Margin="0,0,10,0"/>
+                                                <TextBlock Text="{Binding titulo}" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,10,0"/>
+                                                <TextBlock Text="{Binding Estado.nombre}" Style="{StaticResource SecondaryTextStyle}"/>
                                             </StackPanel>
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
@@ -1198,13 +1213,18 @@
                                           SelectionChanged="ComboTodosLosCasos_SelectionChanged"
                                           ItemsSource="{Binding TodosLosCasos}"
                                           SelectedItem="{Binding SelectedCasoDirecto, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                          Text="{Binding TextoComboTodosLosCasos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="400">
+                                          Width="400">
                                     <ComboBox.ItemTemplate>
                                         <DataTemplate>
                                             <StackPanel Orientation="Horizontal" Margin="5">
+                                                <Ellipse Width="16" Height="16" Margin="0,0,8,0">
+                                                    <Ellipse.Fill>
+                                                        <Binding Path="Estado.nombre" Converter="{StaticResource EstadoToColorConverter}"/>
+                                                    </Ellipse.Fill>
+                                                </Ellipse>
                                                 <TextBlock Text="{Binding referencia}" Style="{StaticResource PrimaryTextStyle}" FontWeight="Bold" Margin="0,0,10,0"/>
                                                 <TextBlock Text="{Binding titulo}" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,10,0"/>
-                                                <TextBlock Text="{Binding descripcion}" Style="{StaticResource SecondaryTextStyle}"/>
+                                                <TextBlock Text="{Binding Estado.nombre}" Style="{StaticResource SecondaryTextStyle}"/>
                                             </StackPanel>
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>

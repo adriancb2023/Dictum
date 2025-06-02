@@ -298,11 +298,10 @@ namespace TFG_V0._01.Ventanas
         private void ComboCasosFiltrados_Loaded(object sender, RoutedEventArgs e)
         {
             var combo = sender as ComboBox;
-            if (combo != null)
-            {
-                combo.IsTextSearchEnabled = false;
-
-            }
+            if (combo?.SelectedItem is Caso caso)
+                combo.Text = caso.ReferenciaTituloEstado;
+            else
+                combo.Text = "";
         }
        
         private void ComboCasosFiltrados_KeyUp(object sender, KeyEventArgs e)
@@ -327,14 +326,17 @@ namespace TFG_V0._01.Ventanas
         private void ComboCasosFiltrados_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var combo = sender as ComboBox;
+            if (combo?.SelectedItem is Caso caso)
+                combo.Text = caso.ReferenciaTituloEstado;
+            else
+                combo.Text = "";
             if (combo == null || _casosFiltradosView == null) return;
 
-            if (combo.SelectedItem is Caso caso)
+            if (combo.SelectedItem is Caso caso2)
             {
-                combo.Text = caso.titulo;
-                _casoSeleccionado = caso;
-                CargarDocumentosDelCaso(caso.id);
-                CargarTareasDelCaso(caso.id);
+                _casoSeleccionado = caso2;
+                CargarDocumentosDelCaso(caso2.id);
+                CargarTareasDelCaso(caso2.id);
             }
             _casosFiltradosView.Filter = null;
             _casosFiltradosView.Refresh();
@@ -343,11 +345,10 @@ namespace TFG_V0._01.Ventanas
         private void ComboTodosLosCasos_Loaded(object sender, RoutedEventArgs e)
         {
             var combo = sender as ComboBox;
-            if (combo != null)
-            {
-                _todosLosCasosView = CollectionViewSource.GetDefaultView(combo.ItemsSource);
-                combo.IsTextSearchEnabled = false;
-            }
+            if (combo?.SelectedItem is Caso caso)
+                combo.Text = caso.ReferenciaTituloEstado;
+            else
+                combo.Text = "";
         }
       
         private void ComboTodosLosCasos_KeyUp(object sender, KeyEventArgs e)
@@ -372,12 +373,11 @@ namespace TFG_V0._01.Ventanas
         private void ComboTodosLosCasos_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var combo = sender as ComboBox;
+            if (combo?.SelectedItem is Caso caso)
+                combo.Text = caso.ReferenciaTituloEstado;
+            else
+                combo.Text = "";
             if (combo == null || _todosLosCasosView == null) return;
-
-            if (combo.SelectedItem is Caso caso)
-            {
-                TextoComboTodosLosCasos = $"{caso.referencia} - {caso.titulo} - {caso.Estado?.nombre}";
-            }
             _todosLosCasosView.Filter = null;
             _todosLosCasosView.Refresh();
         }

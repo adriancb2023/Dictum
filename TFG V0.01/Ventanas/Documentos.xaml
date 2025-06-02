@@ -514,15 +514,35 @@
                                                             Click="OpenFile_Click"
                                                             Style="{StaticResource RoundedButtonStyle}"
                                                             ToolTip="Abrir">
-                                                        <Image Source="/TFG V0.01;component/Recursos/Iconos/open.png" 
-                                                               Width="16" Height="16"/>
+                                                        <Image Width="16" Height="16">
+                                                            <Image.Style>
+                                                                <Style TargetType="Image">
+                                                                    <Setter Property="Source" Value="/Recursos/Iconos/ver.png"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                                                            <Setter Property="Source" Value="/Recursos/Iconos/ver2.png"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Image.Style>
+                                                        </Image>
                                                     </Button>
                                                     <Button Grid.Column="2"
                                                             Click="DeleteFile_Click"
                                                             Style="{StaticResource RoundedButtonStyle}"
                                                             ToolTip="Eliminar">
-                                                        <Image Source="/TFG V0.01;component/Recursos/Iconos/delete.png" 
-                                                               Width="16" Height="16"/>
+                                                        <Image Width="16" Height="16">
+                                                            <Image.Style>
+                                                                <Style TargetType="Image">
+                                                                    <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/borrar.png"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                                                                            <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/borrar2.png"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Image.Style>
+                                                        </Image>
                                                     </Button>
                                                 </Grid>
                                             </DataTemplate>

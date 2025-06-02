@@ -511,11 +511,35 @@
 
                                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Column="1">
                                                     <Button 
-                                                            Margin="5,0"
+                                                            Margin="15,0,5,0"
                                                             Click="OpenFile_Click"
                                                             ToolTip="Abrir"
                                                             Width="30" Height="30" Padding="0"
-                                                            Style="{StaticResource RoundedButtonStyle}">
+                                                            >
+                                                        <Button.Style>
+                                                            <Style TargetType="Button">
+                                                                <Setter Property="Template">
+                                                                    <Setter.Value>
+                                                                        <ControlTemplate TargetType="Button">
+                                                                            <Border x:Name="ButtonBorder" CornerRadius="4" Background="Transparent">
+                                                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                            </Border>
+                                                                            <ControlTemplate.Triggers>
+                                                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                                                                    <Setter Property="Background" Value="#30000000" TargetName="ButtonBorder"/>
+                                                                                </DataTrigger>
+                                                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                                                                                    <Setter Property="Background" Value="#30FFFFFF" TargetName="ButtonBorder"/>
+                                                                                </DataTrigger>
+                                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                                    <Setter Property="Background" Value="#50FFFFFF" TargetName="ButtonBorder"/>
+                                                                                </Trigger>
+                                                                            </ControlTemplate.Triggers>
+                                                                        </ControlTemplate>
+                                                                    </Setter.Value>
+                                                                </Setter>
+                                                            </Style>
+                                                        </Button.Style>
                                                         <Image Width="16" Height="16">
                                                             <Image.Style>
                                                                 <Style TargetType="Image">
@@ -533,14 +557,38 @@
                                                             Click="DeleteFile_Click"
                                                             ToolTip="Eliminar"
                                                             Width="30" Height="30" Padding="0"
-                                                            Style="{StaticResource RoundedButtonStyle}">
+                                                            >
+                                                        <Button.Style>
+                                                            <Style TargetType="Button">
+                                                                <Setter Property="Template">
+                                                                    <Setter.Value>
+                                                                        <ControlTemplate TargetType="Button">
+                                                                            <Border x:Name="ButtonBorder" CornerRadius="4" Background="Transparent">
+                                                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                            </Border>
+                                                                            <ControlTemplate.Triggers>
+                                                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                                                                    <Setter Property="Background" Value="#30000000" TargetName="ButtonBorder"/>
+                                                                                </DataTrigger>
+                                                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                                                                                    <Setter Property="Background" Value="#30FFFFFF" TargetName="ButtonBorder"/>
+                                                                                </DataTrigger>
+                                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                                    <Setter Property="Background" Value="#50FFFFFF" TargetName="ButtonBorder"/>
+                                                                                </Trigger>
+                                                                            </ControlTemplate.Triggers>
+                                                                        </ControlTemplate>
+                                                                    </Setter.Value>
+                                                                </Setter>
+                                                            </Style>
+                                                        </Button.Style>
                                                         <Image Width="16" Height="16">
                                                             <Image.Style>
                                                                 <Style TargetType="Image">
-                                                                    <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/borrar.png"/>
+                                                                    <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/borrar2.png"/>
                                                                     <Style.Triggers>
                                                                         <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
-                                                                            <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/borrar2.png"/>
+                                                                            <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/borrar.png"/>
                                                                         </DataTrigger>
                                                                     </Style.Triggers>
                                                                 </Style>

@@ -725,11 +725,6 @@
                              Style="{StaticResource PrimaryTextStyle}" 
                              FontSize="20" 
                              FontWeight="Bold"/>
-                    <Button x:Name="btnCerrarEditarEvento" 
-                            Content="✕" 
-                            Style="{StaticResource NoBorderRoundedButtonStyle}"
-                            HorizontalAlignment="Right"
-                            Click="CerrarEditarEvento_Click"/>
                 </Grid>
             </Border>
 
@@ -774,7 +769,7 @@
                              Margin="0,0,0,8"/>
                     <materialDesign:TimePicker x:Name="timePickerEvento" 
                                              Margin="0,0,0,20" 
-                                             Height="32"/>
+                                             Height="32" />
 
                     <TextBlock Text="Estado" 
                              Style="{StaticResource PrimaryTextStyle}" 
@@ -799,10 +794,10 @@
                 <Button Content="Guardar" 
                         Style="{StaticResource RoundedButtonStyle}" 
                         Click="GuardarEvento_Click" 
-                        Margin="0,0,10,0"/>
+                        Margin="0,0,10,0" Width="100"/>
                 <Button Content="Cancelar" 
                         Style="{StaticResource RoundedButtonStyle}" 
-                        Click="CancelarEvento_Click"/>
+                        Click="CancelarEvento_Click" Width="100"/>
             </StackPanel>
         </Grid>
 
@@ -830,11 +825,6 @@
                              Style="{StaticResource PrimaryTextStyle}" 
                              FontSize="20" 
                              FontWeight="Bold"/>
-                    <Button x:Name="btnCerrarEditarNota" 
-                            Content="✕" 
-                            Style="{StaticResource NoBorderRoundedButtonStyle}"
-                            HorizontalAlignment="Right"
-                            Click="CerrarEditarNota_Click"/>
                 </Grid>
             </Border>
 
@@ -883,10 +873,10 @@
                 <Button Content="Guardar" 
                         Style="{StaticResource RoundedButtonStyle}" 
                         Click="GuardarNota_Click" 
-                        Margin="0,0,10,0"/>
+                        Margin="0,0,10,0" Width="100" />
                 <Button Content="Cancelar" 
                         Style="{StaticResource RoundedButtonStyle}" 
-                        Click="CancelarNota_Click"/>
+                        Click="CancelarNota_Click" Width="100" />
             </StackPanel>
         </Grid>
 
@@ -1026,11 +1016,6 @@
                              Style="{StaticResource PrimaryTextStyle}" 
                              FontSize="20" 
                              FontWeight="Bold"/>
-                    <Button x:Name="btnCerrarEditarDocumento" 
-                            Content="✕" 
-                            Style="{StaticResource NoBorderRoundedButtonStyle}"
-                            HorizontalAlignment="Right"
-                            Click="CerrarEditarDocumento_Click"/>
                 </Grid>
             </Border>
 
@@ -1066,7 +1051,7 @@
                             BorderBrush="#40FFFFFF"
                             BorderThickness="2"
                             CornerRadius="10"
-                            Height="150"
+                            Height="200"
                             Margin="0,0,0,15"
                             AllowDrop="True"
                             DragEnter="DropZone_DragEnter"
@@ -1098,10 +1083,10 @@
                         <TextBlock Text="Archivo seleccionado" 
                                  Style="{StaticResource PrimaryTextStyle}" 
                                  FontWeight="SemiBold" 
-                                 Margin="0,0,0,5"/>
+                                 Margin="0,0,0,5" />
                         <TextBox x:Name="txtRutaArchivo" 
                                 Style="{StaticResource RoundedTextBoxStyle}" 
-                                IsReadOnly="True"/>
+                                IsReadOnly="True" />
                     </StackPanel>
                 </StackPanel>
             </ScrollViewer>
@@ -1114,10 +1099,10 @@
                 <Button Content="Guardar" 
                         Style="{StaticResource RoundedButtonStyle}" 
                         Click="GuardarDocumento_Click" 
-                        Margin="0,0,10,0"/>
+                        Margin="0,0,10,0" Width="100"/>
                 <Button Content="Cancelar" 
                         Style="{StaticResource RoundedButtonStyle}" 
-                        Click="CancelarDocumento_Click"/>
+                        Click="CancelarDocumento_Click" Width="100"/>
             </StackPanel>
         </Grid>
 

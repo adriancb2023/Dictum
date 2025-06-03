@@ -306,7 +306,7 @@
                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                               Margin="{TemplateBinding Padding}"/>
                                     <!-- ToggleButton para abrir/cerrar desplegable -->
-                                    <ToggleButton Grid.Column="0" Grid.ColumnSpan="2"
+                                    <ToggleButton Grid.Column="1"
                                                 x:Name="ToggleButton"
                                                 IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
                                                 ClickMode="Press">
@@ -670,6 +670,19 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
+
+        <DataTemplate x:Key="CasoComboTemplate">
+            <StackPanel Orientation="Horizontal" Margin="5">
+                <Ellipse Width="16" Height="16" Margin="0,0,8,0">
+                    <Ellipse.Fill>
+                        <Binding Path="Estado.nombre" Converter="{StaticResource EstadoToColorConverter}"/>
+                    </Ellipse.Fill>
+                </Ellipse>
+                <TextBlock Text="{Binding referencia}" Style="{StaticResource PrimaryTextStyle}" FontWeight="Bold" Margin="0,0,10,0"/>
+                <TextBlock Text="{Binding titulo}" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,10,0"/>
+                <TextBlock Text="{Binding Estado.nombre}" Style="{StaticResource SecondaryTextStyle}"/>
+            </StackPanel>
+        </DataTemplate>
     </Window.Resources>
 
     <Grid>
@@ -712,11 +725,6 @@
                              Style="{StaticResource PrimaryTextStyle}" 
                              FontSize="20" 
                              FontWeight="Bold"/>
-                    <Button x:Name="btnCerrarEditarEvento" 
-                            Content="✕" 
-                            Style="{StaticResource NoBorderRoundedButtonStyle}"
-                            HorizontalAlignment="Right"
-                            Click="CerrarEditarEvento_Click"/>
                 </Grid>
             </Border>
 
@@ -761,7 +769,7 @@
                              Margin="0,0,0,8"/>
                     <materialDesign:TimePicker x:Name="timePickerEvento" 
                                              Margin="0,0,0,20" 
-                                             Height="32"/>
+                                             Height="32" />
 
                     <TextBlock Text="Estado" 
                              Style="{StaticResource PrimaryTextStyle}" 
@@ -773,7 +781,8 @@
                              DisplayMemberPath="Nombre" 
                              SelectedValuePath="Id" 
                              Style="{StaticResource ModernComboBoxStyle}"
-                             Height="44"/>
+                             Height="44"
+                             PreviewMouseLeftButtonDown="ComboBox_PreviewMouseLeftButtonDown"/>
                 </StackPanel>
             </ScrollViewer>
 
@@ -785,10 +794,10 @@
                 <Button Content="Guardar" 
                         Style="{StaticResource RoundedButtonStyle}" 
                         Click="GuardarEvento_Click" 
-                        Margin="0,0,10,0"/>
+                        Margin="0,0,10,0" Width="100"/>
                 <Button Content="Cancelar" 
                         Style="{StaticResource RoundedButtonStyle}" 
-                        Click="CancelarEvento_Click"/>
+                        Click="CancelarEvento_Click" Width="100"/>
             </StackPanel>
         </Grid>
 
@@ -816,11 +825,6 @@
                              Style="{StaticResource PrimaryTextStyle}" 
                              FontSize="20" 
                              FontWeight="Bold"/>
-                    <Button x:Name="btnCerrarEditarNota" 
-                            Content="✕" 
-                            Style="{StaticResource NoBorderRoundedButtonStyle}"
-                            HorizontalAlignment="Right"
-                            Click="CerrarEditarNota_Click"/>
                 </Grid>
             </Border>
 
@@ -869,10 +873,10 @@
                 <Button Content="Guardar" 
                         Style="{StaticResource RoundedButtonStyle}" 
                         Click="GuardarNota_Click" 
-                        Margin="0,0,10,0"/>
+                        Margin="0,0,10,0" Width="100" />
                 <Button Content="Cancelar" 
                         Style="{StaticResource RoundedButtonStyle}" 
-                        Click="CancelarNota_Click"/>
+                        Click="CancelarNota_Click" Width="100" />
             </StackPanel>
         </Grid>
 
@@ -950,7 +954,8 @@
                              Margin="0,0,0,8"/>
                     <ComboBox x:Name="cbPrioridadTarea" 
                              Style="{StaticResource ModernComboBoxStyle}"
-                             Margin="0,0,0,20"/>
+                             Margin="0,0,0,20"
+                             PreviewMouseLeftButtonDown="ComboBox_PreviewMouseLeftButtonDown"/>
 
                     <TextBlock Text="Fecha de vencimiento" 
                              Style="{StaticResource PrimaryTextStyle}" 
@@ -967,7 +972,8 @@
                              Margin="0,0,0,8"/>
                     <ComboBox x:Name="cbEstadoTarea" 
                              Style="{StaticResource ModernComboBoxStyle}"
-                             Margin="0,0,0,20"/>
+                             Margin="0,0,0,20"
+                             PreviewMouseLeftButtonDown="ComboBox_PreviewMouseLeftButtonDown"/>
                 </StackPanel>
             </ScrollViewer>
 
@@ -1010,11 +1016,6 @@
                              Style="{StaticResource PrimaryTextStyle}" 
                              FontSize="20" 
                              FontWeight="Bold"/>
-                    <Button x:Name="btnCerrarEditarDocumento" 
-                            Content="✕" 
-                            Style="{StaticResource NoBorderRoundedButtonStyle}"
-                            HorizontalAlignment="Right"
-                            Click="CerrarEditarDocumento_Click"/>
                 </Grid>
             </Border>
 
@@ -1040,7 +1041,8 @@
                         <ComboBox x:Name="cbTipoDocumento" 
                                  Style="{StaticResource ModernComboBoxStyle}"
                                  DisplayMemberPath="Nombre"
-                                 SelectedValuePath="Id"/>
+                                 SelectedValuePath="Id"
+                                 PreviewMouseLeftButtonDown="ComboBox_PreviewMouseLeftButtonDown"/>
                     </StackPanel>
 
                     <!-- Área de arrastrar y soltar -->
@@ -1049,7 +1051,7 @@
                             BorderBrush="#40FFFFFF"
                             BorderThickness="2"
                             CornerRadius="10"
-                            Height="150"
+                            Height="200"
                             Margin="0,0,0,15"
                             AllowDrop="True"
                             DragEnter="DropZone_DragEnter"
@@ -1081,10 +1083,10 @@
                         <TextBlock Text="Archivo seleccionado" 
                                  Style="{StaticResource PrimaryTextStyle}" 
                                  FontWeight="SemiBold" 
-                                 Margin="0,0,0,5"/>
+                                 Margin="0,0,0,5" />
                         <TextBox x:Name="txtRutaArchivo" 
                                 Style="{StaticResource RoundedTextBoxStyle}" 
-                                IsReadOnly="True"/>
+                                IsReadOnly="True" />
                     </StackPanel>
                 </StackPanel>
             </ScrollViewer>
@@ -1097,10 +1099,10 @@
                 <Button Content="Guardar" 
                         Style="{StaticResource RoundedButtonStyle}" 
                         Click="GuardarDocumento_Click" 
-                        Margin="0,0,10,0"/>
+                        Margin="0,0,10,0" Width="100"/>
                 <Button Content="Cancelar" 
                         Style="{StaticResource RoundedButtonStyle}" 
-                        Click="CancelarDocumento_Click"/>
+                        Click="CancelarDocumento_Click" Width="100"/>
             </StackPanel>
         </Grid>
 
@@ -1162,7 +1164,8 @@
                                           KeyUp="ComboCasosFiltrados_KeyUp"
                                           SelectionChanged="ComboCasosFiltrados_SelectionChanged"
                                           ItemsSource="{Binding CasosFiltrados}"
-                                          SelectedItem="{Binding SelectedCasoFiltrado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="400">
+                                          SelectedItem="{Binding SelectedCasoFiltrado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          Width="400">
                                     <ComboBox.ItemTemplate>
                                         <DataTemplate>
                                             <StackPanel Orientation="Horizontal" Margin="5">
@@ -1171,8 +1174,9 @@
                                                         <Binding Path="Estado.nombre" Converter="{StaticResource EstadoToColorConverter}"/>
                                                     </Ellipse.Fill>
                                                 </Ellipse>
-                                                <TextBlock Text="{Binding titulo}" Style="{StaticResource PrimaryTextStyle}" FontWeight="Bold" FontSize="15"/>
-                                                <TextBlock Text="{Binding descripcion}" Style="{StaticResource SecondaryTextStyle}" FontSize="13" Margin="8,0,0,0"/>
+                                                <TextBlock Text="{Binding referencia}" Style="{StaticResource PrimaryTextStyle}" FontWeight="Bold" Margin="0,0,10,0"/>
+                                                <TextBlock Text="{Binding titulo}" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,10,0"/>
+                                                <TextBlock Text="{Binding Estado.nombre}" Style="{StaticResource SecondaryTextStyle}"/>
                                             </StackPanel>
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
@@ -1198,13 +1202,18 @@
                                           SelectionChanged="ComboTodosLosCasos_SelectionChanged"
                                           ItemsSource="{Binding TodosLosCasos}"
                                           SelectedItem="{Binding SelectedCasoDirecto, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                          Text="{Binding TextoComboTodosLosCasos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="400">
+                                          Width="400">
                                     <ComboBox.ItemTemplate>
                                         <DataTemplate>
                                             <StackPanel Orientation="Horizontal" Margin="5">
+                                                <Ellipse Width="16" Height="16" Margin="0,0,8,0">
+                                                    <Ellipse.Fill>
+                                                        <Binding Path="Estado.nombre" Converter="{StaticResource EstadoToColorConverter}"/>
+                                                    </Ellipse.Fill>
+                                                </Ellipse>
                                                 <TextBlock Text="{Binding referencia}" Style="{StaticResource PrimaryTextStyle}" FontWeight="Bold" Margin="0,0,10,0"/>
                                                 <TextBlock Text="{Binding titulo}" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,10,0"/>
-                                                <TextBlock Text="{Binding descripcion}" Style="{StaticResource SecondaryTextStyle}"/>
+                                                <TextBlock Text="{Binding Estado.nombre}" Style="{StaticResource SecondaryTextStyle}"/>
                                             </StackPanel>
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>

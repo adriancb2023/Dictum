@@ -51,6 +51,13 @@ namespace TFG_V0._01.Supabase.Models
         public string tipo_abreviatura => TipoCaso?.abreviatura ?? "--";
         [JsonIgnore]
         public List<Alerta> Alertas { get; set; }
+        [JsonIgnore]
+        public string ReferenciaTituloEstado => $"{referencia ?? ""} - {titulo ?? ""} - {Estado?.nombre ?? "Sin estado"}";
+
+        public override string ToString()
+        {
+            return ReferenciaTituloEstado;
+        }
     }
 
     // DTO para inserción

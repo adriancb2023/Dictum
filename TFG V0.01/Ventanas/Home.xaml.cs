@@ -1433,11 +1433,11 @@ namespace TFG_V0._01.Ventanas
 
             // Configurar prioridades
             cbPrioridadTarea.ItemsSource = new[] { "Alta", "Media", "Baja" };
-            cbPrioridadTarea.SelectedIndex = 1; // Media por defecto
+            cbPrioridadTarea.SelectedIndex = -1; // Ninguna seleccionada
 
             // Configurar estados
             cbEstadoTarea.ItemsSource = new[] { "Pendiente", "En progreso", "Completada" };
-            cbEstadoTarea.SelectedIndex = 0; // Pendiente por defecto
+            cbEstadoTarea.SelectedIndex = -1; // Ninguna seleccionada
 
             // Limpiar campos
             txtTituloTarea.Text = "";
@@ -1535,6 +1535,16 @@ namespace TFG_V0._01.Ventanas
             }
         }
 
+        private void ResetFieldsTarea()
+        {
+            cbCasoTarea.SelectedIndex = -1;
+            txtTituloTarea.Text = string.Empty;
+            txtDescripcionTarea.Text = string.Empty;
+            dpFechaVencimientoTarea.SelectedDate = null;
+            cbPrioridadTarea.SelectedIndex = -1;
+            cbEstadoTarea.SelectedIndex = -1;
+        }
+
         private async void GuardarTarea_Click(object sender, RoutedEventArgs e)
         {
             // Validación básica
@@ -1580,6 +1590,7 @@ namespace TFG_V0._01.Ventanas
                 await _tareasService.CrearTarea(tarea);
                 await CargarTareasPendientes();
                 CerrarPanelTarea();
+                ResetFieldsTarea();
                 MessageBox.Show("Tarea creada correctamente.", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
@@ -1590,6 +1601,7 @@ namespace TFG_V0._01.Ventanas
 
         private void CancelarTarea_Click(object sender, RoutedEventArgs e)
         {
+            ResetFieldsTarea();
             CerrarPanelTarea();
         }
 

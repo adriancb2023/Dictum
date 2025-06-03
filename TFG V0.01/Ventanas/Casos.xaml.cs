@@ -262,7 +262,7 @@ namespace TFG_V0._01.Ventanas
                 combo.IsTextSearchEnabled = false;
             }
         }
-       
+
         private void ComboClientes_KeyUp(object sender, KeyEventArgs e)
         {
             var combo = sender as ComboBox;
@@ -280,7 +280,7 @@ namespace TFG_V0._01.Ventanas
             _clientesView.Refresh();
             combo.IsDropDownOpen = true;
         }
-       
+
         private void ComboClientes_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var combo = sender as ComboBox;
@@ -298,13 +298,12 @@ namespace TFG_V0._01.Ventanas
         private void ComboCasosFiltrados_Loaded(object sender, RoutedEventArgs e)
         {
             var combo = sender as ComboBox;
-            if (combo != null)
-            {
-                combo.IsTextSearchEnabled = false;
-
-            }
+            if (combo?.SelectedItem is Caso caso)
+                combo.Text = caso.ReferenciaTituloEstado;
+            else
+                combo.Text = "";
         }
-       
+
         private void ComboCasosFiltrados_KeyUp(object sender, KeyEventArgs e)
         {
             var combo = sender as ComboBox;
@@ -323,18 +322,21 @@ namespace TFG_V0._01.Ventanas
             _casosFiltradosView.Refresh();
             combo.IsDropDownOpen = true;
         }
-       
+
         private void ComboCasosFiltrados_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var combo = sender as ComboBox;
+            if (combo?.SelectedItem is Caso caso)
+                combo.Text = caso.ReferenciaTituloEstado;
+            else
+                combo.Text = "";
             if (combo == null || _casosFiltradosView == null) return;
 
-            if (combo.SelectedItem is Caso caso)
+            if (combo.SelectedItem is Caso caso2)
             {
-                combo.Text = caso.titulo;
-                _casoSeleccionado = caso;
-                CargarDocumentosDelCaso(caso.id);
-                CargarTareasDelCaso(caso.id);
+                _casoSeleccionado = caso2;
+                CargarDocumentosDelCaso(caso2.id);
+                CargarTareasDelCaso(caso2.id);
             }
             _casosFiltradosView.Filter = null;
             _casosFiltradosView.Refresh();
@@ -343,13 +345,12 @@ namespace TFG_V0._01.Ventanas
         private void ComboTodosLosCasos_Loaded(object sender, RoutedEventArgs e)
         {
             var combo = sender as ComboBox;
-            if (combo != null)
-            {
-                _todosLosCasosView = CollectionViewSource.GetDefaultView(combo.ItemsSource);
-                combo.IsTextSearchEnabled = false;
-            }
+            if (combo?.SelectedItem is Caso caso)
+                combo.Text = caso.ReferenciaTituloEstado;
+            else
+                combo.Text = "";
         }
-      
+
         private void ComboTodosLosCasos_KeyUp(object sender, KeyEventArgs e)
         {
             var combo = sender as ComboBox;
@@ -368,16 +369,15 @@ namespace TFG_V0._01.Ventanas
             _todosLosCasosView.Refresh();
             combo.IsDropDownOpen = true;
         }
-      
+
         private void ComboTodosLosCasos_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var combo = sender as ComboBox;
+            if (combo?.SelectedItem is Caso caso)
+                combo.Text = caso.ReferenciaTituloEstado;
+            else
+                combo.Text = "";
             if (combo == null || _todosLosCasosView == null) return;
-
-            if (combo.SelectedItem is Caso caso)
-            {
-                TextoComboTodosLosCasos = $"{caso.referencia} - {caso.titulo} - {caso.Estado?.nombre}";
-            }
             _todosLosCasosView.Filter = null;
             _todosLosCasosView.Refresh();
         }
@@ -478,7 +478,7 @@ namespace TFG_V0._01.Ventanas
                     var fadeIn = (Storyboard)FindResource("FadeInAnimation");
                     fadeIn.Begin(ContenidoCasos);
 
-                     // Asegurar que el calendario tenga seleccionada la fecha actual
+                    // Asegurar que el calendario tenga seleccionada la fecha actual
                     var calendar = this.FindName("calendar") as CalendarControl;
                     if (calendar != null)
                     {
@@ -539,7 +539,7 @@ namespace TFG_V0._01.Ventanas
                 {
                     icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/sol.png", UriKind.Relative));
                 }
-                 // Asegurarse de que el Navbar se actualice
+                // Asegurarse de que el Navbar se actualice
                 navbar.ActualizarTema(true);
             }
             else
@@ -549,8 +549,8 @@ namespace TFG_V0._01.Ventanas
                 {
                     icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/luna.png", UriKind.Relative));
                 }
-                 // Asegurarse de que el Navbar se actualice
-                 navbar.ActualizarTema(false);
+                // Asegurarse de que el Navbar se actualice
+                navbar.ActualizarTema(false);
             }
         }
         #endregion
@@ -687,7 +687,7 @@ namespace TFG_V0._01.Ventanas
 
         private void IniciarAnimacionMesh()
         {
-             if (mesh1Brush == null || mesh2Brush == null) return; // Asegurarse de que los brushes existan
+            if (mesh1Brush == null || mesh2Brush == null) return; // Asegurarse de que los brushes existan
 
             // Crear un nuevo Storyboard para la animación
             var meshAnimStoryboard = new Storyboard();
@@ -748,7 +748,7 @@ namespace TFG_V0._01.Ventanas
         #endregion
 
         public event PropertyChangedEventHandler PropertyChanged;
-       
+
         protected void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -934,7 +934,7 @@ namespace TFG_V0._01.Ventanas
             if (EditarEventoGrid.Visibility == Visibility.Visible)
             {
                 CerrarGridEditarEvento();
-            } 
+            }
             else if (EditarNotaGrid.Visibility == Visibility.Visible)
             {
                 CerrarGridEditarNota();
@@ -942,6 +942,10 @@ namespace TFG_V0._01.Ventanas
             else if (EditarTareaGrid.Visibility == Visibility.Visible)
             {
                 CerrarGridEditarTarea();
+            }
+            else if (EditarDocumentoGrid.Visibility == Visibility.Visible)
+            {
+                CerrarGridEditarDocumento();
             }
         }
 
@@ -954,7 +958,7 @@ namespace TFG_V0._01.Ventanas
                 Duration = TimeSpan.FromSeconds(0.3),
                 EasingFunction = new CubicEase { EasingMode = EasingMode.EaseIn }
             };
-            animation.Completed += (s, e) => 
+            animation.Completed += (s, e) =>
             {
                 EditarEventoGrid.Visibility = Visibility.Collapsed;
                 OverlayPanel.Visibility = Visibility.Collapsed;
@@ -1122,7 +1126,7 @@ namespace TFG_V0._01.Ventanas
             _notaSeleccionada = NotasList.SelectedItem as Nota;
         }
         #endregion
-       
+
         private void MostrarGridEditarNota(Nota nota = null)
         {
             if (_casoSeleccionado == null)
@@ -1842,6 +1846,16 @@ namespace TFG_V0._01.Ventanas
                     // Revertir el cambio en caso de error
                     tarea.completada = !tarea.completada;
                 }
+            }
+        }
+
+        private void ComboBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var combo = sender as ComboBox;
+            if (combo != null && !combo.IsDropDownOpen)
+            {
+                combo.IsDropDownOpen = true;
+                e.Handled = true;
             }
         }
 

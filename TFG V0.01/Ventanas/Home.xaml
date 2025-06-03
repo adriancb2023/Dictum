@@ -571,46 +571,64 @@
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="20" DataContext="{Binding RelativeSource={RelativeSource AncestorType=Window}}">
                         <!-- Título -->
-                        <TextBlock Text="Añadir Tarea" FontWeight="Bold" FontSize="18" Margin="0,0,0,20"/>
+                        <TextBlock Text="Añadir Tarea" FontWeight="Bold" FontSize="18" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,20"/>
 
                         <!-- ComboBox para seleccionar el caso -->
-                        <TextBlock Text="Caso asociado:" Margin="0,0,0,5"/>
+                        <TextBlock Text="Caso asociado:" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
                         <ComboBox x:Name="cbCasoTarea"
-                                  Width="250"
+                                  Style="{StaticResource ModernComboBoxStyle}"
                                   ItemsSource="{Binding CasosDisponibles}"
-                                  DisplayMemberPath="referencia"
+                                  DisplayMemberPath="titulo"
                                   SelectedValuePath="id"
                                   SelectedValue="{Binding SelectedCasoId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                   Margin="0,0,0,15"/>
 
                         <!-- Título de la tarea -->
-                        <TextBlock Text="Título:" Margin="0,0,0,5"/>
-                        <TextBox x:Name="txtTituloTarea" Width="250" Margin="0,0,0,15"/>
+                        <TextBlock Text="Título:" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
+                        <TextBox x:Name="txtTituloTarea" 
+                                Style="{StaticResource RoundedTextBoxStyle}"
+                                Margin="0,0,0,15"/>
 
                         <!-- Descripción -->
-                        <TextBlock Text="Descripción:" Margin="0,0,0,5"/>
-                        <TextBox x:Name="txtDescripcionTarea" Width="250" Height="60" TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,15"/>
+                        <TextBlock Text="Descripción:" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
+                        <TextBox x:Name="txtDescripcionTarea" 
+                                Style="{StaticResource RoundedTextBoxStyle}"
+                                Height="60" 
+                                TextWrapping="Wrap" 
+                                AcceptsReturn="True" 
+                                Margin="0,0,0,15"/>
 
                         <!-- Fecha de vencimiento -->
-                        <TextBlock Text="Fecha de vencimiento:" Margin="0,0,0,5"/>
-                        <DatePicker x:Name="dpFechaVencimientoTarea" Width="250" Margin="0,0,0,15"/>
+                        <TextBlock Text="Fecha de vencimiento:" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
+                        <DatePicker x:Name="dpFechaVencimientoTarea" 
+                                  Style="{StaticResource RoundedDatePickerStyle}"
+                                  Margin="0,0,0,15"/>
 
                         <!-- Prioridad -->
-                        <TextBlock Text="Prioridad:" Margin="0,0,0,5"/>
+                        <TextBlock Text="Prioridad:" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
                         <ComboBox x:Name="cbPrioridadTarea"
-                                  Width="250"
+                                  Style="{StaticResource ModernComboBoxStyle}"
                                   Margin="0,0,0,15"/>
 
                         <!-- Estado -->
-                        <TextBlock Text="Estado:" Margin="0,0,0,5"/>
+                        <TextBlock Text="Estado:" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
                         <ComboBox x:Name="cbEstadoTarea"
-                                  Width="250"
+                                  Style="{StaticResource ModernComboBoxStyle}"
                                   Margin="0,0,0,15"/>
 
                         <!-- Botones -->
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
-                            <Button Content="Guardar" Width="100" Margin="0,0,10,0" Click="GuardarTarea_Click"/>
-                            <Button Content="Cancelar" Width="100" Click="CancelarTarea_Click"/>
+                            <Button Content="Cancelar" 
+                                    Style="{StaticResource RoundedButtonStyle}"
+                                    Background="#30FFFFFF"
+                                    Width="100" 
+                                    Margin="0,0,10,0" 
+                                    Click="CancelarTarea_Click"/>
+                            <Button Content="Guardar" 
+                                    Style="{StaticResource RoundedButtonStyle}"
+                                    Background="#2979FF"
+                                    Width="100" 
+                                    Click="GuardarTarea_Click"/>
                         </StackPanel>
                     </StackPanel>
                 </ScrollViewer>

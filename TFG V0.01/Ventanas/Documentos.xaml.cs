@@ -38,6 +38,7 @@ namespace TFG_V0._01.Ventanas
         public ObservableCollection<DocumentPanel> DocumentPanelsCollection { get; set; } = new();
         public ObservableCollection<Cliente> ListaClientes { get; set; } = new();
         public ObservableCollection<Caso> ListaCasosFiltrados { get; set; } = new();
+        public ObservableCollection<Caso> ListaCasos { get; set; } = new();
 
         public event PropertyChangedEventHandler? PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName)
@@ -223,20 +224,42 @@ namespace TFG_V0._01.Ventanas
             HideSlidePanelFiltros();
         }
 
-        private async void RestablecerFiltros_Click(object sender, RoutedEventArgs e)
+        private void RestablecerFiltros_Click(object sender, RoutedEventArgs e)
         {
+            // Desactivar temporalmente los eventos de los ComboBox
+            ComboClientesPanel.SelectionChanged -= ComboClientes_SelectionChanged;
+            ComboCasosPanel.SelectionChanged -= ComboCasosPanel_SelectionChanged;
+
+            // Limpiar los filtros
             ComboClientesPanel.SelectedItem = null;
             ComboCasosPanel.SelectedItem = null;
             FiltroFechaPanel.SelectedDate = null;
-            // Buscar el WrapPanel de tipos de documento de forma robusta
-            var tipoDocWrapPanel = FindVisualChildren<WrapPanel>(SlidePanelFiltros)
-                .FirstOrDefault(wp => wp.Children.OfType<CheckBox>().Any(cb => cb.Tag != null));
-            if (tipoDocWrapPanel != null)
+
+            // Limpiar los checkboxes de tipo de documento
+            foreach (CheckBox checkBox in FindVisualChildren<CheckBox>(SlidePanelFiltros))
             {
-                foreach (var child in tipoDocWrapPanel.Children)
-                    if (child is CheckBox cb) cb.IsChecked = true;
+                checkBox.IsChecked = true;
             }
-            await FiltrarYMostrarDocumentosAsync();
+
+            // Limpiar las tarjetas de documentos
+            if (DocumentPanels.ItemsSource != null)
+            {
+                var documentos = DocumentPanels.ItemsSource as ObservableCollection<DocumentPanel>;
+                if (documentos != null)
+                {
+                    foreach (var panel in documentos)
+                    {
+                        panel.Files.Clear();
+                    }
+                }
+            }
+
+            // Actualizar la lista de casos
+            ListaCasosFiltrados = new ObservableCollection<Caso>(ListaCasos);
+
+            // Reactivar los eventos de los ComboBox
+            ComboClientesPanel.SelectionChanged += ComboClientes_SelectionChanged;
+            ComboCasosPanel.SelectionChanged += ComboCasosPanel_SelectionChanged;
         }
 
         private async void ComboClientes_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -247,6 +270,11 @@ namespace TFG_V0._01.Ventanas
 
             var casosService = new TFG_V0._01.Supabase.SupabaseCasos();
             var casos = await casosService.ObtenerTodosAsync();
+
+            // Actualizar ListaCasos con todos los casos
+            ListaCasos.Clear();
+            foreach (var caso in casos)
+                ListaCasos.Add(caso);
 
             if (cliente != null)
             {
@@ -530,7 +558,7 @@ namespace TFG_V0._01.Ventanas
             }
         }
 
-        private void OpenFile_Click(object sender, RoutedEventArgs e)
+        private async void OpenFile_Click(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
             var file = button?.DataContext as DocumentFile;
@@ -538,27 +566,53 @@ namespace TFG_V0._01.Ventanas
             {
                 try
                 {
+                    // Mostrar indicador de carga
+                    button.IsEnabled = false;
+                    var originalContent = button.Content;
+                    button.Content = new ProgressBar { IsIndeterminate = true, Width = 16, Height = 16 };
+
+                    var storage = new TFG_V0._01.Supabase.SupaBaseStorage();
+                    await storage.InicializarAsync();
+
+                    string tempDir = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "TFG_Documentos");
+                    System.IO.Directory.CreateDirectory(tempDir);
+
+                    // Extraer solo el nombre del archivo de la ruta
+                    string nombreArchivo = System.IO.Path.GetFileName(file.Path);
+                    string tempFilePath = System.IO.Path.Combine(tempDir, nombreArchivo);
+
+                    // Descargar el archivo como byte[] desde Supabase
+                    var fileBytes = await storage.DescargarArchivoAsync("documentos", nombreArchivo);
+
+                    // Guardar el archivo en disco
+                    await System.IO.File.WriteAllBytesAsync(tempFilePath, fileBytes);
+
+                    // Abrir el archivo con la aplicación predeterminada
                     System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
                     {
-                        FileName = file.Path,
+                        FileName = tempFilePath,
                         UseShellExecute = true
                     });
+
+                    button.Content = originalContent;
+                    button.IsEnabled = true;
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Error al abrir el archivo: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"Error al abrir el archivo: {ex.Message}\nRuta: {file.Path}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    button.IsEnabled = true;
                 }
             }
         }
 
-        private void DeleteFile_Click(object sender, RoutedEventArgs e)
+        private async void DeleteFile_Click(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
             var file = button?.DataContext as DocumentFile;
             if (file != null)
             {
                 var result = MessageBox.Show(
-                    $"¿Estás seguro de que deseas eliminar el archivo '{file.Name}'?",
+                    $"¿Estás seguro de que deseas eliminar el archivo '{file.Name}' solo de la base de datos? (No se eliminará del almacenamiento)",
                     "Confirmar eliminación",
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Warning);
@@ -567,13 +621,28 @@ namespace TFG_V0._01.Ventanas
                 {
                     try
                     {
-                        // TODO: Implement file deletion logic
-                        // DeleteFile(file);
-                        // Update UI
+                        var documentosService = new TFG_V0._01.Supabase.SupabaseDocumentos();
+                        await documentosService.InicializarAsync();
+                        int idDocumento;
+                        if (int.TryParse(file.Id, out idDocumento) && idDocumento > 0)
+                        {
+                            await documentosService.EliminarAsync(idDocumento);
+                        }
+                        else
+                        {
+                            // Fallback: buscar por ruta si no hay id
+                            var docs = await documentosService.ObtenerTodosAsync();
+                            var doc = docs.FirstOrDefault(d => d.ruta == file.Path);
+                            if (doc != null && doc.id.HasValue)
+                                await documentosService.EliminarAsync(doc.id.Value);
+                        }
+                        MessageBox.Show($"Documento eliminado de la base de datos.", "Eliminado", MessageBoxButton.OK, MessageBoxImage.Information);
+                        // Refrescar la lista de documentos
+                        await FiltrarYMostrarDocumentosAsync();
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Error al eliminar el archivo: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show($"Error al eliminar el documento de la base de datos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 }
             }
@@ -741,6 +810,16 @@ namespace TFG_V0._01.Ventanas
                         yield return childOfChild;
                     }
                 }
+            }
+        }
+
+        private void ComboBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var combo = sender as ComboBox;
+            if (combo != null && !combo.IsDropDownOpen)
+            {
+                combo.IsDropDownOpen = true;
+                e.Handled = true;
             }
         }
     }

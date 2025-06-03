@@ -34,6 +34,10 @@ namespace TFG_V0._01.Supabase.Models
 
         [Reference(typeof(Caso))]
         public Caso Caso { get; set; }
+
+        public string NombreCaso { get; set; }
+
+        public string ColorCaso { get; set; }
     }
 
     [Table("contactos")]

@@ -25,6 +25,16 @@ namespace TFG_V0._01.Ventanas.SubVentanas
             _supabaseTiposCaso = new SupabaseTiposCaso();
             _supabaseEstados = new SupabaseEstados();
             LoadData();
+
+            this.IsVisibleChanged += AñadirCasoWindow_IsVisibleChanged;
+        }
+
+        private void AñadirCasoWindow_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (this.IsVisible == false)
+            {
+                ResetFields();
+            }
         }
 
         private async void LoadData()
@@ -34,20 +44,19 @@ namespace TFG_V0._01.Ventanas.SubVentanas
                 // Cargar clientes
                 var clientes = await _supabaseClientes.ObtenerClientesAsync();
                 cmbClientes.ItemsSource = clientes;
+                cmbClientes.SelectedItem = null;
 
                 // Cargar tipos de caso
                 var tiposCaso = await _supabaseTiposCaso.ObtenerTodosAsync();
                 cmbTiposCaso.ItemsSource = tiposCaso;
+                cmbTiposCaso.SelectedItem = null;
 
                 // Cargar estados
                 var estados = await _supabaseEstados.ObtenerTodosAsync();
                 cmbEstados.ItemsSource = estados;
+                cmbEstados.SelectedItem = null;
 
-                // Establecer valores por defecto
-                if (cmbEstados.Items.Count > 0)
-                    cmbEstados.SelectedIndex = 0;
-                if (cmbTiposCaso.Items.Count > 0)
-                    cmbTiposCaso.SelectedIndex = 0;
+                // Establecer valor por defecto solo para la fecha
                 dpFechaInicio.SelectedDate = DateTime.Now;
             }
             catch (Exception ex)
@@ -61,8 +70,11 @@ namespace TFG_V0._01.Ventanas.SubVentanas
             txtTitulo.Clear();
             txtDescripcion.Clear();
             cmbClientes.SelectedItem = null;
+            cmbClientes.SelectedIndex = -1;
             cmbTiposCaso.SelectedItem = null;
+            cmbTiposCaso.SelectedIndex = -1;
             cmbEstados.SelectedItem = null;
+            cmbEstados.SelectedIndex = -1;
             dpFechaInicio.SelectedDate = DateTime.Now;
         }
 
@@ -82,11 +94,35 @@ namespace TFG_V0._01.Ventanas.SubVentanas
                     return;
                 }
 
+                var clienteSeleccionado = cmbClientes.SelectedItem as Cliente;
+                if (clienteSeleccionado == null)
+                {
+                    MessageBox.Show("Error interno: cliente no válido.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                if (clienteSeleccionado.id == null)
+                {
+                    MessageBox.Show("El cliente seleccionado no tiene un ID válido.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                if (cmbTiposCaso.SelectedValue == null)
+                {
+                    MessageBox.Show("Por favor, selecciona un tipo de caso.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+                if (cmbEstados.SelectedValue == null)
+                {
+                    MessageBox.Show("Por favor, selecciona un estado.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
                 var nuevoCaso = new CasoInsertDto
                 {
                     titulo = txtTitulo.Text,
                     descripcion = txtDescripcion.Text,
-                    id_cliente = (int)cmbClientes.SelectedValue,
+                    id_cliente = (int)clienteSeleccionado.id,
                     id_tipo_caso = (int)cmbTiposCaso.SelectedValue,
                     id_estado = (int)cmbEstados.SelectedValue,
                     fecha_inicio = dpFechaInicio.SelectedDate ?? DateTime.Now,
@@ -95,6 +131,7 @@ namespace TFG_V0._01.Ventanas.SubVentanas
 
                 await _supabaseCasos.InsertarAsync(nuevoCaso);
                 CasoGuardado?.Invoke(this, EventArgs.Empty);
+                ResetFields();
             }
             catch (Exception ex)
             {
@@ -104,6 +141,7 @@ namespace TFG_V0._01.Ventanas.SubVentanas
 
         private void btnCancelar_Click(object sender, RoutedEventArgs e)
         {
+            ResetFields();
             CasoCancelado?.Invoke(this, EventArgs.Empty);
         }
     }

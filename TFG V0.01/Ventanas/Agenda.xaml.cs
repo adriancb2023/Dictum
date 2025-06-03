@@ -610,7 +610,8 @@ namespace TFG_V0._01.Ventanas
                         EstadoNombre = estados.FirstOrDefault(s => s.Id == e.IdEstado)?.Nombre ?? "Sin estado",
                         EstadoColor = ObtenerColorEstado(estados.FirstOrDefault(s => s.Id == e.IdEstado)?.Nombre),
                         FechaInicio = e.FechaInicio,
-                        IdCaso = e.IdCaso
+                        IdCaso = e.IdCaso,
+                        NombreCaso = casos.FirstOrDefault(c => c.id == e.IdCaso)?.titulo ?? "Sin caso"
                     })
                     .ToList();
 
@@ -660,7 +661,8 @@ namespace TFG_V0._01.Ventanas
                         EstadoNombre = estados.FirstOrDefault(s => s.Id == e.IdEstado)?.Nombre ?? "Sin estado",
                         EstadoColor = ObtenerColorEstado(estados.FirstOrDefault(s => s.Id == e.IdEstado)?.Nombre),
                         FechaInicio = e.FechaInicio,
-                        IdCaso = e.IdCaso
+                        IdCaso = e.IdCaso,
+                        NombreCaso = casos.FirstOrDefault(c => c.id == e.IdCaso)?.titulo ?? "Sin caso"
                     })
                     .ToList();
 
@@ -877,11 +879,24 @@ namespace TFG_V0._01.Ventanas
             try
             {
                 var contactos = await _contactosService.ObtenerTodosAsync();
+                var casos = await _casosService.ObtenerTodosAsync();
+                // Paleta de colores
+                string[] palette = { "#FFB300", "#803E75", "#FF6800", "#A6BDD7", "#C10020", "#CEA262", "#817066", "#007D34", "#F6768E", "#00538A", "#FF7A5C", "#53377A", "#FF8E00", "#B32851", "#F4C800", "#7F180D", "#93AA00", "#593315", "#F13A13", "#232C16" };
+                var colorDict = new Dictionary<int, string>();
+                int colorIndex = 0;
+                foreach (var caso in casos)
+                {
+                    colorDict[caso.id] = palette[colorIndex % palette.Length];
+                    colorIndex++;
+                }
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     Contactos.Clear();
                     foreach (var contacto in contactos)
                     {
+                        var caso = casos.FirstOrDefault(c => c.id == contacto.id_caso);
+                        contacto.NombreCaso = caso?.titulo ?? "Sin caso";
+                        contacto.ColorCaso = caso != null && colorDict.ContainsKey(caso.id) ? colorDict[caso.id] : "#CCCCCC";
                         Contactos.Add(contacto);
                     }
                 });
@@ -890,6 +905,23 @@ namespace TFG_V0._01.Ventanas
             {
                 MessageBox.Show($"Error al cargar los contactos: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        public class EventoViewModel : INotifyPropertyChanged
+        {
+            public int Id { get; set; }
+            public string Titulo { get; set; }
+            public string Descripcion { get; set; }
+            public DateTime Fecha { get; set; }
+            public string EstadoNombre { get; set; }
+            public string EstadoColor { get; set; }
+            public TimeSpan FechaInicio { get; set; }
+            public int IdCaso { get; set; }
+            public string NombreCaso { get; set; }
+
+            public event PropertyChangedEventHandler PropertyChanged;
+            protected void OnPropertyChanged([CallerMemberName] string name = null)
+                => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

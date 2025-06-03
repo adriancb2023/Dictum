@@ -68,6 +68,8 @@
     <None Remove="Recursos\Iconos\ajustes2.png" />
     <None Remove="Recursos\Iconos\ayuda.png" />
     <None Remove="Recursos\Iconos\ayuda2.png" />
+    <None Remove="Recursos\Iconos\borrar.png" />
+    <None Remove="Recursos\Iconos\borrar2.png" />
     <None Remove="Recursos\Iconos\buscar.png" />
     <None Remove="Recursos\Iconos\buscar2.png" />
     <None Remove="Recursos\Iconos\casos.png" />
@@ -163,6 +165,8 @@
     <Resource Include="Recursos\Iconos\ajustes2.png" />
     <Resource Include="Recursos\Iconos\ayuda.png" />
     <Resource Include="Recursos\Iconos\ayuda2.png" />
+    <Resource Include="Recursos\Iconos\borrar.png" />
+    <Resource Include="Recursos\Iconos\borrar2.png" />
     <Resource Include="Recursos\Iconos\buscar.png" />
     <Resource Include="Recursos\Iconos\buscar2.png" />
     <Resource Include="Recursos\Iconos\casos.png" />

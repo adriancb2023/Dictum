@@ -182,47 +182,113 @@
         </RadialGradientBrush>
 
         <!-- Estilo para ComboBox -->
-        <Style x:Key="ComboBoxStyle" TargetType="ComboBox">
+        <Style x:Key="ModernComboBoxStyle" TargetType="ComboBox">
             <Setter Property="Background" Value="#30FFFFFF"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Height" Value="45"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
+            <Setter Property="BorderBrush" Value="#40FFFFFF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="Padding" Value="10,5"/>
+                        <Setter Property="Foreground" Value="#222"/>
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                <Setter Property="Foreground" Value="{StaticResource TextPrimaryLight}"/>
+                                <Setter Property="Background" Value="Transparent"/>
+                            </DataTrigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#30000000"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="#50000000"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Setter.Value>
+            </Setter>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ComboBox">
-                        <Border Background="{TemplateBinding Background}" 
-                                CornerRadius="20" 
-                                BorderThickness="{TemplateBinding BorderThickness}">
-                            <Grid>
-                                <ContentPresenter HorizontalAlignment="Left" 
-                                                VerticalAlignment="Center" 
-                                                Margin="{TemplateBinding Padding}"/>
-                                <ToggleButton x:Name="ToggleButton" 
-                                            IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
-                                            ClickMode="Press">
-                                    <ToggleButton.Template>
-                                        <ControlTemplate TargetType="ToggleButton">
-                                            <Border x:Name="ToggleButtonBorder" 
-                                                    Background="Transparent" 
-                                                    BorderThickness="0">
-                                                <Path x:Name="Arrow" 
-                                                      Fill="#666666" 
-                                                      HorizontalAlignment="Center" 
-                                                      VerticalAlignment="Center" 
-                                                      Data="M0,0 L4,4 L8,0 Z"/>
-                                            </Border>
-                                        </ControlTemplate>
-                                    </ToggleButton.Template>
-                                </ToggleButton>
-                            </Grid>
-                        </Border>
+                        <Grid>
+                            <Border x:Name="ComboBoxBorder"
+                                    Background="{TemplateBinding Background}"
+                                    CornerRadius="10"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    BorderBrush="{TemplateBinding BorderBrush}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <ContentPresenter Grid.Column="0"
+                                              Content="{TemplateBinding SelectionBoxItem}"
+                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                              ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              Margin="{TemplateBinding Padding}"/>
+                                    <ToggleButton Grid.Column="1"
+                                                  x:Name="ToggleButton"
+                                                  IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                                  ClickMode="Press"
+                                                  Focusable="False">
+                                        <ToggleButton.Template>
+                                            <ControlTemplate TargetType="ToggleButton">
+                                                <Border Background="Transparent" BorderThickness="0">
+                                                    <Path Data="M0,0 L4,4 L8,0"
+                                                          Stroke="{Binding RelativeSource={RelativeSource AncestorType=ComboBox}, Path=Foreground}"
+                                                          StrokeThickness="2"
+                                                          HorizontalAlignment="Center"
+                                                          VerticalAlignment="Center"
+                                                          Margin="0,0,8,0"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </ToggleButton.Template>
+                                    </ToggleButton>
+                                </Grid>
+                            </Border>
+                            <Popup x:Name="PART_Popup"
+                                   AllowsTransparency="True"
+                                   IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   PlacementTarget="{Binding ElementName=ComboBoxBorder}"
+                                   Placement="Bottom">
+                                <Border CornerRadius="10"
+                                        BorderThickness="1" MaxHeight="200"
+                                        MinWidth="{Binding Path=ActualWidth, ElementName=ComboBoxBorder}">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="#3A3A3A"/>
+                                            <Setter Property="BorderBrush" Value="#555"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                                    <Setter Property="Background" Value="#FFFFFF"/>
+                                                    <Setter Property="BorderBrush" Value="#CCC"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <ScrollViewer SnapsToDevicePixels="True">
+                                        <ItemsPresenter />
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
-                    <Setter Property="Background" Value="#30000000"/>
+                    <Setter Property="Background" Value="#FFFFFF"/>
+                    <Setter Property="Foreground" Value="{StaticResource TextPrimaryLight}"/>
+                    <Setter Property="BorderBrush" Value="#CCCCCC"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                    <Setter Property="Background" Value="#30FFFFFF"/>
+                    <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
+                    <Setter Property="BorderBrush" Value="#40FFFFFF"/>
                 </DataTrigger>
             </Style.Triggers>
         </Style>
@@ -437,27 +503,99 @@
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="*"/>
                                                         <ColumnDefinition Width="Auto"/>
-                                                        <ColumnDefinition Width="Auto"/>
                                                     </Grid.ColumnDefinitions>
                                                     <TextBlock Text="{Binding Name}" 
                                                                Grid.Column="0"
                                                                Style="{StaticResource PrimaryTextStyle}"
                                                                VerticalAlignment="Center"/>
-                                                    <Button Grid.Column="1"
-                                                            Margin="5,0"
+
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Column="1">
+                                                    <Button 
+                                                            Margin="15,0,5,0"
                                                             Click="OpenFile_Click"
-                                                            Style="{StaticResource RoundedButtonStyle}"
-                                                            ToolTip="Abrir">
-                                                        <Image Source="/TFG V0.01;component/Recursos/Iconos/open.png" 
-                                                               Width="16" Height="16"/>
+                                                            ToolTip="Abrir"
+                                                            Width="30" Height="30" Padding="0"
+                                                            >
+                                                        <Button.Style>
+                                                            <Style TargetType="Button">
+                                                                <Setter Property="Template">
+                                                                    <Setter.Value>
+                                                                        <ControlTemplate TargetType="Button">
+                                                                            <Border x:Name="ButtonBorder" CornerRadius="4" Background="Transparent">
+                                                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                            </Border>
+                                                                            <ControlTemplate.Triggers>
+                                                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                                                                    <Setter Property="Background" Value="#30000000" TargetName="ButtonBorder"/>
+                                                                                </DataTrigger>
+                                                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                                                                                    <Setter Property="Background" Value="#30FFFFFF" TargetName="ButtonBorder"/>
+                                                                                </DataTrigger>
+                                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                                    <Setter Property="Background" Value="#50FFFFFF" TargetName="ButtonBorder"/>
+                                                                                </Trigger>
+                                                                            </ControlTemplate.Triggers>
+                                                                        </ControlTemplate>
+                                                                    </Setter.Value>
+                                                                </Setter>
+                                                            </Style>
+                                                        </Button.Style>
+                                                        <Image Width="16" Height="16">
+                                                            <Image.Style>
+                                                                <Style TargetType="Image">
+                                                                    <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/ver.png"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                                                            <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/ver2.png"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Image.Style>
+                                                        </Image>
                                                     </Button>
-                                                    <Button Grid.Column="2"
+                                                    <Button 
                                                             Click="DeleteFile_Click"
-                                                            Style="{StaticResource RoundedButtonStyle}"
-                                                            ToolTip="Eliminar">
-                                                        <Image Source="/TFG V0.01;component/Recursos/Iconos/delete.png" 
-                                                               Width="16" Height="16"/>
+                                                            ToolTip="Eliminar"
+                                                            Width="30" Height="30" Padding="0"
+                                                            >
+                                                        <Button.Style>
+                                                            <Style TargetType="Button">
+                                                                <Setter Property="Template">
+                                                                    <Setter.Value>
+                                                                        <ControlTemplate TargetType="Button">
+                                                                            <Border x:Name="ButtonBorder" CornerRadius="4" Background="Transparent">
+                                                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                            </Border>
+                                                                            <ControlTemplate.Triggers>
+                                                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                                                                    <Setter Property="Background" Value="#30000000" TargetName="ButtonBorder"/>
+                                                                                </DataTrigger>
+                                                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                                                                                    <Setter Property="Background" Value="#30FFFFFF" TargetName="ButtonBorder"/>
+                                                                                </DataTrigger>
+                                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                                    <Setter Property="Background" Value="#50FFFFFF" TargetName="ButtonBorder"/>
+                                                                                </Trigger>
+                                                                            </ControlTemplate.Triggers>
+                                                                        </ControlTemplate>
+                                                                    </Setter.Value>
+                                                                </Setter>
+                                                            </Style>
+                                                        </Button.Style>
+                                                        <Image Width="16" Height="16">
+                                                            <Image.Style>
+                                                                <Style TargetType="Image">
+                                                                    <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/borrar2.png"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                                                                            <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/borrar.png"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Image.Style>
+                                                        </Image>
                                                     </Button>
+                                                    </StackPanel>
                                                 </Grid>
                                             </DataTemplate>
                                         </ListBox.ItemTemplate>
@@ -495,7 +633,11 @@
                                   ItemsSource="{Binding ListaClientes}"
                                   DisplayMemberPath="nombre_cliente"
                                   SelectionChanged="ComboClientes_SelectionChanged"
-                                  Width="200" Height="35"/>
+                                  Height="35"
+                                  Style="{StaticResource ModernComboBoxStyle}"
+                                  HorizontalAlignment="Stretch"
+                                  MinWidth="0"
+                                  PreviewMouseLeftButtonDown="ComboBox_PreviewMouseLeftButtonDown"/>
                     </StackPanel>
 
                     <StackPanel Margin="0,5">
@@ -503,8 +645,12 @@
                         <ComboBox x:Name="ComboCasosPanel"
                                   ItemsSource="{Binding ListaCasosFiltrados}"
                                   DisplayMemberPath="titulo"
-                                  Width="200" Height="35"
-                                  SelectionChanged="ComboCasosPanel_SelectionChanged"/>
+                                  Height="35"
+                                  SelectionChanged="ComboCasosPanel_SelectionChanged"
+                                  Style="{StaticResource ModernComboBoxStyle}"
+                                  HorizontalAlignment="Stretch"
+                                  MinWidth="0"
+                                  PreviewMouseLeftButtonDown="ComboBox_PreviewMouseLeftButtonDown"/>
                     </StackPanel>
 
                     <StackPanel Margin="0,5">

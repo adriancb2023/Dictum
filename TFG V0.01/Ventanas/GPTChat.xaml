@@ -15,6 +15,10 @@
         <SolidColorBrush x:Key="TextPrimaryLight" Color="#222222"/>
         <SolidColorBrush x:Key="TextSecondaryLight" Color="#666666"/>
         
+        <!-- Convertidores -->
+        <local:BoolToBrushConverter x:Key="BoolToBrushConverter"/>
+        <local:BoolToAlignmentConverter x:Key="BoolToAlignmentConverter"/>
+        
         <!-- Estilo para el botón de cambio de tema -->
         <Style x:Key="ThemeButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
@@ -46,6 +50,34 @@
                 </Setter.Value>
             </Setter>
         </Style>
+<!--Estilo carta-->
+        <Style x:Key="CardStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="20"/>
+            <Setter Property="Background">
+                <Setter.Value>
+                    <SolidColorBrush Color="#282828" Opacity="0.8"/>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="15"/>
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="Black" BlurRadius="15" ShadowDepth="2" Opacity="0.3"/>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Background" Value="#F0F0F0"/>
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect Color="#AAAAAA" BlurRadius="15" ShadowDepth="2" Opacity="0.3"/>
+                        </Setter.Value>
+                    </Setter>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
     </Window.Resources>
 
     <Grid>
@@ -71,13 +103,62 @@
         <Button x:Name="ThemeButton" Width="35" Height="35" Margin="0" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="ThemeButton_Click" Style="{StaticResource ThemeButtonStyle}" Grid.Column="2"/>
 
         <!-- Contenido -->
-        <Grid x:Name="ContentGrid" Grid.Column="2" Margin="20">
-            <Grid.Effect>
-                <DropShadowEffect BlurRadius="20" ShadowDepth="0" Color="Black" Opacity="0.3"/>
-            </Grid.Effect>
-            
-            <!-- Aquí irá el contenido específico de GPTChat -->
-            
-        </Grid>
+        <Border Grid.Column="2" Margin="20" Style="{StaticResource CardStyle}">
+            <Grid x:Name="ContentGrid">
+                <Grid.Effect>
+                    <DropShadowEffect BlurRadius="20" ShadowDepth="0" Color="Black" Opacity="0.3"/>
+                </Grid.Effect>
+                
+                <!-- Aquí irá el contenido específico de GPTChat -->
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Área de chat -->
+                    <Border Grid.Row="0" Margin="0,10,0,0" CornerRadius="10" BorderBrush="#CCCCCC" BorderThickness="1" Padding="10">
+                        <ScrollViewer x:Name="ChatScrollViewer" VerticalScrollBarVisibility="Auto">
+                            <ItemsControl x:Name="ChatMessages" Margin="0,10">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Margin="0,5" Padding="10" CornerRadius="10" 
+                                                Background="{Binding IsUser, Converter={StaticResource BoolToBrushConverter}}"
+                                                HorizontalAlignment="{Binding IsUser, Converter={StaticResource BoolToAlignmentConverter}}"
+                                                MaxWidth="500">
+                                            <TextBlock Text="{Binding Message}" TextWrapping="Wrap"/>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Border>
+
+                    <!-- Área de entrada -->
+                    <Grid Grid.Row="1" Margin="0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBox x:Name="MessageInput" 
+                                 Grid.Column="0"
+                                 Margin="0,0,10,0"
+                                 Padding="10"
+                                 TextWrapping="Wrap"
+                                 AcceptsReturn="True"
+                                 VerticalScrollBarVisibility="Auto"
+                                 MaxHeight="100"
+                                 KeyDown="MessageInput_KeyDown"/>
+                        
+                        <Button x:Name="SendButton"
+                                Grid.Column="1"
+                                Content="Enviar"
+                                Padding="15,5"
+                                Click="SendButton_Click"/>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Border>
     </Grid>
 </Window>

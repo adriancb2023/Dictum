@@ -51,14 +51,17 @@ namespace TFG_V0._01.Ventanas
         private readonly SupabaseEventosCitas _eventosCitasService;
         private readonly SupabaseDocumentos _documentosService;
         private readonly SupabaseTareas _tareasService;
+        private readonly SupabaseEstadosEventos _estadosEventosService;
+        private readonly SupabaseCasos _casosService;
 
         private ObservableCollection<Estado> _estadosDisponibles = new();
         private ObservableCollection<Tarea> _tareasPendientesLista = new();
         private ObservableCollection<CasoViewModel> _casosRecientesLista = new();
-        private ObservableCollection<EventoCita> _eventosProximosLista = new();
+        private ObservableCollection<EventoViewModel> _eventosProximosLista = new();
         private ObservableCollection<DiaSemanaModel> _diasSemana = new();
         private ObservableCollection<Caso> _casosDisponibles = new();
-        private ObservableCollection<EventoCita> _eventosDiaSeleccionado = new();
+        private ObservableCollection<EventoViewModel> _eventosDiaSeleccionado = new();
+        private ObservableCollection<EventoViewModel> _eventosDeHoy = new();
 
         public ObservableCollection<Tarea> TareasPendientesLista
         {
@@ -80,7 +83,7 @@ namespace TFG_V0._01.Ventanas
             }
         }
 
-        public ObservableCollection<EventoCita> EventosProximosLista
+        public ObservableCollection<EventoViewModel> EventosProximosLista
         {
             get => _eventosProximosLista;
             set
@@ -110,12 +113,22 @@ namespace TFG_V0._01.Ventanas
             }
         }
 
-        public ObservableCollection<EventoCita> EventosDiaSeleccionado
+        public ObservableCollection<EventoViewModel> EventosDiaSeleccionado
         {
             get => _eventosDiaSeleccionado;
             set
             {
                 _eventosDiaSeleccionado = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ObservableCollection<EventoViewModel> EventosDeHoy
+        {
+            get => _eventosDeHoy;
+            set
+            {
+                _eventosDeHoy = value;
                 OnPropertyChanged();
             }
         }
@@ -272,7 +285,6 @@ namespace TFG_V0._01.Ventanas
                 _diaSeleccionado = value;
                 if (_diaSeleccionado != null) _diaSeleccionado.IsSelected = true;
                 OnPropertyChanged();
-                FiltrarEventosPorDia();
             }
         }
 
@@ -293,42 +305,52 @@ namespace TFG_V0._01.Ventanas
         {
             InitializeComponent();
             this.DataContext = this;
-            _tareasService = new SupabaseTareas();
-            TareasPendientesLista = new ObservableCollection<Tarea>();
-            CargarTareasPendientes();
 
-            CargarIdioma(MainWindow.idioma);
-
-            InitializeAnimations();
-            CrearFondoAnimado();
-            AplicarModoSistema();
-            BeginFadeInAnimation();
-
+            // Initialize all services
             _authService = new SupabaseAutentificacion();
             _clientesService = new SupabaseClientes();
             _supabaseCasos = new SupabaseCasos();
             _documentosService = new SupabaseDocumentos();
             _tareasService = new SupabaseTareas();
             _eventosCitasService = new SupabaseEventosCitas();
-            CasosRecientesLista = new ObservableCollection<CasoViewModel>();
+            _estadosEventosService = new SupabaseEstadosEventos();
+            _casosService = new SupabaseCasos();
 
-            // Inicializar valores
+            // Initialize all collections
+            TareasPendientesLista = new ObservableCollection<Tarea>();
+            CasosRecientesLista = new ObservableCollection<CasoViewModel>();
+            EventosProximosLista = new ObservableCollection<EventoViewModel>();
+            DiasSemana = new ObservableCollection<DiaSemanaModel>();
+            CasosDisponibles = new ObservableCollection<Caso>();
+            EventosDiaSeleccionado = new ObservableCollection<EventoViewModel>();
+            EventosDeHoy = new ObservableCollection<EventoViewModel>();
+            _estadosDisponibles = new ObservableCollection<Estado>();
+
+            // Load initial data
+            CargarTareasPendientes();
+            CargarIdioma(MainWindow.idioma);
+
+            // Initialize UI
+            InitializeAnimations();
+            CrearFondoAnimado();
+            AplicarModoSistema();
+            BeginFadeInAnimation();
+
+            // Initialize counters
             ClientCount = 0;
             ClientCountChange = "+0";
             CasosActivos = 0;
             Documentos = 0;
             TareasPendientes = 0;
             CasosRecientes = 0;
+            EventosProximos = 0;
             mesText = string.Empty;
             anio = string.Empty;
 
-            _eventosCitasService = new SupabaseEventosCitas();
-            EventosProximos = 0;
-
+            // Initialize commands and week
             SeleccionarDiaCommand = new RelayCommand<DateTime>(SeleccionarDia);
             InicializarSemanaActual();
 
-            CasosDisponibles = new ObservableCollection<Caso>();
             SelectedCasoId = null;
         }
         #endregion
@@ -803,12 +825,25 @@ namespace TFG_V0._01.Ventanas
                 var colores = new[] { "#1976D2", "#43A047", "#FFA726", "#E53935", "#8E24AA", "#00ACC1", "#FDD835", "#F4511E", "#3949AB", "#00897B" };
                 var random = new Random();
                 EventosProximosLista.Clear();
+
+                // Obtener estados y casos antes de procesar los eventos
+                var estados = await _estadosEventosService.ObtenerEstadosEventos();
+
                 foreach (var evento in eventosCitas)
                 {
-                    // DEBUG: Mostrar el valor real de FechaInicio
-                    MessageBox.Show($"Evento: {evento.Titulo}\nFechaInicio: {evento.FechaInicio}");
-                    evento.EstadoColor = colores[random.Next(colores.Length)];
-                    EventosProximosLista.Add(evento);
+                    var eventoViewModel = new EventoViewModel
+                    {
+                        Id = evento.Id,
+                        Titulo = evento.Titulo,
+                        Descripcion = evento.Descripcion,
+                        Fecha = evento.Fecha,
+                        EstadoNombre = estados.FirstOrDefault(s => s.Id == evento.IdEstado)?.Nombre ?? "Sin estado",
+                        EstadoColor = ObtenerColorEstado(estados.FirstOrDefault(s => s.Id == evento.IdEstado)?.Nombre),
+                        FechaInicio = evento.FechaInicio,
+                        IdCaso = evento.IdCaso,
+                        NombreCaso = casos.FirstOrDefault(c => c.id == evento.IdCaso)?.titulo ?? "Sin caso"
+                    };
+                    EventosProximosLista.Add(eventoViewModel);
                 }
                 FiltrarEventosPorDia();
 
@@ -1338,6 +1373,7 @@ namespace TFG_V0._01.Ventanas
             // Si el día seleccionado no está en la semana, selecciona el lunes
             if (!DiasSemana.Any(d => d.Fecha.Date == DiaSeleccionado?.Fecha.Date))
                 DiaSeleccionado = DiasSemana[0];
+            FiltrarEventosPorDia();
         }
 
         // Modificar InicializarSemanaActual para usar _lunesSemanaMostrada
@@ -1348,13 +1384,81 @@ namespace TFG_V0._01.Ventanas
             DiaSeleccionado = DiasSemana.FirstOrDefault(d => d.Fecha.Date == DateTime.Today.Date) ?? DiasSemana[0];
         }
 
-        private void FiltrarEventosPorDia()
+        private async void FiltrarEventosPorDia()
         {
-            EventosDiaSeleccionado.Clear();
-            if (DiaSeleccionado == null) return;
-            var eventos = EventosProximosLista.Where(ev => ev.Fecha.Date == DiaSeleccionado.Fecha.Date).OrderBy(ev => ev.Fecha).ToList();
-            foreach (var ev in eventos)
-                EventosDiaSeleccionado.Add(ev);
+            try
+            {
+                if (EventosDiaSeleccionado == null)
+                {
+                    EventosDiaSeleccionado = new ObservableCollection<EventoViewModel>();
+                }
+                else
+                {
+                    EventosDiaSeleccionado.Clear();
+                }
+
+                if (DiaSeleccionado == null) return;
+
+                // Ensure services are initialized
+                if (_eventosCitasService == null || _estadosEventosService == null || _casosService == null)
+                {
+                    await InicializarServiciosSupabase();
+                }
+
+                // Initialize services if needed
+                await _eventosCitasService.InicializarAsync();
+                await _estadosEventosService.InicializarAsync();
+                await _casosService.InicializarAsync();
+
+                var eventos = await _eventosCitasService.ObtenerEventosCitas();
+                var estados = await _estadosEventosService.ObtenerEstadosEventos();
+                var casos = await _casosService.ObtenerTodosCasosManualAsync();
+
+                if (eventos == null || estados == null || casos == null)
+                {
+                    MessageBox.Show("Error al cargar los datos necesarios.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                var eventosDelDia = eventos
+                    .Where(e => e != null && e.Fecha.Date == DiaSeleccionado.Fecha.Date)
+                    .OrderBy(e => e.FechaInicio)
+                    .GroupBy(e => e.Id) // Agrupa por ID para evitar duplicados
+                    .Select(g => g.First()) // Toma solo uno por ID
+                    .Select(e => new EventoViewModel
+                    {
+                        Id = e.Id,
+                        Titulo = e.Titulo ?? "Sin título",
+                        Descripcion = e.Descripcion ?? "Sin descripción",
+                        Fecha = e.Fecha,
+                        EstadoNombre = estados.FirstOrDefault(s => s != null && s.Id == e.IdEstado)?.Nombre ?? "Sin estado",
+                        EstadoColor = ObtenerColorEstado(estados.FirstOrDefault(s => s != null && s.Id == e.IdEstado)?.Nombre),
+                        FechaInicio = e.FechaInicio,
+                        IdCaso = e.IdCaso,
+                        NombreCaso = casos.FirstOrDefault(c => c != null && c.id == e.IdCaso)?.titulo ?? "Sin caso"
+                    })
+                    .ToList();
+
+                foreach (var evento in eventosDelDia)
+                {
+                    EventosDiaSeleccionado.Add(evento);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al filtrar eventos por día: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private string ObtenerColorEstado(string estado)
+        {
+            return estado?.ToLower() switch
+            {
+                "finalizado" => "#F44336",   // Rojo
+                "programado" => "#FFA726",   // Naranja
+                "cancelado" => "#757575",    // Gris
+                _ => "#BDBDBD"              // Gris claro por defecto
+            };
         }
 
         private void SeleccionarDia(DateTime fecha)
@@ -1610,6 +1714,63 @@ namespace TFG_V0._01.Ventanas
             await _supabaseCasos.InicializarAsync();
             var casos = await _supabaseCasos.ObtenerTodosAsync();
             CasosDisponibles = new ObservableCollection<Caso>(casos);
+        }
+
+        private async Task CargarEventosDeHoy()
+        {
+            try
+            {
+                var eventos = await _eventosCitasService.ObtenerEventosCitas();
+                var estados = await _estadosEventosService.ObtenerEstadosEventos();
+                var casos = await _casosService.ObtenerTodosCasosManualAsync();
+
+                var eventosDeHoy = eventos
+                    .Where(e => e.Fecha.Date == DateTime.Today)
+                    .OrderBy(e => e.FechaInicio)
+                    .Select(e => new EventoViewModel
+                    {
+                        Id = e.Id,
+                        Titulo = e.Titulo,
+                        Descripcion = e.Descripcion,
+                        Fecha = e.Fecha,
+                        EstadoNombre = estados.FirstOrDefault(s => s.Id == e.IdEstado)?.Nombre ?? "Sin estado",
+                        EstadoColor = ObtenerColorEstado(estados.FirstOrDefault(s => s.Id == e.IdEstado)?.Nombre),
+                        FechaInicio = e.FechaInicio,
+                        IdCaso = e.IdCaso,
+                        NombreCaso = casos.FirstOrDefault(c => c.id == e.IdCaso)?.titulo ?? "Sin caso"
+                    })
+                    .ToList();
+
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    EventosDeHoy.Clear();
+                    foreach (var evento in eventosDeHoy)
+                    {
+                        EventosDeHoy.Add(evento);
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar los eventos de hoy: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        public class EventoViewModel : INotifyPropertyChanged
+        {
+            public int Id { get; set; }
+            public string Titulo { get; set; }
+            public string Descripcion { get; set; }
+            public DateTime Fecha { get; set; }
+            public string EstadoNombre { get; set; }
+            public string EstadoColor { get; set; }
+            public TimeSpan FechaInicio { get; set; }
+            public int IdCaso { get; set; }
+            public string NombreCaso { get; set; }
+
+            public event PropertyChangedEventHandler PropertyChanged;
+            protected void OnPropertyChanged([CallerMemberName] string name = null)
+                => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

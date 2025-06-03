@@ -841,31 +841,36 @@
                                                 <Border CornerRadius="8" Margin="0,0,0,8" Padding="10"
                                                         Background="{Binding EstadoColor, Converter={StaticResource StringToBrushConverter}}"
                                                         Effect="{StaticResource DropShadowEffect}">
-                                                    <StackPanel>
-                                                        <!-- Título -->
-                                                        <TextBlock Text="{Binding Titulo}" 
-                                                                   FontWeight="Bold" 
-                                                                   FontSize="15"
-                                                                   Foreground="White"
-                                                                   Margin="0,0,0,4"/>
-                                                        <!-- Hora y estado en una fila -->
-                                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
-                                                            <TextBlock Text="{Binding FechaInicio, StringFormat='{}{0:hh\\:mm}'}"
-                                                                       Foreground="White"
-                                                                       FontWeight="SemiBold"
-                                                                       FontSize="13"
-                                                                       Margin="0,0,12,0"/>
-                                                            <TextBlock Text="{Binding EstadoNombre}" 
-                                                                       Foreground="White"
-                                                                       FontWeight="SemiBold"
-                                                                       FontSize="13"/>
-                                                        </StackPanel>
-                                                        <!-- Descripción -->
-                                                        <TextBlock Text="{Binding Descripcion}" 
-                                                                   Foreground="#F0F0F0"
-                                                                   FontSize="12"
-                                                                   TextWrapping="Wrap"/>
-                                                    </StackPanel>
+                                                    <Grid>
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="Auto"/>
+                                                            <RowDefinition Height="Auto"/>
+                                                        </Grid.RowDefinitions>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        
+                                                        <!-- Hora del evento -->
+                                                        <TextBlock Grid.Row="0" Grid.Column="0" 
+                                                                 Text="{Binding FechaInicio, StringFormat='{}{0:hh\\:mm}'}"
+                                                                 Style="{StaticResource PrimaryTextStyle}"
+                                                                 FontWeight="Bold"
+                                                                 Margin="0,0,10,0"/>
+                                                        
+                                                        <!-- Título del evento -->
+                                                        <TextBlock Grid.Row="0" Grid.Column="1"
+                                                                 Text="{Binding Titulo}"
+                                                                 Style="{StaticResource PrimaryTextStyle}"
+                                                                 FontWeight="Bold"/>
+                                                        
+                                                        <!-- Descripción del evento -->
+                                                        <TextBlock Grid.Row="1" Grid.Column="1"
+                                                                 Text="{Binding Descripcion}"
+                                                                 Style="{StaticResource SecondaryTextStyle}"
+                                                                 TextWrapping="Wrap"
+                                                                 Margin="0,5,0,0"/>
+                                                    </Grid>
                                                 </Border>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>

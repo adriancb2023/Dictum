@@ -23,3 +23,7 @@ namespace TFG_V0._01.Supabase
         public static string ServiceRoleKey => _configuration["Supabase:ServiceRoleKey"];
     }
 }
+
+
+// credenciales google IA
+// AIzaSyCrnIeToA1TuahYRsr2jgP0HIvoeeCymUc

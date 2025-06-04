@@ -88,6 +88,26 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
+
+        <!-- Estilo para textos secundarios -->
+        <Style x:Key="SecondaryTextStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource TextSecondaryDark}"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Foreground" Value="{StaticResource TextSecondaryLight}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Gradientes para el fondo del chat -->
+        <LinearGradientBrush x:Key="ChatBackgroundGradientDark" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#1a1a1a" Offset="0"/>
+            <GradientStop Color="#2a2a2a" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="ChatBackgroundGradientLight" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#f0f0f0" Offset="0"/>
+            <GradientStop Color="#e0e0e0" Offset="1"/>
+        </LinearGradientBrush>
     </Window.Resources>
 
     <Grid>
@@ -176,7 +196,21 @@
                     </Border>
 
                     <!-- Área de chat -->
-                    <Border Grid.Row="1" Margin="10,5,10,5" CornerRadius="10" BorderBrush="#CCCCCC" BorderThickness="1" Padding="10">
+                    <Border Grid.Row="1" Margin="10,5,10,5" CornerRadius="10" Padding="10">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Style.Triggers>
+                                    <!-- Modo Oscuro -->
+                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource ChatBackgroundGradientDark}"/>
+                                    </DataTrigger>
+                                    <!-- Modo Claro -->
+                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                        <Setter Property="Background" Value="{StaticResource ChatBackgroundGradientLight}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
                         <ScrollViewer x:Name="ChatScrollViewer" VerticalScrollBarVisibility="Auto">
                             <ItemsControl x:Name="ChatMessages" Margin="0,0">
                                 <ItemsControl.ItemTemplate>
@@ -185,7 +219,23 @@
                                                 Background="{Binding IsUser, Converter={StaticResource BoolToBrushConverter}}"
                                                 HorizontalAlignment="{Binding IsUser, Converter={StaticResource BoolToAlignmentConverter}}"
                                                 MaxWidth="500">
-                                            <TextBlock Text="{Binding Message}" TextWrapping="Wrap" Style="{StaticResource PrimaryTextStyle}" FontSize="16"/>
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="BorderThickness" Value="1"/>
+                                                    <Style.Triggers>
+                                                        <!-- Modo Oscuro -->
+                                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                                                            <Setter Property="BorderBrush" Value="#404040"/> <!-- Borde oscuro en modo oscuro -->
+                                                        </DataTrigger>
+                                                        <!-- Modo Claro -->
+                                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                                            <Setter Property="BorderBrush" Value="#c0c0c0"/> <!-- Borde claro en modo claro -->
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <TextBlock Text="{Binding Message}" TextWrapping="Wrap" Style="{StaticResource PrimaryTextStyle}"
+                                                       FontSize="16"/>
                                         </Border>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>

@@ -106,6 +106,12 @@
                         <TextBlock x:Name="documentos" Visibility="Collapsed" Text="Documentos" VerticalAlignment="Center" Margin="10,0"/>
                     </StackPanel>
                 </Button>
+                <Button x:Name="btnGpt" Margin="10" Style="{StaticResource RoundedButtonStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="Transparent" Click="irGPT">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0">
+                        <Image x:Name="imagenGpt" Source="/TFG V0.01;component/Recursos/Iconos/ia2.png" Width="25" Height="25"/>
+                        <TextBlock x:Name="GPT" Visibility="Collapsed" Text="GPT" VerticalAlignment="Center" Margin="10,0"/>
+                    </StackPanel>
+                </Button>
                 <Button x:Name="btnAjustes" Margin="10" Style="{StaticResource RoundedButtonStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="Transparent" Click="irAjustes" >
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0">
                         <Image x:Name="imagenAjustes2" Source="/TFG V0.01;component/Recursos/Iconos/ajustes.png" Width="25" Height="25"/>

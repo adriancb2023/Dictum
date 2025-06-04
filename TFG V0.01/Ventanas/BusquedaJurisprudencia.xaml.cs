@@ -21,6 +21,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using HtmlAgilityPack; // Added using
 using TFG_V0._01.Supabase;
 using TFG_V0._01.Supabase.Models;
 
@@ -43,7 +44,10 @@ namespace TFG_V0._01.Ventanas
 
         #region Variables API
         private static readonly HttpClient client = new HttpClient();
-        private const string ApiBaseUrl = "http://localhost:5146";
+        // La URL base de la API se puede configurar aquí o en un archivo de configuración
+        private static string ApiBaseUrl = "http://localhost:5146"; // Valor por defecto para desarrollo local
+        // Para producción, cambiar a la URL donde se publique la API
+        // Ejemplo: "https://tu-api-produccion.com"
         private static readonly Dictionary<string, string> TipoOrganoMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             { "Tribunal Supremo", "11|12|13|14|15|16" },
@@ -140,8 +144,8 @@ namespace TFG_V0._01.Ventanas
                // Colores mesh claro
                mesh1Brush.GradientStops[0].Color = (Color)ColorConverter.ConvertFromString("#de9cb8");
                mesh1Brush.GradientStops[1].Color = (Color)ColorConverter.ConvertFromString("#9dcde1");
-               mesh2Brush.GradientStops[0].Color = (Color)ColorConverter.ConvertFromString("#dc8eb8");
-               mesh2Brush.GradientStops[1].Color = (Color)ColorConverter.ConvertFromString("#98d3ec");
+               mesh2Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#dc8eb8"), 0));
+               mesh2Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#98d3ec"), 1));
             }
            
            // Crear nuevos estilos dinámicamente para textos
@@ -554,33 +558,34 @@ namespace TFG_V0._01.Ventanas
             {
                 // Mostrar el overlay
                 OverlayPanel.Visibility = Visibility.Visible;
-                
+
                 // Mostrar el panel
                 WebViewPanel.Visibility = Visibility.Visible;
-                
+
                 // Inicializar WebView2 si es necesario
                 if (DocumentWebView.CoreWebView2 == null)
                 {
                     await DocumentWebView.EnsureCoreWebView2Async();
-                    
+
                     // Configurar el WebView para PDFs
                     DocumentWebView.CoreWebView2.Settings.IsStatusBarEnabled = false;
                     DocumentWebView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
                     DocumentWebView.CoreWebView2.Settings.IsPinchZoomEnabled = true;
                     DocumentWebView.CoreWebView2.Settings.AreBrowserAcceleratorKeysEnabled = false;
-                    
-                    // Configurar el tamaño inicial
-                    // DocumentWebView.Width = WebViewPanel.ActualWidth - 20; // Restar el margen
-                    // DocumentWebView.Height = WebViewPanel.ActualHeight - 50; // Restar el margen y la barra de título
                 }
-                
-                // Cargar la URL del PDF
+
+                // Asegurarse de que el manejador esté suscrito antes de navegar
+                // Primero desuscribir para evitar suscripciones múltiples si MostrarWebView es llamado varias veces
+                DocumentWebView.CoreWebView2.NavigationCompleted -= CoreWebView2_NavigationCompleted;
+                DocumentWebView.CoreWebView2.NavigationCompleted += CoreWebView2_NavigationCompleted;
+
+                // Cargar la URL inicial que contiene la previsualización/enlace de descarga
                 DocumentWebView.CoreWebView2.Navigate(url);
-                
+
                 // Animar la entrada del panel
                 var animation = new DoubleAnimation
                 {
-                    From = 600,
+                    From = 650,
                     To = 0,
                     Duration = TimeSpan.FromMilliseconds(300),
                     EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
@@ -589,9 +594,59 @@ namespace TFG_V0._01.Ventanas
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al cargar el documento: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                // Manejar errores generales (como la inicialización del WebView)
+                MessageBox.Show($"Error al preparar la visualización del documento:\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 CerrarWebView();
             }
+        }
+
+        private async void CoreWebView2_NavigationCompleted(object? sender, CoreWebView2NavigationCompletedEventArgs e)
+        {
+            // Este evento se dispara cuando la navegación se completa (con éxito o error)
+            if (sender is WebView2 webView && e.IsSuccess)
+            {
+                try
+                {
+                    // JavaScript para encontrar el enlace de descarga del PDF por su texto.
+                    // Buscamos un <a> tag que contenga el texto 'descargar la resolución aquí'.
+                    // Nota: El texto exacto puede variar o puede estar dentro de un span/otro elemento.
+                    // Si este selector falla, necesitaremos inspeccionar el HTML de la página.
+                    string script = @"
+                        (function() {
+                            const links = document.querySelectorAll('a');
+                            for (const link of links) {
+                                // Buscar un enlace cuyo texto contenga 'descargar la resolución aquí' (insensible a mayúsculas/minúsculas y espacios)
+                                if (link.textContent.toLowerCase().includes('descargar la resolución aquí'.toLowerCase())) {
+                                    return link.href;
+                                }
+                            }
+                            return null; // No se encontró el enlace
+                        })();";
+
+                    string jsonResult = await webView.CoreWebView2.ExecuteScriptAsync(script);
+
+                    // Deserializar el valor devuelto (una cadena JSON: puede ser "null" o una URL entre comillas)
+                    string? pdfUrl = JsonSerializer.Deserialize<string>(jsonResult);
+
+                    if (!string.IsNullOrEmpty(pdfUrl))
+                    {
+                        // Evitar bucles infinitos al volver a navegar
+                        webView.CoreWebView2.NavigationCompleted -= CoreWebView2_NavigationCompleted;
+
+                        // Navegar directamente al PDF encontrado
+                        // Es importante que la URL sea absoluta. ExecuteScriptAsync(link.href) debería dar la URL absoluta.
+                        webView.CoreWebView2.Navigate(pdfUrl);
+                    }
+                    // Si no se encuentra URL de PDF incrustado, simplemente mostramos la página completa cargada.
+                }
+                catch (Exception scriptEx)
+                {
+                    // Manejar errores al ejecutar el script o deserializar el resultado
+                    MessageBox.Show($"Error al intentar extraer la URL del PDF incrustado:\n{scriptEx.Message}", "Advertencia", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    // Continuar mostrando la página completa si falla la extracción
+                }
+            }
+             // Si la navegación no fue exitosa (e.IsSuccess es false), no intentamos extraer nada.
         }
 
         private void CerrarWebView_Click(object sender, RoutedEventArgs e)

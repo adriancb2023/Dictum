@@ -44,7 +44,10 @@ namespace TFG_V0._01.Ventanas
 
         #region Variables API
         private static readonly HttpClient client = new HttpClient();
-        private const string ApiBaseUrl = "http://localhost:5146";
+        // La URL base de la API se puede configurar aquí o en un archivo de configuración
+        private static string ApiBaseUrl = "http://localhost:5146"; // Valor por defecto para desarrollo local
+        // Para producción, cambiar a la URL donde se publique la API
+        // Ejemplo: "https://tu-api-produccion.com"
         private static readonly Dictionary<string, string> TipoOrganoMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             { "Tribunal Supremo", "11|12|13|14|15|16" },

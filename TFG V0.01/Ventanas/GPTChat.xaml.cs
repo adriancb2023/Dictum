@@ -252,25 +252,19 @@ namespace TFG_V0._01.Ventanas
 
             try
             {
-                // Llamada directa con string, sin Prompt
-                // Si la librería solo tiene método síncrono, usa Task.Run
-                string aiResponse;
-                if (generativeModel.GetType().GetMethod("GenerateContentAsync") != null)
+                // Crear el objeto Content correctamente (usando el constructor adecuado)
+                var content = new Mscc.GenerativeAI.Content(userMessage);
+                var request = new GenerateContentRequest
                 {
-                    // Si existe GenerateContentAsync(string)
-                    dynamic response = await ((dynamic)generativeModel).GenerateContentAsync(userMessage);
-                    aiResponse = response.Text;
-                }
-                else if (generativeModel.GetType().GetMethod("GenerateContent") != null)
-                {
-                    // Si solo existe GenerateContent(string)
-                    dynamic response = await Task.Run(() => ((dynamic)generativeModel).GenerateContent(userMessage));
-                    aiResponse = response.Text;
-                }
-                else
-                {
-                    aiResponse = "No se encontró un método válido en GenerativeModel.";
-                }
+                    Contents = new List<Mscc.GenerativeAI.Content>()
+                };
+                request.Contents.Add(content);
+
+                // Llamar al método correcto (GenerateContent)
+                var response = await generativeModel.GenerateContent(request);
+
+                // Obtener la respuesta de la IA (usando la propiedad Text)
+                var aiResponse = response.Text ?? "Sin respuesta";
 
                 // Agregar respuesta de la IA
                 messages.Add(new ChatMessage { Message = aiResponse, IsUser = false });

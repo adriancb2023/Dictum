@@ -16,7 +16,7 @@
         <SolidColorBrush x:Key="TextSecondaryLight" Color="#666666"/>
 
         <!-- Convertidores -->
-        <local:BoolToBrushConverter x:Key="BoolToBrushConverter"/>
+        <local:BoolToBrushConverter x:Key="BoolToBrushConverter" DarkUserColor="#0078D7" DarkAIMessageColor="#2d2d2d" LightUserColor="#aed6f1" LightAIMessageColor="#e0e0e0"/>
         <local:BoolToAlignmentConverter x:Key="BoolToAlignmentConverter"/>
 
         <!-- Estilo para el botón de cambio de tema -->
@@ -185,7 +185,7 @@
                                                 Background="{Binding IsUser, Converter={StaticResource BoolToBrushConverter}}"
                                                 HorizontalAlignment="{Binding IsUser, Converter={StaticResource BoolToAlignmentConverter}}"
                                                 MaxWidth="500">
-                                            <TextBlock Text="{Binding Message}" TextWrapping="Wrap"/>
+                                            <TextBlock Text="{Binding Message}" TextWrapping="Wrap" Style="{StaticResource PrimaryTextStyle}" FontSize="16"/>
                                         </Border>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
@@ -208,7 +208,8 @@
                                  AcceptsReturn="True"
                                  VerticalScrollBarVisibility="Auto"
                                  MaxHeight="100"
-                                 KeyDown="MessageInput_KeyDown"/>
+                                 KeyDown="MessageInput_KeyDown"
+                                 FontSize="16"/>
 
                         <Button x:Name="SendButton"
                                 Grid.Column="1"

@@ -32,10 +32,25 @@ namespace TFG_V0._01.Ventanas
 
     public class BoolToBrushConverter : IValueConverter
     {
+        public Color DarkUserColor { get; set; }
+        public Color DarkAIMessageColor { get; set; }
+        public Color LightUserColor { get; set; }
+        public Color LightAIMessageColor { get; set; }
+
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             bool isUser = (bool)value;
-            return isUser ? new SolidColorBrush(Color.FromRgb(0, 120, 215)) : new SolidColorBrush(Color.FromRgb(45, 45, 45));
+            // Acceder directamente a la propiedad estática del tema
+            bool isDarkTheme = MainWindow.isDarkTheme;
+
+            if (isUser)
+            {
+                return isDarkTheme ? new SolidColorBrush(DarkUserColor) : new SolidColorBrush(LightUserColor);
+            }
+            else
+            {
+                return isDarkTheme ? new SolidColorBrush(DarkAIMessageColor) : new SolidColorBrush(LightAIMessageColor);
+            }
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

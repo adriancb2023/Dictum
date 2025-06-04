@@ -15,6 +15,9 @@ using System.Windows.Media.Animation;
 using TFG_V0._01.Helpers;
 using System.Collections.ObjectModel;
 using Mscc.GenerativeAI;
+using System.Net.Http;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace TFG_V0._01.Ventanas
 {
@@ -55,6 +58,49 @@ namespace TFG_V0._01.Ventanas
         }
     }
 
+    // Clases para la API de LM Studio (compatible con OpenAI)
+    public class LmStudioChatCompletionRequest
+    {
+        [JsonPropertyName("model")]
+        public string Model { get; set; } = "local-model"; // Puedes ajustar esto si LM Studio usa otro nombre
+
+        [JsonPropertyName("messages")]
+        public List<LmStudioMessage> Messages { get; set; }
+
+        [JsonPropertyName("temperature")]
+        public double Temperature { get; set; } = 0.7;
+    }
+
+    public class LmStudioMessage
+    {
+        [JsonPropertyName("role")]
+        public string Role { get; set; }
+
+        [JsonPropertyName("content")]
+        public string Content { get; set; }
+    }
+
+    public class LmStudioChatCompletionResponse
+    {
+        [JsonPropertyName("choices")]
+        public List<LmStudioChoice> Choices { get; set; }
+    }
+
+    public class LmStudioChoice
+    {
+        [JsonPropertyName("message")]
+        public LmStudioMessageResponse Message { get; set; }
+    }
+
+    public class LmStudioMessageResponse
+    {
+        [JsonPropertyName("role")]
+        public string Role { get; set; }
+
+        [JsonPropertyName("content")]
+        public string Content { get; set; }
+    }
+
     public partial class GPTChat : Window
     {
         private static Storyboard meshAnimStoryboard;
@@ -64,6 +110,8 @@ namespace TFG_V0._01.Ventanas
         private readonly string API_KEY = "AIzaSyCrnIeToA1TuahYRsr2jgP0HIvoeeCymUc";
         private readonly ObservableCollection<ChatMessage> messages;
         private GenerativeModel? generativeModel;
+        private readonly HttpClient httpClient;
+        private const string LM_STUDIO_ENDPOINT = "http://localhost:1234/v1/chat/completions";
 
         static GPTChat()
         {
@@ -80,6 +128,9 @@ namespace TFG_V0._01.Ventanas
             // Inicializar colección de mensajes
             messages = new ObservableCollection<ChatMessage>();
             ChatMessages.ItemsSource = messages;
+
+            // Inicializar cliente HTTP para LM Studio
+            httpClient = new HttpClient();
 
             // Configurar cliente de Google AI
             try
@@ -241,8 +292,8 @@ namespace TFG_V0._01.Ventanas
 
         private async Task SendMessage()
         {
-            if (string.IsNullOrWhiteSpace(MessageInput.Text) || generativeModel == null)
-                return;
+            if (string.IsNullOrWhiteSpace(MessageInput.Text))
+                return; // Solo retorna si el input está vacío, no si generativeModel es null (permitimos LM Studio)
 
             var userMessage = MessageInput.Text;
             MessageInput.Clear();
@@ -250,32 +301,100 @@ namespace TFG_V0._01.Ventanas
             // Agregar mensaje del usuario
             messages.Add(new ChatMessage { Message = userMessage, IsUser = true });
 
+            string aiResponse = "Error al obtener respuesta.";
+
             try
             {
-                // Crear el objeto Content correctamente (usando el constructor adecuado)
-                var content = new Mscc.GenerativeAI.Content(userMessage);
-                var request = new GenerateContentRequest
+                // Verificar el estado del switch para decidir qué API usar
+                if (ModelSwitch.IsChecked == true) // Usar LM Studio
                 {
-                    Contents = new List<Mscc.GenerativeAI.Content>()
-                };
-                request.Contents.Add(content);
+                    if (httpClient == null)
+                    {
+                        aiResponse = "Error: HttpClient no inicializado para LM Studio.";
+                    }
+                    else
+                    {
+                        var lmStudioRequest = new LmStudioChatCompletionRequest
+                        {
+                            Messages = new List<LmStudioMessage>
+                            {
+                                new LmStudioMessage { Role = "user", Content = userMessage }
+                            }
+                        };
 
-                // Llamar al método correcto (GenerateContent)
-                var response = await generativeModel.GenerateContent(request);
+                        var jsonRequest = JsonSerializer.Serialize(lmStudioRequest);
+                        var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
 
-                // Obtener la respuesta de la IA (usando la propiedad Text)
-                var aiResponse = response.Text ?? "Sin respuesta";
+                        var response = await httpClient.PostAsync(LM_STUDIO_ENDPOINT, content);
+                        response.EnsureSuccessStatusCode(); // Lanza excepción para códigos de error HTTP
 
-                // Agregar respuesta de la IA
-                messages.Add(new ChatMessage { Message = aiResponse, IsUser = false });
+                        var jsonResponse = await response.Content.ReadAsStringAsync();
+                        var lmStudioResponse = JsonSerializer.Deserialize<LmStudioChatCompletionResponse>(jsonResponse);
+
+                        if (lmStudioResponse?.Choices != null && lmStudioResponse.Choices.Any())
+                        {
+                            aiResponse = lmStudioResponse.Choices[0].Message.Content;
+                        }
+                        else
+                        {
+                            aiResponse = "No se recibió una respuesta válida de LM Studio.";
+                        }
+                    }
+                }
+                else // Usar Google IA
+                {
+                    if (generativeModel == null)
+                    {
+                        aiResponse = "Error: Google AI no inicializado.";
+                    }
+                    else
+                    {
+                        // Usar el método correcto para generar contenido
+                        var response = await generativeModel.GenerateContent(new GenerateContentRequest
+                        {
+                            Contents = new List<Mscc.GenerativeAI.Content>
+    {
+        new Mscc.GenerativeAI.Content(userMessage)
+    }
+                        });
+
+                        if (response?.Candidates != null && response.Candidates.Any())
+                        {
+                            aiResponse = response.Candidates[0].Content?.Parts?.FirstOrDefault()?.Text ?? "Sin respuesta de Google IA.";
+                        }
+                        else
+                        {
+                            aiResponse = "No se recibió una respuesta válida de Google IA.";
+                        }
+                    }
+                }
+            }
+            catch (HttpRequestException httpEx)
+            {
+                aiResponse = $"Error de conexión con LM Studio: {httpEx.Message}";
             }
             catch (Exception ex)
             {
-                messages.Add(new ChatMessage { Message = $"Error: {ex.Message}", IsUser = false });
+                aiResponse = $"Error: {ex.Message}";
             }
+
+            // Agregar respuesta de la IA
+            messages.Add(new ChatMessage { Message = aiResponse, IsUser = false });
 
             // Scroll al último mensaje
             ChatScrollViewer.ScrollToBottom();
+        }
+
+        private void ModelSwitch_Checked(object sender, RoutedEventArgs e)
+        {
+            // Lógica para usar LM Studio
+            System.Diagnostics.Debug.WriteLine("Switch: Usando LM Studio");
+        }
+
+        private void ModelSwitch_Unchecked(object sender, RoutedEventArgs e)
+        {
+            // Lógica para usar Google IA
+            System.Diagnostics.Debug.WriteLine("Switch: Usando Google IA");
         }
     }
 }

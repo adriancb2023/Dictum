@@ -288,7 +288,7 @@ namespace TFG_V0._01.Ventanas
         {
             _paginaActual = 1; // Resetear a la primera página para una nueva búsqueda
             ResultadosBusqueda.Clear(); // Limpiar resultados anteriores
-            CargarMasButton.Visibility = Visibility.Collapsed; // Ocultar botón al iniciar nueva búsqueda
+            btnCargarMas.Visibility = Visibility.Collapsed; // Ocultar botón al iniciar nueva búsqueda
 
             _lastSearchParameters = GetSearchParametersFromUI(); // Guardar los parámetros actuales
             _lastSearchParameters.PaginaActual = _paginaActual;
@@ -314,8 +314,8 @@ namespace TFG_V0._01.Ventanas
 
             _isLoading = true;
             // Opcional: Deshabilitar botones para evitar clics múltiples
-            BuscarButton.IsEnabled = false;
-            CargarMasButton.IsEnabled = false;
+            btnBuscar.IsEnabled = false;
+            btnCargarMas.IsEnabled = false;
             // Opcional: Mostrar un indicador de carga
             // ResultadosTextBlock.Text = "Cargando..."; 
             // ResultadosTextBlock.Visibility = Visibility.Visible;
@@ -340,11 +340,11 @@ namespace TFG_V0._01.Ventanas
                             ResultadosBusqueda.Add(result);
                         }
                         // Mostrar el botón "Cargar Más" si la API devolvió el número completo de registros esperados
-                        CargarMasButton.Visibility = nuevosResultados.Count == RegistrosPorPaginaConst ? Visibility.Visible : Visibility.Collapsed;
+                        btnCargarMas.Visibility = nuevosResultados.Count == RegistrosPorPaginaConst ? Visibility.Visible : Visibility.Collapsed;
                     }
                     else
                     {
-                        CargarMasButton.Visibility = Visibility.Collapsed; // No hay más resultados
+                        btnCargarMas.Visibility = Visibility.Collapsed; // No hay más resultados
                         if (esCargaAdicional)
                         {
                             MessageBox.Show("No hay más resultados para cargar.", "Fin de los resultados", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -357,32 +357,32 @@ namespace TFG_V0._01.Ventanas
                     string errorContent = await response.Content.ReadAsStringAsync();
                     string errorMsg = $"Error al buscar: {response.StatusCode}\n{errorContent}";
                     MessageBox.Show(errorMsg, "Error API", MessageBoxButton.OK, MessageBoxImage.Error);
-                    CargarMasButton.Visibility = Visibility.Collapsed;
+                    btnCargarMas.Visibility = Visibility.Collapsed;
                 }
             }
             catch (HttpRequestException httpEx)
             {
                 string errorMsg = $"Error de conexión: Verifique que la API ({ApiBaseUrl}) esté ejecutándose.\n{httpEx.Message}";
                 MessageBox.Show(errorMsg, "Error Conexión", MessageBoxButton.OK, MessageBoxImage.Error);
-                CargarMasButton.Visibility = Visibility.Collapsed;
+                btnCargarMas.Visibility = Visibility.Collapsed;
             }
             catch (JsonException jsonEx)
             {
                 string errorMsg = "Error al procesar la respuesta de la API:\n" + jsonEx.Message;
                 MessageBox.Show(errorMsg, "Error Deserialización", MessageBoxButton.OK, MessageBoxImage.Error);
-                CargarMasButton.Visibility = Visibility.Collapsed;
+                btnCargarMas.Visibility = Visibility.Collapsed;
             }
             catch (Exception ex)
             {
                 string errorMsg = "Ocurrió un error inesperado:\n" + ex.Message;
                 MessageBox.Show(errorMsg, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                CargarMasButton.Visibility = Visibility.Collapsed;
+                btnCargarMas.Visibility = Visibility.Collapsed;
             }
             finally
             {
                 _isLoading = false;
-                BuscarButton.IsEnabled = true;
-                CargarMasButton.IsEnabled = true;
+                btnBuscar.IsEnabled = true;
+                btnCargarMas.IsEnabled = true;
                 // Opcional: Ocultar indicador de carga
                 // if (ResultadosBusqueda.Any()) ResultadosTextBlock.Visibility = Visibility.Collapsed;
             }
@@ -466,28 +466,15 @@ namespace TFG_V0._01.Ventanas
         public BusquedaJurisprudencia()
         {
             InitializeComponent();
-            ResultadosBusqueda = new ObservableCollection<JurisprudenciaResult>(); // Inicializa la colección
-            this.DataContext = this; // Establece el DataContext para que los bindings del XAML funcionen
-
-            // Inicializar brushes para el mesh gradient
+            ResultadosBusqueda = new ObservableCollection<JurisprudenciaResult>();
+            DataContext = this;
+            LimpiarCommand = new RelayCommand(EjecutarLimpiarFormulario);
+            CargarIdioma(MainWindow.idioma);
+            InitializeAnimations();
             CrearFondoAnimado();
             IniciarAnimacionMesh();
-
-            InitializeAnimations();
             AplicarModoSistema();
-
-            if (client.BaseAddress == null)
-            {
-                client.BaseAddress = new Uri(ApiBaseUrl);
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            }
-
-            // Cargar datos iniciales
-            _ = CargarDatosInicialesAsync();
-
-            // Inicializar comandos
-            LimpiarCommand = new RelayCommand(EjecutarLimpiarFormulario);
+            CargarDatosInicialesAsync();
         }
 
         #region Limpiar Formulario Command
@@ -523,8 +510,7 @@ namespace TFG_V0._01.Ventanas
 
             // Limpiar resultados de búsqueda
             ResultadosBusqueda.Clear();
-            _paginaActual = 1; // Resetear paginación
-            CargarMasButton.Visibility = Visibility.Collapsed; // Ocultar botón de cargar más
+            btnCargarMas.Visibility = Visibility.Collapsed; // Ocultar botón de cargar más
         }
 
         #endregion
@@ -774,5 +760,99 @@ namespace TFG_V0._01.Ventanas
         }
 
         #endregion
+
+        private void CargarIdioma(int idioma)
+        {
+            var idiomas = new (string TituloPrincipal, string Filtros, string Jurisdiccion, string TipoResolucion, 
+                string OrganoJudicial, string Seccion, string Localizacion, string NumeroRoj, string Ecli,
+                string NumeroResolucion, string NumeroRecurso, string FechaDesde, string FechaHasta,
+                string Ponente, string Idioma, string Legislacion, string Resultados, string Limpiar,
+                string Buscar, string CargarMas, string MensajeResultados)[]
+            {
+                ("Buscar Jurisprudencias", "Filtros", "Jurisdicción", "Tipo de resolución", 
+                "Órgano judicial", "Sección", "Localización", "Nº ROJ", "ECLI",
+                "Nº Resolución", "Nº Recurso", "Fecha desde", "Fecha hasta",
+                "Ponente", "Idioma", "Legislación", "Resultados", "Limpiar",
+                "Buscar", "Cargar Más Resultados", "(Aquí aparecerán los resultados de la búsqueda)"),
+                
+                ("Search Jurisprudence", "Filters", "Jurisdiction", "Resolution Type", 
+                "Judicial Body", "Section", "Location", "ROJ No.", "ECLI",
+                "Resolution No.", "Appeal No.", "Date from", "Date to",
+                "Judge", "Language", "Legislation", "Results", "Clear",
+                "Search", "Load More Results", "(Search results will appear here)"),
+                
+                ("Cercar Jurisprudència", "Filtres", "Jurisdicció", "Tipus de resolució", 
+                "Òrgan judicial", "Secció", "Localització", "Nº ROJ", "ECLI",
+                "Nº Resolució", "Nº Recurs", "Data des de", "Data fins",
+                "Ponent", "Idioma", "Legislació", "Resultats", "Netejar",
+                "Cercar", "Carregar Més Resultats", "(Aquí apareixeran els resultats de la cerca)"),
+                
+                ("Buscar Xurisprudencia", "Filtros", "Xurisdición", "Tipo de resolución", 
+                "Órgano xudicial", "Sección", "Localización", "Nº ROJ", "ECLI",
+                "Nº Resolución", "Nº Recurso", "Data desde", "Data ata",
+                "Ponente", "Idioma", "Lexislación", "Resultados", "Limpar",
+                "Buscar", "Cargar Máis Resultados", "(Aquí aparecerán os resultados da busca)"),
+                
+                ("Jurisprudentzia Bilatu", "Iragazkiak", "Jurisdikzioa", "Erabaki Mota", 
+                "Auzitegi Organoa", "Atala", "Kokalekua", "ROJ Zbk.", "ECLI",
+                "Erabaki Zbk.", "Errekurtso Zbk.", "Data-tik", "Data-ra",
+                "Erabakilea", "Hizkuntza", "Legegintza", "Emaitzak", "Garbitu",
+                "Bilatu", "Emaitza Gehiago Kargatu", "(Bilaketaren emaitzak hemen agertuko dira)")
+            };
+
+            if (idioma < 0 || idioma >= idiomas.Length)
+                idioma = 0;
+
+            var t = idiomas[idioma];
+
+            // Actualizar textos principales
+            txtTituloPrincipal.Text = t.TituloPrincipal;
+            txtTituloFiltros.Text = t.Filtros;
+            txtTituloResultados.Text = t.Resultados;
+
+            // Actualizar etiquetas de filtros
+            txtLabelJurisdiccion.Text = t.Jurisdiccion;
+            txtLabelTipoResolucion.Text = t.TipoResolucion;
+            txtLabelOrganoJudicial.Text = t.OrganoJudicial;
+            txtLabelSeccion.Text = t.Seccion;
+            txtLabelLocalizacion.Text = t.Localizacion;
+            txtLabelNumeroRoj.Text = t.NumeroRoj;
+            txtLabelEcli.Text = t.Ecli;
+            txtLabelNumeroResolucion.Text = t.NumeroResolucion;
+            txtLabelNumeroRecurso.Text = t.NumeroRecurso;
+            txtLabelFechaDesde.Text = t.FechaDesde;
+            txtLabelFechaHasta.Text = t.FechaHasta;
+            txtLabelPonente.Text = t.Ponente;
+            txtLabelIdioma.Text = t.Idioma;
+            txtLabelLegislacion.Text = t.Legislacion;
+
+            // Actualizar textos de botones
+            btnLimpiar.Content = t.Limpiar;
+            btnBuscar.Content = t.Buscar;
+            btnCargarMas.Content = t.CargarMas;
+
+            // Actualizar mensaje de resultados
+            txtMensajeResultados.Text = t.MensajeResultados;
+
+            // Actualizar items del ComboBox de idiomas
+            var idiomaItems = new[] { "Todos", "Español", "Català", "Galego", "Euskera" };
+            if (idioma > 0)
+            {
+                idiomaItems = new[] { "All", "Spanish", "Catalan", "Galician", "Basque" };
+                if (idioma == 2) // Catalán
+                    idiomaItems = new[] { "Tots", "Espanyol", "Català", "Gallec", "Basc" };
+                else if (idioma == 3) // Gallego
+                    idiomaItems = new[] { "Todos", "Español", "Catalán", "Galego", "Éuscaro" };
+                else if (idioma == 4) // Euskera
+                    idiomaItems = new[] { "Guztiak", "Gaztelania", "Katalana", "Galiziera", "Euskara" };
+            }
+
+            IdiomaComboBox.Items.Clear();
+            foreach (var item in idiomaItems)
+            {
+                IdiomaComboBox.Items.Add(new ComboBoxItem { Content = item });
+            }
+            IdiomaComboBox.SelectedIndex = 0;
+        }
     }
 }

@@ -509,7 +509,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <TextBlock Text="Buscar Jurisprudencias" FontSize="24" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,20" />
+            <TextBlock x:Name="txtTituloPrincipal" Text="Buscar Jurisprudencias" FontSize="24" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,20" />
             <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="2*"/>
@@ -519,7 +519,7 @@
                 <Border Style="{StaticResource CardStyle}" Grid.Column="0" Margin="10" VerticalAlignment="Stretch">
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                         <StackPanel>
-                            <TextBlock Text="Filtros" FontSize="18" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,10" />
+                            <TextBlock x:Name="txtTituloFiltros" Text="Filtros" FontSize="18" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,10" />
                             <Separator Margin="0,10,0,10"/>
 
                             <Grid>
@@ -529,7 +529,7 @@
                                 </Grid.ColumnDefinitions>
 
                                 <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                                    <TextBlock Text="Jurisdicción" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
+                                    <TextBlock x:Name="txtLabelJurisdiccion" Text="Jurisdicción" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
                                     <ComboBox x:Name="JurisdiccionComboBox" 
                                               ItemsSource="{Binding Jurisdicciones}" 
                                               SelectedItem="{Binding JurisdiccionSeleccionada, UpdateSourceTrigger=PropertyChanged}" 
@@ -537,7 +537,7 @@
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="1">
-                                    <TextBlock Text="Tipo de resolución" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
+                                    <TextBlock x:Name="txtLabelTipoResolucion" Text="Tipo de resolución" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
                                     <ComboBox x:Name="TipoResolucionComboBox" 
                                               ItemsSource="{Binding TiposResolucion}" 
                                               SelectedItem="{Binding TipoResolucionSeleccionada, UpdateSourceTrigger=PropertyChanged}" 
@@ -553,7 +553,7 @@
                                 </Grid.ColumnDefinitions>
 
                                 <StackPanel Grid.Column="0">
-                                    <TextBlock Text="Órgano judicial" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
+                                    <TextBlock x:Name="txtLabelOrganoJudicial" Text="Órgano judicial" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
                                     <ComboBox x:Name="OrganoJudicialComboBox" 
                                               ItemsSource="{Binding OrganosJudiciales}" 
                                               SelectedItem="{Binding OrganoJudicialSeleccionado, UpdateSourceTrigger=PropertyChanged}" 
@@ -562,13 +562,11 @@
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                    <TextBlock Text="Sección" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
+                                    <TextBlock x:Name="txtLabelSeccion" Text="Sección" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
                                     <TextBox x:Name="SeccionTextBox" Text="{Binding Seccion, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedTextBoxStyle}" Height="35" />
                                 </StackPanel>
-                                
-                                
                             </Grid>
-                            <TextBlock Text="Localización" FontWeight="Bold" Margin="0,10,0,0" Style="{StaticResource SecondaryTextStyle}" />
+                            <TextBlock x:Name="txtLabelLocalizacion" Text="Localización" FontWeight="Bold" Margin="0,10,0,0" Style="{StaticResource SecondaryTextStyle}" />
                             <Grid>
                                 <ComboBox x:Name="LocalizacionComboBox" 
                                           ItemsSource="{Binding Localizaciones}" 
@@ -585,12 +583,12 @@
                                 </Grid.ColumnDefinitions>
 
                                 <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                                    <TextBlock Text="Nº ROJ" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
+                                    <TextBlock x:Name="txtLabelNumeroRoj" Text="Nº ROJ" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
                                     <TextBox x:Name="NumeroRojTextBox" Text="{Binding NumeroRoj, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedTextBoxStyle}" Height="35" VerticalContentAlignment="Center"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="1">
-                                    <TextBlock Text="ECLI" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
+                                    <TextBlock x:Name="txtLabelEcli" Text="ECLI" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
                                     <TextBox x:Name="EcliTextBox" Text="{Binding Ecli, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedTextBoxStyle}" Height="35" VerticalContentAlignment="Center"/>
                                 </StackPanel>
                             </Grid>
@@ -602,33 +600,31 @@
                                 </Grid.ColumnDefinitions>
 
                                 <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                                    <TextBlock Text="Nº Resolución" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
+                                    <TextBlock x:Name="txtLabelNumeroResolucion" Text="Nº Resolución" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
                                     <TextBox x:Name="NumeroResolucionTextBox" Text="{Binding NumeroResolucion, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedTextBoxStyle}" Height="35" VerticalContentAlignment="Center"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="1">
-                                    <TextBlock Text="Nº Recurso" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
+                                    <TextBlock x:Name="txtLabelNumeroRecurso" Text="Nº Recurso" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
                                     <TextBox x:Name="NumeroRecursoTextBox" Text="{Binding NumeroRecurso, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedTextBoxStyle}" Height="35" VerticalContentAlignment="Center"/>
                                 </StackPanel>
                             </Grid>
 
                             <Grid Margin="0,10,0,0">
-
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
 
                                 <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                                    <TextBlock Text="Fecha desde" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
+                                    <TextBlock x:Name="txtLabelFechaDesde" Text="Fecha desde" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
                                     <DatePicker x:Name="FechaDesdeDatePicker" SelectedDate="{Binding FechaDesde, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedDatePickerStyle}" />
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="1">
-                                    <TextBlock Text="Fecha hasta" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
+                                    <TextBlock x:Name="txtLabelFechaHasta" Text="Fecha hasta" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
                                     <DatePicker x:Name="FechaHastaDatePicker" SelectedDate="{Binding FechaHasta, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedDatePickerStyle}" />
                                 </StackPanel>
-                                
                             </Grid>
 
                             <Separator Margin="0,10,0,10"/>
@@ -640,12 +636,12 @@
                                 </Grid.ColumnDefinitions>
 
                                 <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                                    <TextBlock Text="Ponente" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
+                                    <TextBlock x:Name="txtLabelPonente" Text="Ponente" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
                                     <TextBox x:Name="PonenteTextBox" Text="{Binding Ponente, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedTextBoxStyle}" Height="35" VerticalContentAlignment="Center"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="1">
-                                    <TextBlock Text="Idioma" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
+                                    <TextBlock x:Name="txtLabelIdioma" Text="Idioma" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
                                     <ComboBox x:Name="IdiomaComboBox" SelectedItem="{Binding IdiomaSeleccionado, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedComboBoxStyle}">
                                         <ComboBoxItem Content="Todos"/>
                                         <ComboBoxItem Content="Español"/>
@@ -665,17 +661,16 @@
                                 </Grid.ColumnDefinitions>
 
                                 <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                                    <TextBlock Text="Legislación" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
+                                    <TextBlock x:Name="txtLabelLegislacion" Text="Legislación" FontWeight="Bold" Style="{StaticResource SecondaryTextStyle}" />
                                     <TextBox x:Name="LegislacionTextBox" Text="{Binding Legislacion, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True" PreviewMouseLeftButtonUp="LegislacionTextBox_PreviewMouseLeftButtonUp" Style="{StaticResource RoundedTextBoxStyle}" Height="35" VerticalContentAlignment="Center"/>
-
                                 </StackPanel>
                             </Grid>
 
                             <Separator Margin="0,10,0,10"/>
 
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
-                                <Button x:Name="LimpiarButton" Content="Limpiar" Style="{StaticResource RoundedButtonStyle}" Padding="10,5" Margin="0,0,10,0" Command="{Binding LimpiarCommand}" Width="100"/>
-                                <Button x:Name="BuscarButton" Click="BuscarButton_Click" Content="Buscar" Style="{StaticResource RoundedButtonStyle}" Background="#2563EB" Foreground="White" Padding="10,5" Width="100"/>
+                                <Button x:Name="btnLimpiar" Content="Limpiar" Style="{StaticResource RoundedButtonStyle}" Padding="10,5" Margin="0,0,10,0" Command="{Binding LimpiarCommand}" Width="100"/>
+                                <Button x:Name="btnBuscar" Click="BuscarButton_Click" Content="Buscar" Style="{StaticResource RoundedButtonStyle}" Background="#2563EB" Foreground="White" Padding="10,5" Width="100"/>
                             </StackPanel>
                         </StackPanel>
                     </ScrollViewer>
@@ -689,7 +684,7 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                        <TextBlock Text="Resultados" FontSize="18" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,10" Grid.Row="0"/>
+                        <TextBlock x:Name="txtTituloResultados" Text="Resultados" FontSize="18" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,10" Grid.Row="0"/>
 
                         <ListBox x:Name="ResultadosListBox" Grid.Row="1" 
                                  ItemsSource="{Binding ResultadosBusqueda}" 
@@ -783,7 +778,7 @@
                             </ListBox.ItemTemplate>
                         </ListBox>
 
-                        <Button x:Name="CargarMasButton" Content="Cargar Más Resultados" 
+                        <Button x:Name="btnCargarMas" Content="Cargar Más Resultados" 
                                 Grid.Row="2" 
                                 Style="{StaticResource RoundedButtonStyle}" 
                                 Background="#FF5A8DEE" Foreground="White" 
@@ -792,7 +787,7 @@
                                 Click="CargarMasButton_Click"
                                 Visibility="Collapsed"/>
 
-                        <TextBlock x:Name="ResultadosTextBlock" 
+                        <TextBlock x:Name="txtMensajeResultados" 
                                    Text="(Aquí aparecerán los resultados de la búsqueda)" 
                                    FontStyle="Italic" Margin="10" TextWrapping="Wrap"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"

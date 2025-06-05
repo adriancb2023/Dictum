@@ -19,7 +19,53 @@ namespace TFG_V0._01.Ventanas.SubVentanas
         {
             InitializeComponent();
             _supabaseClientes = new SupabaseClientes();
+            CargarIdioma(MainWindow.idioma);
             Loaded += AñadirClienteWindow_Loaded;
+        }
+
+        private void CargarIdioma(int idioma)
+        {
+            var idiomas = new (string Titulo, string Nombre, string Apellido1, string Apellido2, string DNI, 
+                string Telefono, string Telefono2, string Email, string Email2, string Direccion, 
+                string FechaContrato, string Cancelar, string Guardar)[]
+            {
+                ("Añadir Nuevo Cliente", "Nombre:", "Primer Apellido:", "Segundo Apellido:", "DNI:", 
+                "Teléfono:", "Segundo Teléfono (Opcional):", "Email:", "Segundo Email (Opcional):", "Dirección:", 
+                "Fecha de Contrato:", "Cancelar", "Guardar"),
+                ("Add New Client", "Name:", "First Surname:", "Second Surname:", "ID Number:", 
+                "Phone:", "Second Phone (Optional):", "Email:", "Second Email (Optional):", "Address:", 
+                "Contract Date:", "Cancel", "Save"),
+                ("Afegir Nou Client", "Nom:", "Primer Cognom:", "Segon Cognom:", "DNI:", 
+                "Telèfon:", "Segon Telèfon (Opcional):", "Correu:", "Segon Correu (Opcional):", "Adreça:", 
+                "Data de Contracte:", "Cancel·lar", "Guardar"),
+                ("Engadir Novo Cliente", "Nome:", "Primeiro Apelido:", "Segundo Apelido:", "DNI:", 
+                "Teléfono:", "Segundo Teléfono (Opcional):", "Correo:", "Segundo Correo (Opcional):", "Dirección:", 
+                "Data de Contrato:", "Cancelar", "Gardar"),
+                ("Bezero Berria Gehitu", "Izena:", "Lehen Abizena:", "Bigarren Abizena:", "NAN:", 
+                "Telefonoa:", "Bigarren Telefonoa (Aukerakoa):", "Posta:", "Bigarren Posta (Aukerakoa):", "Helbidea:", 
+                "Kontratu Data:", "Utzi", "Gorde")
+            };
+
+            if (idioma < 0 || idioma >= idiomas.Length)
+                idioma = 0;
+
+            var t = idiomas[idioma];
+
+            txtTitulo.Text = t.Titulo;
+            txtLabelNombre.Text = t.Nombre;
+            txtLabelApellido1.Text = t.Apellido1;
+            txtLabelApellido2.Text = t.Apellido2;
+            txtLabelDNI.Text = t.DNI;
+            txtLabelTelefono.Text = t.Telefono;
+            txtLabelTelefono2.Text = t.Telefono2;
+            txtLabelEmail.Text = t.Email;
+            txtLabelEmail2.Text = t.Email2;
+            txtLabelDireccion.Text = t.Direccion;
+            txtLabelFechaContrato.Text = t.FechaContrato;
+
+            // Actualizar textos de los botones directamente
+            btnCancelar.Content = t.Cancelar;
+            btnGuardar.Content = t.Guardar;
         }
 
         private void AñadirClienteWindow_Loaded(object sender, RoutedEventArgs e)

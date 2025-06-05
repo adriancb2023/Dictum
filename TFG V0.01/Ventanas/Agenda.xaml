@@ -636,7 +636,7 @@
             </Grid.RowDefinitions>
 
             <!-- Header -->
-            <TextBlock Text="Agenda" Style="{StaticResource PrimaryTextStyle}" FontSize="24" FontWeight="Bold" Margin="0,0,0,20"/>
+            <TextBlock x:Name="txtHeaderAgenda" Text="Agenda" Style="{StaticResource PrimaryTextStyle}" FontSize="24" FontWeight="Bold" Margin="0,0,0,20"/>
 
             <!-- Contenido de la agenda -->
             <Grid Grid.Row="1">
@@ -660,7 +660,7 @@
                         <!-- Lista de eventos del día seleccionado -->
                         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                             <StackPanel>
-                                <TextBlock Text="Eventos del día seleccionado" Style="{StaticResource PrimaryTextStyle}" FontSize="18" FontWeight="Bold" Margin="0,0,0,15"/>
+                                <TextBlock x:Name="txtTituloEventosDia" Text="Eventos del día seleccionado" Style="{StaticResource PrimaryTextStyle}" FontSize="18" FontWeight="Bold" Margin="0,0,0,15"/>
                                 <ListView x:Name="EventosDelDiaList" ItemsSource="{Binding EventosDelDia, RelativeSource={RelativeSource AncestorType=Window}}" Background="Transparent" BorderThickness="0" HorizontalAlignment="Stretch">
                                     <ListView.ItemContainerStyle>
                                         <Style TargetType="ListViewItem">
@@ -714,7 +714,7 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
-                        <TextBlock Text="Eventos de Hoy" Style="{StaticResource PrimaryTextStyle}" FontSize="18" FontWeight="Bold" Margin="0,0,0,15"/>
+                        <TextBlock x:Name="txtTituloEventosHoy" Text="Eventos de Hoy" Style="{StaticResource PrimaryTextStyle}" FontSize="18" FontWeight="Bold" Margin="0,0,0,15"/>
                         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                             <StackPanel>
                                 <ListView x:Name="EventosDeHoyList" ItemsSource="{Binding EventosDeHoy, RelativeSource={RelativeSource AncestorType=Window}}" Background="Transparent" BorderThickness="0" HorizontalAlignment="Stretch">
@@ -771,7 +771,7 @@
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
-                        <TextBlock Text="Contactos" Style="{StaticResource PrimaryTextStyle}" FontSize="18" FontWeight="Bold" Margin="0,0,0,15"/>
+                        <TextBlock x:Name="txtTituloContactos" Text="Contactos" Style="{StaticResource PrimaryTextStyle}" FontSize="18" FontWeight="Bold" Margin="0,0,0,15"/>
                         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                             <StackPanel>
                                 <ListView x:Name="ContactosList" 
@@ -837,7 +837,7 @@
                                 </ListView>
                             </StackPanel>
                         </ScrollViewer>
-                        <Button Grid.Row="2" Content="Nuevo Contacto" Style="{StaticResource RoundedButtonStyle}" Margin="0,15,0,0" Click="NuevoContactoButton_Click"/>
+                        <Button x:Name="btnNuevoContacto" Grid.Row="2" Content="Nuevo Contacto" Style="{StaticResource RoundedButtonStyle}" Margin="0,15,0,0" Click="NuevoContactoButton_Click"/>
                     </Grid>
                 </Border>
             </Grid>
@@ -876,7 +876,7 @@
 
                 <!-- Header del panel -->
                 <Grid Grid.Row="0" Height="60">
-                    <TextBlock Text="Nuevo Evento" 
+                    <TextBlock x:Name="txtPanelNuevoEventoTitulo" Text="Nuevo Evento" 
                               Style="{StaticResource SlidePanelContentStyle}" 
                               FontSize="20" 
                               FontWeight="Bold" 
@@ -887,7 +887,7 @@
                 <!-- Contenido del formulario -->
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Height="696">
                     <StackPanel Margin="20">
-                        <TextBlock Text="Título" 
+                        <TextBlock x:Name="txtLabelEventTitle" Text="Título" 
                                    Style="{StaticResource PrimaryTextStyle}" 
                                    FontWeight="SemiBold" 
                                    FontSize="15" 
@@ -898,7 +898,7 @@
                                 FontSize="10" 
                                 Margin="0,0,0,20"/>
 
-                        <TextBlock Text="Descripción" 
+                        <TextBlock x:Name="txtLabelEventDescription" Text="Descripción" 
                                    Style="{StaticResource PrimaryTextStyle}" 
                                    FontWeight="SemiBold" 
                                    FontSize="10" 
@@ -910,7 +910,7 @@
                                 AcceptsReturn="True" 
                                 Margin="0,0,0,20"/>
 
-                        <TextBlock Text="Hora y minutos" 
+                        <TextBlock x:Name="txtLabelEventTime" Text="Hora y minutos" 
                                    Style="{StaticResource PrimaryTextStyle}" 
                                    FontWeight="SemiBold" 
                                    FontSize="15" 
@@ -919,7 +919,7 @@
                                                  Margin="0,0,0,20" 
                                                  Height="32"/>
 
-                        <TextBlock Text="Estado" 
+                        <TextBlock x:Name="txtLabelEventStatus" Text="Estado" 
                                    Style="{StaticResource PrimaryTextStyle}" 
                                    FontWeight="SemiBold" 
                                    FontSize="15" 
@@ -932,7 +932,7 @@
                                  Height="35"
                                  FontSize="10"/>
 
-                        <TextBlock Text="Caso" 
+                        <TextBlock x:Name="txtLabelEventCase" Text="Caso" 
                                    Style="{StaticResource PrimaryTextStyle}" 
                                    FontWeight="SemiBold" 
                                    FontSize="15" 
@@ -950,8 +950,8 @@
                 <!-- Botones de acción -->
                 <Grid Grid.Row="2" Height="70">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="20,0">
-                        <Button Content="Cancelar" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,10,0" Click="CancelEventButton_Click" Width="100"/>
-                        <Button Content="Guardar" Style="{StaticResource RoundedButtonStyle}" Width="100" Click="GuardarEvento_Click"/>
+                        <Button x:Name="btnCancelEvent" Content="Cancelar" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,10,0" Click="CancelEventButton_Click" Width="100"/>
+                        <Button x:Name="btnGuardarEvento" Content="Guardar" Style="{StaticResource RoundedButtonStyle}" Width="100" Click="GuardarEvento_Click"/>
                     </StackPanel>
                 </Grid>
             </Grid>
@@ -983,7 +983,7 @@
 
                 <!-- Header del panel -->
                 <Grid Grid.Row="0" Height="60">
-                    <TextBlock Text="Nuevo Contacto" 
+                    <TextBlock x:Name="txtPanelNuevoContactoTitulo" Text="Nuevo Contacto" 
                               Style="{StaticResource SlidePanelContentStyle}" 
                               FontSize="20" 
                               FontWeight="Bold" 
@@ -994,7 +994,7 @@
                 <!-- Contenido del formulario -->
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="20">
-                        <TextBlock Text="Nombre" 
+                        <TextBlock x:Name="txtLabelContactName" Text="Nombre" 
                                    Style="{StaticResource PrimaryTextStyle}" 
                                    FontWeight="SemiBold" 
                                    FontSize="15" 
@@ -1005,7 +1005,7 @@
                                 FontSize="10" 
                                 Margin="0,0,0,20"/>
 
-                        <TextBlock Text="Tipo de Contacto" 
+                        <TextBlock x:Name="txtLabelContactType" Text="Tipo de Contacto" 
                                    Style="{StaticResource PrimaryTextStyle}" 
                                    FontWeight="SemiBold" 
                                    FontSize="15" 
@@ -1016,7 +1016,7 @@
                                  Height="35"
                                  FontSize="10"/>
 
-                        <TextBlock Text="Caso asociado"
+                        <TextBlock x:Name="txtLabelContactCase" Text="Caso asociado"
                                    Style="{StaticResource PrimaryTextStyle}"
                                    FontWeight="SemiBold"
                                    FontSize="15"
@@ -1030,7 +1030,7 @@
                                  Height="35"
                                  FontSize="10"/>
 
-                        <TextBlock Text="Teléfono" 
+                        <TextBlock x:Name="txtLabelContactPhone" Text="Teléfono" 
                                    Style="{StaticResource PrimaryTextStyle}" 
                                    FontWeight="SemiBold" 
                                    FontSize="15" 
@@ -1041,7 +1041,7 @@
                                 FontSize="10" 
                                 Margin="0,0,0,20"/>
 
-                        <TextBlock Text="Email" 
+                        <TextBlock x:Name="txtLabelContactEmail" Text="Email" 
                                    Style="{StaticResource PrimaryTextStyle}" 
                                    FontWeight="SemiBold" 
                                    FontSize="15" 
@@ -1057,8 +1057,8 @@
                 <!-- Botones de acción -->
                 <Grid Grid.Row="2" Height="70">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="20,0">
-                        <Button Content="Cancelar" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,10,0" Click="CancelContactButton_Click" Width="100"/>
-                        <Button Content="Guardar" Style="{StaticResource RoundedButtonStyle}" Click="GuardarContacto_Click" Width="100"/>
+                        <Button x:Name="btnCancelContact" Content="Cancelar" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,10,0" Click="CancelContactButton_Click" Width="100"/>
+                        <Button x:Name="btnGuardarContacto" Content="Guardar" Style="{StaticResource RoundedButtonStyle}" Click="GuardarContacto_Click" Width="100"/>
                     </StackPanel>
                 </Grid>
             </Grid>

@@ -73,6 +73,8 @@ namespace TFG_V0._01.Ventanas
             _ = CargarClientesAsync();
             ComboClientesPanel.SelectedItem = null;
             ComboClientes_SelectionChanged(null, null);
+
+            CargarIdiomas(MainWindow.idioma);
         }
 
         #region 🌓 Aplicar modo oscuro/claro cargado por sistema
@@ -820,6 +822,78 @@ namespace TFG_V0._01.Ventanas
             {
                 combo.IsDropDownOpen = true;
                 e.Handled = true;
+            }
+        }
+
+        private void CargarIdiomas(int idioma)
+        {
+            navbar.ActualizarIdioma(idioma);
+
+            var idiomas = new (
+                string Titulo, string Subtitulo, string BtnFiltros, string BtnSeleccionarArchivos, string DropZone,
+                string FiltrosTitulo, string FiltroCliente, string FiltroCaso, string FiltroFecha, string FiltroTipoDoc,
+                string BtnAplicarFiltros, string BtnRestablecerFiltros,
+                string PanelPDF, string PanelIMG, string PanelVID, string PanelAUD, string PanelOTR,
+                string ChkPDF, string ChkAudio, string ChkImagen, string ChkVideo, string ChkOtros,
+                string DatePickerPlaceholder
+            )[]
+            {
+                // Español
+                ("Gestión de Documentos", "Visualiza y administra tus documentos", "Filtros", "Seleccionar Archivos", "Arrastra archivos aquí o haz clic para seleccionar",
+                 "Filtros de Documentos", "Cliente:", "Caso:", "Fecha:", "Tipo de Documento:", "Aplicar", "Restablecer",
+                 "Documentos PDF", "Imágenes", "Videos", "Audios", "Otros Documentos",
+                 "PDF", "Audio", "Imagen", "Video", "Otros", "Seleccione una fecha"),
+                // Inglés
+                ("Document Management", "View and manage your documents", "Filters", "Select Files", "Drag files here or click to select",
+                 "Document Filters", "Client:", "Case:", "Date:", "Document Type:", "Apply", "Reset",
+                 "PDF Documents", "Images", "Videos", "Audios", "Other Documents",
+                 "PDF", "Audio", "Image", "Video", "Other", "Select a date"),
+                // Catalán
+                ("Gestió de Documents", "Visualitza i administra els teus documents", "Filtres", "Seleccionar Arxius", "Arrossega arxius aquí o fes clic per seleccionar",
+                 "Filtres de Documents", "Client:", "Cas:", "Data:", "Tipus de Document:", "Aplicar", "Restablir",
+                 "Documents PDF", "Imatges", "Vídeos", "Àudios", "Altres Documents",
+                 "PDF", "Àudio", "Imatge", "Vídeo", "Altres", "Selecciona una data"),
+                // Gallego
+                ("Xestión de Documentos", "Visualiza e xestiona os teus documentos", "Filtros", "Seleccionar Ficheiros", "Arrastra ficheiros aquí ou fai clic para seleccionar",
+                 "Filtros de Documentos", "Cliente:", "Caso:", "Data:", "Tipo de Documento:", "Aplicar", "Restablecer",
+                 "Documentos PDF", "Imaxes", "Vídeos", "Audios", "Outros Documentos",
+                 "PDF", "Audio", "Imaxe", "Vídeo", "Outros", "Seleccione unha data"),
+                // Euskera
+                ("Dokumentuen Kudeaketa", "Zure dokumentuak ikusi eta kudeatu", "Iragazkiak", "Fitxategiak Hautatu", "Arrastatu fitxategiak hemen edo egin klik hautatzeko",
+                 "Dokumentuen Iragazkiak", "Bezeroa:", "Kasua:", "Data:", "Dokumentu Mota:", "Aplikatu", "Berrezarri",
+                 "PDF Dokumentuak", "Irudiak", "Bideoak", "Audioak", "Beste Dokumentuak",
+                 "PDF", "Audio", "Irudia", "Bideoa", "Bestelakoak", "Aukeratu data")
+            };
+
+            if (idioma < 0 || idioma >= idiomas.Length)
+                idioma = 0;
+
+            var t = idiomas[idioma];
+
+            // Asignar textos a los controles principales
+            if (txtTituloPrincipal != null) txtTituloPrincipal.Text = t.Titulo;
+            if (txtSubtituloPrincipal != null) txtSubtituloPrincipal.Text = t.Subtitulo;
+            if (txtBtnFiltros != null) txtBtnFiltros.Text = t.BtnFiltros;
+            if (btnSeleccionarArchivos != null) btnSeleccionarArchivos.Content = t.BtnSeleccionarArchivos;
+            if (txtDropZone != null) txtDropZone.Text = t.DropZone;
+
+            // Panel de filtros
+            if (txtFiltrosTitulo != null) txtFiltrosTitulo.Text = t.FiltrosTitulo;
+            if (txtFiltroCliente != null) txtFiltroCliente.Text = t.FiltroCliente;
+            if (txtFiltroCaso != null) txtFiltroCaso.Text = t.FiltroCaso;
+            if (txtFiltroFecha != null) txtFiltroFecha.Text = t.FiltroFecha;
+            if (txtFiltroTipoDocumento != null) txtFiltroTipoDocumento.Text = t.FiltroTipoDoc;
+            if (btnAplicarFiltros != null) btnAplicarFiltros.Content = t.BtnAplicarFiltros;
+            if (btnRestablecerFiltros != null) btnRestablecerFiltros.Content = t.BtnRestablecerFiltros;
+
+            // Paneles de documentos
+            var paneles = new[] { "PDF", "IMG", "VID", "AUD", "OTR" };
+            var titulosPaneles = new[] { t.PanelPDF, t.PanelIMG, t.PanelVID, t.PanelAUD, t.PanelOTR };
+            for (int i = 0; i < paneles.Length; i++)
+            {
+                var panel = DocumentPanelsCollection.FirstOrDefault(p => p.Type == paneles[i]);
+                if (panel != null)
+                    panel.Title = titulosPaneles[i];
             }
         }
     }

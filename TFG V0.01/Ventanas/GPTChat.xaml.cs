@@ -21,15 +21,17 @@ using System.Text.Json.Serialization;
 
 namespace TFG_V0._01.Ventanas
 {
-    /// <summary>
-    /// Lógica de interacción para GPTChat.xaml
-    /// </summary>
+    #region CLASE CHAT LM STUDIO
+
+    #region Variables para el chat
     public class ChatMessage
     {
         public required string Message { get; set; }
         public bool IsUser { get; set; }
     }
+    #endregion
 
+    #region Converters
     public class BoolToBrushConverter : IValueConverter
     {
         public Color DarkUserColor { get; set; }
@@ -40,7 +42,6 @@ namespace TFG_V0._01.Ventanas
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             bool isUser = (bool)value;
-            // Acceder directamente a la propiedad estática del tema
             bool isDarkTheme = MainWindow.isDarkTheme;
 
             if (isUser)
@@ -58,7 +59,9 @@ namespace TFG_V0._01.Ventanas
             throw new NotImplementedException();
         }
     }
+    #endregion
 
+    #region Converters para la alineación
     public class BoolToAlignmentConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
@@ -72,8 +75,9 @@ namespace TFG_V0._01.Ventanas
             throw new NotImplementedException();
         }
     }
+    #endregion
 
-    // Clases para la API de LM Studio (compatible con OpenAI)
+    #region Clases para la API de LM Studio (compatible con OpenAI)
     public class LmStudioChatCompletionRequest
     {
         [JsonPropertyName("model")]
@@ -115,6 +119,9 @@ namespace TFG_V0._01.Ventanas
         [JsonPropertyName("content")]
         public string Content { get; set; }
     }
+    #endregion
+
+    #endregion
 
     public partial class GPTChat : Window
     {
@@ -368,9 +375,9 @@ namespace TFG_V0._01.Ventanas
                         var response = await generativeModel.GenerateContent(new GenerateContentRequest
                         {
                             Contents = new List<Mscc.GenerativeAI.Content>
-    {
-        new Mscc.GenerativeAI.Content(userMessage)
-    }
+                            {
+                                new Mscc.GenerativeAI.Content(userMessage)
+                            }
                         });
 
                         if (response?.Candidates != null && response.Candidates.Any())

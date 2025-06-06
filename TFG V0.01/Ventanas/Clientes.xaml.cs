@@ -114,6 +114,7 @@ namespace TFG_V0._01.Ventanas
             _supabaseDocumentos = new SupabaseDocumentos();
             InitializeAnimations(); // Asegúrate de que esto inicialice meshAnimStoryboard si no lo hace ya
             FindMeshBrushes(); // Nuevo método para encontrar los pinceles en el XAML
+            CargarIdiomas(MainWindow.idioma);
             AplicarModoSistema();
             IniciarAnimacionMesh(); // Iniciar la animación del gradiente
             _ = CargarClientesAsync();
@@ -430,9 +431,9 @@ namespace TFG_V0._01.Ventanas
             // Puedes añadir una animación de fade para la ventana si quieres
             var fadeAnimation = new DoubleAnimation
             {
-                 From = 0.7, // o el valor actual
-                 To = 1,
-                 Duration = TimeSpan.FromMilliseconds(300) // duración de la transición
+                From = 0.7, // o el valor actual
+                To = 1,
+                Duration = TimeSpan.FromMilliseconds(300) // duración de la transición
             };
             this.BeginAnimation(OpacityProperty, fadeAnimation);
         }
@@ -560,9 +561,9 @@ namespace TFG_V0._01.Ventanas
                     }
                 }
             }
-             // Importante: Si los pinceles se usan como StaticResource dentro del DrawingBrush, 
-             // obtener referencias a los recursos originales puede ser complicado. 
-             // Una alternativa es clonarlos si es necesario modificar sus propiedades (Center).
+            // Importante: Si los pinceles se usan como StaticResource dentro del DrawingBrush, 
+            // obtener referencias a los recursos originales puede ser complicado. 
+            // Una alternativa es clonarlos si es necesario modificar sus propiedades (Center).
         }
 
         private void IniciarAnimacionMesh()
@@ -940,6 +941,87 @@ namespace TFG_V0._01.Ventanas
                 combo.IsDropDownOpen = true;
                 e.Handled = true;
             }
+        }
+
+        private void CargarIdiomas(int idioma)
+        {
+            var idiomas = new (string SeleccionarCliente, string Continuar, string Volver, string EditarInfo, string Guardar, string Cancelar,
+                string FechaContrato, string Nombre, string Apellido1, string Apellido2, string DNI, string Telefono1, string Telefono2,
+                string Email1, string Email2, string Direccion, string CasosActivos, string NuevoCaso, string HistorialCasos,
+                string DocumentosCliente, string Ver, string Descargar, string Detalles, string Estado, string Tipo, string Cliente, string Titulo, string Subido, string NoEspecificado)[]
+            {
+                // Español
+                ("Seleccionar Cliente", "Continuar", "Volver", "Editar Información", "Guardar", "Cancelar",
+                 "Fecha de contrato: {0:dd/MM/yyyy}", "Nombre:", "Primer Apellido:", "Segundo Apellido:", "DNI:", "Teléfono 1:", "Teléfono 2:",
+                 "Email 1:", "Email 2:", "Dirección:", "Casos Activos", "Nuevo Caso", "Historial de Casos",
+                 "Documentos del Cliente", "Ver", "Descargar", "Ver Detalles", "Estado:", "Tipo:", "Cliente:", "Título:", "Subido: {0:dd/MM/yyyy}", "No especificado"),
+                // Inglés
+                ("Select Client", "Continue", "Back", "Edit Information", "Save", "Cancel",
+                 "Contract date: {0:dd/MM/yyyy}", "Name:", "First Surname:", "Second Surname:", "ID:", "Phone 1:", "Phone 2:",
+                 "Email 1:", "Email 2:", "Address:", "Active Cases", "New Case", "Case History",
+                 "Client Documents", "View", "Download", "View Details", "Status:", "Type:", "Client:", "Title:", "Uploaded: {0:dd/MM/yyyy}", "Not specified"),
+                // Catalán
+                ("Seleccionar Client", "Continuar", "Tornar", "Editar Informació", "Desar", "Cancel·lar",
+                 "Data de contracte: {0:dd/MM/yyyy}", "Nom:", "Primer Cognom:", "Segon Cognom:", "DNI:", "Telèfon 1:", "Telèfon 2:",
+                 "Email 1:", "Email 2:", "Adreça:", "Casos Actius", "Nou Cas", "Historial de Casos",
+                 "Documents del Client", "Veure", "Descarregar", "Veure Detalls", "Estat:", "Tipus:", "Client:", "Títol:", "Pujat: {0:dd/MM/yyyy}", "No especificat"),
+                // Gallego
+                ("Seleccionar Cliente", "Continuar", "Volver", "Editar Información", "Gardar", "Cancelar",
+                 "Data de contrato: {0:dd/MM/yyyy}", "Nome:", "Primeiro Apelido:", "Segundo Apelido:", "DNI:", "Teléfono 1:", "Teléfono 2:",
+                 "Email 1:", "Email 2:", "Enderezo:", "Casos Activos", "Novo Caso", "Historial de Casos",
+                 "Documentos do Cliente", "Ver", "Descargar", "Ver Detalles", "Estado:", "Tipo:", "Cliente:", "Título:", "Subido: {0:dd/MM/yyyy}", "Non especificado"),
+                // Euskera
+                ("Bezeroa Hautatu", "Jarraitu", "Itzuli", "Informazioa Editatu", "Gorde", "Utzi",
+                 "Kontratu data: {0:dd/MM/yyyy}", "Izena:", "Lehen Abizena:", "Bigarren Abizena:", "NAN:", "Telefonoa 1:", "Telefonoa 2:",
+                 "Email 1:", "Email 2:", "Helbidea:", "Kasuan Aktiboak", "Kasua Berria", "Kasuen Historia",
+                 "Bezeroaren Dokumentuak", "Ikusi", "Deskargatu", "Xehetasunak Ikusi", "Egoera:", "Mota:", "Bezeroa:", "Izenburua:", "Igotakoa: {0:dd/MM/yyyy}", "Zehaztu gabe")
+            };
+
+            if (idioma < 0 || idioma >= idiomas.Length)
+                idioma = 0;
+
+            var t = idiomas[idioma];
+
+            SelecCliente.Text = t.SeleccionarCliente;
+            btnconfirmar.Content = t.Continuar;
+
+            if (btnVolver != null)
+                ((btnVolver.Content as StackPanel)?.Children[1] as TextBlock)!.Text = t.Volver;
+
+
+            if (btneditmod != null)
+                btneditmod.Content = t.EditarInfo;
+            if (btnguardarmod != null)
+                btnguardarmod.Content = t.Guardar;
+            if (btncancelarmod != null)
+                btncancelarmod.Content = t.Cancelar;
+
+
+            nombremod.Text = t.Nombre;
+            apellido1mod.Text = t.Apellido1;
+            apellido2mod.Text = t.Apellido2;
+            dnimod.Text = t.DNI;
+            telef1mod.Text = t.Telefono1;
+            telef2mod.Text = t.Telefono2;
+            email1mod.Text = t.Email1;
+            email2mod.Text = t.Email2;
+            direccionmod.Text = t.Direccion;
+            dni.Text = t.DNI;
+            telef1.Text = t.Telefono1;
+            telef2.Text = t.Telefono2;
+            email1.Text = t.Email1;
+            email2.Text = t.Email2;
+            direccion.Text = t.Direccion;
+            titulocasosactivos.Text = t.CasosActivos;
+            btnNuevoCaso.Content = t.NuevoCaso;
+            titulohistorialcasos.Text = t.HistorialCasos;
+            titulodocumentos.Text = t.DocumentosCliente;
+            PopupTitulo.Text = t.Titulo;
+            PopupDescripcion.Text = t.Detalles;
+            PopupCliente.Text = t.Cliente;
+            PopupTipo.Text = t.Tipo;
+            PopupEstado.Text = t.Estado;
+            PopupFecha.Text = t.Subido;
         }
     }
 }

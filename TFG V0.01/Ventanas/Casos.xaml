@@ -721,7 +721,7 @@
             <!-- Encabezado -->
             <Border Background="Transparent" Padding="20,15">
                 <Grid>
-                    <TextBlock Text="Editar Evento" 
+                    <TextBlock x:Name="txtTituloEditarEvento" Text="Editar Evento" 
                              Style="{StaticResource PrimaryTextStyle}" 
                              FontSize="20" 
                              FontWeight="Bold"/>
@@ -731,7 +731,7 @@
             <!-- Contenido -->
             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                 <StackPanel Margin="20">
-                    <TextBlock Text="Título" 
+                    <TextBlock x:Name="txtTituloEventoLabel" Text="Título" 
                              Style="{StaticResource PrimaryTextStyle}" 
                              FontWeight="SemiBold" 
                              FontSize="15" 
@@ -746,7 +746,7 @@
                             FontSize="15" 
                             Margin="0,0,0,20"/>
 
-                    <TextBlock Text="Descripción" 
+                    <TextBlock x:Name="txtDescripcionEventoLabel" Text="Descripción" 
                              Style="{StaticResource PrimaryTextStyle}" 
                              FontWeight="SemiBold" 
                              FontSize="15" 
@@ -762,7 +762,7 @@
                             AcceptsReturn="True" 
                             Margin="0,0,0,20"/>
 
-                    <TextBlock Text="Hora y minutos" 
+                    <TextBlock x:Name="txtHoraMinutosEvento" Text="Hora y minutos" 
                              Style="{StaticResource PrimaryTextStyle}" 
                              FontWeight="SemiBold" 
                              FontSize="15" 
@@ -771,7 +771,7 @@
                                              Margin="0,0,0,20" 
                                              Height="32" />
 
-                    <TextBlock Text="Estado" 
+                    <TextBlock x:Name="txtEstadoEventoLabel" Text="Estado" 
                              Style="{StaticResource PrimaryTextStyle}" 
                              FontWeight="SemiBold" 
                              FontSize="15" 
@@ -821,7 +821,7 @@
             <!-- Encabezado -->
             <Border Background="Transparent" Padding="20,15">
                 <Grid>
-                    <TextBlock Text="Editar Nota" 
+                    <TextBlock x:Name="txtTituloEditarNota" Text="Editar Nota" 
                              Style="{StaticResource PrimaryTextStyle}" 
                              FontSize="20" 
                              FontWeight="Bold"/>
@@ -831,7 +831,7 @@
             <!-- Contenido -->
             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                 <StackPanel Margin="20">
-                    <TextBlock Text="Título" 
+                    <TextBlock x:Name="txtTituloNotaLabel" Text="Título" 
                              Style="{StaticResource PrimaryTextStyle}" 
                              FontWeight="SemiBold" 
                              FontSize="15" 
@@ -846,7 +846,7 @@
                             FontSize="15" 
                             Margin="0,0,0,20"/>
 
-                    <TextBlock Text="Descripción" 
+                    <TextBlock x:Name="txtDescripcionNotaLabel" Text="Descripción" 
                              Style="{StaticResource PrimaryTextStyle}" 
                              FontWeight="SemiBold" 
                              FontSize="15" 
@@ -900,7 +900,7 @@
             <!-- Encabezado -->
             <Border Background="Transparent" Padding="20,15">
                 <Grid>
-                    <TextBlock Text="Editar Tarea" 
+                    <TextBlock x:Name="txtTituloEditarTarea" Text="Editar Tarea" 
                              Style="{StaticResource PrimaryTextStyle}" 
                              FontSize="20" 
                              FontWeight="Bold"/>
@@ -915,7 +915,7 @@
             <!-- Contenido -->
             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                 <StackPanel Margin="20">
-                    <TextBlock Text="Título" 
+                    <TextBlock x:Name="txtTituloTareaLabel" Text="Título" 
                              Style="{StaticResource PrimaryTextStyle}" 
                              FontWeight="SemiBold" 
                              FontSize="15" 
@@ -930,7 +930,7 @@
                             FontSize="15" 
                             Margin="0,0,0,20"/>
 
-                    <TextBlock Text="Descripción" 
+                    <TextBlock x:Name="txtDescripcionTareaLabel" Text="Descripción" 
                              Style="{StaticResource PrimaryTextStyle}" 
                              FontWeight="SemiBold" 
                              FontSize="15" 
@@ -947,7 +947,7 @@
                             TextWrapping="Wrap" 
                             Margin="0,0,0,20"/>
 
-                    <TextBlock Text="Prioridad" 
+                    <TextBlock x:Name="txtPrioridadTareaLabel" Text="Prioridad" 
                              Style="{StaticResource PrimaryTextStyle}" 
                              FontWeight="SemiBold" 
                              FontSize="15" 
@@ -957,7 +957,7 @@
                              Margin="0,0,0,20"
                              PreviewMouseLeftButtonDown="ComboBox_PreviewMouseLeftButtonDown"/>
 
-                    <TextBlock Text="Fecha de vencimiento" 
+                    <TextBlock x:Name="txtFechaVencimientoTareaLabel" Text="Fecha de vencimiento" 
                              Style="{StaticResource PrimaryTextStyle}" 
                              FontWeight="SemiBold" 
                              FontSize="15" 
@@ -965,7 +965,7 @@
                     <DatePicker x:Name="dpFechaVencimientoTarea" 
                                Margin="0,0,0,20"/>
 
-                    <TextBlock Text="Estado" 
+                    <TextBlock x:Name="txtEstadoTareaLabel" Text="Estado" 
                              Style="{StaticResource PrimaryTextStyle}" 
                              FontWeight="SemiBold" 
                              FontSize="15" 
@@ -1012,7 +1012,7 @@
             <!-- Encabezado -->
             <Border Background="Transparent" Padding="20,15">
                 <Grid>
-                    <TextBlock Text="Editar Documento" 
+                    <TextBlock x:Name="txtTituloEditarDocumento" Text="Editar Documento" 
                              Style="{StaticResource PrimaryTextStyle}" 
                              FontSize="20" 
                              FontWeight="Bold"/>
@@ -1024,7 +1024,7 @@
                 <StackPanel Margin="20">
                     <!-- Nombre del documento -->
                     <StackPanel Margin="0,0,0,15">
-                        <TextBlock Text="Nombre del documento" 
+                        <TextBlock x:Name="txtNombreDocumentoLabel" Text="Nombre del documento" 
                                  Style="{StaticResource PrimaryTextStyle}" 
                                  FontWeight="SemiBold" 
                                  Margin="0,0,0,5"/>
@@ -1034,7 +1034,7 @@
 
                     <!-- Tipo de documento -->
                     <StackPanel Margin="0,0,0,15">
-                        <TextBlock Text="Tipo de documento" 
+                        <TextBlock x:Name="txtTipoDocumentoLabel" Text="Tipo de documento" 
                                  Style="{StaticResource PrimaryTextStyle}" 
                                  FontWeight="SemiBold" 
                                  Margin="0,0,0,5"/>
@@ -1059,14 +1059,14 @@
                             Drop="DropZone_Drop">
                         <Grid>
                             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                                <TextBlock Text="📄" 
+                                <TextBlock x:Name="txtArrastrarSoltar" Text="📄" 
                                          FontSize="32" 
                                          HorizontalAlignment="Center" 
                                          Margin="0,0,0,10"/>
-                                <TextBlock Text="Arrastra y suelta archivos aquí" 
+                                <TextBlock x:Name="txtArrastrarSoltarTexto" Text="Arrastra y suelta archivos aquí" 
                                          Style="{StaticResource SecondaryTextStyle}" 
                                          HorizontalAlignment="Center"/>
-                                <TextBlock Text="o" 
+                                <TextBlock x:Name="txtOSeleccionar" Text="o" 
                                          Style="{StaticResource SecondaryTextStyle}" 
                                          HorizontalAlignment="Center" 
                                          Margin="0,5"/>
@@ -1080,7 +1080,7 @@
 
                     <!-- Ruta del archivo -->
                     <StackPanel Margin="0,0,0,15">
-                        <TextBlock Text="Archivo seleccionado" 
+                        <TextBlock x:Name="txtArchivoSeleccionado" Text="Archivo seleccionado" 
                                  Style="{StaticResource PrimaryTextStyle}" 
                                  FontWeight="SemiBold" 
                                  Margin="0,0,0,5" />
@@ -1122,7 +1122,7 @@
             </Grid.RowDefinitions>
 
             <!-- Header -->
-            <TextBlock Text="Gestión del Caso" FontSize="24" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,20"/>
+            <TextBlock x:Name="txtHeaderGestionCaso" Text="Gestión del Caso" FontSize="24" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,20"/>
 
             <!-- Main Content Area -->
             <Grid Grid.Row="1">
@@ -1130,8 +1130,8 @@
                 <Grid x:Name="Buscador" Visibility="Visible">
                     <Border Style="{StaticResource CardStyle}" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="30" Width="500" CornerRadius="12">
                         <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="20">
-                            <TextBlock Text="Buscar Caso" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20" Style="{StaticResource PrimaryTextStyle}"/>
-                            <TextBlock Text="Paso 1: Seleccione un cliente" Style="{StaticResource PrimaryTextStyle}"  FontSize="14" Margin="0,5,0,10"/>
+                            <TextBlock x:Name="txtBuscarCaso" Text="Buscar Caso" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20" Style="{StaticResource PrimaryTextStyle}"/>
+                            <TextBlock x:Name="txtPaso1Cliente" Text="Paso 1: Seleccione un cliente" Style="{StaticResource PrimaryTextStyle}"  FontSize="14" Margin="0,5,0,10"/>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <ComboBox x:Name="comboClientes"
                                           Style="{StaticResource ModernSearchComboBoxStyle}"
@@ -1153,7 +1153,7 @@
                                     </ComboBox.ItemTemplate>
                                 </ComboBox>
                             </StackPanel>
-                            <TextBlock Text="Paso 2: Seleccione un caso del cliente" Style="{StaticResource PrimaryTextStyle}" FontSize="14" Margin="0,15,0,10"/>
+                            <TextBlock x:Name="txtPaso2Caso" Text="Paso 2: Seleccione un caso del cliente" Style="{StaticResource PrimaryTextStyle}" FontSize="14" Margin="0,15,0,10"/>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <ComboBox x:Name="comboCasosFiltrados"
                                           Style="{StaticResource ModernSearchComboBoxStyle}"
@@ -1185,12 +1185,12 @@
 
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,15,0,15" HorizontalAlignment="Center">
                                 <Separator Margin="10,0" Width="100"/>
-                                <TextBlock Text="O" FontSize="14" Margin="10,0" FontWeight="Bold" VerticalAlignment="Center" Style="{StaticResource PrimaryTextStyle}"/>
+                                <TextBlock x:Name="txtO" Text="O" FontSize="14" Margin="10,0" FontWeight="Bold" VerticalAlignment="Center" Style="{StaticResource PrimaryTextStyle}"/>
                                 <Separator Margin="10,0" Width="100"/>
                             </StackPanel>
 
                             <!-- BÚSQUEDA DIRECTA -->
-                            <TextBlock Text="Buscar directamente un caso" Style="{StaticResource PrimaryTextStyle}" FontSize="14" Margin="0,0,0,10"/>
+                            <TextBlock x:Name="txtBuscarDirectamente" Text="Buscar directamente un caso" Style="{StaticResource PrimaryTextStyle}" FontSize="14" Margin="0,0,0,10"/>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <ComboBox x:Name="comboTodosLosCasos"
                                           Style="{StaticResource ModernSearchComboBoxStyle}"
@@ -1369,7 +1369,7 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
-                                <TextBlock Text="Notas" FontSize="16" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,10"/>
+                                <TextBlock x:Name="txtNotas" Text="Notas" FontSize="16" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,10"/>
 
                                 <!-- Lista de notas -->
                                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
@@ -1422,7 +1422,7 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
-                                <TextBlock Text="Documentos del Caso" FontSize="16" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,10"/>
+                                <TextBlock x:Name="txtDocumentosCaso" Text="Documentos del Caso" FontSize="16" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,10"/>
 
                                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                                     <ListView x:Name="DocumentosList" 
@@ -1488,7 +1488,7 @@
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <TextBlock Text="Tareas Pendientes" FontSize="16" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,10"/>
+                            <TextBlock x:Name="txtTareasPendientes" Text="Tareas Pendientes" FontSize="16" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,10"/>
 
                             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                                 <ListView x:Name="TareasList" 

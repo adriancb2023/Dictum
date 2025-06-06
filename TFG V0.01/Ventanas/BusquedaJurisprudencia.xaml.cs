@@ -774,5 +774,15 @@ namespace TFG_V0._01.Ventanas
         }
 
         #endregion
+
+        private void ComboBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var combo = sender as ComboBox;
+            if (combo != null && !combo.IsDropDownOpen)
+            {
+                combo.IsDropDownOpen = true;
+                e.Handled = true;
+            }
+        }
     }
 }

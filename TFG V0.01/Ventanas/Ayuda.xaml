@@ -375,8 +375,8 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
-                    <TextBlock Text="Ayuda" FontSize="24" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}"/>
-                     </StackPanel>
+                    <TextBlock x:Name="txtTituloPrincipal" Text="Ayuda" FontSize="24" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}"/>
+                </StackPanel>
             </Grid>
 
             <!-- Contenido de ayuda -->
@@ -396,29 +396,29 @@
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
-                                <TextBlock Text="Preguntas Frecuentes" FontSize="20" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,15"/>
+                                <TextBlock x:Name="txtPreguntasFrecuentes" Text="Preguntas Frecuentes" FontSize="20" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,15"/>
                                 <StackPanel Grid.Row="1">
-                                    <Expander Header="¿Cómo puedo añadir un nuevo caso?" Style="{StaticResource MaterialDesignExpander}" Margin="0,0,0,10">
+                                    <Expander x:Name="expanderAnadirCaso" Header="¿Cómo puedo añadir un nuevo caso?" Style="{StaticResource MaterialDesignExpander}" Margin="0,0,0,10">
                                         <TextBlock Text="Para añadir un nuevo caso, haz clic en el botón '+' en la barra superior de la ventana principal. Se abrirá un panel donde podrás introducir los detalles del caso, incluyendo título, descripción, cliente asociado y tipo de caso. También podrás establecer el estado inicial del caso y añadir documentos relacionados." 
                                                  Style="{StaticResource SecondaryTextStyle}" TextWrapping="Wrap" Margin="10,0,0,0"/>
                                     </Expander>
-                                    <Expander Header="¿Cómo gestiono los documentos?" Style="{StaticResource MaterialDesignExpander}" Margin="0,0,0,10">
+                                    <Expander x:Name="expanderGestionarDocumentos" Header="¿Cómo gestiono los documentos?" Style="{StaticResource MaterialDesignExpander}" Margin="0,0,0,10">
                                         <TextBlock Text="En la sección de Documentos puedes arrastrar y soltar archivos para subirlos, o usar el botón de subida. Los documentos se organizarán automáticamente por caso y tipo (PDF, imágenes, videos, audios y otros). Puedes filtrar los documentos por cliente, caso, fecha y tipo de archivo. También puedes previsualizar, descargar o eliminar documentos según tus necesidades." 
                                                  Style="{StaticResource SecondaryTextStyle}" TextWrapping="Wrap" Margin="10,0,0,0"/>
                                     </Expander>
-                                    <Expander Header="¿Cómo gestiono los clientes?" Style="{StaticResource MaterialDesignExpander}" Margin="0,0,0,10">
+                                    <Expander x:Name="expanderGestionarClientes" Header="¿Cómo gestiono los clientes?" Style="{StaticResource MaterialDesignExpander}" Margin="0,0,0,10">
                                         <TextBlock Text="En la sección de Clientes puedes ver un listado de todos tus clientes. Puedes añadir nuevos clientes con sus datos de contacto, ver su historial de casos, documentos asociados y casos activos. También puedes editar la información de los clientes y gestionar su documentación personal." 
                                                  Style="{StaticResource SecondaryTextStyle}" TextWrapping="Wrap" Margin="10,0,0,0"/>
                                     </Expander>
-                                    <Expander Header="¿Cómo funciona el calendario y las citas?" Style="{StaticResource MaterialDesignExpander}" Margin="0,0,0,10">
+                                    <Expander x:Name="expanderFuncionaCalendario" Header="¿Cómo funciona el calendario y las citas?" Style="{StaticResource MaterialDesignExpander}" Margin="0,0,0,10">
                                         <TextBlock Text="El calendario te permite gestionar todas tus citas y eventos. Puedes añadir nuevos eventos asociados a casos específicos, establecer recordatorios y ver un resumen de las próximas actividades. Los eventos se pueden filtrar por caso y estado, y puedes recibir notificaciones de próximas citas." 
                                                  Style="{StaticResource SecondaryTextStyle}" TextWrapping="Wrap" Margin="10,0,0,0"/>
                                     </Expander>
-                                    <Expander Header="¿Cómo gestiono las tareas pendientes?" Style="{StaticResource MaterialDesignExpander}" Margin="0,0,0,10">
+                                    <Expander x:Name="expanderGestionarTareas" Header="¿Cómo gestiono las tareas pendientes?" Style="{StaticResource MaterialDesignExpander}" Margin="0,0,0,10">
                                         <TextBlock Text="En el panel de inicio puedes ver tus tareas pendientes. Cada tarea puede estar asociada a un caso específico y tiene un estado (Pendiente, En progreso, Finalizado). Puedes crear nuevas tareas, actualizar su estado y establecer fechas límite. Las tareas pendientes se muestran en el dashboard para un seguimiento rápido." 
                                                  Style="{StaticResource SecondaryTextStyle}" TextWrapping="Wrap" Margin="10,0,0,0"/>
                                     </Expander>
-                                    <Expander Header="¿Cómo cambio entre modo claro y oscuro?" Style="{StaticResource MaterialDesignExpander}" Margin="0,0,0,10">
+                                    <Expander x:Name="expanderCambiarTema" Header="¿Cómo cambio entre modo claro y oscuro?" Style="{StaticResource MaterialDesignExpander}" Margin="0,0,0,10">
                                         <TextBlock Text="Puedes cambiar entre los modos claro y oscuro usando el botón de tema ubicado en la esquina inferior derecha de la aplicación. El modo se guardará automáticamente y se aplicará en todas las ventanas de la aplicación." 
                                                  Style="{StaticResource SecondaryTextStyle}" TextWrapping="Wrap" Margin="10,0,0,0"/>
                                     </Expander>
@@ -433,7 +433,7 @@
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
-                                <TextBlock Text="Guías Rápidas" FontSize="20" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,15"/>
+                                <TextBlock x:Name="txtGuiasRapidas" Text="Guías Rápidas" FontSize="20" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,15"/>
                                 <ItemsControl x:Name="GuiasRapidasItemsControl" Grid.Row="1" Margin="0,0,10,0">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
@@ -464,7 +464,7 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
-                            <TextBlock Text="Consejos y Mejores Prácticas" FontSize="20" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,15"/>
+                            <TextBlock x:Name="txtConsejosPracticas" Text="Consejos y Mejores Prácticas" FontSize="20" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,15"/>
                             <Grid Grid.Row="1">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -472,8 +472,8 @@
                                 </Grid.ColumnDefinitions>
                                 
                                 <!-- Consejos de organización -->
-                                <StackPanel Grid.Column="0" Margin="0,0,20,0">
-                                    <TextBlock Text="Organización Eficiente" FontSize="16" FontWeight="SemiBold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,10"/>
+                                <StackPanel x:Name="ConsejosOrganizacion" Grid.Column="0" Margin="0,0,20,0">
+                                    <TextBlock x:Name="txtOrganizacionEficiente" Text="Organización Eficiente" FontSize="16" FontWeight="SemiBold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,10"/>
                                     <TextBlock Text="• Mantén los nombres de los casos claros y descriptivos" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,5"/>
                                     <TextBlock Text="• Utiliza etiquetas y estados para categorizar casos" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,5"/>
                                     <TextBlock Text="• Actualiza regularmente el estado de tus casos" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,5"/>
@@ -482,8 +482,8 @@
                                 </StackPanel>
 
                                 <!-- Consejos de uso -->
-                                <StackPanel Grid.Column="1">
-                                    <TextBlock Text="Optimización del Uso" FontSize="16" FontWeight="SemiBold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,10"/>
+                                <StackPanel x:Name="ConsejosUso" Grid.Column="1">
+                                    <TextBlock x:Name="txtOptimizacionUso" Text="Optimización del Uso" FontSize="16" FontWeight="SemiBold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,10"/>
                                     <TextBlock Text="• Utiliza los filtros para encontrar información rápidamente" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,5"/>
                                     <TextBlock Text="• Mantén actualizada la información de los clientes" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,5"/>
                                     <TextBlock Text="• Revisa regularmente el dashboard para tareas pendientes" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,5"/>
@@ -501,7 +501,7 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
-                            <TextBlock Text="¿Necesitas más ayuda?" FontSize="20" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,15"/>
+                            <TextBlock x:Name="txtNecesitasAyuda" Text="¿Necesitas más ayuda?" FontSize="20" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,15"/>
                             <Grid Grid.Row="1">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -509,8 +509,8 @@
                                 </Grid.ColumnDefinitions>
                                 
                                 <!-- Información de contacto -->
-                                <StackPanel Grid.Column="0" Margin="0,0,20,0">
-                                    <TextBlock Text="Contacto" FontSize="16" FontWeight="SemiBold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,10"/>
+                                <StackPanel x:Name="InfoContacto" Grid.Column="0" Margin="0,0,20,0">
+                                    <TextBlock x:Name="txtContacto" Text="Contacto" FontSize="16" FontWeight="SemiBold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,10"/>
                                     <TextBlock Text="Email: soporte@tfgapp.com" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,5"/>
                                     <TextBlock Text="Teléfono: +34 900 123 456" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,5"/>
                                     <TextBlock Text="Horario: L-V 11:00 - 14:00" Style="{StaticResource SecondaryTextStyle}"/>
@@ -518,7 +518,7 @@
 
                                 <!-- Formulario de contacto -->
                                 <StackPanel Grid.Column="1" Margin="0,0,10,0">
-                                    <TextBlock Text="Envíanos un mensaje" FontSize="16" FontWeight="SemiBold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,10"/>
+                                    <TextBlock x:Name="txtEnvianosMensaje" Text="Envíanos un mensaje" FontSize="16" FontWeight="SemiBold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,10"/>
                                     <TextBox x:Name="NombreTextBox" Style="{StaticResource RoundedTextBoxStyle}" Margin="0,0,0,10" Tag="Tu nombre"/>
                                     <TextBox x:Name="EmailTextBox" Style="{StaticResource RoundedTextBoxStyle}" Margin="0,0,0,10" Tag="Tu email"/>
                                     <TextBox x:Name="MensajeTextBox" Style="{StaticResource RoundedTextBoxStyle}" Height="100" TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,20" Tag="Tu mensaje"/>
@@ -563,9 +563,9 @@
                     </Style>
                 </Border.Style>
                 <Grid>
-                    <TextBlock Text="© 2025 TFG" Style="{StaticResource SecondaryTextStyle}" VerticalAlignment="Center" Margin="20,0,0,0" FontWeight="Bold" FontSize="15"/>
+                    <TextBlock x:Name="txtCopyright" Text="© 2025 TFG" Style="{StaticResource SecondaryTextStyle}" VerticalAlignment="Center" Margin="20,0,0,0" FontWeight="Bold" FontSize="15"/>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,20,0">
-                        <TextBlock Text="Versión: " Style="{StaticResource SecondaryTextStyle}" VerticalAlignment="Center" HorizontalAlignment="Right" FontWeight="Bold" FontSize="15"/>
+                        <TextBlock x:Name="txtVersion" Text="Versión: " Style="{StaticResource SecondaryTextStyle}" VerticalAlignment="Center" HorizontalAlignment="Right" FontWeight="Bold" FontSize="15"/>
                         <TextBlock Text="0.1" Style="{StaticResource SecondaryTextStyle}" VerticalAlignment="Center" HorizontalAlignment="Right" FontWeight="Bold" FontSize="15"/>
                     </StackPanel>
                 </Grid>

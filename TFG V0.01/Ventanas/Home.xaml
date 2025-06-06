@@ -522,7 +522,7 @@
                         <TextBlock x:Name="PopupFecha" FontSize="14" Style="{StaticResource SecondaryTextStyle}" Margin="0,5,0,0"/>
 
                         <!-- Documentos Relacionados -->
-                        <TextBlock Text="Documentos" FontSize="16" FontWeight="SemiBold" Style="{StaticResource PrimaryTextStyle}" Margin="0,20,0,5"/>
+                        <TextBlock x:Name="txtDocumentos" Text="Documentos" FontSize="16" FontWeight="SemiBold" Style="{StaticResource PrimaryTextStyle}" Margin="0,20,0,5"/>
                         <ItemsControl x:Name="PopupDocumentos" Margin="0,5,0,0">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
@@ -532,7 +532,7 @@
                         </ItemsControl>
 
                         <!-- Próximos Eventos -->
-                        <TextBlock Text="Próximos Eventos" FontSize="16" FontWeight="SemiBold" Style="{StaticResource PrimaryTextStyle}" Margin="0,20,0,5"/>
+                        <TextBlock x:Name="txtProximosEventos" Text="Próximos Eventos" FontSize="16" FontWeight="SemiBold" Style="{StaticResource PrimaryTextStyle}" Margin="0,20,0,5"/>
                         <ItemsControl x:Name="PopupEventos" Margin="0,5,0,0">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
@@ -570,10 +570,10 @@
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="20" DataContext="{Binding RelativeSource={RelativeSource AncestorType=Window}}">
                         <!-- Título -->
-                        <TextBlock Text="Añadir Tarea" FontWeight="Bold" FontSize="18" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,20"/>
+                        <TextBlock x:Name="txtAñadirTarea" Text="Añadir Tarea" FontWeight="Bold" FontSize="18" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,20"/>
 
                         <!-- ComboBox para seleccionar el caso -->
-                        <TextBlock Text="Caso asociado:" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
+                        <TextBlock x:Name="txtCasoAsociado" Text="Caso asociado:" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
                         <ComboBox x:Name="cbCasoTarea"
                                   Style="{StaticResource ModernComboBoxStyle}"
                                   ItemsSource="{Binding CasosDisponibles}"
@@ -583,13 +583,15 @@
                                   Margin="0,0,0,15"/>
 
                         <!-- Título de la tarea -->
-                        <TextBlock Text="Título:" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
+                        <TextBlock 
+                                Text="Título:" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
                         <TextBox x:Name="txtTituloTarea" 
                                 Style="{StaticResource RoundedTextBoxStyle}"
                                 Margin="0,0,0,15"/>
 
                         <!-- Descripción -->
-                        <TextBlock Text="Descripción:" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
+                        <TextBlock 
+                                Text="Descripción:" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
                         <TextBox x:Name="txtDescripcionTarea" 
                                 Style="{StaticResource RoundedTextBoxStyle}"
                                 Height="60" 
@@ -598,19 +600,19 @@
                                 Margin="0,0,0,15"/>
 
                         <!-- Fecha de vencimiento -->
-                        <TextBlock Text="Fecha de vencimiento:" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
+                        <TextBlock x:Name="txtFechaVencimiento" Text="Fecha de vencimiento:" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
                         <DatePicker x:Name="dpFechaVencimientoTarea" 
                                   Style="{StaticResource RoundedDatePickerStyle}"
                                   Margin="0,0,0,15"/>
 
                         <!-- Prioridad -->
-                        <TextBlock Text="Prioridad:" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
+                        <TextBlock x:Name="txtPrioridad" Text="Prioridad:" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
                         <ComboBox x:Name="cbPrioridadTarea"
                                   Style="{StaticResource ModernComboBoxStyle}"
                                   Margin="0,0,0,15"/>
 
                         <!-- Estado -->
-                        <TextBlock Text="Estado:" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
+                        <TextBlock x:Name="txtEstadoTarea" Text="Estado:" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,5"/>
                         <ComboBox x:Name="cbEstadoTarea"
                                   Style="{StaticResource ModernComboBoxStyle}"
                                   Margin="0,0,0,15"/>
@@ -805,7 +807,7 @@
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Orientation="Horizontal" Grid.Column="0">
-                                        <TextBlock Text="Semana actual" FontSize="16" FontWeight="SemiBold" Style="{StaticResource PrimaryTextStyle}"/>
+                                        <TextBlock x:Name="txtSemanaActual" Text="Semana actual" FontSize="16" FontWeight="SemiBold" Style="{StaticResource PrimaryTextStyle}"/>
                                         <TextBlock x:Name="SemanaActualRango" FontSize="16" FontWeight="SemiBold" Style="{StaticResource PrimaryTextStyle}" Margin="10,0,0,0"/>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Right">
@@ -858,7 +860,7 @@
                                 </ItemsControl>
                                 <!-- Eventos del día seleccionado -->
                                 <StackPanel Grid.Row="2" Margin="0,10,0,0">
-                                    <TextBlock Text="Eventos del día seleccionado" FontSize="16" FontWeight="SemiBold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,10"/>
+                                    <TextBlock x:Name="txtEventosDiaSeleccionado" Text="Eventos del día seleccionado" FontSize="16" FontWeight="SemiBold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,10"/>
                                     <ItemsControl x:Name="EventosDiaControl" ItemsSource="{Binding EventosDiaSeleccionado}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
@@ -1013,11 +1015,11 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock x:Name="ncasos" Grid.Column="0" Text="Nº Caso" Style="{StaticResource SecondaryTextStyle}"/>
-                                    <TextBlock x:Name="Ccliente" Grid.Column="1" Text="Cliente" Style="{StaticResource SecondaryTextStyle}"/>
-                                    <TextBlock x:Name="Ctipo" Grid.Column="2" Text="Tipo" Style="{StaticResource SecondaryTextStyle}"/>
-                                    <TextBlock x:Name="Cestado" Grid.Column="3" Text="Estado" Style="{StaticResource SecondaryTextStyle}"/>
-                                    <TextBlock x:Name="Cacciones" Grid.Column="4" Text="Acciones" Style="{StaticResource SecondaryTextStyle}"/>
+                                    <TextBlock x:Name="txtNcaso" Grid.Column="0" Text="Nº Caso" Style="{StaticResource SecondaryTextStyle}"/>
+                                    <TextBlock x:Name="txtCliente" Grid.Column="1" Text="Cliente" Style="{StaticResource SecondaryTextStyle}"/>
+                                    <TextBlock x:Name="txtTipo" Grid.Column="2" Text="Tipo" Style="{StaticResource SecondaryTextStyle}"/>
+                                    <TextBlock x:Name="txtEstado" Grid.Column="3" Text="Estado" Style="{StaticResource SecondaryTextStyle}"/>
+                                    <TextBlock x:Name="txtAcciones" Grid.Column="4" Text="Acciones" Style="{StaticResource SecondaryTextStyle}"/>
                                 </Grid>
 
                                 <!-- Cases List with Scroll -->
@@ -1080,10 +1082,10 @@
                     </Style>
                 </Border.Style>
                 <Grid>
-                    <TextBlock Text="© 2025 TFG" Style="{StaticResource SecondaryTextStyle}" VerticalAlignment="Center" Margin="20,0,0,0" FontWeight="Bold" FontSize="15"/>
+                    <TextBlock x:Name="txtCopyright" Text="© 2025 TFG" Style="{StaticResource SecondaryTextStyle}" VerticalAlignment="Center" Margin="20,0,0,0" FontWeight="Bold" FontSize="15"/>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,20,0">
-                        <TextBlock x:Name="Version" Text="Versión: " Style="{StaticResource SecondaryTextStyle}" VerticalAlignment="Center" HorizontalAlignment="Right" FontWeight="Bold" FontSize="15"/>
-                        <TextBlock x:Name="VersionNumber" Text="0.1" Style="{StaticResource SecondaryTextStyle}" VerticalAlignment="Center" HorizontalAlignment="Right" FontWeight="Bold" FontSize="15"/>
+                        <TextBlock x:Name="txtVersion" Text="Versión: " Style="{StaticResource SecondaryTextStyle}" VerticalAlignment="Center" HorizontalAlignment="Right" FontWeight="Bold" FontSize="15"/>
+                        <TextBlock x:Name="txtVersionNumber" Text="0.1" Style="{StaticResource SecondaryTextStyle}" VerticalAlignment="Center" HorizontalAlignment="Right" FontWeight="Bold" FontSize="15"/>
                     </StackPanel>
                 </Grid>
             </Border>

@@ -680,7 +680,7 @@
             </Grid.Effect>
 
             <!-- Selector de Cliente -->
-            <Grid x:Name="ClientSelectorGrid" Visibility="Visible">
+            <Grid x:Name="ClientSelectorGrid" Visibility="Visible" >
                 <Border Style="{StaticResource CardStyle}" MaxWidth="600" MaxHeight="600" VerticalAlignment="Center" Margin="0">
                     <Grid>
                         <Grid.RowDefinitions>
@@ -690,7 +690,7 @@
 
                         <!-- Contenedor superior: título + combo -->
                         <StackPanel Grid.Row="0" Margin="20">
-                            <TextBlock Text="Seleccionar Cliente" FontSize="24" Style="{StaticResource PrimaryTextStyle}" HorizontalAlignment="Center" Margin="0,0,0,30"/>
+                            <TextBlock x:Name="SelecCliente" Text="Seleccionar Cliente" FontSize="24" Style="{StaticResource PrimaryTextStyle}" HorizontalAlignment="Center" Margin="0,0,0,30"/>
                             <Grid x:Name="ComboBoxContainer" Height="40">
                                 <ComboBox x:Name="ClientesComboBox"
                                           Width="400"
@@ -711,7 +711,7 @@
 
                         <!-- Contenedor de botones -->
                         <StackPanel Grid.Row="1" Margin="20,10,20,20">
-                            <Button Content="Continuar" Style="{StaticResource ThemeAwareRoundedButtonStyle}" HorizontalAlignment="Stretch" MaxWidth="400" Margin="0,0,0,10" Click="clientecheck"/>
+                            <Button x:Name="btnconfirmar" Content="Continuar" Style="{StaticResource ThemeAwareRoundedButtonStyle}" HorizontalAlignment="Stretch" MaxWidth="400" Margin="0,0,0,10" Click="clientecheck"/>
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -732,7 +732,7 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Button Grid.Column="0" Style="{StaticResource ThemeAwareRoundedButtonStyle}" Margin="0,0,20,0" Height="45" Width="90" Click="btnVolver_Click">
+                    <Button x:Name="btnVolver" Grid.Column="0" Style="{StaticResource ThemeAwareRoundedButtonStyle}" Margin="0,0,20,0" Height="45" Width="90" Click="btnVolver_Click">
                         <StackPanel Orientation="Horizontal">
                             <Image x:Name="volver" Source="/TFG V0.01;component/Recursos/Iconos/volver.png" Width="24" Height="24" VerticalAlignment="Center"/>
                             <TextBlock Text="Volver" Margin="10,0,0,0" VerticalAlignment="Center"/>
@@ -743,7 +743,7 @@
                 </Grid>
                 
                 <!-- Contenido de los detalles -->
-                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="0,20,0,0">
+                <ScrollViewer  Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="0,20,0,0">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
@@ -760,25 +760,25 @@
 
                         <!-- Columna Izquierda -->
                         <!-- Información Personal -->
-                        <Border Style="{StaticResource CardStyle}" Grid.Column="0" Grid.Row="0" Margin="0,0,0,10">
+                        <Border  Style="{StaticResource CardStyle}" Grid.Column="0" Grid.Row="0" Margin="0,0,0,10" >
                             <Grid>
                                 <!-- Vista normal (no edición) -->
                                 <StackPanel x:Name="PersonalInfoPanel" Visibility="{Binding IsEditPersonalInfoVisible, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                                     <TextBlock Text="{Binding SelectedCliente.fecha_contrato, StringFormat='Fecha de contrato: {0:dd/MM/yyyy}'}" Style="{StaticResource PrimaryTextStyle}" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
                                     <TextBlock Text="{Binding SelectedCliente.nombre_cliente}" Style="{StaticResource PrimaryTextStyle}" FontSize="16" Margin="0,0,0,10"/>
-                                    <TextBlock Text="DNI:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,2"/>
+                                    <TextBlock x:Name="dni" Text="DNI:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,2"/>
                                     <TextBlock Text="{Binding SelectedCliente.dni}" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,8"/>
-                                    <TextBlock Text="Teléfono 1:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,2"/>
+                                    <TextBlock x:Name="telef1" Text="Teléfono 1:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,2"/>
                                     <TextBlock Text="{Binding SelectedCliente.telf1}" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,8"/>
-                                    <TextBlock Text="Teléfono 2:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,2"/>
+                                    <TextBlock x:Name="telef2" Text="Teléfono 2:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,2"/>
                                     <TextBlock Text="{Binding SelectedCliente.telf2}" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,8"/>
-                                    <TextBlock Text="Email 1:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,2"/>
+                                    <TextBlock x:Name="email1" Text="Email 1:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,2"/>
                                     <TextBlock Text="{Binding SelectedCliente.email1}" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,8"/>
-                                    <TextBlock Text="Email 2:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,2"/>
+                                    <TextBlock x:Name="email2"  Text="Email 2:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,2"/>
                                     <TextBlock Text="{Binding SelectedCliente.email2}" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,8"/>
-                                    <TextBlock Text="Dirección:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,2"/>
+                                    <TextBlock x:Name="direccion" Text="Dirección:" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,2"/>
                                     <TextBlock Text="{Binding SelectedCliente.direccion}" Style="{StaticResource PrimaryTextStyle}" TextWrapping="Wrap" Margin="0,0,0,8"/>
-                                    <Button Content="Editar Información" Style="{StaticResource ThemeAwareRoundedButtonStyle}" HorizontalAlignment="Right" Margin="0,10,0,0" Click="EditarInformacion_Click" Height="45" Width="150"/>
+                                    <Button x:Name="btneditmod" Content="Editar Información" Style="{StaticResource ThemeAwareRoundedButtonStyle}" HorizontalAlignment="Right" Margin="0,10,0,0" Click="EditarInformacion_Click" Height="45" Width="150"/>
                                 </StackPanel>
 
                                 <!-- Panel de edición -->
@@ -787,53 +787,53 @@
                                         <TextBlock Text="{Binding EditFechaContrato, StringFormat='Fecha de contrato: {0:dd/MM/yyyy}'}" Style="{StaticResource PrimaryTextStyle}" FontWeight="Bold" FontSize="16" Margin="0,0,0,20"/>
                                         
                                         <StackPanel Style="{StaticResource EditFieldStyle}">
-                                            <TextBlock Text="Nombre:" Style="{StaticResource EditLabelStyle}"/>
+                                            <TextBlock x:Name="nombremod" Text="Nombre:" Style="{StaticResource EditLabelStyle}"/>
                                             <TextBox Text="{Binding EditNombre, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource EditTextBoxStyle}"/>
                                         </StackPanel>
 
                                         <StackPanel Style="{StaticResource EditFieldStyle}">
-                                            <TextBlock Text="Primer Apellido:" Style="{StaticResource EditLabelStyle}"/>
+                                            <TextBlock x:Name="apellido1mod" Text="Primer Apellido:" Style="{StaticResource EditLabelStyle}"/>
                                             <TextBox Text="{Binding EditApellido1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource EditTextBoxStyle}"/>
                                         </StackPanel>
 
                                         <StackPanel Style="{StaticResource EditFieldStyle}">
-                                            <TextBlock Text="Segundo Apellido:" Style="{StaticResource EditLabelStyle}"/>
+                                            <TextBlock x:Name="apellido2mod" Text="Segundo Apellido:" Style="{StaticResource EditLabelStyle}"/>
                                             <TextBox Text="{Binding EditApellido2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource EditTextBoxStyle}"/>
                                         </StackPanel>
 
                                         <StackPanel Style="{StaticResource EditFieldStyle}">
-                                            <TextBlock Text="DNI:" Style="{StaticResource EditLabelStyle}"/>
+                                            <TextBlock x:Name="dnimod" Text="DNI:" Style="{StaticResource EditLabelStyle}"/>
                                             <TextBox Text="{Binding EditDNI, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource EditTextBoxStyle}"/>
                                         </StackPanel>
 
                                         <StackPanel Style="{StaticResource EditFieldStyle}">
-                                            <TextBlock Text="Teléfono 1:" Style="{StaticResource EditLabelStyle}"/>
+                                            <TextBlock x:Name="telef1mod"  Text="Teléfono 1:" Style="{StaticResource EditLabelStyle}"/>
                                             <TextBox Text="{Binding EditTelefono1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource EditTextBoxStyle}"/>
                                         </StackPanel>
 
                                         <StackPanel Style="{StaticResource EditFieldStyle}">
-                                            <TextBlock Text="Teléfono 2:" Style="{StaticResource EditLabelStyle}"/>
+                                            <TextBlock x:Name="telef2mod" Text="Teléfono 2:" Style="{StaticResource EditLabelStyle}"/>
                                             <TextBox Text="{Binding EditTelefono2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource EditTextBoxStyle}"/>
                                         </StackPanel>
 
                                         <StackPanel Style="{StaticResource EditFieldStyle}">
-                                            <TextBlock Text="Email 1:" Style="{StaticResource EditLabelStyle}"/>
+                                            <TextBlock x:Name="email1mod" Text="Email 1:" Style="{StaticResource EditLabelStyle}"/>
                                             <TextBox Text="{Binding EditEmail1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource EditTextBoxStyle}"/>
                                         </StackPanel>
 
                                         <StackPanel Style="{StaticResource EditFieldStyle}">
-                                            <TextBlock Text="Email 2:" Style="{StaticResource EditLabelStyle}"/>
+                                            <TextBlock x:Name="email2mod"  Text="Email 2:" Style="{StaticResource EditLabelStyle}"/>
                                             <TextBox Text="{Binding EditEmail2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource EditTextBoxStyle}"/>
                                         </StackPanel>
 
                                         <StackPanel Style="{StaticResource EditFieldStyle}">
-                                            <TextBlock Text="Dirección:" Style="{StaticResource EditLabelStyle}"/>
+                                            <TextBlock  x:Name="direccionmod" Text="Dirección:" Style="{StaticResource EditLabelStyle}"/>
                                             <TextBox Text="{Binding EditDireccion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource EditTextBoxStyle}" TextWrapping="Wrap"/>
                                         </StackPanel>
 
                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                            <Button Content="Guardar" Style="{StaticResource EditButtonStyle}" Click="GuardarInformacion_Click"/>
-                                            <Button Content="Cancelar" Style="{StaticResource EditButtonStyle}" Margin="10,10,0,0" Click="CancelarInformacion_Click"/>
+                                            <Button x:Name="btnguardarmod" Content="Guardar" Style="{StaticResource EditButtonStyle}" Click="GuardarInformacion_Click"/>
+                                            <Button x:Name="btncancelarmod" Content="Cancelar" Style="{StaticResource EditButtonStyle}" Margin="10,10,0,0" Click="CancelarInformacion_Click"/>
                                         </StackPanel>
                                     </StackPanel>
                                 </Border>
@@ -848,8 +848,8 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Text="Casos Activos" Style="{StaticResource PrimaryTextStyle}" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                                    <Button Grid.Column="1" Content="Nuevo Caso" Style="{StaticResource ThemeAwareRoundedButtonStyle}" Height="45" Width="120" Padding="15,0" Click="btnNuevoCaso_Click"/>
+                                    <TextBlock x:Name="titulocasosactivos" Text="Casos Activos" Style="{StaticResource PrimaryTextStyle}" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                    <Button x:Name="btnNuevoCaso" Grid.Column="1" Content="Nuevo Caso" Style="{StaticResource ThemeAwareRoundedButtonStyle}" Height="45" Width="120" Padding="15,0" Click="btnNuevoCaso_Click"/>
                                 </Grid>
                                 <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="300" Margin="0,10,0,0">
                                     <ListView x:Name="CasosActivosList" Background="Transparent" BorderThickness="0" Margin="0,15,0,0" ItemsSource="{Binding CasosActivos}" ItemContainerStyle="{StaticResource StretchingListViewItemStyle}">
@@ -874,7 +874,7 @@
                                                             <TextBlock Text="{Binding Estado.nombre}" Style="{StaticResource SecondaryTextStyle}" FontSize="13" Margin="0,2,0,0"/>
                                                         </StackPanel>
                                                         <!-- Botón detalles -->
-                                                        <Button Grid.Column="2" Content="Ver Detalles" Style="{StaticResource ThemeAwareRoundedButtonStyle}" Click="MostrarDetallesCaso_Click" CommandParameter="{Binding}" VerticalAlignment="Center" Margin="12,0,0,0" Height="45" Width="120"/>
+                                                        <Button x:Name="btnVerdetalles" Grid.Column="2" Content="Ver Detalles" Style="{StaticResource ThemeAwareRoundedButtonStyle}" Click="MostrarDetallesCaso_Click" CommandParameter="{Binding}" VerticalAlignment="Center" Margin="12,0,0,0" Height="45" Width="120"/>
                                                     </Grid>
                                                 </Border>
                                             </DataTemplate>
@@ -887,7 +887,7 @@
                         <!-- Historial de Casos -->
                         <Border Style="{StaticResource CardStyle}" Grid.Column="0" Grid.Row="4" Margin="0,0,0,10">
                             <StackPanel>
-                                <TextBlock Text="Historial de Casos" FontWeight="SemiBold" Style="{StaticResource PrimaryTextStyle}" FontSize="20" Margin="0,0,0,15"/>
+                                <TextBlock x:Name="titulohistorialcasos" Text="Historial de Casos" FontWeight="SemiBold" Style="{StaticResource PrimaryTextStyle}" FontSize="20" Margin="0,0,0,15"/>
                                 <ListView x:Name="HistorialCasosList" Background="Transparent" BorderThickness="0" MaxHeight="300" ItemsSource="{Binding HistorialCasos}" ItemContainerStyle="{StaticResource StretchingListViewItemStyle}">
                                     <ListView.ItemTemplate>
                                         <DataTemplate>
@@ -919,7 +919,7 @@
                         <!-- Documentos del Cliente -->
                         <Border Style="{StaticResource CardStyle}" Grid.Column="2" Grid.Row="0" Grid.RowSpan="5" Margin="0,0,0,10">
                             <StackPanel>
-                                <TextBlock Text="Documentos del Cliente" FontWeight="SemiBold" Style="{StaticResource PrimaryTextStyle}" FontSize="20" Margin="0,0,0,15"/>
+                                <TextBlock x:Name="titulodocumentos" Text="Documentos del Cliente" FontWeight="SemiBold" Style="{StaticResource PrimaryTextStyle}" FontSize="20" Margin="0,0,0,15"/>
                                 <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="1150">
                                     <ListView x:Name="DocumentosClienteList" Background="Transparent" BorderThickness="0" ItemsSource="{Binding DocumentosCliente}" ItemContainerStyle="{StaticResource StretchingListViewItemStyle}">
                                         <ListView.ItemTemplate>
@@ -936,8 +936,8 @@
                                                             <TextBlock Text="{Binding fecha_subid, StringFormat='Subido: {0:dd/MM/yyyy}'}" Style="{StaticResource SecondaryTextStyle}" FontSize="12"/>
                                                             <TextBlock Text="{Binding tipo_documento}" Style="{StaticResource SecondaryTextStyle}" FontSize="12"/>
                                                         </StackPanel>
-                                                        <Button Grid.Column="1" Content="Ver" Style="{StaticResource ThemeAwareRoundedButtonStyle}" Height="45" Width="100" FontSize="12" Margin="8,0,0,0" Click="VerDocumento_Click"/>
-                                                        <Button Grid.Column="2" Content="Descargar" Style="{StaticResource ThemeAwareRoundedButtonStyle}" Height="45" Width="100" FontSize="12" Margin="8,0,0,0" Click="DescargarDocumento_Click"/>
+                                                        <Button x:Name="btnver1" Grid.Column="1" Content="Ver" Style="{StaticResource ThemeAwareRoundedButtonStyle}" Height="45" Width="100" FontSize="12" Margin="8,0,0,0" Click="VerDocumento_Click"/>
+                                                        <Button x:Name="btndescargar1" Grid.Column="2" Content="Descargar" Style="{StaticResource ThemeAwareRoundedButtonStyle}" Height="45" Width="100" FontSize="12" Margin="8,0,0,0" Click="DescargarDocumento_Click"/>
                                                     </Grid>
                                                 </Border>
                                             </DataTemplate>

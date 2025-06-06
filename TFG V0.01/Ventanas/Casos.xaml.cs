@@ -180,6 +180,9 @@ namespace TFG_V0._01.Ventanas
             _supabaseTareas = new SupabaseTareas();
             _documentosDelCaso = new List<Documento>();
             _tareasDelCaso = new List<Tarea>();
+
+            // Cargar idioma
+            CargarIdioma(MainWindow.idioma);
         }
 
         public Casos(int idCaso)
@@ -1858,6 +1861,143 @@ namespace TFG_V0._01.Ventanas
                 e.Handled = true;
             }
         }
+
+        #region 🌍 Gestión de Idiomas
+        private void CargarIdioma(int idioma)
+        {
+            var idiomas = new (string Titulo, string BuscarCaso, string Paso1Cliente, string Paso2Caso, string BuscarDirectamente, 
+                string O, string DescripcionEvento, string HoraMinutosEvento, string TituloTarea, string DescripcionTarea, 
+                string ArrastrarSoltarTexto, string OSeleccionar, string GestionCaso, string EventosDia, string TituloEventos,
+                string Cancelar, string Guardar, string AñadirEvento, string ModificarEvento, string EliminarEvento,
+                string AñadirNota, string ModificarNota, string EliminarNota, string AñadirTarea, string ModificarTarea,
+                string EliminarTarea, string AñadirDocumento, string ModificarDocumento, string EliminarDocumento,
+                string VerDocumento, string DescargarDocumento, string SeleccionarArchivo,
+                string TituloEditarEvento, string EstadoEventoLabel, string TituloEditarNota, string TituloNotaLabel, string DescripcionNotaLabel, string TituloEditarDocumento, string NombreDocumentoLabel, string TipoDocumentoLabel, string ArchivoSeleccionadoLabel, string TituloEditarTarea, string PrioridadTareaLabel, string FechaVencimientoTareaLabel, string EstadoTareaLabel)[]
+            {
+                // Español (Idioma 0)
+                ("Casos", "Buscar Caso", "Paso 1: Seleccione un cliente", "Paso 2: Seleccione un caso del cliente", 
+                "Buscar directamente un caso", "O", "Descripción", "Hora y minutos", "Título", "Descripción",
+                "Arrastra y suelta archivos aquí", "o", "Gestión del Caso", "Eventos del día", "Eventos del día",
+                "Cancelar", "Guardar", "Añadir Evento", "Modificar Evento", "Eliminar Evento",
+                "Añadir Nota", "Modificar Nota", "Eliminar Nota", "Añadir Tarea", "Modificar Tarea",
+                "Eliminar Tarea", "Añadir Documento", "Modificar Documento", "Eliminar Documento",
+                "Ver Documento", "Descargar Documento", "Seleccionar archivo",
+                "Editar Evento", "Estado", "Editar Nota", "Título", "Descripción", "Editar Documento", "Nombre del documento", "Tipo de documento", "Archivo seleccionado", "Editar Tarea", "Prioridad", "Fecha de vencimiento", "Estado"),
+
+                // Inglés (Idioma 1)
+                ("Cases", "Search Case", "Step 1: Select a client", "Step 2: Select a case from the client",
+                "Search a case directly", "OR", "Description", "Time and minutes", "Title", "Description",
+                "Drag and drop files here", "or", "Case Management", "Day Events", "Day Events",
+                "Cancel", "Save", "Add Event", "Modify Event", "Delete Event",
+                "Add Note", "Modify Note", "Delete Note", "Add Task", "Modify Task",
+                "Delete Task", "Add Document", "Modify Document", "Delete Document",
+                "View Document", "Download Document", "Select file",
+                "Edit Event", "Status", "Edit Note", "Title", "Description", "Edit Document", "Document name", "Document type", "Selected file", "Edit Task", "Priority", "Due date", "Status"),
+
+                // Catalán (Idioma 2)
+                ("Casos", "Cercar Cas", "Pas 1: Seleccioneu un client", "Pas 2: Seleccioneu un cas del client",
+                "Cercar directament un cas", "O", "Descripció", "Hora i minuts", "Títol", "Descripció",
+                "Arrossegueu i deixeu anar arxius aquí", "o", "Gestió del Cas", "Esdeveniments del dia", "Esdeveniments del dia",
+                "Cancel·lar", "Desar", "Afegir Esdeveniment", "Modificar Esdeveniment", "Eliminar Esdeveniment",
+                "Afegir Nota", "Modificar Nota", "Eliminar Nota", "Afegir Tasca", "Modificar Tasca",
+                "Eliminar Tasca", "Afegir Document", "Modificar Document", "Eliminar Document",
+                "Veure Document", "Descarregar Document", "Seleccionar arxiu",
+                "Editar Esdeveniment", "Estat", "Editar Nota", "Títol", "Descripció", "Editar Document", "Nom del document", "Tipus de document", "Fitxer seleccionat", "Editar Tasca", "Prioritat", "Data de venciment", "Estat"),
+
+                // Gallego (Idioma 3)
+                ("Casos", "Buscar Caso", "Paso 1: Seleccione un cliente", "Paso 2: Seleccione un caso do cliente",
+                "Buscar directamente un caso", "O", "Descrición", "Hora e minutos", "Título", "Descrición",
+                "Arrastrar e soltar arquivos aquí", "ou", "Xestión do Caso", "Eventos do día", "Eventos do día",
+                "Cancelar", "Gardar", "Engadir Evento", "Modificar Evento", "Eliminar Evento",
+                "Engadir Nota", "Modificar Nota", "Eliminar Nota", "Engadir Tarefa", "Modificar Tarefa",
+                "Eliminar Tarefa", "Engadir Documento", "Modificar Documento", "Eliminar Documento",
+                "Ver Documento", "Descargar Documento", "Seleccionar arquivo",
+                "Editar Evento", "Estado", "Editar Nota", "Título", "Descrición", "Editar Documento", "Nome do documento", "Tipo de documento", "Ficheiro seleccionado", "Editar Tarea", "Prioridade", "Data de vencimento", "Estado"),
+
+                // Euskera (Idioma 4)
+                ("Kasuak", "Kasu Bilatu", "1. Urratsa: Aukeratu bezero bat", "2. Urratsa: Aukeratu bezeroaren kasu bat",
+                "Kasu bat zuzenean bilatu", "EDO", "Deskribapena", "Ordu eta minutuak", "Izenburua", "Deskribapena",
+                "Arrastatu eta jaregin fitxategiak hemen", "edo", "Kasuen Kudeaketa", "Eguneko Gertaerak", "Eguneko Gertaerak",
+                "Utzi", "Gorde", "Gertaera Gehitu", "Gertaera Aldatu", "Gertaera Ezabatu",
+                "Oharra Gehitu", "Oharra Aldatu", "Oharra Ezabatu", "Zeregina Gehitu", "Zeregina Aldatu",
+                "Zeregina Ezabatu", "Dokumentua Gehitu", "Dokumentua Aldatu", "Dokumentua Ezabatu",
+                "Dokumentua Ikusi", "Dokumentua Deskargatu", "Fitxategia hautatu",
+                "Ekitaldia Editatu", "Egoera", "Oharra Editatu", "Izenburua", "Deskribapena", "Dokumentua Editatu", "Dokumentuaren izena", "Dokumentu mota", "Hautatutako fitxategia", "Zeregina Editatu", "Lehentasuna", "Epemuga", "Egoera")
+            };
+
+            if (idioma < 0 || idioma >= idiomas.Length)
+                idioma = 0;
+
+            var t = idiomas[idioma];
+
+            // Actualizar textos principales
+            this.Title = t.Titulo;
+            txtBuscarCaso.Text = t.BuscarCaso;
+            txtPaso1Cliente.Text = t.Paso1Cliente;
+            txtPaso2Caso.Text = t.Paso2Caso;
+            txtBuscarDirectamente.Text = t.BuscarDirectamente;
+            txtO.Text = t.O;
+            txtDescripcionEventoLabel.Text = t.DescripcionEvento;
+            txtHoraMinutosEvento.Text = t.HoraMinutosEvento;
+            txtTituloTareaLabel.Text = t.TituloTarea;
+            txtDescripcionTareaLabel.Text = t.DescripcionTarea;
+            txtArrastrarSoltarTexto.Text = t.ArrastrarSoltarTexto;
+            txtOSeleccionar.Text = t.OSeleccionar;
+            txtHeaderGestionCaso.Text = t.GestionCaso;
+            TituloEventos.Text = t.TituloEventos;
+
+            // Actualizar textos de botones principales (manteniendo iconos)
+            var btnCancelarEvento = this.FindName("btnCancelarEvento") as Button;
+            var btnGuardarEvento = this.FindName("btnGuardarEvento") as Button;
+            var btnVerDocumento = this.FindName("btnVerDocumento") as Button;
+            var btnDescargarDocumento = this.FindName("btnDescargarDocumento") as Button;
+            var btnSeleccionarArchivo = this.FindName("btnSeleccionarArchivo") as Button;
+
+            if (btnCancelarEvento != null) btnCancelarEvento.Content = t.Cancelar;
+            if (btnGuardarEvento != null) btnGuardarEvento.Content = t.Guardar;
+            if (btnVerDocumento != null) btnVerDocumento.Content = t.VerDocumento;
+            if (btnDescargarDocumento != null) btnDescargarDocumento.Content = t.DescargarDocumento;
+            if (btnSeleccionarArchivo != null) btnSeleccionarArchivo.Content = t.SeleccionarArchivo;
+
+            // Actualizar navbar
+            navbar.ActualizarIdioma(idioma);
+
+            // Actualizar textos de los grids de edición
+            var txtTituloEditarEvento = this.FindName("txtTituloEditarEvento") as TextBlock;
+            var txtEstadoEventoLabel = this.FindName("txtEstadoEventoLabel") as TextBlock;
+
+            var txtTituloEditarNota = this.FindName("txtTituloEditarNota") as TextBlock;
+            var txtTituloNotaLabel = this.FindName("txtTituloNotaLabel") as TextBlock;
+            var txtDescripcionNotaLabel = this.FindName("txtDescripcionNotaLabel") as TextBlock;
+
+            var txtTituloEditarDocumento = this.FindName("txtTituloEditarDocumento") as TextBlock;
+            var txtNombreDocumentoLabel = this.FindName("txtNombreDocumentoLabel") as TextBlock;
+            var txtTipoDocumentoLabel = this.FindName("txtTipoDocumentoLabel") as TextBlock;
+            var txtArchivoSeleccionadoLabel = this.FindName("txtArchivoSeleccionado") as TextBlock; // Usar el nombre correcto del XAML
+
+            var txtTituloEditarTarea = this.FindName("txtTituloEditarTarea") as TextBlock;
+            var txtPrioridadTareaLabel = this.FindName("txtPrioridadTareaLabel") as TextBlock;
+            var txtFechaVencimientoTareaLabel = this.FindName("txtFechaVencimientoTareaLabel") as TextBlock;
+            var txtEstadoTareaLabel = this.FindName("txtEstadoTareaLabel") as TextBlock;
+
+            if (txtTituloEditarEvento != null) txtTituloEditarEvento.Text = t.TituloEditarEvento;
+            if (txtEstadoEventoLabel != null) txtEstadoEventoLabel.Text = t.EstadoEventoLabel;
+
+            if (txtTituloEditarNota != null) txtTituloEditarNota.Text = t.TituloEditarNota;
+            if (txtTituloNotaLabel != null) txtTituloNotaLabel.Text = t.TituloNotaLabel;
+            if (txtDescripcionNotaLabel != null) txtDescripcionNotaLabel.Text = t.DescripcionNotaLabel;
+
+            if (txtTituloEditarDocumento != null) txtTituloEditarDocumento.Text = t.TituloEditarDocumento;
+            if (txtNombreDocumentoLabel != null) txtNombreDocumentoLabel.Text = t.NombreDocumentoLabel;
+            if (txtTipoDocumentoLabel != null) txtTipoDocumentoLabel.Text = t.TipoDocumentoLabel;
+            if (txtArchivoSeleccionadoLabel != null) txtArchivoSeleccionadoLabel.Text = t.ArchivoSeleccionadoLabel;
+
+            if (txtTituloEditarTarea != null) txtTituloEditarTarea.Text = t.TituloEditarTarea;
+            if (txtPrioridadTareaLabel != null) txtPrioridadTareaLabel.Text = t.PrioridadTareaLabel;
+            if (txtFechaVencimientoTareaLabel != null) txtFechaVencimientoTareaLabel.Text = t.FechaVencimientoTareaLabel;
+            if (txtEstadoTareaLabel != null) txtEstadoTareaLabel.Text = t.EstadoTareaLabel;
+        }
+        #endregion
 
     }
 

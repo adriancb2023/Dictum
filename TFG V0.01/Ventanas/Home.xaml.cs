@@ -561,28 +561,40 @@ namespace TFG_V0._01.Ventanas
 
             var idiomas = new (string Titulo, string Subtitulo, string ResumenCasos, string ResumenClientes, string ResumenDocumentos, string ResumenEventos,
                 string Lunes, string Martes, string Miercoles, string Jueves, string Viernes, string Sabado, string Domingo,
-                string ListaTareas, string BtnAñadirTarea, string BtnVerTodosCasos, string CasosRecientes, string NCasos, string CCliente, string CTipo, string CEstado, string CAcciones, string Version, string Hoy)[]
+                string ListaTareas, string BtnAñadirTarea, string BtnVerTodosCasos, string CasosRecientes, string NCasos, string CCliente, string CTipo, string CEstado, string CAcciones, string Version, string Hoy,
+                string SemanaActual, string EventosDiaSeleccionado, string Documentos, string ProximosEventos, string CasoAsociado, string TituloTarea, string DescripcionTarea, 
+                string FechaVencimiento, string Prioridad, string EstadoTarea, string AñadirTarea, string Copyright)[]
             {
                 ("Panel de control.", "Bienvenido a la aplicación de gestión de casos. Se encuentra en el Dashboard de la aplicacion.",
                  "Casos Activos:", "Clientes:", "Documentos:", "Eventos Póximos:",
                  "Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom",
-                 "Tareas Pendientes", "Añadir Tarea", "Ver todos los casos", "Casos Recientes", "Nº Caso", "Cliente", "Tipo", "Estado", "Acciones", "Versión: ", "Hoy"),
+                 "Tareas Pendientes", "Añadir Tarea", "Ver todos los casos", "Casos Recientes", "Nº Caso", "Cliente", "Tipo", "Estado", "Acciones", "Versión: ", "Hoy",
+                 "Semana actual", "Eventos del día seleccionado", "Documentos", "Próximos Eventos", "Caso asociado:", "Título:", "Descripción:", 
+                 "Fecha de vencimiento:", "Prioridad:", "Estado:", "Añadir Tarea", "© 2025 TFG"),
                 ("Dashboard", "Welcome to the case management application. You are on the application's dashboard.",
                  "Active Cases:", "Clients:", "Documents:", "Upcoming Events:",
                  "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun",
-                 "Pending Tasks", "Add Task", "View All Cases", "Recent Cases", "Case No.", "Client", "Type", "Status", "Actions", "Version: ", "Today"),
+                 "Pending Tasks", "Add Task", "View All Cases", "Recent Cases", "Case No.", "Client", "Type", "Status", "Actions", "Version: ", "Today",
+                 "Current Week", "Selected Day Events", "Documents", "Upcoming Events", "Associated Case:", "Title:", "Description:", 
+                 "Due Date:", "Priority:", "Status:", "Add Task", "© 2025 TFG"),
                 ("Panell de control", "Benvingut a l'aplicació de gestió de casos. Estàs al panell de l'aplicació.",
                  "Casos Actius:", "Clients:", "Documents:", "Esdeveniments propers:",
                  "Dll", "Dt", "Dc", "Dj", "Dv", "Ds", "Dg",
-                 "Tasques pendents", "Afegir tasca", "Veure tots els casos", "Casos recents", "Nº Cas", "Client", "Tipus", "Estat", "Accions", "Versió: ", "Avui"),
+                 "Tasques pendents", "Afegir tasca", "Veure tots els casos", "Casos recents", "Nº Cas", "Client", "Tipus", "Estat", "Accions", "Versió: ", "Avui",
+                 "Setmana actual", "Esdeveniments del dia seleccionat", "Documents", "Esdeveniments propers", "Cas associat:", "Títol:", "Descripció:", 
+                 "Data de venciment:", "Prioritat:", "Estat:", "Afegir tasca", "© 2025 TFG"),
                 ("Panel de control", "Benvido á aplicación de xestión de casos. Estás no panel da aplicación.",
                  "Casos activos:", "Clientes:", "Documentos:", "Eventos próximos:",
                  "Lun", "Mar", "Mér", "Xov", "Ven", "Sáb", "Dom",
-                 "Tarefas pendentes", "Engadir tarefa", "Ver todos os casos", "Casos recentes", "Nº Caso", "Cliente", "Tipo", "Estado", "Accións", "Versión: ", "Hoxe"),
+                 "Tarefas pendentes", "Engadir tarefa", "Ver todos os casos", "Casos recentes", "Nº Caso", "Cliente", "Tipo", "Estado", "Accións", "Versión: ", "Hoxe",
+                 "Semana actual", "Eventos do día seleccionado", "Documentos", "Eventos próximos", "Caso asociado:", "Título:", "Descrición:", 
+                 "Data de vencemento:", "Prioridade:", "Estado:", "Engadir tarefa", "© 2025 TFG"),
                 ("Kontrol panela", "Ongi etorri kasuen kudeaketa aplikaziora. Aplikazioaren panel nagusian zaude.",
                  "Kasuan aktiboak:", "Bezeroak:", "Dokumentuak:", "Hurrengo ekitaldiak:",
                  "Al", "Ar", "Az", "Og", "Or", "La", "Ig",
-                 "Zain dauden zereginak", "Zeregina gehitu", "Kasu guztiak ikusi", "Azken kasuak", "Kasua Nº", "Bezeroa", "Mota", "Egoera", "Ekintzak", "Bertsioa: ", "Gaur")
+                 "Zain dauden zereginak", "Zeregina gehitu", "Kasu guztiak ikusi", "Azken kasuak", "Kasua Nº", "Bezeroa", "Mota", "Egoera", "Ekintzak", "Bertsioa: ", "Gaur",
+                 "Aste unekoa", "Aukeratutako eguneko ekitaldiak", "Dokumentuak", "Hurrengo ekitaldiak", "Lotutako kasua:", "Izenburua:", "Deskribapena:", 
+                 "Epemuga:", "Lehentasuna:", "Egoera:", "Zeregina gehitu", "© 2025 TFG")
             };
 
             if (idioma < 0 || idioma >= idiomas.Length)
@@ -599,13 +611,27 @@ namespace TFG_V0._01.Ventanas
             listaTareas.Text = t.ListaTareas;
             btnAñadirTarea.Content = t.BtnAñadirTarea;
             casosRecientes.Text = t.CasosRecientes;
-            ncasos.Text = t.NCasos;
-            Ccliente.Text = t.CCliente;
-            Ctipo.Text = t.CTipo;
-            Cestado.Text = t.CEstado;
-            Cacciones.Text = t.CAcciones;
-            Version.Text = t.Version;
+            txtNcaso.Text = t.NCasos;
+            txtCliente.Text = t.CCliente;
+            txtTipo.Text = t.CTipo;
+            txtEstado.Text = t.CEstado;
+            txtAcciones.Text = t.CAcciones;
+            txtVersion.Text = t.Version;
             hoy.Text = t.Hoy;
+
+            // Nuevos TextBlock
+            txtSemanaActual.Text = t.SemanaActual;
+            txtEventosDiaSeleccionado.Text = t.EventosDiaSeleccionado;
+            txtDocumentos.Text = t.Documentos;
+            txtProximosEventos.Text = t.ProximosEventos;
+            txtCasoAsociado.Text = t.CasoAsociado;
+            txtTituloTarea.Text = t.TituloTarea;
+            txtDescripcionTarea.Text = t.DescripcionTarea;
+            txtFechaVencimiento.Text = t.FechaVencimiento;
+            txtPrioridad.Text = t.Prioridad;
+            txtEstadoTarea.Text = t.EstadoTarea;
+            txtAñadirTarea.Text = t.AñadirTarea;
+            txtCopyright.Text = t.Copyright;
         }
         #endregion
 

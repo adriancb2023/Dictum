@@ -64,10 +64,10 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Button}">
-                        <Border x:Name="border" Background="{TemplateBinding Background}" 
-                                CornerRadius="20" BorderThickness="{TemplateBinding BorderThickness}" 
+                        <Border x:Name="border" Background="{TemplateBinding Background}"
+                                CornerRadius="20" BorderThickness="{TemplateBinding BorderThickness}"
                                 BorderBrush="{TemplateBinding BorderBrush}">
-                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                               RecognizesAccessKey="True"
                                               Content="{TemplateBinding Content}"
@@ -81,10 +81,6 @@
                             <Trigger Property="IsPressed" Value="true">
                                 <Setter Property="Background" Value="#DDDDDD" TargetName="border"/>
                             </Trigger>
-                            <!-- Trigger para cambiar el fondo en modo claro -->
-                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
-                                <Setter Property="Background" Value="#30000000" TargetName="border"/>
-                            </DataTrigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
@@ -408,6 +404,9 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
+
+        <SolidColorBrush x:Key="SelectedDayBackgroundDark" Color="#2196F3"/>
+        <SolidColorBrush x:Key="SelectedDayBackgroundLight" Color="#FF1976D2"/>
     </Window.Resources>
 
     <Grid>
@@ -826,9 +825,34 @@
                                         <DataTemplate>
                                             <Button Content="{Binding Nombre}" Command="{Binding DataContext.SeleccionarDiaCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding Fecha}"
                                                     Margin="5,0" Padding="0,10" Height="40"
-                                                    Style="{StaticResource ThemeAwareRoundedButtonStyle}"
-                                                    Background="{Binding IsSelected, Converter={StaticResource BoolToBrushConverter}}"
-                                                    FontWeight="Bold" FontSize="15" Foreground="White" HorizontalAlignment="Stretch"/>
+                                                    FontWeight="Bold" FontSize="15" Foreground="White" HorizontalAlignment="Stretch">
+                                                <Button.Style>
+                                                    <Style TargetType="Button" BasedOn="{StaticResource ThemeAwareRoundedButtonStyle}">
+                                                        <Setter Property="Background" Value="Transparent"/>
+                                                        <Style.Triggers>
+                                                            <!-- Seleccionado y modo oscuro -->
+                                                            <MultiDataTrigger>
+                                                                <MultiDataTrigger.Conditions>
+                                                                    <Condition Binding="{Binding IsSelected}" Value="True"/>
+                                                                    <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True"/>
+                                                                </MultiDataTrigger.Conditions>
+                                                                <Setter Property="Background" Value="{StaticResource SelectedDayBackgroundDark}"/>
+                                                                <Setter Property="Foreground" Value="White"/>
+                                                            </MultiDataTrigger>
+                                                            <!-- Seleccionado y modo claro -->
+                                                            <MultiDataTrigger>
+                                                                <MultiDataTrigger.Conditions>
+                                                                    <Condition Binding="{Binding IsSelected}" Value="True"/>
+                                                                    <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False"/>
+                                                                </MultiDataTrigger.Conditions>
+                                                                <Setter Property="Background" Value="{StaticResource SelectedDayBackgroundLight}"/>
+                                                                <Setter Property="Foreground" Value="White"/>
+                                                                <Setter Property="BorderBrush" Value="{StaticResource SelectedDayBackgroundLight}"/>
+                                                            </MultiDataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Button.Style>
+                                            </Button>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>

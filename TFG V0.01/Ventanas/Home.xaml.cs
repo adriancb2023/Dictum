@@ -1332,6 +1332,7 @@ namespace TFG_V0._01.Ventanas
         //revisar funcion CheckBox_TareaFinalizada => no funciona al 100% en local.
         #endregion
 
+        #region 💥 Cambiar Mes
         // Implementación de los manejadores de eventos
         private void btnMesAnterior_MouseEnter(object sender, MouseEventArgs e)
         {
@@ -1475,7 +1476,9 @@ namespace TFG_V0._01.Ventanas
                 MessageBox.Show($"Error al filtrar eventos por día: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+        #endregion
 
+        #region 🛠️ Métodos de Colores
         private string ObtenerColorEstado(string estado)
         {
             return estado?.ToLower() switch
@@ -1486,14 +1489,18 @@ namespace TFG_V0._01.Ventanas
                 _ => "#BDBDBD"              // Gris claro por defecto
             };
         }
+        #endregion
 
+        #region 🗓️ Selección de Día
         private void SeleccionarDia(DateTime fecha)
         {
             var dia = DiasSemana.FirstOrDefault(d => d.Fecha.Date == fecha.Date);
             if (dia != null)
                 DiaSeleccionado = dia;
         }
+        #endregion
 
+        #region 🎬 Animaciones de Paneles
         private void HideSlidePanel()
         {
             DoubleAnimation slideOutAnimation = new DoubleAnimation
@@ -1532,7 +1539,9 @@ namespace TFG_V0._01.Ventanas
 
             SlidePanelTransform.BeginAnimation(TranslateTransform.XProperty, slideInAnimation);
         }
+        #endregion
 
+        #region 🗑️ Eliminar Caso
         private async void EliminarCaso_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button button && button.DataContext is CasoViewModel caso)
@@ -1554,7 +1563,9 @@ namespace TFG_V0._01.Ventanas
                 }
             }
         }
+        #endregion
 
+        #region 📝 Panel de Tareas
         private async void btnAñadirTarea_Click(object sender, RoutedEventArgs e)
         {
             // Configurar el grid
@@ -1735,6 +1746,10 @@ namespace TFG_V0._01.Ventanas
             CerrarPanelTarea();
         }
 
+        #endregion
+
+        #region 🗂️ Cargar Casos Disponibles
+
         private async Task CargarCasosDisponibles()
         {
             await _supabaseCasos.InicializarAsync();
@@ -1781,6 +1796,7 @@ namespace TFG_V0._01.Ventanas
                 MessageBox.Show($"Error al cargar los eventos de hoy: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+        #endregion
 
         public class EventoViewModel : INotifyPropertyChanged
         {

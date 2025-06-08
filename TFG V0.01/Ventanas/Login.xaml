@@ -259,10 +259,6 @@
             <!-- Contenedor principal -->
             <Border x:Name="FormBorder" Width="350" Height="450" CornerRadius="15" Background="#40FFFFFF" VerticalAlignment="Center">
                 
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="15" Direction="-90" RenderingBias="Quality" ShadowDepth="2" Color="#20000000"/>
-                </Border.Effect>
-
                 <Grid Margin="30">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>

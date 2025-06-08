@@ -1,4 +1,4 @@
-﻿ using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using System;
 using System.Windows;
 using System.Windows.Input;
@@ -24,9 +24,10 @@ namespace TFG_V0._01
         #region Constructor
         public MainWindow()
         {
-            DetectarModo();
-            ReadConfiguration();
             InitializeComponent();
+            isDarkTheme = DetectarModoSistema();
+            ReadConfiguration();
+            UpdateGradient(isDarkTheme);
             cargarIdioma(idioma);
             StartLoadingAnimation();
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
@@ -124,16 +125,27 @@ namespace TFG_V0._01
         #endregion
 
         #region detectar modo claro/oscuro del sistema
-        private void DetectarModo()
+        private bool DetectarModoSistema()
         {
             var theme = Registry.GetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize", "AppsUseLightTheme", 1);
             if (theme is int themeValue && themeValue == 0)
             {
-                isDarkTheme = true;
+                return true; // Modo oscuro
             }
             else
             {
-                isDarkTheme = false;
+                return false; // Modo claro
+            }
+        }
+
+        private void UpdateGradient(bool isDark)
+        {
+            var currentGradient = (LinearGradientBrush)this.Resources["CurrentGradient"];
+            var sourceGradient = (LinearGradientBrush)this.Resources[isDark ? "DarkModeGradient" : "LightModeGradient"];
+
+            for (int i = 0; i < currentGradient.GradientStops.Count; i++)
+            {
+                currentGradient.GradientStops[i].Color = sourceGradient.GradientStops[i].Color;
             }
         }
         #endregion

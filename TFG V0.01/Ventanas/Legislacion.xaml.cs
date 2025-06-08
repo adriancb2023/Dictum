@@ -15,21 +15,23 @@ using TFG_V0._01.Supabase;
 
 namespace TFG_V0._01.Ventanas
 {
-    /// <summary>
-    /// Interaction logic for Legislacion.xaml
-    /// </summary>
     public partial class Legislacion : Window
     {
+        #region Variables
         private RadialGradientBrush mesh1Brush;
         private RadialGradientBrush mesh2Brush;
+        #endregion
 
+        #region Initialization
         public Legislacion()
         {
             InitializeComponent();
             CrearFondoAnimado();
             AplicarModoSistema();
         }
+        #endregion
 
+        #region Fondo
         private void CrearFondoAnimado()
         {
             // Crear los brushes
@@ -58,7 +60,9 @@ namespace TFG_V0._01.Ventanas
             meshGradientBrush = new DrawingBrush(drawingGroup) { Stretch = Stretch.Fill };
             ((Grid)this.Content).Background = meshGradientBrush;
         }
+        #endregion
 
+        #region Aplicar MODO CLARO/OSCURO
         private void AplicarModoSistema()
         {
             this.Tag = MainWindow.isDarkTheme;
@@ -100,11 +104,14 @@ namespace TFG_V0._01.Ventanas
             this.Resources["PrimaryTextStyle"] = primaryTextStyle;
             this.Resources["SecondaryTextStyle"] = secondaryTextStyle;
         }
+        #endregion
 
+        #region Cambio modo Claro/oscuro
         private void ThemeButton_Click(object sender, RoutedEventArgs e)
         {
             MainWindow.isDarkTheme = !MainWindow.isDarkTheme;
             AplicarModoSistema();
         }
+        #endregion
     }
 }

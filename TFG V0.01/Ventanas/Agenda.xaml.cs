@@ -87,7 +87,15 @@ namespace TFG_V0._01.Ventanas
 
         public ObservableCollection<string> RolesParaContacto
         {
-            get => _rolesParaContacto;
+            get
+            {
+                // Salvaguarda: Inicializar si es null antes de devolver
+                if (_rolesParaContacto == null)
+                {
+                    _rolesParaContacto = new ObservableCollection<string>();
+                }
+                return _rolesParaContacto;
+            }
             set { _rolesParaContacto = value; OnPropertyChanged(); }
         }
 
@@ -104,25 +112,30 @@ namespace TFG_V0._01.Ventanas
         #region Inicializacion
         public Agenda()
         {
+            // Inicializar campos privados subyacentes al principio para asegurar que no sean null
+            _eventosDelDia = new ObservableCollection<EventoViewModel>();
+            _eventosDeHoy = new ObservableCollection<EventoViewModel>();
+            _diasConEventoColor = new Dictionary<DateTime, string>();
+            _contactos = new ObservableCollection<Contacto>();
+            _casosParaContacto = new ObservableCollection<TFG_V0._01.Supabase.Models.Caso>();
+            _rolesParaContacto = new ObservableCollection<string>(); // Inicializar campo privado directamente
+            Casos = new ObservableCollection<TFG_V0._01.Supabase.Models.Caso>();
+
             InitializeComponent();
             DataContext = this;
-            InitializeAnimations();
-            CrearFondoAnimado();
-            AplicarModoSistema();
 
             _eventosCitasService = new SupabaseEventosCitas();
             _estadosEventosService = new SupabaseEstadosEventos();
             _casosService = new SupabaseCasos();
             _contactosService = new SupabaseContactos();
 
-            EventosDelDia = new ObservableCollection<EventoViewModel>();
-            EventosDeHoy = new ObservableCollection<EventoViewModel>();
-            DiasConEventoColor = new Dictionary<DateTime, string>();
-            Contactos = new ObservableCollection<Contacto>();
+            // Re-asegurar que RolesParaContacto no sea null justo antes de cargar el idioma
+            if(_rolesParaContacto == null) _rolesParaContacto = new ObservableCollection<string>();
 
-            // Inicializar colecciones para Contacto
-            CasosParaContacto = new ObservableCollection<TFG_V0._01.Supabase.Models.Caso>();
-            RolesParaContacto = new ObservableCollection<string>();
+            CargarIdioma(MainWindow.idioma);
+            InitializeAnimations();
+            CrearFondoAnimado();
+            AplicarModoSistema();
 
             _fechaSeleccionada = DateTime.Today;
 
@@ -134,11 +147,113 @@ namespace TFG_V0._01.Ventanas
 
             // Cargar datos iniciales (incluyendo datos para Contacto)
             CargarDatosIniciales();
-            CargarDatosContactoAsync();
+            CargarDatosContactoAsync(); // Esto carga casos y roles, pero la asignación a cbEstadoContacto se hace en ShowNewContactPanel
             CargarCasosAsync();
             _ = CargarContactosAsync(); // Fire and forget, but properly handled
         }
         #endregion
+
+        private void CargarIdioma(int idioma)
+        {
+            // Definición de la tupla con todos los campos nombrados.
+            var idiomas = new (string HeaderAgenda, string TituloEventosDia, string TituloEventosHoy, string TituloContactos,
+                               string BtnNuevoContacto, string PanelNuevoEventoTitulo, string LabelEventTitle, string LabelEventDescription,
+                               string LabelEventTime, string LabelEventStatus, string LabelEventCase, string BtnCancelEvent, string BtnGuardarEvento,
+                               string PanelNuevoContactoTitulo, string LabelContactName, string LabelContactType, string LabelContactCase, string LabelContactPhone,
+                               string LabelContactEmail, string BtnCancelContact, string BtnGuardarContacto,
+                               // Campos específicos para los tipos de contacto
+                               string ContactoAbogado, string ContactoCliente, string ContactoTestigo, string ContactoPerito,
+                               string ContactoJuez, string ContactoSecretarioJudicial, string ContactoOtro)[]
+            {
+                // Español (Idioma 0)
+                ("Agenda", "Eventos del día seleccionado", "Eventos de Hoy", "Contactos",
+                 "Nuevo Contacto", "Nuevo Evento", "Título", "Descripción",
+                 "Hora y minutos", "Estado", "Caso", "Cancelar", "Guardar",
+                 "Nuevo Contacto", "Nombre", "Tipo de Contacto", "Caso asociado", "Teléfono",
+                 "Email", "Cancelar", "Guardar",
+                 "Abogado", "Cliente", "Testigo", "Perito", "Juez", "Secretario Judicial", "Otro"),
+
+                // Inglés (Idioma 1)
+                ("Agenda", "Selected Day Events", "Today's Events", "Contacts",
+                 "New Contact", "New Event", "Title", "Description",
+                 "Time and minutes", "Status", "Case", "Cancel", "Save",
+                 "New Contact", "Name", "Contact Type", "Associated Case", "Phone",
+                 "Email", "Cancel", "Save",
+                 "Lawyer", "Client", "Witness", "Expert", "Judge", "Judicial Secretary", "Other"),
+
+                // Catalán (Idioma 2)
+                ("Agenda", "Esdeveniments del dia seleccionat", "Esdeveniments d'Avui", "Contactes",
+                 "Nou Contacte", "Nou Esdeveniment", "Títol", "Descripció",
+                 "Hora i minuts", "Estat", "Cas", "Cancel·lar", "Desar",
+                 "Nou Contacte", "Nom", "Tipus de Contacte", "Cas associat", "Telèfon",
+                 "Correu electrònic", "Cancel·lar", "Desar",
+                 "Advocat", "Client", "Testimoni", "Pèrit", "Jutge", "Secretari Judicial", "Altres"),
+
+                // Gallego (Idioma 3)
+                ("Axenda", "Eventos do día seleccionado", "Eventos de Hoxe", "Contactos",
+                 "Novo Contacto", "Novo Evento", "Título", "Descrición",
+                 "Hora e minutos", "Estado", "Caso", "Cancelar", "Gardar",
+                 "Novo Contacto", "Nome", "Tipo de Contacto", "Caso asociado", "Teléfono",
+                 "Email", "Cancelar", "Gardar",
+                 "Avogado", "Cliente", "Testemuña", "Perito", "Xuíz", "Secretario Xudicial", "Outro"),
+
+                // Euskera (Idioma 4)
+                ("Agenda", "Aukeratutako Eguneko Gertaerak", "Gaurko Gertaerak", "Kontaktuak",
+                 "Kontaktu Berria", "Gertakari Berria", "Izenburua", "Deskribapena",
+                 "Ordu eta minutuak", "Egoera", "Kasu", "Utzi", "Gorde",
+                 "Kontaktu Berria", "Izena", "Kontaktu Mota", "Lotutako kasua", "Telefonoa",
+                 "Posta elektronikoa", "Utzi", "Gorde",
+                 "Abokatu", "Bezeroa", "Lekuko", "Peritu", "Epaile", "Idazkari Judiziala", "Bestelakoak")
+            };
+
+            if (idioma < 0 || idioma >= idiomas.Length)
+                idioma = 0; // Fallback a español
+
+            var t = idiomas[idioma];
+
+            // Actualizar textos principales y títulos de sección
+            txtHeaderAgenda.Text = t.HeaderAgenda;
+            txtTituloEventosDia.Text = t.TituloEventosDia;
+            txtTituloEventosHoy.Text = t.TituloEventosHoy;
+            txtTituloContactos.Text = t.TituloContactos;
+
+            // Actualizar textos de botones principales
+            btnNuevoContacto.Content = t.BtnNuevoContacto;
+
+            // Actualizar textos del panel Nuevo Evento
+            txtPanelNuevoEventoTitulo.Text = t.PanelNuevoEventoTitulo;
+            txtLabelEventTitle.Text = t.LabelEventTitle;
+            txtLabelEventDescription.Text = t.LabelEventDescription;
+            txtLabelEventTime.Text = t.LabelEventTime;
+            txtLabelEventStatus.Text = t.LabelEventStatus;
+            txtLabelEventCase.Text = t.LabelEventCase;
+            btnCancelEvent.Content = t.BtnCancelEvent;
+            btnGuardarEvento.Content = t.BtnGuardarEvento;
+
+            // Actualizar textos del panel Nuevo Contacto
+            txtPanelNuevoContactoTitulo.Text = t.PanelNuevoContactoTitulo;
+            txtLabelContactName.Text = t.LabelContactName;
+            txtLabelContactType.Text = t.LabelContactType;
+            txtLabelContactCase.Text = t.LabelContactCase;
+            txtLabelContactPhone.Text = t.LabelContactPhone;
+            txtLabelContactEmail.Text = t.LabelContactEmail;
+            btnCancelContact.Content = t.BtnCancelContact;
+            btnGuardarContacto.Content = t.BtnGuardarContacto;
+
+            // Asegurar que RolesParaContacto no sea null antes de usarlo
+            if(_rolesParaContacto == null) _rolesParaContacto = new ObservableCollection<string>();
+
+            // Actualizar items del ComboBox de tipo de contacto (cbEstadoContacto en XAML se usa para tipo de contacto)
+            RolesParaContacto.Clear(); // Limpiar la colección
+            RolesParaContacto.Add(t.ContactoAbogado);
+            RolesParaContacto.Add(t.ContactoCliente);
+            RolesParaContacto.Add(t.ContactoTestigo);
+            RolesParaContacto.Add(t.ContactoPerito);
+            RolesParaContacto.Add(t.ContactoJuez);
+            RolesParaContacto.Add(t.ContactoSecretarioJudicial);
+            RolesParaContacto.Add(t.ContactoOtro);
+
+        }
 
         #region Modo oscuro/claro
         private void AplicarModoSistema()

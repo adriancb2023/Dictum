@@ -24,9 +24,45 @@ namespace TFG_V0._01.Ventanas.SubVentanas
             _supabaseClientes = new SupabaseClientes();
             _supabaseTiposCaso = new SupabaseTiposCaso();
             _supabaseEstados = new SupabaseEstados();
+            CargarIdioma(MainWindow.idioma);
             LoadData();
 
             this.IsVisibleChanged += AñadirCasoWindow_IsVisibleChanged;
+        }
+
+        private void CargarIdioma(int idioma)
+        {
+            var idiomas = new (string Titulo, string TituloLabel, string Descripcion, string Cliente, 
+                string TipoCaso, string Estado, string FechaInicio, string Cancelar, string Guardar)[]
+            {
+                ("Añadir Nuevo Caso", "Título:", "Descripción:", "Cliente:", 
+                "Tipo de Caso:", "Estado:", "Fecha de Inicio:", "Cancelar", "Guardar"),
+                ("Add New Case", "Title:", "Description:", "Client:", 
+                "Case Type:", "Status:", "Start Date:", "Cancel", "Save"),
+                ("Afegir Nou Cas", "Títol:", "Descripció:", "Client:", 
+                "Tipus de Cas:", "Estat:", "Data d'Inici:", "Cancel·lar", "Guardar"),
+                ("Engadir Novo Caso", "Título:", "Descrición:", "Cliente:", 
+                "Tipo de Caso:", "Estado:", "Data de Inicio:", "Cancelar", "Gardar"),
+                ("Kasu Berria Gehitu", "Izenburua:", "Deskribapena:", "Bezeroa:", 
+                "Kasua Mota:", "Egoera:", "Hasiera Data:", "Utzi", "Gorde")
+            };
+
+            if (idioma < 0 || idioma >= idiomas.Length)
+                idioma = 0;
+
+            var t = idiomas[idioma];
+
+            txtTituloPrincipal.Text = t.Titulo;
+            txtLabelTitulo.Text = t.TituloLabel;
+            txtLabelDescripcion.Text = t.Descripcion;
+            txtLabelCliente.Text = t.Cliente;
+            txtLabelTipoCaso.Text = t.TipoCaso;
+            txtLabelEstado.Text = t.Estado;
+            txtLabelFechaInicio.Text = t.FechaInicio;
+
+            // Actualizar textos de los botones
+            btnCancelar.Content = t.Cancelar;
+            btnGuardar.Content = t.Guardar;
         }
 
         private void AñadirCasoWindow_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)

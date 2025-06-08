@@ -302,7 +302,7 @@
         </Grid.RowDefinitions>
 
         <!-- Título -->
-        <TextBlock Grid.Row="0" 
+        <TextBlock x:Name="txtTituloPrincipal" Grid.Row="0" 
                    Margin="20,20,20,20">
             <TextBlock.Style>
                 <Style TargetType="TextBlock">
@@ -325,7 +325,7 @@
                      Margin="20,0,20,0">
             <StackPanel>
                 <!-- Título -->
-                <TextBlock Margin="0,10,0,5">
+                <TextBlock x:Name="txtLabelTitulo" Margin="0,10,0,5">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock">
                             <Setter Property="Foreground" Value="White"/>
@@ -343,7 +343,7 @@
                          Margin="0,0,0,15"/>
 
                 <!-- Descripción -->
-                <TextBlock Margin="0,10,0,5">
+                <TextBlock x:Name="txtLabelDescripcion" Margin="0,10,0,5">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock">
                             <Setter Property="Foreground" Value="White"/>
@@ -364,7 +364,7 @@
                          Margin="0,0,0,15"/>
 
                 <!-- Cliente -->
-                <TextBlock Margin="0,10,0,5">
+                <TextBlock x:Name="txtLabelCliente" Margin="0,10,0,5">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock">
                             <Setter Property="Foreground" Value="White"/>
@@ -389,7 +389,7 @@
                 </ComboBox>
 
                 <!-- Tipo de Caso -->
-                <TextBlock Margin="0,10,0,5">
+                <TextBlock x:Name="txtLabelTipoCaso" Margin="0,10,0,5">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock">
                             <Setter Property="Foreground" Value="White"/>
@@ -414,7 +414,7 @@
                 </ComboBox>
 
                 <!-- Estado -->
-                <TextBlock Margin="0,10,0,5">
+                <TextBlock x:Name="txtLabelEstado" Margin="0,10,0,5">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock">
                             <Setter Property="Foreground" Value="White"/>
@@ -440,7 +440,7 @@
                 </ComboBox>
 
                 <!-- Fecha de Inicio -->
-                <TextBlock Margin="0,10,0,5">
+                <TextBlock x:Name="txtLabelFechaInicio" Margin="0,10,0,5">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock">
                             <Setter Property="Foreground" Value="White"/>
@@ -464,12 +464,12 @@
                     Orientation="Horizontal" 
                     HorizontalAlignment="Right" 
                     Margin="20,20,20,20">
-            <Button Content="Cancelar" 
+            <Button x:Name="btnCancelar" Content="Cancelar" 
                     Style="{StaticResource RoundedButtonStyle}"
                     Background="#30FFFFFF"
                     Margin="0,0,10,0"
                     Click="btnCancelar_Click" Height="40" Width="100"/>
-            <Button Content="Guardar" 
+            <Button x:Name="btnGuardar" Content="Guardar" 
                     Style="{StaticResource RoundedButtonStyle}"
                     Background="#2979FF"
                     Click="btnGuardar_Click" Width="100"/>

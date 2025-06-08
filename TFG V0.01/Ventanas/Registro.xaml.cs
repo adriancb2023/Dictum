@@ -244,16 +244,25 @@ namespace TFG_V0._01.Ventanas
                 app.Resources["ButtonHoverLight"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFEEEEEE"));
             }
 
-            // Aplicar colores a los controles
+            // Aplicar colores a los campos del formulario
             UsernameTextBox.Foreground = (Brush)Application.Current.Resources["TextBoxForegroundBrush"];
             PasswordBox.Foreground = (Brush)Application.Current.Resources["TextBoxForegroundBrush"];
             PasswordBox2.Foreground = (Brush)Application.Current.Resources["TextBoxForegroundBrush"];
 
-            // Actualizar los placeholders si existen
-            var adornerLayer = AdornerLayer.GetAdornerLayer(UsernameTextBox);
+            // Actualizar los placeholders para todos los campos
+            ActualizarPlaceholders(UsernameTextBox, _correoPlaceholder);
+            ActualizarPlaceholders(PasswordBox, _passPlaceholder);
+            ActualizarPlaceholders(PasswordBox2, _pass2Placeholder);
+
+            IniciarAnimacionMesh();
+        }
+
+        private void ActualizarPlaceholders(Control control, string placeholderText)
+        {
+            var adornerLayer = AdornerLayer.GetAdornerLayer(control);
             if (adornerLayer != null)
             {
-                var adorners = adornerLayer.GetAdorners(UsernameTextBox);
+                var adorners = adornerLayer.GetAdorners(control);
                 if (adorners != null)
                 {
                     foreach (var adorner in adorners)
@@ -268,8 +277,6 @@ namespace TFG_V0._01.Ventanas
                     }
                 }
             }
-
-            IniciarAnimacionMesh();
         }
 
         private void ThemeButton_Click(object sender, RoutedEventArgs e)

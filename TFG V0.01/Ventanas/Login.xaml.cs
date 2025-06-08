@@ -176,7 +176,6 @@ namespace TFG_V0._01.Ventanas
                 app.Resources["TextBoxBackgroundBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#20FFFFFF"));
                 app.Resources["TextBoxForegroundBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFFFFF"));
                 app.Resources["TextBoxBorderBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#AAFFFFFF"));
-                app.Resources["TextBoxForegroundBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFFFFF"));
             }
             else
             {
@@ -198,11 +197,39 @@ namespace TFG_V0._01.Ventanas
                 app.Resources["TextBoxBackgroundBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#20FFFFFF"));
                 app.Resources["TextBoxForegroundBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#222222"));
                 app.Resources["TextBoxBorderBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#AAFFFFFF"));
-                app.Resources["TextBoxForegroundBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#222222"));
             }
+
+            // Aplicar colores a los campos del formulario
             UsernameTextBox.Foreground = (Brush)Application.Current.Resources["TextBoxForegroundBrush"];
             PasswordBox.Foreground = (Brush)Application.Current.Resources["TextBoxForegroundBrush"];
+
+            // Actualizar los placeholders para todos los campos
+            ActualizarPlaceholders(UsernameTextBox, _correoPlaceholder);
+            ActualizarPlaceholders(PasswordBox, _passPlaceholder);
+
             IniciarAnimacionMesh();
+        }
+
+        private void ActualizarPlaceholders(Control control, string placeholderText)
+        {
+            var adornerLayer = AdornerLayer.GetAdornerLayer(control);
+            if (adornerLayer != null)
+            {
+                var adorners = adornerLayer.GetAdorners(control);
+                if (adorners != null)
+                {
+                    foreach (var adorner in adorners)
+                    {
+                        if (adorner is PlaceholderAdorner placeholder)
+                        {
+                            placeholder.UpdateColors(
+                                MainWindow.isDarkTheme ? Brushes.White : Brushes.Black,
+                                MainWindow.isDarkTheme ? Brushes.WhiteSmoke : Brushes.DarkSlateGray
+                            );
+                        }
+                    }
+                }
+            }
         }
 
         private void ThemeButton_Click(object sender, RoutedEventArgs e)

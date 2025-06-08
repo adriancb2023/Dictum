@@ -50,10 +50,131 @@
     </div>
 
      <div class="form-group row mb-2">
-        <label asp-for="Input.Localizacion" class="col-sm-2 col-form-label"></label>
+        <label asp-for="Input.Localizacion" class="col-sm-2 col-form-label">Comunidades Autónomas</label>
         <div class="col-sm-10">
-             <!-- Placeholder for Localizacion - Complex control needs more work -->
-            <input asp-for="Input.Localizacion" class="form-control" placeholder="Localización (simplificado)" />
+            <div class="btn-group">
+                <button type="button" class="btn btn-default dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    <span class="selected-text">Todas</span>
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" style="max-height: 300px; overflow-y: auto;">
+                    <li>
+                        <div class="dropdown-item">
+                            <input type="checkbox" id="chkCOM_ANDALUCIA" value="ANDALUCÍA" class="comunidad-checkbox" />
+                            <label for="chkCOM_ANDALUCIA">ANDALUCÍA</label>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="dropdown-item">
+                            <input type="checkbox" id="chkCOM_ARAGON" value="ARAGÓN" class="comunidad-checkbox" />
+                            <label for="chkCOM_ARAGON">ARAGÓN</label>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="dropdown-item">
+                            <input type="checkbox" id="chkCOM_ASTURIAS" value="ASTURIAS" class="comunidad-checkbox" />
+                            <label for="chkCOM_ASTURIAS">ASTURIAS</label>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="dropdown-item">
+                            <input type="checkbox" id="chkCOM_BALEARES" value="BALEARES" class="comunidad-checkbox" />
+                            <label for="chkCOM_BALEARES">BALEARES</label>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="dropdown-item">
+                            <input type="checkbox" id="chkCOM_CANARIAS" value="CANARIAS" class="comunidad-checkbox" />
+                            <label for="chkCOM_CANARIAS">CANARIAS</label>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="dropdown-item">
+                            <input type="checkbox" id="chkCOM_CANTABRIA" value="CANTABRIA" class="comunidad-checkbox" />
+                            <label for="chkCOM_CANTABRIA">CANTABRIA</label>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="dropdown-item">
+                            <input type="checkbox" id="chkCOM_CASTILLA_LA_MANCHA" value="CASTILLA_LA_MANCHA" class="comunidad-checkbox" />
+                            <label for="chkCOM_CASTILLA_LA_MANCHA">CASTILLA LA MANCHA</label>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="dropdown-item">
+                            <input type="checkbox" id="chkCOM_CASTILLA_Y_LEON" value="CASTILLA_Y_LEÓN" class="comunidad-checkbox" />
+                            <label for="chkCOM_CASTILLA_Y_LEON">CASTILLA Y LEÓN</label>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="dropdown-item">
+                            <input type="checkbox" id="chkCOM_CATALUNA" value="CATALUÑA" class="comunidad-checkbox" />
+                            <label for="chkCOM_CATALUNA">CATALUÑA</label>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="dropdown-item">
+                            <input type="checkbox" id="chkCOM_CEUTA" value="CEUTA" class="comunidad-checkbox" />
+                            <label for="chkCOM_CEUTA">CEUTA</label>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="dropdown-item">
+                            <input type="checkbox" id="chkCOM_COMUNIDAD_VALENCIANA" value="COMUNIDAD_VALENCIANA" class="comunidad-checkbox" />
+                            <label for="chkCOM_COMUNIDAD_VALENCIANA">COMUNIDAD VALENCIANA</label>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="dropdown-item">
+                            <input type="checkbox" id="chkCOM_EXTREMADURA" value="EXTREMADURA" class="comunidad-checkbox" />
+                            <label for="chkCOM_EXTREMADURA">EXTREMADURA</label>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="dropdown-item">
+                            <input type="checkbox" id="chkCOM_GALICIA" value="GALICIA" class="comunidad-checkbox" />
+                            <label for="chkCOM_GALICIA">GALICIA</label>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="dropdown-item">
+                            <input type="checkbox" id="chkCOM_LA_RIOJA" value="LA_RIOJA" class="comunidad-checkbox" />
+                            <label for="chkCOM_LA_RIOJA">LA RIOJA</label>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="dropdown-item">
+                            <input type="checkbox" id="chkCOM_MADRID" value="MADRID" class="comunidad-checkbox" />
+                            <label for="chkCOM_MADRID">MADRID</label>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="dropdown-item">
+                            <input type="checkbox" id="chkCOM_MELILLA" value="MELILLA" class="comunidad-checkbox" />
+                            <label for="chkCOM_MELILLA">MELILLA</label>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="dropdown-item">
+                            <input type="checkbox" id="chkCOM_MURCIA" value="MURCIA" class="comunidad-checkbox" />
+                            <label for="chkCOM_MURCIA">MURCIA</label>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="dropdown-item">
+                            <input type="checkbox" id="chkCOM_NAVARRA" value="NAVARRA" class="comunidad-checkbox" />
+                            <label for="chkCOM_NAVARRA">NAVARRA</label>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="dropdown-item">
+                            <input type="checkbox" id="chkCOM_PAIS_VASCO" value="PAÍS_VASCO" class="comunidad-checkbox" />
+                            <label for="chkCOM_PAIS_VASCO">PAÍS VASCO</label>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <input type="hidden" asp-for="Input.Localizacion" id="localizacionHidden" />
             <span asp-validation-for="Input.Localizacion" class="text-danger"></span>
         </div>
     </div>
@@ -137,4 +258,28 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function() {
+            // Actualizar el texto del botón cuando se seleccionan comunidades
+            $('.comunidad-checkbox').change(function() {
+                var selectedText = [];
+                $('.comunidad-checkbox:checked').each(function() {
+                    selectedText.push($(this).next('label').text());
+                });
+                
+                if (selectedText.length === 0) {
+                    $('.selected-text').text('Todas');
+                } else {
+                    $('.selected-text').text(selectedText.join(', '));
+                }
+
+                // Actualizar el campo oculto con los valores seleccionados
+                var selectedValues = [];
+                $('.comunidad-checkbox:checked').each(function() {
+                    selectedValues.push($(this).val());
+                });
+                $('#localizacionHidden').val(selectedValues.join(','));
+            });
+        });
+    </script>
 } 

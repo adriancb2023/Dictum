@@ -1098,14 +1098,34 @@
                 <!-- Arco de progreso dinámico con gradiente mejorado -->
                 <Path x:Name="ProgressPath" StrokeThickness="8" 
                       StrokeStartLineCap="Round" StrokeEndLineCap="Round">
-                    <Path.Stroke>
-                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                            <GradientStop Color="#de9cb8" Offset="0"/>
-                            <GradientStop Color="#9dcde1" Offset="0.33"/>
-                            <GradientStop Color="#dc8eb8" Offset="0.66"/>
-                            <GradientStop Color="#98d3ec" Offset="1"/>
-                        </LinearGradientBrush>
-                    </Path.Stroke>
+                    <Path.Style>
+                        <Style TargetType="Path">
+                            <Setter Property="Stroke">
+                                <Setter.Value>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#de9cb8" Offset="0"/>
+                                        <GradientStop Color="#9dcde1" Offset="0.33"/>
+                                        <GradientStop Color="#dc8eb8" Offset="0.66"/>
+                                        <GradientStop Color="#98d3ec" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                                    <Setter Property="Stroke">
+                                        <Setter.Value>
+                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                <GradientStop Color="#d2cdc6" Offset="0"/>
+                                                <GradientStop Color="#08a693" Offset="0.33"/>
+                                                <GradientStop Color="#3a4d5f" Offset="0.66"/>
+                                                <GradientStop Color="#272c3f" Offset="1"/>
+                                            </LinearGradientBrush>
+                                        </Setter.Value>
+                                    </Setter>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Path.Style>
                     <Path.Effect>
                         <BlurEffect Radius="1"/>
                     </Path.Effect>

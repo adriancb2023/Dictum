@@ -1,5 +1,4 @@
 ﻿using JurisprudenciaApi.Controllers;
-using JurisprudenciaApi.Models;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.Wpf;
 using System;
@@ -24,6 +23,13 @@ using System.Windows.Shapes;
 using HtmlAgilityPack; // Added using
 using TFG_V0._01.Supabase;
 using TFG_V0._01.Supabase.Models;
+using System.Windows.Media.Animation;
+using System.Windows.Shapes;
+using Microsoft.Web.WebView2.Core;
+using Microsoft.Web.WebView2.Wpf;
+using TFG_V0._01.Models;
+using ComunidadAutonomaFrontend = TFG_V0._01.Models.ComunidadAutonoma;
+using ProvinciaFrontend = TFG_V0._01.Models.Provincia;
 
 namespace TFG_V0._01.Ventanas
 {
@@ -92,6 +98,7 @@ namespace TFG_V0._01.Ventanas
             { "Audiencia Territorial", "36" }
         };
         public ObservableCollection<JurisprudenciaResult> ResultadosBusqueda { get; set; }
+        public ICommand LimpiarCommand { get; private set; }
         #endregion
 
         #region Nuevas variables para paginación
@@ -100,6 +107,8 @@ namespace TFG_V0._01.Ventanas
         private bool _isLoading = false; // Para evitar múltiples llamadas simultáneas
         private JurisprudenciaSearchParameters _lastSearchParameters; // Para recordar los filtros al cargar más
         #endregion
+
+        public ObservableCollection<ComunidadAutonomaFrontend> LocalizacionesJerarquicas { get; set; }
 
         // Implementación simple de ICommand para enlazar comandos en XAML
         public class RelayCommand : ICommand
@@ -388,27 +397,121 @@ namespace TFG_V0._01.Ventanas
             }
         }
 
+        private async Task CargarDatosInicialesAsync()
+        {
+            try
+            {
+                var response = await client.GetAsync($"{ApiBaseUrl}/api/Jurisprudencia/initialData");
+                if (response.IsSuccessStatusCode)
+                {
+                    string jsonResponse = await response.Content.ReadAsStringAsync();
+                    var initialData = JsonSerializer.Deserialize<InitialDataResponse>(jsonResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                    // Añadir "Todos" si no viene de la API y es necesario
+                    initialData.Jurisdicciones.Insert(0, "Todos");
+                    initialData.TiposResolucion.Insert(0, "Todos");
+                    initialData.OrganosJudiciales.Insert(0, "Todos");
+
+                    // Cargar comunidades autónomas
+                    var comunidadesResponse = await client.GetAsync($"{ApiBaseUrl}/api/Jurisprudencia/comunidades");
+                    if (comunidadesResponse.IsSuccessStatusCode)
+                    {
+                        string comunidadesJson = await comunidadesResponse.Content.ReadAsStringAsync();
+                        var comunidades = JsonSerializer.Deserialize<List<ComunidadAutonomaFrontend>>(comunidadesJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                        
+                        // Asignar los datos a los ComboBox
+                        JurisdiccionComboBox.ItemsSource = initialData.Jurisdicciones;
+                        TipoResolucionComboBox.ItemsSource = initialData.TiposResolucion;
+                        OrganoJudicialComboBox.ItemsSource = initialData.OrganosJudiciales;
+
+                        // Seleccionar "Todos" por defecto
+                        JurisdiccionComboBox.SelectedItem = "Todos";
+                        TipoResolucionComboBox.SelectedItem = "Todos";
+                        OrganoJudicialComboBox.SelectedItem = "Todos";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar los datos iniciales: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async void LocalizacionComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (sender is ComboBox comboBox && comboBox.SelectedItem is ComunidadAutonomaFrontend comunidad)
+            {
+                try
+                {
+                    // Cargar las provincias de la comunidad seleccionada
+                    var response = await client.GetAsync($"{ApiBaseUrl}/api/Jurisprudencia/provincias/{comunidad.Nombre}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string jsonResponse = await response.Content.ReadAsStringAsync();
+                        var provincias = JsonSerializer.Deserialize<List<ProvinciaFrontend>>(jsonResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                        
+                        // Actualizar las provincias de la comunidad seleccionada
+                        if (comunidad.Provincias != null && comunidad.Provincias.GetType() != typeof(ObservableCollection<ProvinciaFrontend>))
+                        {
+                            comunidad.Provincias = new ObservableCollection<ProvinciaFrontend>(comunidad.Provincias);
+                        }
+                        foreach (var provincia in comunidad.Provincias)
+                        {
+                            // Convertir sedes de string a Sede si es necesario
+                            if (provincia.Sedes != null && provincia.Sedes.Count > 0 && provincia.Sedes.First() is string)
+                            {
+                                var sedesConvertidas = provincia.Sedes.Cast<string>().Select(nombre => new TFG_V0._01.Models.Sede { Nombre = nombre }).ToList();
+                                provincia.Sedes = new ObservableCollection<TFG_V0._01.Models.Sede>(sedesConvertidas);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error al cargar las provincias: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
         private JurisprudenciaSearchParameters GetSearchParametersFromUI()
         {
-            var parameters = new JurisprudenciaSearchParameters
-            {
-                // NO PONGAS PaginaActual NI RegistrosPorPagina AQUÍ
-                // Se asignarán en RealizarBusquedaAsync o BuscarButton_Click
-            };
+            var parameters = new JurisprudenciaSearchParameters();
 
             parameters.Jurisdiccion = (JurisdiccionComboBox.SelectedItem as string == "Todos" || JurisdiccionComboBox.SelectedItem == null) ? null : JurisdiccionComboBox.SelectedItem as string;
+            
             if (TipoResolucionComboBox.SelectedItem is string tipoResValue && !string.IsNullOrEmpty(tipoResValue) && tipoResValue != "Todos")
             {
                 parameters.TiposResolucion = new List<string> { tipoResValue };
             }
+
             if (OrganoJudicialComboBox.SelectedItem is string orgValue && !string.IsNullOrEmpty(orgValue) && orgValue != "Todos")
             {
-                parameters.OrganosJudiciales = new List<string> { orgValue }; // Enviar el nombre, la API lo mapea
+                parameters.OrganosJudiciales = new List<string> { orgValue };
             }
-            if (LocalizacionComboBox.SelectedItem is string locValue && !string.IsNullOrEmpty(locValue) && locValue != "Todos")
+
+            // Recoger selección de comunidades y provincias
+            var comunidadesSeleccionadas = new List<string>();
+            var provinciasSeleccionadas = new List<string>();
+
+            foreach (var comunidad in LocalizacionesJerarquicas)
             {
-                parameters.Localizaciones = new List<string> { locValue };
+                if (comunidad.IsChecked)
+                {
+                    comunidadesSeleccionadas.Add(comunidad.Codigo);
+                }
+
+                foreach (var provincia in comunidad.Provincias)
+                {
+                    if (provincia.IsChecked)
+                    {
+                        provinciasSeleccionadas.Add(provincia.Codigo);
+                    }
+                }
             }
+
+            parameters.ComunidadesAutonomas = comunidadesSeleccionadas.Any() ? comunidadesSeleccionadas : null;
+            parameters.Provincias = provinciasSeleccionadas.Any() ? provinciasSeleccionadas : null;
+
             if (IdiomaComboBox.SelectedItem is ComboBoxItem iItem && iItem.Content != null)
             {
                 string? idiomaValue = iItem.Content.ToString();
@@ -421,78 +524,12 @@ namespace TFG_V0._01.Ventanas
             parameters.NumeroRecurso = string.IsNullOrWhiteSpace(NumeroRecursoTextBox.Text) ? null : NumeroRecursoTextBox.Text;
             parameters.Ponente = string.IsNullOrWhiteSpace(PonenteTextBox.Text) ? null : PonenteTextBox.Text;
             parameters.Seccion = string.IsNullOrWhiteSpace(SeccionTextBox.Text) ? null : SeccionTextBox.Text;
-            parameters.Legislacion = string.IsNullOrWhiteSpace(LegislacionTextBox.Text) ? null : LegislacionTextBox.Text; // Asumiendo que es un TextBox
+            parameters.Legislacion = string.IsNullOrWhiteSpace(LegislacionTextBox.Text) ? null : LegislacionTextBox.Text;
             parameters.FechaDesde = FechaDesdeDatePicker.SelectedDate;
             parameters.FechaHasta = FechaHastaDatePicker.SelectedDate;
 
-
             return parameters;
         }
-
-        private async Task CargarDatosInicialesAsync()
-        {
-            try
-            {
-                // Llamada a la API para obtener los datos iniciales
-                HttpResponseMessage response = await client.GetAsync($"{ApiBaseUrl}/api/Jurisprudencia/initialData");
-                response.EnsureSuccessStatusCode();
-
-                string jsonResponse = await response.Content.ReadAsStringAsync();
-                var initialData = JsonSerializer.Deserialize<InitialDataResponse>(jsonResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-                // Añadir "Todos" si no viene de la API y es necesario
-                initialData.Jurisdicciones.Insert(0, "Todos");
-                initialData.TiposResolucion.Insert(0, "Todos");
-                initialData.OrganosJudiciales.Insert(0, "Todos");
-                initialData.Localizaciones.Insert(0, "Todos");
-
-                // Asignar los datos a los ComboBox
-                JurisdiccionComboBox.ItemsSource = initialData.Jurisdicciones;
-                TipoResolucionComboBox.ItemsSource = initialData.TiposResolucion;
-                OrganoJudicialComboBox.ItemsSource = initialData.OrganosJudiciales;
-                LocalizacionComboBox.ItemsSource = initialData.Localizaciones;
-
-                // Seleccionar "Todos" por defecto
-                JurisdiccionComboBox.SelectedItem = "Todos";
-                TipoResolucionComboBox.SelectedItem = "Todos";
-                OrganoJudicialComboBox.SelectedItem = "Todos";
-                LocalizacionComboBox.SelectedItem = "Todos";
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error al cargar los datos iniciales: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-        public BusquedaJurisprudencia()
-        {
-            InitializeComponent();
-            ResultadosBusqueda = new ObservableCollection<JurisprudenciaResult>(); // Inicializa la colección
-            this.DataContext = this; // Establece el DataContext para que los bindings del XAML funcionen
-
-            // Inicializar brushes para el mesh gradient
-            CrearFondoAnimado();
-            IniciarAnimacionMesh();
-
-            InitializeAnimations();
-            AplicarModoSistema();
-
-            if (client.BaseAddress == null)
-            {
-                client.BaseAddress = new Uri(ApiBaseUrl);
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            }
-
-            // Cargar datos iniciales
-            _ = CargarDatosInicialesAsync();
-
-            // Inicializar comandos
-            LimpiarCommand = new RelayCommand(EjecutarLimpiarFormulario);
-        }
-
-        #region Limpiar Formulario Command
-
-        public ICommand LimpiarCommand { get; private set; }
 
         private void EjecutarLimpiarFormulario(object? parameter)
         {
@@ -500,7 +537,8 @@ namespace TFG_V0._01.Ventanas
             JurisdiccionComboBox.SelectedItem = "Todos";
             TipoResolucionComboBox.SelectedItem = "Todos";
             OrganoJudicialComboBox.SelectedItem = "Todos";
-            LocalizacionComboBox.SelectedItem = "Todos";
+           
+
             // Modificar para seleccionar el ComboBoxItem con Content="Todos" para IdiomaComboBox
             var idiomaTodosItem = IdiomaComboBox.Items.OfType<ComboBoxItem>().FirstOrDefault(item => item.Content?.ToString() == "Todos");
             if (idiomaTodosItem != null)
@@ -523,10 +561,26 @@ namespace TFG_V0._01.Ventanas
 
             // Limpiar resultados de búsqueda
             ResultadosBusqueda.Clear();
-            _paginaActual = 1; // Resetear paginación
-            CargarMasButton.Visibility = Visibility.Collapsed; // Ocultar botón de cargar más
-        }
+            _paginaActual = 1;
+            CargarMasButton.Visibility = Visibility.Collapsed;
 
+            // Limpiar selecciones del TreeView
+            if (LocalizacionesJerarquicas != null)
+            {
+                foreach (var comunidad in LocalizacionesJerarquicas)
+                {
+                    comunidad.IsChecked = false;
+                    foreach (var provincia in comunidad.Provincias)
+                    {
+                        provincia.IsChecked = false;
+                    }
+                }
+                // Marcar solo 'Todas' como seleccionada por defecto
+                var todas = LocalizacionesJerarquicas.FirstOrDefault(c => c.Nombre == "Todas");
+                if (todas != null)
+                    todas.IsChecked = true;
+            }
+        }
         #endregion
 
         private void VerDocumentoButton_Click(object sender, RoutedEventArgs e)
@@ -649,24 +703,6 @@ namespace TFG_V0._01.Ventanas
              // Si la navegación no fue exitosa (e.IsSuccess es false), no intentamos extraer nada.
         }
 
-        private void CerrarWebView_Click(object sender, RoutedEventArgs e)
-        {
-            CerrarWebView();
-        }
-
-        private void OverlayPanel_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            CerrarWebView();
-        }
-
-        private void WebViewPanel_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ClickCount == 2)
-            {
-                CerrarWebView();
-            }
-        }
-
         private void CerrarWebView()
         {
             // Animar la salida del panel
@@ -686,9 +722,28 @@ namespace TFG_V0._01.Ventanas
             
             WebViewPanelTransform.BeginAnimation(TranslateTransform.YProperty, animation);
         }
+
+        #region WebView
+        private void CerrarWebView_Click(object sender, RoutedEventArgs e)
+        {
+            CerrarWebView();
+        }
+
+        private void OverlayPanel_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            CerrarWebView();
+        }
+
+        private void WebViewPanel_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ClickCount == 2)
+            {
+                CerrarWebView();
+            }
+        }
         #endregion
 
-        #region 🎨 Fondo Animado
+        #region Fondo Animado
         private void CrearFondoAnimado()
         {
             // Crear los brushes
@@ -783,6 +838,118 @@ namespace TFG_V0._01.Ventanas
                 combo.IsDropDownOpen = true;
                 e.Handled = true;
             }
+        }
+
+        
+
+        public async Task CargarLocalizacionesDesdeApiAsync()
+        {
+            try
+            {
+                var response = await client.GetAsync($"{ApiBaseUrl}/api/Jurisprudencia/comunidades");
+                if (response.IsSuccessStatusCode)
+                {
+                    string jsonResponse = await response.Content.ReadAsStringAsync();
+                    var comunidades = JsonSerializer.Deserialize<List<ComunidadAutonomaFrontend>>(jsonResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                    // FILTRAR comunidades, provincias y sedes con nombre 'TODOS' o 'Todas'
+                    comunidades = comunidades?.Where(c => c.Nombre.ToUpper() != "TODOS" && c.Nombre.ToUpper() != "TODAS")
+                        .Select(c => {
+                            c.Provincias = new System.Collections.ObjectModel.ObservableCollection<ProvinciaFrontend>(
+                                c.Provincias?.Where(p => p.Nombre.ToUpper() != "TODOS" && p.Nombre.ToUpper() != "TODAS")
+                                .Select(p => {
+                                    p.Sedes = new System.Collections.ObjectModel.ObservableCollection<Sede>(
+                                        p.Sedes?.Where(s => s.Nombre.ToUpper() != "TODOS" && s.Nombre.ToUpper() != "TODAS") ?? new List<Sede>()
+                                    );
+                                    return p;
+                                }) ?? new List<ProvinciaFrontend>()
+                            );
+                            return c;
+                        })
+                        .ToList();
+
+                    // Limpiar la colección actual
+                    LocalizacionesJerarquicas.Clear();
+
+                    // Añadir las nuevas comunidades
+                    if (comunidades != null)
+                    {
+                        MessageBox.Show($"Comunidades tras filtro: {comunidades.Count}");
+                        foreach (var comunidad in comunidades)
+                        {
+                            LocalizacionesJerarquicas.Add(comunidad);
+                        }
+                    }
+                }
+                else
+                {
+                    MessageBox.Show($"Error al cargar las localizaciones: {response.StatusCode}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar las localizaciones: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private string ObtenerResumenSeleccion()
+        {
+            var resumen = new List<string>();
+            foreach (var comunidad in LocalizacionesJerarquicas)
+            {
+                if (comunidad.IsChecked)
+                    resumen.Add($"{comunidad.Nombre.ToUpper()}(C) |");
+                else
+                {
+                    foreach (var provincia in comunidad.Provincias)
+                    {
+                        if (provincia.IsChecked)
+                            resumen.Add($"{provincia.Nombre.ToUpper()}(P) |");
+                        else
+                        {
+                            foreach (var sede in provincia.Sedes)
+                            {
+                                if (sede.IsChecked)
+                                    resumen.Add($"{sede.Nombre.ToUpper()}(S) |");
+                            }
+                        }
+                    }
+                }
+            }
+            if (resumen.Count == 0)
+                return "Todas";
+            return string.Join(" ", resumen);
+        }
+
+        public BusquedaJurisprudencia()
+        {
+            InitializeComponent();
+            ResultadosBusqueda = new ObservableCollection<JurisprudenciaResult>();
+            LocalizacionesJerarquicas = new ObservableCollection<ComunidadAutonomaFrontend>();
+            this.DataContext = this;
+
+            // Inicializar brushes para el mesh gradient
+            CrearFondoAnimado();
+            IniciarAnimacionMesh();
+
+            InitializeAnimations();
+            AplicarModoSistema();
+
+            if (client.BaseAddress == null)
+            {
+                client.BaseAddress = new Uri(ApiBaseUrl);
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            }
+
+            // Cargar datos iniciales
+            _ = CargarDatosInicialesAsync();
+
+            // Inicializar comandos
+            LimpiarCommand = new RelayCommand(EjecutarLimpiarFormulario);
+
+            // Cargar localizaciones desde la API
+            _ = CargarLocalizacionesDesdeApiAsync();
         }
     }
 }

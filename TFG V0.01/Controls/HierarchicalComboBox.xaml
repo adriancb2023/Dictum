@@ -10,6 +10,130 @@
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <!-- Conversor para mayúsculas -->
         <local:ToUpperConverter x:Key="ToUpperConverter"/>
+        <!-- Estilo moderno y redondeado para ComboBox, ahora con triggers y setters idénticos a RoundedComboBoxStyle -->
+        <Style x:Key="HierarchicalRoundedComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Background" Value="#454545"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryDark}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="Padding" Value="10,5"/>
+                        <Setter Property="Foreground" Value="#FFFFFF"/>
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                <Setter Property="Foreground" Value="{DynamicResource TextPrimaryLight}"/>
+                                <Setter Property="Background" Value="Transparent"/>
+                            </DataTrigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource ButtonHoverLight}"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource ButtonHoverDark}"/>
+                            </Trigger>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False"/>
+                                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True"/>
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="Background" Value="#EEE"/>
+                            </MultiDataTrigger>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False"/>
+                                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}" Value="True"/>
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="Background" Value="#CCC"/>
+                            </MultiDataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Border x:Name="ComboBoxBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="10"
+                                MouseLeftButtonDown="ComboBoxBorder_MouseLeftButtonDown">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="35"/>
+                                </Grid.ColumnDefinitions>
+                                <ContentPresenter Grid.Column="0"
+                                                  Content="{Binding SummaryText, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                  VerticalAlignment="Center"
+                                                  Margin="{TemplateBinding Padding}"/>
+                                <ToggleButton Grid.Column="1"
+                                              x:Name="ToggleButton"
+                                              IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                              ClickMode="Press"
+                                              Focusable="False"
+                                              Background="Transparent"
+                                              BorderThickness="0">
+                                    <ToggleButton.Template>
+                                        <ControlTemplate TargetType="ToggleButton">
+                                            <Border Background="Transparent" BorderThickness="0" Padding="5">
+                                                <Path Data="M0,0 L4,4 L8,0"
+                                                      Stroke="{DynamicResource TextPrimaryDark}"
+                                                      StrokeThickness="2"
+                                                      HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center">
+                                                    <Path.Style>
+                                                        <Style TargetType="Path">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                                                    <Setter Property="Stroke" Value="{DynamicResource TextPrimaryLight}"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Path.Style>
+                                                </Path>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </ToggleButton.Template>
+                                </ToggleButton>
+                                <Popup x:Name="PART_Popup"
+                                       AllowsTransparency="True"
+                                       IsOpen="{TemplateBinding IsDropDownOpen}"
+                                       PlacementTarget="{Binding ElementName=ComboBoxBorder}"
+                                       Placement="Bottom">
+                                    <Border CornerRadius="10"
+                                            BorderThickness="1"
+                                            MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=ComboBox}}"
+                                            Background="{DynamicResource ComboBoxPopupBackground}"
+                                            BorderBrush="{DynamicResource ComboBoxPopupBorder}">
+                                        <ScrollViewer MaxHeight="300"
+                                                      Background="{DynamicResource ComboBoxPopupBackground}">
+                                            <TreeView x:Name="PART_TreeView"
+                                                      Margin="5"
+                                                      ItemsSource="{Binding ItemsSource, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                      ItemTemplate="{DynamicResource ComunidadTemplate}"/>
+                                        </ScrollViewer>
+                                    </Border>
+                                </Popup>
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Background" Value="#FFFFFF"/>
+                    <Setter Property="Foreground" Value="{DynamicResource TextPrimaryLight}"/>
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect Color="#CCCCCC" BlurRadius="5" ShadowDepth="2" Opacity="0.5"/>
+                        </Setter.Value>
+                    </Setter>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
         <!-- Expansor para TreeView -->
         <Style x:Key="AzulTreeViewItemStyle" TargetType="TreeViewItem">
             <Setter Property="FontSize" Value="14"/>
@@ -75,6 +199,7 @@
     </UserControl.Resources>
     <Grid>
         <ComboBox x:Name="PART_ComboBox"
+                  Style="{StaticResource HierarchicalRoundedComboBoxStyle}"
                   IsEditable="False"
                   StaysOpenOnEdit="True"
                   Margin="0"
@@ -97,67 +222,6 @@
                     <Setter Property="Visibility" Value="Collapsed"/>
                 </Style>
             </ComboBox.Resources>
-            <ComboBox.Template>
-                <ControlTemplate TargetType="ComboBox">
-                    <Grid>
-                        <Border x:Name="ComboBoxBorder" 
-                                CornerRadius="8" 
-                                BorderBrush="#B0B0B0" 
-                                BorderThickness="1" 
-                                Background="#FFF" 
-                                Margin="0">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock x:Name="SummaryTextBlock"
-                                           Text="{Binding SummaryText, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                           Margin="10,2,35,2"
-                                           VerticalAlignment="Center"
-                                           HorizontalAlignment="Left"
-                                           Foreground="#222"
-                                           FontWeight="Normal"
-                                           FontSize="13"/>
-                                <ToggleButton x:Name="ToggleButton"
-                                              Grid.Column="1"
-                                              Focusable="false"
-                                              IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
-                                              ClickMode="Press"
-                                              Background="Transparent">
-                                    <Path x:Name="Arrow" 
-                                          Data="M 0 0 L 4 4 L 8 0 Z" 
-                                          Fill="#2563EB" 
-                                          Width="8" 
-                                          Height="4" 
-                                          HorizontalAlignment="Center" 
-                                          VerticalAlignment="Center"/>
-                                </ToggleButton>
-                            </Grid>
-                        </Border>
-                        <Popup x:Name="PART_Popup"
-                               Placement="Bottom"
-                               IsOpen="{TemplateBinding IsDropDownOpen}"
-                               AllowsTransparency="True"
-                               Focusable="False"
-                               PopupAnimation="Slide"
-                               PlacementTarget="{Binding ElementName=ComboBoxBorder}">
-                            <Border x:Name="DropDownBorder" 
-                                    BorderThickness="1" 
-                                    BorderBrush="#B0B0B0" 
-                                    Background="#FFF" 
-                                    CornerRadius="8" 
-                                    Padding="5" 
-                                    MinWidth="{Binding ActualWidth, ElementName=ComboBoxBorder}">
-                                <TreeView x:Name="PART_TreeView"
-                                          Margin="5"
-                                          ItemsSource="{Binding ItemsSource, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                          ItemTemplate="{StaticResource ComunidadTemplate}"/>
-                            </Border>
-                        </Popup>
-                    </Grid>
-                </ControlTemplate>
-            </ComboBox.Template>
         </ComboBox>
     </Grid>
 </UserControl> 

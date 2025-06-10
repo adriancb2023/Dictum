@@ -128,52 +128,38 @@ namespace TFG_V0._01.Controls
                     var provinciasProp = tipo.GetProperty("Provincias");
                     if (isCheckedProp != null && nombreProp != null)
                     {
-                        bool isChecked = (bool)(isCheckedProp.GetValue(comunidad) ?? false);
                         string nombre = nombreProp.GetValue(comunidad)?.ToString() ?? "";
-                        if (isChecked)
+                        var provincias = provinciasProp?.GetValue(comunidad) as IEnumerable<object>;
+                        var provinciasSeleccionadas = new List<string>();
+                        int totalProvincias = 0;
+                        int provinciasMarcadas = 0;
+                        if (provincias != null)
                         {
-                            seleccionados.Add($"{nombre.ToUpper()}(C)");
-                        }
-                        // Provincias
-                        if (provinciasProp != null)
-                        {
-                            var provincias = provinciasProp.GetValue(comunidad) as IEnumerable<object>;
-                            if (provincias != null)
+                            foreach (var provincia in provincias)
                             {
-                                foreach (var provincia in provincias)
+                                var isCheckedP = provincia.GetType().GetProperty("IsChecked");
+                                var nombreP = provincia.GetType().GetProperty("Nombre");
+                                if (isCheckedP != null && nombreP != null)
                                 {
-                                    var isCheckedP = provincia.GetType().GetProperty("IsChecked");
-                                    var nombreP = provincia.GetType().GetProperty("Nombre");
-                                    var sedesProp = provincia.GetType().GetProperty("Sedes");
-                                    if (isCheckedP != null && nombreP != null)
+                                    totalProvincias++;
+                                    bool isCheckedProv = (bool)(isCheckedP.GetValue(provincia) ?? false);
+                                    string nombreProv = nombreP.GetValue(provincia)?.ToString() ?? "";
+                                    if (isCheckedProv)
                                     {
-                                        bool isCheckedProv = (bool)(isCheckedP.GetValue(provincia) ?? false);
-                                        string nombreProv = nombreP.GetValue(provincia)?.ToString() ?? "";
-                                        if (isCheckedProv)
-                                            seleccionados.Add($"{nombreProv.ToUpper()}(P)");
-                                    }
-                                    // Sedes
-                                    if (sedesProp != null)
-                                    {
-                                        var sedes = sedesProp.GetValue(provincia) as IEnumerable<object>;
-                                        if (sedes != null)
-                                        {
-                                            foreach (var sede in sedes)
-                                            {
-                                                var isCheckedS = sede.GetType().GetProperty("IsChecked");
-                                                var nombreS = sede.GetType().GetProperty("Nombre");
-                                                if (isCheckedS != null && nombreS != null)
-                                                {
-                                                    bool isCheckedSede = (bool)(isCheckedS.GetValue(sede) ?? false);
-                                                    string nombreSede = nombreS.GetValue(sede)?.ToString() ?? "";
-                                                    if (isCheckedSede)
-                                                        seleccionados.Add($"{nombreSede.ToUpper()}(S)");
-                                                }
-                                            }
-                                        }
+                                        provinciasMarcadas++;
+                                        provinciasSeleccionadas.Add($"{nombreProv.ToUpper()}(P)");
                                     }
                                 }
                             }
+                        }
+                        // Solo mostrar la comunidad si TODAS sus provincias están marcadas
+                        if (totalProvincias > 0 && provinciasMarcadas == totalProvincias)
+                        {
+                            seleccionados.Add($"{nombre.ToUpper()}(C)");
+                        }
+                        else if (provinciasSeleccionadas.Count > 0)
+                        {
+                            seleccionados.AddRange(provinciasSeleccionadas);
                         }
                     }
                 }
@@ -205,6 +191,12 @@ namespace TFG_V0._01.Controls
                     return result;
             }
             return null;
+        }
+
+        // --- Abrir ComboBox al hacer clic en cualquier parte del área blanca ---
+        private void ComboBoxBorder_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            PART_ComboBox.IsDropDownOpen = true;
         }
     }
 } 

@@ -1,0 +1,550 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<Product Id="*" Name="Ejecutable" Language="1033" Version="1.0.0.0" Manufacturer="Atlas Playbook v0.4.1" UpgradeCode="fb864599-ec6c-479f-b0c7-73abf2d28a84">
+		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+
+		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+		<MediaTemplate />
+
+		<Feature Id="ProductFeature" Title="Ejecutable" Level="1">
+			<ComponentGroupRef Id="ProductComponents" />
+			<ComponentRef Id="ApplicationDesktopShortcut" />
+			<ComponentRef Id="ApplicationStartMenuShortcut" />
+		</Feature>
+		<Icon Id="ProductIcon" SourceFile="..\TFG V0.01\bin\Release\net9.0-windows7.0\TFG V0.01.exe" />
+	</Product>
+
+	<Fragment>
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="ProgramFilesFolder">
+				<Directory Id="INSTALLFOLDER" Name="Dictum" >
+                    <!-- Subcarpetas de idiomas -->
+                    <Directory Id="CSCZDIR" Name="cs-CZ" />
+                    <Directory Id="DEDIR" Name="de" />
+                    <Directory Id="ESDIR" Name="es" />
+                    <Directory Id="FRDIR" Name="fr" />
+                    <Directory Id="HUDIR" Name="hu" />
+                    <Directory Id="ITDIR" Name="it" />
+                    <Directory Id="JAJPDIR" Name="ja-JP" />
+                    <Directory Id="PTBRDIR" Name="pt-BR" />
+                    <Directory Id="RODIR" Name="ro" />
+                    <Directory Id="RUDIR" Name="ru" />
+
+                    <!-- Subcarpeta runtimes -->
+                    <Directory Id="RUNTIMESDIR" Name="runtimes">
+                        <Directory Id="WINDIR" Name="win">
+                            <Directory Id="LIBDIR" Name="lib">
+                                <Directory Id="NET70DIR" Name="net7.0" />
+                            </Directory>
+                        </Directory>
+                        <Directory Id="WINARM64DIR" Name="win-arm64">
+                            <Directory Id="WINARM64NATIVEDIR" Name="native" />
+                        </Directory>
+                        <Directory Id="WINX64DIR" Name="win-x64">
+                            <Directory Id="WINX64NATIVEDIR" Name="native" />
+                        </Directory>
+                        <Directory Id="WINX86DIR" Name="win-x86">
+                            <Directory Id="WINX86NATIVEDIR" Name="native" />
+                        </Directory>
+                    </Directory>
+
+                    <!-- Subcarpeta selenium-manager -->
+                    <Directory Id="SELENIUMMANAGERDIR" Name="selenium-manager">
+                        <Directory Id="LINUXDIR" Name="linux" />
+                        <Directory Id="MACOSDIR" Name="macos" />
+                        <Directory Id="WINDOWSDIR" Name="windows" />
+                    </Directory>
+
+                    <!-- Subcarpeta sv -->
+                    <Directory Id="SVDIR" Name="sv" />
+
+                    <!-- Subcarpeta zh-Hans -->
+                    <Directory Id="ZHHANSDIR" Name="zh-Hans" />
+                </Directory>
+			</Directory>
+			<Directory Id="ProgramMenuFolder">
+				<Directory Id="ProgramMenuDir" Name="Dictum" />
+			</Directory>
+		</Directory>
+	</Fragment>
+
+	<Fragment>
+		<ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+            <!-- Archivos principales de la aplicación -->
+            <Component Id="File_Json_More_dll" Guid="*">
+                <File Id="Json_More_dll_File" Name="Json.More.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Json.More.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\JsonMore_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_JsonPointer_Net_dll" Guid="*">
+                <File Id="JsonPointer_Net_dll_File" Name="JsonPointer.Net.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\JsonPointer.Net.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\JsonPointerNet_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_JsonSchema_Net_dll" Guid="*">
+                <File Id="JsonSchema_Net_dll_File" Name="JsonSchema.Net.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\JsonSchema.Net.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\JsonSchemaNet_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_JsonSchema_Net_Generation_dll" Guid="*">
+                <File Id="JsonSchema_Net_Generation_dll_File" Name="JsonSchema.Net.Generation.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\JsonSchema.Net.Generation.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\\V0.01\Files\JsonSchemaNetGeneration_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_JurisprudenciaAPI_deps_json" Guid="*">
+                <File Id="JurisprudenciaAPI_deps_json_File" Name="JurisprudenciaAPI.deps.json" Source="TFG V0.01\bin\Release\net9.0-windows7.0\JurisprudenciaAPI.deps.json" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\JurisprudenciaAPI_deps_json" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_JurisprudenciaAPI_dll" Guid="*">
+                <File Id="JurisprudenciaAPI_dll_File" Name="JurisprudenciaAPI.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\JurisprudenciaAPI.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\JurisprudenciaAPI_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_JurisprudenciaAPI_exe" Guid="*">
+                <File Id="JurisprudenciaAPI_exe_File" Name="JurisprudenciaAPI.exe" Source="TFG V0.01\bin\Release\net9.0-windows7.0\JurisprudenciaAPI.exe" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\JurisprudenciaAPI_exe" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_JurisprudenciaAPI_pdb" Guid="*">
+                <File Id="JurisprudenciaAPI_pdb_File" Name="JurisprudenciaAPI.pdb" Source="TFG V0.01\bin\Release\net9.0-windows7.0\JurisprudenciaAPI.pdb" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\JurisprudenciaAPI_pdb" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_JurisprudenciaAPI_runtimeconfig_json" Guid="*">
+                <File Id="JurisprudenciaAPI_runtimeconfig_json_File" Name="JurisprudenciaAPI.runtimeconfig.json" Source="TFG V0.01\bin\Release\net9.0-windows7.0\JurisprudenciaAPI.runtimeconfig.json" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\JurisprudenciaAPI_runtimeconfig_json" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_JurisprudenciaAPI_staticwebassets_endpoints_json" Guid="*">
+                <File Id="JurisprudenciaAPI_staticwebassets_endpoints_json_File" Name="JurisprudenciaAPI.staticwebassets.endpoints.json" Source="TFG V0.01\bin\Release\net9.0-windows7.0\JurisprudenciaAPI.staticwebassets.endpoints.json" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\JurisprudenciaAPI_staticwebassets_endpoints_json" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_MahApps_Metro_dll" Guid="*">
+                <File Id="MahApps_Metro_dll_File" Name="MahApps.Metro.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\MahApps.Metro.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\MahApps_Metro_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_MaterialDesignColors_dll" Guid="*">
+                <File Id="MaterialDesignColors_dll_File" Name="MaterialDesignColors.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\MaterialDesignColors.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\MaterialDesignColors_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_MaterialDesignThemes_MahApps_dll" Guid="*">
+                <File Id="MaterialDesignThemes_MahApps_dll_File" Name="MaterialDesignThemes.MahApps.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\MaterialDesignThemes.MahApps.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\MaterialDesignThemes_MahApps_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_MaterialDesignThemes_Wpf_AddOns_dll" Guid="*">
+                <File Id="MaterialDesignThemes_Wpf_AddOns_dll_File" Name="MaterialDesignThemes.Wpf.AddOns.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\MaterialDesignThemes.Wpf.AddOns.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\MaterialDesignThemes_Wpf_AddOns_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_MaterialDesignThemes_Wpf_dll" Guid="*">
+                <File Id="MaterialDesignThemes_Wpf_dll_File" Name="MaterialDesignThemes.Wpf.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\MaterialDesignThemes.Wpf.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\MaterialDesignThemes_Wpf_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Microsoft_Extensions_AI_Abstractions_dll" Guid="*">
+                <File Id="Microsoft_Extensions_AI_Abstractions_dll_File" Name="Microsoft.Extensions.AI.Abstractions.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Microsoft.Extensions.AI.Abstractions.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Microsoft_Extensions_AI_Abstractions_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Microsoft_Extensions_Caching_Abstractions_dll" Guid="*">
+                <File Id="Microsoft_Extensions_Caching_Abstractions_dll_File" Name="Microsoft.Extensions.Caching.Abstractions.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Microsoft.Extensions.Caching.Abstractions.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Microsoft_Extensions_Caching_Abstractions_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Microsoft_Extensions_Caching_Memory_dll" Guid="*">
+                <File Id="Microsoft_Extensions_Caching_Memory_dll_File" Name="Microsoft.Extensions.Caching.Memory.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Microsoft.Extensions.Caching.Memory.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Microsoft_Extensions_Caching_Memory_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Microsoft_Extensions_Configuration_Abstractions_dll" Guid="*">
+                <File Id="Microsoft_Extensions_Configuration_Abstractions_dll_File" Name="Microsoft.Extensions.Configuration.Abstractions.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Microsoft.Extensions.Configuration.Abstractions.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Microsoft_Extensions_Configuration_Abstractions_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Microsoft_Extensions_Configuration_Binder_dll" Guid="*">
+                <File Id="Microsoft_Extensions_Configuration_Binder_dll_File" Name="Microsoft.Extensions.Configuration.Binder.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Microsoft.Extensions.Configuration.Binder.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Microsoft_Extensions_Configuration_Binder_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Microsoft_Extensions_Configuration_dll" Guid="*">
+                <File Id="Microsoft_Extensions_Configuration_dll_File" Name="Microsoft.Extensions.Configuration.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Microsoft.Extensions.Configuration.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Microsoft_Extensions_Configuration_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Microsoft_Extensions_Configuration_FileExtensions_dll" Guid="*">
+                <File Id="Microsoft_Extensions_Configuration_FileExtensions_dll_File" Name="Microsoft.Extensions.Configuration.FileExtensions.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Microsoft.Extensions.Configuration.FileExtensions.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Microsoft_Extensions_Configuration_FileExtensions_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Microsoft_Extensions_Configuration_Json_dll" Guid="*">
+                <File Id="Microsoft_Extensions_Configuration_Json_dll_File" Name="Microsoft.Extensions.Configuration.Json.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Microsoft.Extensions.Configuration.Json.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Microsoft_Extensions_Configuration_Json_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Microsoft_Extensions_DependencyInjection_Abstractions_dll" Guid="*">
+                <File Id="Microsoft_Extensions_DependencyInjection_Abstractions_dll_File" Name="Microsoft.Extensions.DependencyInjection.Abstractions.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Microsoft_Extensions_DependencyInjection_Abstractions_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Microsoft_Extensions_DependencyInjection_dll" Guid="*">
+                <File Id="Microsoft_Extensions_DependencyInjection_dll_File" Name="Microsoft.Extensions.DependencyInjection.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Microsoft.Extensions.DependencyInjection.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Microsoft_Extensions_DependencyInjection_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Microsoft_Extensions_FileProviders_Abstractions_dll" Guid="*">
+                <File Id="Microsoft_Extensions_FileProviders_Abstractions_dll_File" Name="Microsoft.Extensions.FileProviders.Abstractions.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Microsoft.Extensions.FileProviders.Abstractions.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Microsoft_Extensions_FileProviders_Abstractions_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Microsoft_Extensions_FileProviders_Physical_dll" Guid="*">
+                <File Id="Microsoft_Extensions_FileProviders_Physical_dll_File" Name="Microsoft.Extensions.FileProviders.Physical.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Microsoft.Extensions.FileProviders.Physical.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Microsoft_Extensions_FileProviders_Physical_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Microsoft_Extensions_FileSystemGlobbing_dll" Guid="*">
+                <File Id="Microsoft_Extensions_FileSystemGlobbing_dll_File" Name="Microsoft.Extensions.FileSystemGlobbing.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Microsoft.Extensions.FileSystemGlobbing.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Microsoft_Extensions_FileSystemGlobbing_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Microsoft_Extensions_Logging_Abstractions_dll" Guid="*">
+                <File Id="Microsoft_Extensions_Logging_Abstractions_dll_File" Name="Microsoft.Extensions.Logging.Abstractions.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Microsoft.Extensions.Logging.Abstractions.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Microsoft_Extensions_Logging_Abstractions_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Microsoft_Extensions_Logging_dll" Guid="*">
+                <File Id="Microsoft_Extensions_Logging_dll_File" Name="Microsoft.Extensions.Logging.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Microsoft.Extensions.Logging.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Microsoft_Extensions_Logging_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Microsoft_Extensions_Options_ConfigurationExtensions_dll" Guid="*">
+                <File Id="Microsoft_Extensions_Options_ConfigurationExtensions_dll_File" Name="Microsoft.Extensions.Options.ConfigurationExtensions.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Microsoft.Extensions.Options.ConfigurationExtensions.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Microsoft_Extensions_Options_ConfigurationExtensions_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Microsoft_Extensions_Options_dll" Guid="*">
+                <File Id="Microsoft_Extensions_Options_dll_File" Name="Microsoft.Extensions.Options.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Microsoft.Extensions.Options.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Microsoft_Extensions_Options_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Microsoft_Extensions_Primitives_dll" Guid="*">
+                <File Id="Microsoft_Extensions_Primitives_dll_File" Name="Microsoft.Extensions.Primitives.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Microsoft.Extensions.Primitives.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Microsoft_Extensions_Primitives_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Microsoft_IdentityModel_Abstractions_dll" Guid="*">
+                <File Id="Microsoft_IdentityModel_Abstractions_dll_File" Name="Microsoft.IdentityModel.Abstractions.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Microsoft.IdentityModel.Abstractions.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Microsoft_IdentityModel_Abstractions_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Microsoft_IdentityModel_JsonWebTokens_dll" Guid="*">
+                <File Id="Microsoft_IdentityModel_JsonWebTokens_dll_File" Name="Microsoft.IdentityModel.JsonWebTokens.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Microsoft.IdentityModel.JsonWebTokens.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Microsoft_IdentityModel_JsonWebTokens_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Microsoft_IdentityModel_Logging_dll" Guid="*">
+                <File Id="Microsoft_IdentityModel_Logging_dll_File" Name="Microsoft.IdentityModel.Logging.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Microsoft.IdentityModel.Logging.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Microsoft_IdentityModel_Logging_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Microsoft_IdentityModel_Tokens_dll" Guid="*">
+                <File Id="Microsoft_IdentityModel_Tokens_dll_File" Name="Microsoft.IdentityModel.Tokens.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Microsoft.IdentityModel.Tokens.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Microsoft_IdentityModel_Tokens_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Microsoft_IO_RecyclableMemoryStream_dll" Guid="*">
+                <File Id="Microsoft_IO_RecyclableMemoryStream_dll_File" Name="Microsoft.IO.RecyclableMemoryStream.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Microsoft.IO.RecyclableMemoryStream.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Microsoft_IO_RecyclableMemoryStream_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Microsoft_OpenApi_dll" Guid="*">
+                <File Id="Microsoft_OpenApi_dll_File" Name="Microsoft.OpenApi.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Microsoft.OpenApi.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Microsoft_OpenApi_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Microsoft_Web_WebView2_Core_dll" Guid="*">
+                <File Id="Microsoft_Web_WebView2_Core_dll_File" Name="Microsoft.Web.WebView2.Core.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Microsoft.Web.WebView2.Core.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Microsoft_Web_WebView2_Core_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Microsoft_Web_WebView2_Core_xml" Guid="*">
+                <File Id="Microsoft_Web_WebView2_Core_xml_File" Name="Microsoft.Web.WebView2.Core.xml" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Microsoft.Web.WebView2.Core.xml" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Microsoft_Web_WebView2_Core_xml" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Microsoft_Web_WebView2_WinForms_dll" Guid="*">
+                <File Id="Microsoft_Web_WebView2_WinForms_dll_File" Name="Microsoft.Web.WebView2.WinForms.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Microsoft.Web.WebView2.WinForms.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Microsoft_Web_WebView2_WinForms_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Microsoft_Web_WebView2_WinForms_xml" Guid="*">
+                <File Id="Microsoft_Web_WebView2_WinForms_xml_File" Name="Microsoft.Web.WebView2.WinForms.xml" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Microsoft.Web.WebView2.WinForms.xml" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Microsoft_Web_WebView2_WinForms_xml" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Microsoft_Web_WebView2_Wpf_dll" Guid="*">
+                <File Id="Microsoft_Web_WebView2_Wpf_dll_File" Name="Microsoft.Web.WebView2.Wpf.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Microsoft.Web.WebView2.Wpf.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Microsoft_Web_WebView2_Wpf_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Microsoft_Web_WebView2_Wpf_xml" Guid="*">
+                <File Id="Microsoft_Web_WebView2_Wpf_xml_File" Name="Microsoft.Web.WebView2.Wpf.xml" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Microsoft.Web.WebView2.Wpf.xml" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Microsoft_Web_WebView2_Wpf_xml" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Microsoft_Xaml_Behaviors_dll" Guid="*">
+                <File Id="Microsoft_Xaml_Behaviors_dll_File" Name="Microsoft.Xaml.Behaviors.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Microsoft.Xaml.Behaviors.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Microsoft_Xaml_Behaviors_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_MimeMapping_dll" Guid="*">
+                <File Id="MimeMapping_dll_File" Name="MimeMapping.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\MimeMapping.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\MimeMapping_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Mscc_GenerativeAI_dll" Guid="*">
+                <File Id="Mscc_GenerativeAI_dll_File" Name="Mscc.GenerativeAI.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Mscc.GenerativeAI.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Mscc_GenerativeAI_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Mscc_GenerativeAI_Google_dll" Guid="*">
+                <File Id="Mscc_GenerativeAI_Google_dll_File" Name="Mscc.GenerativeAI.Google.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Mscc.GenerativeAI.Google.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Mscc_GenerativeAI_Google_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Mscc_GenerativeAI_Microsoft_dll" Guid="*">
+                <File Id="Mscc_GenerativeAI_Microsoft_dll_File" Name="Mscc.GenerativeAI.Microsoft.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Mscc.GenerativeAI.Microsoft.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Mscc_GenerativeAI_Microsoft_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Mscc_GenerativeAI_Web_dll" Guid="*">
+                <File Id="Mscc_GenerativeAI_Web_dll_File" Name="Mscc.GenerativeAI.Web.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Mscc.GenerativeAI.Web.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Mscc_GenerativeAI_Web_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Newtonsoft_Json_dll" Guid="*">
+                <File Id="Newtonsoft_Json_dll_File" Name="Newtonsoft.Json.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Newtonsoft.Json.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Newtonsoft_Json_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Panuon_UI_Silver_dll" Guid="*">
+                <File Id="Panuon_UI_Silver_dll_File" Name="Panuon.UI.Silver.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Panuon.UI.Silver.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Panuon_UI_Silver_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Polly_Core_dll" Guid="*">
+                <File Id="Polly_Core_dll_File" Name="Polly.Core.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Polly.Core.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Polly_Core_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Polly_dll" Guid="*">
+                <File Id="Polly_dll_File" Name="Polly.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Polly.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Polly_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Supabase_Core_dll" Guid="*">
+                <File Id="Supabase_Core_dll_File" Name="Supabase.Core.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Supabase.Core.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Supabase_Core_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Supabase_dll" Guid="*">
+                <File Id="Supabase_dll_File" Name="Supabase.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Supabase.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Supabase_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Supabase_Functions_dll" Guid="*">
+                <File Id="Supabase_Functions_dll_File" Name="Supabase.Functions.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Supabase.Functions.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Supabase_Functions_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Supabase_Gotrue_dll" Guid="*">
+                <File Id="Supabase_Gotrue_dll_File" Name="Supabase.Gotrue.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Supabase.Gotrue.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Supabase_Gotrue_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Supabase_Postgrest_dll" Guid="*">
+                <File Id="Supabase_Postgrest_dll_File" Name="Supabase.Postgrest.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Supabase.Postgrest.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Supabase_Postgrest_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Supabase_Realtime_dll" Guid="*">
+                <File Id="Supabase_Realtime_dll_File" Name="Supabase.Realtime.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Supabase.Realtime.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Supabase_Realtime_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Supabase_Storage_dll" Guid="*">
+                <File Id="Supabase_Storage_dll_File" Name="Supabase.Storage.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Supabase.Storage.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Supabase_Storage_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Swashbuckle_AspNetCore_Swagger_dll" Guid="*">
+                <File Id="Swashbuckle_AspNetCore_Swagger_dll_File" Name="Swashbuckle.AspNetCore.Swagger.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Swashbuckle.AspNetCore.Swagger.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Swashbuckle_AspNetCore_Swagger_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Swashbuckle_AspNetCore_SwaggerGen_dll" Guid="*">
+                <File Id="Swashbuckle_AspNetCore_SwaggerGen_dll_File" Name="Swashbuckle.AspNetCore.SwaggerGen.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Swashbuckle.AspNetCore.SwaggerGen.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Swashbuckle_AspNetCore_SwaggerGen_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Swashbuckle_AspNetCore_SwaggerUI_dll" Guid="*">
+                <File Id="Swashbuckle_AspNetCore_SwaggerUI_dll_File" Name="Swashbuckle.AspNetCore.SwaggerUI.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Swashbuckle.AspNetCore.SwaggerUI.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Swashbuckle_AspNetCore_SwaggerUI_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_System_IdentityModel_Tokens_Jwt_dll" Guid="*">
+                <File Id="System_IdentityModel_Tokens_Jwt_dll_File" Name="System.IdentityModel.Tokens.Jwt.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\System.IdentityModel.Tokens.Jwt.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\System_IdentityModel_Tokens_Jwt_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_System_Management_dll_root" Guid="*">
+                <File Id="System_Management_dll_root_File" Name="System.Management.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\System.Management.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\System_Management_dll_root" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_System_Reactive_dll" Guid="*">
+                <File Id="System_Reactive_dll_File" Name="System.Reactive.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\System.Reactive.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\System_Reactive_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_TFG_V0_01_deps_json" Guid="*">
+                <File Id="TFG_V0_01_deps_json_File" Name="TFG V0.01.deps.json" Source="TFG V0.01\bin\Release\net9.0-windows7.0\TFG V0.01.deps.json" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\TFG_V0_01_deps_json" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_TFG_V0_01_dll" Guid="*">
+                <File Id="TFG_V0_01_dll_File" Name="TFG V0.01.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\TFG V0.01.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\TFG_V0_01_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_TFG_V0_01_dll_config" Guid="*">
+                <File Id="TFG_V0_01_dll_config_File" Name="TFG V0.01.dll.config" Source="TFG V0.01\bin\Release\net9.0-windows7.0\TFG V0.01.dll.config" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\TFG_V0_01_dll_config" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_TFG_V0_01_exe" Guid="*">
+                <File Id="TFG_V0_01_exe_File" Name="TFG V0.01.exe" Source="TFG V0.01\bin\Release\net9.0-windows7.0\TFG V0.01.exe" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\TFG_V0_01_exe" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+                <RemoveFolder Id="INSTALLFOLDER" On="uninstall" />
+            </Component>
+            <Component Id="File_TFG_V0_01_pdb" Guid="*">
+                <File Id="TFG_V0_01_pdb_File" Name="TFG V0.01.pdb" Source="TFG V0.01\bin\Release\net9.0-windows7.0\TFG V0.01.pdb" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\TFG_V0_01_pdb" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_TFG_V0_01_runtimeconfig_json" Guid="*">
+                <File Id="TFG_V0_01_runtimeconfig_json_File" Name="TFG V0.01.runtimeconfig.json" Source="TFG V0.01\bin\Release\net9.0-windows7.0\TFG V0.01.runtimeconfig.json" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\TFG_V0_01_runtimeconfig_json" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_web_config" Guid="*">
+                <File Id="web_config_File" Name="web.config" Source="TFG V0.01\bin\Release\net9.0-windows7.0\web.config" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\web_config" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_WebDriver_dll" Guid="*">
+                <File Id="WebDriver_dll_File" Name="WebDriver.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\WebDriver.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\WebDriver_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_WebDriver_Support_dll" Guid="*">
+                <File Id="WebDriver_Support_dll_File" Name="WebDriver.Support.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\WebDriver.Support.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\WebDriver_Support_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Websocket_Client_dll" Guid="*">
+                <File Id="Websocket_Client_dll_File" Name="Websocket.Client.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Websocket.Client.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Websocket_Client_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Xceed_Wpf_AvalonDock_dll" Guid="*">
+                <File Id="Xceed_Wpf_AvalonDock_dll_File" Name="Xceed.Wpf.AvalonDock.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Xceed.Wpf.AvalonDock.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Xceed_Wpf_AvalonDock_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Xceed_Wpf_AvalonDock_Themes_Aero_dll" Guid="*">
+                <File Id="Xceed_Wpf_AvalonDock_Themes_Aero_dll_File" Name="Xceed.Wpf.AvalonDock.Themes.Aero.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Xceed.Wpf.AvalonDock.Themes.Aero.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Xceed_Wpf_AvalonDock_Themes_Aero_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Xceed_Wpf_AvalonDock_Themes_Metro_dll" Guid="*">
+                <File Id="Xceed_Wpf_AvalonDock_Themes_Metro_dll_File" Name="Xceed.Wpf.AvalonDock.Themes.Metro.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Xceed.Wpf.AvalonDock.Themes.Metro.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Xceed_Wpf_AvalonDock_Themes_Metro_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Xceed_Wpf_AvalonDock_Themes_VS2010_dll" Guid="*">
+                <File Id="Xceed_Wpf_AvalonDock_Themes_VS2010_dll_File" Name="Xceed.Wpf.AvalonDock.Themes.VS2010.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Xceed.Wpf.AvalonDock.Themes.VS2010.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Xceed_Wpf_AvalonDock_Themes_VS2010_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_Xceed_Wpf_Toolkit_dll" Guid="*">
+                <File Id="Xceed_Wpf_Toolkit_dll_File" Name="Xceed.Wpf.Toolkit.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\Xceed.Wpf.Toolkit.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Xceed_Wpf_Toolkit_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+
+            <!-- Archivos de subcarpetas de idiomas (cs-CZ, de, es, fr, hu, it, ja-JP, pt-BR, ro, ru, sv, zh-Hans) -->
+            <Component Id="File_CSCZ_Xceed_Wpf_AvalonDock_resources_dll" Guid="*" Directory="CSCZDIR">
+                <File Id="CSCZ_Xceed_Wpf_AvalonDock_resources_dll_File" Name="Xceed.Wpf.AvalonDock.resources.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\cs-CZ\Xceed.Wpf.AvalonDock.resources.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\CSCZ_Xceed_Wpf_AvalonDock_resources_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+                <RemoveFolder Id="CSCZDIR" On="uninstall" />
+            </Component>
+            <Component Id="File_DE_MahApps_Metro_resources_dll" Guid="*" Directory="DEDIR">
+                <File Id="DE_MahApps_Metro_resources_dll_File" Name="MahApps.Metro.resources.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\de\MahApps.Metro.resources.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\DE_MahApps_Metro_resources_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="File_DE_Xceed_Wpf_AvalonDock_resources_dll" Guid="*" Directory="DEDIR">
+                <File Id="DE_Xceed_Wpf_AvalonDock_resources_dll_File" Name="Xceed.Wpf.AvalonDock.resources.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\de\Xceed.Wpf.AvalonDock.resources.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\DE_Xceed_Wpf_AvalonDock_resources_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+                <RemoveFolder Id="DEDIR" On="uninstall" />
+            </Component>
+            <Component Id="File_ES_Xceed_Wpf_AvalonDock_resources_dll" Guid="*" Directory="ESDIR">
+                <File Id="ES_Xceed_Wpf_AvalonDock_resources_dll_File" Name="Xceed.Wpf.AvalonDock.resources.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\es\Xceed.Wpf.AvalonDock.resources.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\ES_Xceed_Wpf_AvalonDock_resources_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+                <RemoveFolder Id="ESDIR" On="uninstall" />
+            </Component>
+            <Component Id="File_FR_Xceed_Wpf_AvalonDock_resources_dll" Guid="*" Directory="FRDIR">
+                <File Id="FR_Xceed_Wpf_AvalonDock_resources_dll_File" Name="Xceed.Wpf.AvalonDock.resources.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\fr\Xceed.Wpf.AvalonDock.resources.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\FR_Xceed_Wpf_AvalonDock_resources_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+                <RemoveFolder Id="FRDIR" On="uninstall" />
+            </Component>
+            <Component Id="File_HU_Xceed_Wpf_AvalonDock_resources_dll" Guid="*" Directory="HUDIR">
+                <File Id="HU_Xceed_Wpf_AvalonDock_resources_dll_File" Name="Xceed.Wpf.AvalonDock.resources.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\hu\Xceed.Wpf.AvalonDock.resources.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\HU_Xceed_Wpf_AvalonDock_resources_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+                <RemoveFolder Id="HUDIR" On="uninstall" />
+            </Component>
+            <Component Id="File_IT_Xceed_Wpf_AvalonDock_resources_dll" Guid="*" Directory="ITDIR">
+                <File Id="IT_Xceed_Wpf_AvalonDock_resources_dll_File" Name="Xceed.Wpf.AvalonDock.resources.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\it\Xceed.Wpf.AvalonDock.resources.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\IT_Xceed_Wpf_AvalonDock_resources_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+                <RemoveFolder Id="ITDIR" On="uninstall" />
+            </Component>
+            <Component Id="File_JAJP_Xceed_Wpf_AvalonDock_resources_dll" Guid="*" Directory="JAJPDIR">
+                <File Id="JAJP_Xceed_Wpf_AvalonDock_resources_dll_File" Name="Xceed.Wpf.AvalonDock.resources.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\ja-JP\Xceed.Wpf.AvalonDock.resources.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\JAJP_Xceed_Wpf_AvalonDock_resources_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+                <RemoveFolder Id="JAJPDIR" On="uninstall" />
+            </Component>
+            <Component Id="File_PTBR_Xceed_Wpf_AvalonDock_resources_dll" Guid="*" Directory="PTBRDIR">
+                <File Id="PTBR_Xceed_Wpf_AvalonDock_resources_dll_File" Name="Xceed.Wpf.AvalonDock.resources.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\pt-BR\Xceed.Wpf.AvalonDock.resources.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\PTBR_Xceed_Wpf_AvalonDock_resources_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+                <RemoveFolder Id="PTBRDIR" On="uninstall" />
+            </Component>
+            <Component Id="File_RO_Xceed_Wpf_AvalonDock_resources_dll" Guid="*" Directory="RODIR">
+                <File Id="RO_Xceed_Wpf_AvalonDock_resources_dll_File" Name="Xceed.Wpf.AvalonDock.resources.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\ro\Xceed.Wpf.AvalonDock.resources.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\RO_Xceed_Wpf_AvalonDock_resources_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+                <RemoveFolder Id="RODIR" On="uninstall" />
+            </Component>
+            <Component Id="File_RU_Xceed_Wpf_AvalonDock_resources_dll" Guid="*" Directory="RUDIR">
+                <File Id="RU_Xceed_Wpf_AvalonDock_resources_dll_File" Name="Xceed.Wpf.AvalonDock.resources.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\ru\Xceed.Wpf.AvalonDock.resources.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\RU_Xceed_Wpf_AvalonDock_resources_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+                <RemoveFolder Id="RUDIR" On="uninstall" />
+            </Component>
+            <Component Id="File_SV_Xceed_Wpf_AvalonDock_resources_dll" Guid="*" Directory="SVDIR">
+                <File Id="SV_Xceed_Wpf_AvalonDock_resources_dll_File" Name="Xceed.Wpf.AvalonDock.resources.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\sv\Xceed.Wpf.AvalonDock.resources.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\SV_Xceed_Wpf_AvalonDock_resources_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+                <RemoveFolder Id="SVDIR" On="uninstall" />
+            </Component>
+            <Component Id="File_ZHHANS_Xceed_Wpf_AvalonDock_resources_dll" Guid="*" Directory="ZHHANSDIR">
+                <File Id="ZHHANS_Xceed_Wpf_AvalonDock_resources_dll_File" Name="Xceed.Wpf.AvalonDock.resources.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\zh-Hans\Xceed.Wpf.AvalonDock.resources.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\ZHHANS_Xceed_Wpf_AvalonDock_resources_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+                <RemoveFolder Id="ZHHANSDIR" On="uninstall" />
+            </Component>
+
+            <!-- Archivos de runtimes\win\lib\net7.0 -->
+            <Component Id="File_Runtimes_Win_Lib_Net70_System_Management_dll" Guid="*" Directory="NET70DIR">
+                <File Id="Runtimes_Win_Lib_Net70_System_Management_dll_File" Name="System.Management.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\runtimes\win\lib\net7.0\System.Management.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Runtimes_Win_Lib_Net70_System_Management_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+                <RemoveFolder Id="NET70DIR" On="uninstall" />
+                <RemoveFolder Id="LIBDIR" On="uninstall" />
+                <RemoveFolder Id="WINDIR" On="uninstall" />
+                <RemoveFolder Id="RUNTIMESDIR" On="uninstall" />
+            </Component>
+
+            <!-- Archivos de runtimes\win-arm64\native -->
+            <Component Id="File_Runtimes_WinArm64_Native_WebView2Loader_dll" Guid="*" Directory="WINARM64NATIVEDIR">
+                <File Id="Runtimes_WinArm64_Native_WebView2Loader_dll_File" Name="WebView2Loader.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\runtimes\win-arm64\native\WebView2Loader.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Runtimes_WinArm64_Native_WebView2Loader_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+                <RemoveFolder Id="WINARM64NATIVEDIR" On="uninstall" />
+                <RemoveFolder Id="WINARM64DIR" On="uninstall" />
+            </Component>
+
+            <!-- Archivos de runtimes\win-x64\native -->
+            <Component Id="File_Runtimes_WinX64_Native_WebView2Loader_dll" Guid="*" Directory="WINX64NATIVEDIR">
+                <File Id="Runtimes_WinX64_Native_WebView2Loader_dll_File" Name="WebView2Loader.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\runtimes\win-x64\native\WebView2Loader.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Runtimes_WinX64_Native_WebView2Loader_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+                <RemoveFolder Id="WINX64NATIVEDIR" On="uninstall" />
+                <RemoveFolder Id="WINX64DIR" On="uninstall" />
+            </Component>
+
+            <!-- Archivos de runtimes\win-x86\native -->
+            <Component Id="File_Runtimes_WinX86_Native_WebView2Loader_dll" Guid="*" Directory="WINX86NATIVEDIR">
+                <File Id="Runtimes_WinX86_Native_WebView2Loader_dll_File" Name="WebView2Loader.dll" Source="TFG V0.01\bin\Release\net9.0-windows7.0\runtimes\win-x86\native\WebView2Loader.dll" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\Runtimes_WinX86_Native_WebView2Loader_dll" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+                <RemoveFolder Id="WINX86NATIVEDIR" On="uninstall" />
+                <RemoveFolder Id="WINX86DIR" On="uninstall" />
+            </Component>
+
+            <!-- Archivos de selenium-manager\linux -->
+            <Component Id="File_SeleniumManager_Linux_selenium_manager" Guid="*" Directory="LINUXDIR">
+                <File Id="SeleniumManager_Linux_selenium_manager_File" Name="selenium-manager" Source="TFG V0.01\bin\Release\net9.0-windows7.0\selenium-manager\linux\selenium-manager" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\SeleniumManager_Linux_selenium_manager" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+                <RemoveFolder Id="LINUXDIR" On="uninstall" />
+                <RemoveFolder Id="SELENIUMMANAGERDIR" On="uninstall" />
+            </Component>
+
+            <!-- Archivos de selenium-manager\macos -->
+            <Component Id="File_SeleniumManager_MacOS_selenium_manager" Guid="*" Directory="MACOSDIR">
+                <File Id="SeleniumManager_MacOS_selenium_manager_File" Name="selenium-manager" Source="TFG V0.01\bin\Release\net9.0-windows7.0\selenium-manager\macos\selenium-manager" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\SeleniumManager_MacOS_selenium_manager" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+                <RemoveFolder Id="MACOSDIR" On="uninstall" />
+            </Component>
+
+            <!-- Archivos de selenium-manager\windows -->
+            <Component Id="File_SeleniumManager_Windows_selenium_manager_exe" Guid="*" Directory="WINDOWSDIR">
+                <File Id="SeleniumManager_Windows_selenium_manager_exe_File" Name="selenium-manager.exe" Source="TFG V0.01\bin\Release\net9.0-windows7.0\selenium-manager\windows\selenium-manager.exe" />
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01\Files\SeleniumManager_Windows_selenium_manager_exe" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+                <RemoveFolder Id="WINDOWSDIR" On="uninstall" />
+            </Component>
+        </ComponentGroup>
+	</Fragment>
+
+	<Fragment>
+		<DirectoryRef Id="DesktopFolder">
+			<Component Id="ApplicationDesktopShortcut" Guid="c3d4e5f6-a7b8-9012-3456-7890abcdef01">
+				<CreateFolder />
+				<Shortcut Id="DesktopShortcut" Name="TFG V0.01" Target="[INSTALLFOLDER]TFG V0.01.exe" WorkingDirectory="INSTALLFOLDER" Icon="ProductIcon" IconIndex="0" />
+				<RemoveFolder Id="DesktopFolder" On="uninstall" />
+				<RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+			</Component>
+		</DirectoryRef>
+		<DirectoryRef Id="ProgramMenuDir">
+			<Component Id="ApplicationStartMenuShortcut" Guid="d4e5f6a7-b8c9-0123-4567-890abcdef012">
+				<CreateFolder />
+				<Shortcut Id="StartMenuShortcut" Name="TFG V0.01" Target="[INSTALLFOLDER]TFG V0.01.exe" WorkingDirectory="INSTALLFOLDER" Icon="ProductIcon" IconIndex="0" />
+				<RemoveFolder Id="ProgramMenuDir" On="uninstall" />
+				<RegistryValue Root="HKCU" Key="Software\Microsoft\TFG\V0.01" Name="installed_startmenu" Type="integer" Value="1" KeyPath="yes"/>
+			</Component>
+		</DirectoryRef>
+	</Fragment>
+</Wix>

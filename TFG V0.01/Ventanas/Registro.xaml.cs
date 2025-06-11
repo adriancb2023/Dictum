@@ -8,30 +8,79 @@ using System.Windows.Media.Imaging;
 using TFG_V0._01.Supabase;
 using WpfBrushes = System.Windows.Media.Brushes;
 using WpfImage = System.Windows.Controls.Image;
+using System.Windows.Documents;
 
 namespace TFG_V0._01.Ventanas
 {
     public partial class Registro : Window
     {
-        #region variables
+        #region 🎨 Variables y Recursos
         private readonly SupabaseAutentificacion _supabaseAutentificacion;
         private Storyboard fadeInStoryboard;
         private Storyboard shakeStoryboard;
+        private Storyboard meshAnimStoryboard;
+
+        private const string ErrorCamposVacios = "Por favor, complete todos los campos";
+        private const string ErrorContraseñas = "Las contraseñas no coinciden";
+        private string _correoPlaceholder = "Email";
+        private string _passPlaceholder = "Contraseña";
+        private string _pass2Placeholder = "Repita la contraseña";
+
+        private RadialGradientBrush mesh1Brush;
+        private RadialGradientBrush mesh2Brush;
+        private DrawingBrush meshGradientBrush;
         #endregion
 
-        #region InitializeComponent
+        #region ⚡ Inicialización
         public Registro()
         {
             InitializeComponent();
             _supabaseAutentificacion = new SupabaseAutentificacion();
-            InitializeAnimations();
+            this.Tag = MainWindow.isDarkTheme;
             CargarIdioma(MainWindow.idioma);
-            AplicarModoSistema();
+            InitializeAnimations();
+            CrearFondoAnimado();
+            AplicarTema();
             BeginFadeInAnimation();
+            // Añadir PlaceholderAdorner a los campos
+            Loaded += (s, e) =>
+            {
+                var adornerLayer = AdornerLayer.GetAdornerLayer(UsernameTextBox);
+                if (adornerLayer != null)
+                {
+                    adornerLayer.Add(new PlaceholderAdorner(
+                        UsernameTextBox,
+                        _correoPlaceholder,
+                        MainWindow.isDarkTheme ? Brushes.White : Brushes.Black,
+                        MainWindow.isDarkTheme ? Brushes.WhiteSmoke : Brushes.DarkSlateGray,
+                        14));
+                }
+                adornerLayer = AdornerLayer.GetAdornerLayer(PasswordBox);
+                if (adornerLayer != null)
+                {
+                    adornerLayer.Add(new PlaceholderAdorner(
+                        PasswordBox,
+                        _passPlaceholder,
+                        MainWindow.isDarkTheme ? Brushes.White : Brushes.Black,
+                        MainWindow.isDarkTheme ? Brushes.WhiteSmoke : Brushes.DarkSlateGray,
+                        14));
+                }
+                adornerLayer = AdornerLayer.GetAdornerLayer(PasswordBox2);
+                if (adornerLayer != null)
+                {
+                    adornerLayer.Add(new PlaceholderAdorner(
+                        PasswordBox2,
+                        _pass2Placeholder,
+                        MainWindow.isDarkTheme ? Brushes.White : Brushes.Black,
+                        MainWindow.isDarkTheme ? Brushes.WhiteSmoke : Brushes.DarkSlateGray,
+                        14));
+                }
+                IniciarAnimacionMesh();
+            };
         }
         #endregion
 
-        #region Animaciones
+        #region 🎬 Animaciones y Efectos
         private void InitializeAnimations()
         {
             fadeInStoryboard = new Storyboard();
@@ -80,59 +129,180 @@ namespace TFG_V0._01.Ventanas
             element.RenderTransform = trans;
             trans.BeginAnimation(TranslateTransform.XProperty, CrearShakeAnimation());
         }
+
+        private void CrearFondoAnimado()
+        {
+            // Crear los brushes
+            mesh1Brush = new RadialGradientBrush();
+            mesh1Brush.Center = new Point(0.3, 0.3);
+            mesh1Brush.RadiusX = 0.5;
+            mesh1Brush.RadiusY = 0.5;
+            mesh1Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#de9cb8"), 0));
+            mesh1Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#9dcde1"), 1));
+            mesh1Brush.Freeze();
+            mesh1Brush = mesh1Brush.Clone();
+
+            mesh2Brush = new RadialGradientBrush();
+            mesh2Brush.Center = new Point(0.7, 0.7);
+            mesh2Brush.RadiusX = 0.6;
+            mesh2Brush.RadiusY = 0.6;
+            mesh2Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#dc8eb8"), 0));
+            mesh2Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#98d3ec"), 1));
+            mesh2Brush.Freeze();
+            mesh2Brush = mesh2Brush.Clone();
+
+            // Crear el DrawingBrush
+            var drawingGroup = new DrawingGroup();
+            drawingGroup.Children.Add(new GeometryDrawing(mesh1Brush, null, new RectangleGeometry(new Rect(0, 0, 1, 1))));
+            drawingGroup.Children.Add(new GeometryDrawing(mesh2Brush, null, new RectangleGeometry(new Rect(0, 0, 1, 1))));
+            meshGradientBrush = new DrawingBrush(drawingGroup) { Stretch = Stretch.Fill };
+            MainGrid.Background = meshGradientBrush;
+        }
+
+        private void IniciarAnimacionMesh()
+        {
+            // Detener si ya existe
+            meshAnimStoryboard?.Stop();
+            meshAnimStoryboard = new Storyboard();
+            // Animar Center de mesh1
+            var anim1 = new PointAnimationUsingKeyFrames();
+            anim1.KeyFrames.Add(new EasingPointKeyFrame(new Point(0.3, 0.3), KeyTime.FromTimeSpan(TimeSpan.Zero)));
+            anim1.KeyFrames.Add(new EasingPointKeyFrame(new Point(0.7, 0.5), KeyTime.FromTimeSpan(TimeSpan.FromSeconds(4))) { EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut } });
+            anim1.KeyFrames.Add(new EasingPointKeyFrame(new Point(0.3, 0.3), KeyTime.FromTimeSpan(TimeSpan.FromSeconds(8))) { EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut } });
+            anim1.RepeatBehavior = RepeatBehavior.Forever;
+            Storyboard.SetTarget(anim1, mesh1Brush);
+            Storyboard.SetTargetProperty(anim1, new PropertyPath(RadialGradientBrush.CenterProperty));
+            meshAnimStoryboard.Children.Add(anim1);
+            // Animar Center de mesh2
+            var anim2 = new PointAnimationUsingKeyFrames();
+            anim2.KeyFrames.Add(new EasingPointKeyFrame(new Point(0.7, 0.7), KeyTime.FromTimeSpan(TimeSpan.Zero)));
+            anim2.KeyFrames.Add(new EasingPointKeyFrame(new Point(0.4, 0.4), KeyTime.FromTimeSpan(TimeSpan.FromSeconds(4))) { EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut } });
+            anim2.KeyFrames.Add(new EasingPointKeyFrame(new Point(0.7, 0.7), KeyTime.FromTimeSpan(TimeSpan.FromSeconds(8))) { EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut } });
+            anim2.RepeatBehavior = RepeatBehavior.Forever;
+            Storyboard.SetTarget(anim2, mesh2Brush);
+            Storyboard.SetTargetProperty(anim2, new PropertyPath(RadialGradientBrush.CenterProperty));
+            meshAnimStoryboard.Children.Add(anim2);
+            meshAnimStoryboard.Begin();
+        }
         #endregion
 
-        #region Aplicar modo oscuro/claro cargado por sistema
-        private void AplicarModoSistema()
+        #region 🌓 Gestión de Tema
+        private void AplicarTema()
         {
+            this.Tag = MainWindow.isDarkTheme;
             var button = this.FindName("ThemeButton") as Button;
             var icon = button?.Template.FindName("ThemeIcon", button) as WpfImage;
+            var closeButton = this.FindName("CloseButton") as Button;
 
+            // Cambiar fondo mesh gradient
             if (MainWindow.isDarkTheme)
             {
                 if (icon != null)
                     icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/sol.png", UriKind.Relative));
-                backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString(
-                    "pack://application:,,,/TFG V0.01;component/Recursos/Background/oscuro/main.png") as ImageSource;
-                Titulo.Foreground = WpfBrushes.White;
-                Subtitulo.Foreground = WpfBrushes.White;
-                correo.Foreground = WpfBrushes.White;
-                Pass1.Foreground = WpfBrushes.White;
-                Pass2.Foreground = WpfBrushes.White;
+                // Colores mesh oscuro
+                mesh1Brush.GradientStops[0].Color = (Color)ColorConverter.ConvertFromString("#d2cdc6");
+                mesh1Brush.GradientStops[1].Color = (Color)ColorConverter.ConvertFromString("#08a693");
+                mesh2Brush.GradientStops[0].Color = (Color)ColorConverter.ConvertFromString("#3a4d5f");
+                mesh2Brush.GradientStops[1].Color = (Color)ColorConverter.ConvertFromString("#272c3f");
+                OverlayDark.Visibility = Visibility.Visible;
+                Titulo.Foreground = Brushes.White;
+                Subtitulo.Foreground = Brushes.White;
+                // Cambiar color de la X
+                if (closeButton != null)
+                    closeButton.Foreground = (Brush)this.FindResource("CloseButtonForegroundDark");
+                // Cambiar recursos de color de campos
+                var app = Application.Current;
+                app.Resources["TextBoxBackgroundBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#20FFFFFF"));
+                app.Resources["TextBoxForegroundBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFFFFF"));
+                app.Resources["TextBoxBorderBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#AAFFFFFF"));
+                app.Resources["ButtonBackgroundDark"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFFFFF"));
+                app.Resources["ButtonForegroundDark"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#222222"));
+                app.Resources["ButtonHoverDark"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF333333"));
             }
             else
             {
                 if (icon != null)
-                    icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/luna2.png", UriKind.Relative));
-                backgroundFondo.ImageSource = new ImageSourceConverter().ConvertFromString(
-                    "pack://application:,,,/TFG V0.01;component/Recursos/Background/claro/main.png") as ImageSource;
-                Titulo.Foreground = WpfBrushes.Black;
-                Subtitulo.Foreground = WpfBrushes.Black;
-                correo.Foreground = WpfBrushes.Black;
-                Pass1.Foreground = WpfBrushes.Black;
-                Pass2.Foreground = WpfBrushes.Black;
+                    icon.Source = new BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/luna.png", UriKind.Relative));
+                // Colores mesh claro
+                mesh1Brush.GradientStops[0].Color = (Color)ColorConverter.ConvertFromString("#de9cb8");
+                mesh1Brush.GradientStops[1].Color = (Color)ColorConverter.ConvertFromString("#9dcde1");
+                mesh2Brush.GradientStops[0].Color = (Color)ColorConverter.ConvertFromString("#dc8eb8");
+                mesh2Brush.GradientStops[1].Color = (Color)ColorConverter.ConvertFromString("#98d3ec");
+                OverlayDark.Visibility = Visibility.Collapsed;
+                Titulo.Foreground = Brushes.Black;
+                Subtitulo.Foreground = Brushes.Black;
+                // Cambiar color de la X
+                if (closeButton != null)
+                    closeButton.Foreground = (Brush)this.FindResource("CloseButtonForegroundLight");
+                // Cambiar recursos de color de campos
+                var app = Application.Current;
+                app.Resources["TextBoxBackgroundBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#20FFFFFF"));
+                app.Resources["TextBoxForegroundBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#222222"));
+                app.Resources["TextBoxBorderBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#AAFFFFFF"));
+                app.Resources["ButtonBackgroundLight"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFFFFF"));
+                app.Resources["ButtonForegroundLight"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#222222"));
+                app.Resources["ButtonHoverLight"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFEEEEEE"));
+            }
+
+            // Aplicar colores a los campos del formulario
+            UsernameTextBox.Foreground = (Brush)Application.Current.Resources["TextBoxForegroundBrush"];
+            PasswordBox.Foreground = (Brush)Application.Current.Resources["TextBoxForegroundBrush"];
+            PasswordBox2.Foreground = (Brush)Application.Current.Resources["TextBoxForegroundBrush"];
+
+            // Actualizar los placeholders para todos los campos
+            ActualizarPlaceholders(UsernameTextBox, _correoPlaceholder);
+            ActualizarPlaceholders(PasswordBox, _passPlaceholder);
+            ActualizarPlaceholders(PasswordBox2, _pass2Placeholder);
+
+            IniciarAnimacionMesh();
+        }
+
+        private void ActualizarPlaceholders(Control control, string placeholderText)
+        {
+            var adornerLayer = AdornerLayer.GetAdornerLayer(control);
+            if (adornerLayer != null)
+            {
+                var adorners = adornerLayer.GetAdorners(control);
+                if (adorners != null)
+                {
+                    foreach (var adorner in adorners)
+                    {
+                        if (adorner is PlaceholderAdorner placeholder)
+                        {
+                            placeholder.UpdateColors(
+                                MainWindow.isDarkTheme ? Brushes.White : Brushes.Black,
+                                MainWindow.isDarkTheme ? Brushes.WhiteSmoke : Brushes.DarkSlateGray
+                            );
+                        }
+                    }
+                }
             }
         }
 
         private void ThemeButton_Click(object sender, RoutedEventArgs e)
         {
             MainWindow.isDarkTheme = !MainWindow.isDarkTheme;
-            AplicarModoSistema();
+            AplicarTema();
             var fadeAnimation = CrearFadeAnimation(0.7, 0.9, 0.3, true);
-            backgroundFondo.BeginAnimation(OpacityProperty, fadeAnimation);
+            MainGrid.BeginAnimation(OpacityProperty, fadeAnimation);
         }
         #endregion
 
-        #region volver al login
+        #region 🔄 Navegación
         private void VolverLogin(object sender, RoutedEventArgs e)
         {
-            var login = new Login();
-            login.Show();
-            this.Close();
+            var fadeOut = CrearFadeAnimation(1, 0, 0.3);
+            fadeOut.Completed += (s, args) =>
+            {
+                var login = new Login();
+                login.Show();
+                this.Close();
+            };
+            this.BeginAnimation(OpacityProperty, fadeOut);
         }
         #endregion
 
-        #region Registro usuario
+        #region 👤 Registro de Usuario
         private async void RegistrarUser(object sender, RoutedEventArgs e)
         {
             try
@@ -141,25 +311,52 @@ namespace TFG_V0._01.Ventanas
                 var password = PasswordBox.Password;
                 var confirmPassword = PasswordBox2.Password;
 
+                if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(confirmPassword))
+                {
+                    MostrarError(ErrorCamposVacios);
+                    return;
+                }
+
                 if (password != confirmPassword)
                 {
-                    MessageBox.Show("Las contraseñas no coinciden");
+                    MostrarError(ErrorContraseñas);
                     ShakeElement(PasswordBox);
                     ShakeElement(PasswordBox2);
                     return;
                 }
 
+                Mouse.OverrideCursor = Cursors.Wait;
                 var result = await _supabaseAutentificacion.SignUpAsync(email, password);
+                Mouse.OverrideCursor = null;
+
                 MessageBox.Show("Registro exitoso. Confirme su correo antes de acceder.");
+                VolverLogin(sender, e);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error en el registro: {ex.Message}");
+                Mouse.OverrideCursor = null;
+                MostrarError($"Error en el registro: {ex.Message}");
+                ShakeElement(UsernameTextBox);
+                ShakeElement(PasswordBox);
+                ShakeElement(PasswordBox2);
             }
+        }
+
+        private void MostrarError(string mensaje)
+        {
+            errorLogin.Text = mensaje;
+            errorLogin.Visibility = Visibility.Visible;
+            errorLogin.BeginAnimation(OpacityProperty, CrearFadeAnimation(0, 1, 0.3));
+            UsernameTextBox.BorderBrush = WpfBrushes.Red;
+            UsernameTextBox.BorderThickness = new Thickness(1);
+            PasswordBox.BorderBrush = WpfBrushes.Red;
+            PasswordBox.BorderThickness = new Thickness(1);
+            PasswordBox2.BorderBrush = WpfBrushes.Red;
+            PasswordBox2.BorderThickness = new Thickness(1);
         }
         #endregion
 
-        #region  metodos flotantes
+        #region 🖱️ Eventos de UI
         private void Border_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ChangedButton == MouseButton.Left)
@@ -168,58 +365,56 @@ namespace TFG_V0._01.Ventanas
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
-            this.Close();
-        }
-
-        private void PasswordBox_GotFocus(object sender, RoutedEventArgs e)
-        {
-            var passwordBox = sender as PasswordBox;
-            if (passwordBox != null && passwordBox.Password == "Contraseña")
+            DoubleAnimation fadeOut = new DoubleAnimation
             {
-                passwordBox.Password = string.Empty;
-                passwordBox.Foreground = WpfBrushes.Black;
-            }
-        }
+                From = 1,
+                To = 0,
+                Duration = TimeSpan.FromSeconds(0.3)
+            };
 
-        private void PasswordBox_LostFocus(object sender, RoutedEventArgs e)
-        {
-            var passwordBox = sender as PasswordBox;
-            if (passwordBox != null && string.IsNullOrWhiteSpace(passwordBox.Password))
-            {
-                passwordBox.Password = "Contraseña";
-                passwordBox.Foreground = WpfBrushes.Gray;
-            }
+            fadeOut.Completed += (s, args) => this.Close();
+            this.BeginAnimation(OpacityProperty, fadeOut);
         }
 
         private void TextBox_GotFocus(object sender, RoutedEventArgs e)
         {
-            var textBox = sender as TextBox;
-            if (textBox != null && textBox.Text == "Usuario")
+            TextBox textBox = sender as TextBox;
+            if (textBox != null)
             {
-                textBox.Text = string.Empty;
-                textBox.Foreground = WpfBrushes.Black;
+                textBox.BorderBrush = WpfBrushes.Transparent;
+                errorLogin.Visibility = Visibility.Collapsed;
             }
         }
 
         private void TextBox_LostFocus(object sender, RoutedEventArgs e)
         {
-            var textBox = sender as TextBox;
-            if (textBox != null && string.IsNullOrWhiteSpace(textBox.Text))
+            // Puedes agregar validación aquí si es necesario
+        }
+
+        private void PasswordBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            PasswordBox passwordBox = sender as PasswordBox;
+            if (passwordBox != null)
             {
-                textBox.Text = "Usuario";
-                textBox.Foreground = WpfBrushes.Gray;
+                passwordBox.BorderBrush = WpfBrushes.Transparent;
+                errorLogin.Visibility = Visibility.Collapsed;
             }
+        }
+
+        private void PasswordBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            // Puedes agregar validación aquí si es necesario
         }
         #endregion
 
-        #region Idiomas
+        #region 🌍 Gestión de Idiomas
         private void CargarIdioma(int idioma)
         {
             var idiomas = new (string Titulo, string Subtitulo, string Correo, string Pass1, string Pass2, string BtnRegistrarse, string BtnVolver)[]
             {
                 ("Registro", "Crea una cuenta nueva", "Email", "Contraseña", "Repita la contraseña", "Registrarse", "Volver al login"), // Español
                 ("Sign Up", "Create a new account", "Email", "Password", "Repeat password", "Sign Up", "Back to login"), // Inglés
-                ("Registre", "Crea un compte nou", "Correu electrònic", "Contrasenya", "Repeteix la contrasenya", "Registra’t", "Torna a l'inici de sessió"), // Catalán
+                ("Registre", "Crea un compte nou", "Correu electrònic", "Contrasenya", "Repeteix la contrasenya", "Registra't", "Torna a l'inici de sessió"), // Catalán
                 ("Rexistro", "Crea unha conta nova", "Correo electrónico", "Contrasinal", "Repita o contrasinal", "Rexistrarse", "Volver ao login"), // Gallego
                 ("Erregistroa", "Kontu berri bat sortu", "Posta elektronikoa", "Pasahitza", "Pasahitza berriro idatzi", "Erregistratu", "Itzuli saio-hasierara") // Euskera
             };
@@ -231,9 +426,9 @@ namespace TFG_V0._01.Ventanas
 
             Titulo.Text = textos.Titulo;
             Subtitulo.Text = textos.Subtitulo;
-            correo.Text = textos.Correo;
-            Pass1.Text = textos.Pass1;
-            Pass2.Text = textos.Pass2;
+            _correoPlaceholder = textos.Correo;
+            _passPlaceholder = textos.Pass1;
+            _pass2Placeholder = textos.Pass2;
             btnRegistrarse.Content = textos.BtnRegistrarse;
             btnVolver.Content = textos.BtnVolver;
         }

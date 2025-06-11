@@ -10,6 +10,41 @@
         WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
+        <!-- Mesh Gradients accesibles globalmente -->
+        <RadialGradientBrush x:Key="Mesh1" Center="0.3,0.3" RadiusX="0.5" RadiusY="0.5">
+            <GradientStop Color="#de9cb8" Offset="0"/>
+            <GradientStop Color="#9dcde1" Offset="1"/>
+        </RadialGradientBrush>
+        <RadialGradientBrush x:Key="Mesh2" Center="0.7,0.7" RadiusX="0.6" RadiusY="0.6">
+            <GradientStop Color="#dc8eb8" Offset="0"/>
+            <GradientStop Color="#98d3ec" Offset="1"/>
+        </RadialGradientBrush>
+
+        <!-- Colores para el modo oscuro/claro -->
+        <SolidColorBrush x:Key="TextPrimaryDark" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="TextSecondaryDark" Color="#CCFFFFFF"/>
+        <SolidColorBrush x:Key="TextPrimaryLight" Color="#222222"/>
+        <SolidColorBrush x:Key="TextSecondaryLight" Color="#666666"/>
+
+        <!-- Estilo para textos primarios -->
+        <Style x:Key="PrimaryTextStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Foreground" Value="{StaticResource TextPrimaryLight}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Estilo para textos secundarios -->
+        <Style x:Key="SecondaryTextStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource TextSecondaryDark}"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Foreground" Value="{StaticResource TextSecondaryLight}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
 
         <!-- Estilo para el botón de cambio de tema -->
         <Style x:Key="ThemeButtonStyle" TargetType="Button">
@@ -20,7 +55,18 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}" CornerRadius="20">
-                            <Image x:Name="ThemeIcon" Source="/TFG V0.01;component/Recursos/Iconos/sol.png" Width="20" Height="20"/>
+                            <Image x:Name="ThemeIcon" Width="20" Height="20">
+                                <Image.Style>
+                                    <Style TargetType="Image">
+                                        <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/luna.png"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                                                <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/sol.png"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
+                            </Image>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -67,11 +113,11 @@
             <Setter Property="CornerRadius" Value="20"/>
             <Setter Property="Background">
                 <Setter.Value>
-                    <SolidColorBrush Color="#454545" Opacity="0.4"/>
+                    <SolidColorBrush Color="#282828" Opacity="0.8"/>
                 </Setter.Value>
             </Setter>
-            <Setter Property="BorderBrush" Value="#333" />
-            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Padding" Value="15"/>
             <Setter Property="Margin" Value="10"/>
             <Setter Property="Effect">
@@ -79,6 +125,16 @@
                     <DropShadowEffect Color="Black" BlurRadius="15" ShadowDepth="2" Opacity="0.3"/>
                 </Setter.Value>
             </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Background" Value="#F0F0F0"/>
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect Color="#AAAAAA" BlurRadius="15" ShadowDepth="2" Opacity="0.3"/>
+                        </Setter.Value>
+                    </Setter>
+                </DataTrigger>
+            </Style.Triggers>
         </Style>
 
         <!-- Estilo para Toggle Switch -->
@@ -102,6 +158,8 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     </Window.Resources>
 
     <Grid>
@@ -113,7 +171,7 @@
 
         <!-- Fondo -->
         <Grid.Background>
-            <ImageBrush x:Name="backgroundFondo" ImageSource="/TFG V0.01;component/Recursos/Background/oscuro/main.png"/>
+            <SolidColorBrush Color="#FF1E1E1E"/>
         </Grid.Background>
 
         <!-- Navbar -->
@@ -124,95 +182,127 @@
 
         <!-- Contenido principal -->
         <Grid Grid.Column="2" Margin="20">
-
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <!-- Contenido principal -->
-            <Grid Grid.Column="2" Margin="20">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
+            <!-- Header -->
+            <TextBlock x:Name="TituloAjustes" Text="Ajustes" FontSize="24" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,20"/>
 
-                <!-- Header -->
-                <TextBlock Text="Ajustes" FontSize="24" FontWeight="Bold" Foreground="White" Margin="0,0,0,20"/>
+            <!-- Contenido de ajustes -->
+            <Border Grid.Row="1" Style="{StaticResource CardStyle}" Margin="0,0,0,20">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="10">
+                        <!-- Sección de Apariencia -->
+                        <TextBlock x:Name="txtApariencia" Text="Apariencia" FontSize="18" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,15"/>
+                        <Grid Margin="0,0,0,20">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock x:Name="txtTemaOscuro" Text="Tema Oscuro" Style="{StaticResource PrimaryTextStyle}" FontWeight="SemiBold"/>
+                                <TextBlock x:Name="txtCambiarTema" Text="Cambiar entre tema claro y oscuro" Style="{StaticResource SecondaryTextStyle}" FontSize="12"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
+                                <Image x:Name="solIcon" Width="20" Height="20">
+                                    <Image.Style>
+                                        <Style TargetType="Image">
+                                            <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/sol2.png"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                                                    <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/sol.png"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Image.Style>
+                                </Image>
+                                <TextBlock Text="Claro" Style="{StaticResource PrimaryTextStyle}" VerticalAlignment="Center" Margin="5,0,10,0"/>
+                                <CheckBox x:Name="modoClaro" Grid.Column="1" Style="{StaticResource ToggleSwitchStyle}" IsChecked="True" Checked="ThemeToggle_Checked" Unchecked="ThemeToggle_Unchecked"/>
+                                <TextBlock Text="Oscuro" Style="{StaticResource PrimaryTextStyle}" VerticalAlignment="Center" Margin="10,0,5,0"/>
+                                <Image x:Name="lunaIcon" Width="20" Height="20">
+                                    <Image.Style>
+                                        <Style TargetType="Image">
+                                            <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/luna.png"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                                                    <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/luna2.png"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Image.Style>
+                                </Image>
+                            </StackPanel>
+                        </Grid>
 
-                <!-- Contenido de ajustes -->
-                <Border Grid.Row="1" Style="{StaticResource CardStyle}" Margin="0,0,0,20">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto">
-                        <StackPanel Margin="10">
+                        <!-- Separador -->
+                        <Separator Background="#454545" Margin="0,10,0,20"/>
 
-                            <!-- Sección de Apariencia -->
-                            <TextBlock Text="Apariencia" FontSize="18" FontWeight="Bold" Foreground="White" Margin="0,0,0,15"/>
-                            <Grid Margin="0,0,0,20">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="Tema Oscuro" Foreground="White" FontWeight="SemiBold"/>
-                                    <TextBlock Text="Cambiar entre tema claro y oscuro" Foreground="#CCFFFFFF" FontSize="12"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
-                                    <Image Source="/TFG V0.01;component/Recursos/Iconos/sol.png" Width="20" Height="20"/>
-                                    <TextBlock Text="Claro" Foreground="White" VerticalAlignment="Center" Margin="5,0,10,0"/>
-                                    <CheckBox x:Name="modoClaro" Grid.Column="1" Style="{StaticResource ToggleSwitchStyle}" IsChecked="True" Checked="ThemeToggle_Checked" Unchecked="ThemeToggle_Unchecked"/>
-                                    <TextBlock Text="Oscuro" Foreground="White" VerticalAlignment="Center" Margin="10,0,5,0"/>
-                                    <Image Source="/TFG V0.01;component/Recursos/Iconos/luna2.png" Width="20" Height="20"/>
-                                </StackPanel>
-                            </Grid>
+                        <!-- Sección de Idioma -->
+                        <TextBlock x:Name="txtIdioma" Text="Idioma" FontSize="18" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,15"/>
+                        <ComboBox x:Name="LanguageComboBox" Width="200" HorizontalAlignment="Left" Margin="0,0,0,20">
+                            <ComboBoxItem Content="Español" Tag="1" />
+                            <ComboBoxItem Content="English" Tag="2" />
+                            <ComboBoxItem Content="Català" Tag="3" />
+                            <ComboBoxItem Content="Galego" Tag="4" />
+                            <ComboBoxItem Content="Euskara" Tag="5" />
+                        </ComboBox>
 
-                            <!-- Separador -->
-                            <Separator Background="#454545" Margin="0,10,0,20"/>
+                        <!-- Separador -->
+                        <Separator Background="#454545" Margin="0,10,0,20"/>
 
-                            <!-- Sección de Idioma -->
-                            <TextBlock Text="Idioma" FontSize="18" FontWeight="Bold" Foreground="White" Margin="0,0,0,15"/>
-                            <ComboBox x:Name="LanguageComboBox" Width="200" HorizontalAlignment="Left" Margin="0,0,0,20">
-                                <ComboBoxItem Content="Español" Tag="1" />
-                                <ComboBoxItem Content="English" Tag="2" />
-                                <ComboBoxItem Content="Català" Tag="3" />
-                                <ComboBoxItem Content="Galego" Tag="4" />
-                                <ComboBoxItem Content="Euskara" Tag="5" />
-                            </ComboBox>
+                        <!-- Sección de Base de Datos -->
+                        <TextBlock x:Name="txtBaseDatos" Text="Base de Datos" FontSize="18" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,15" Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVisibilityConverter}, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                        <Grid x:Name="BBDDSection" Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVisibilityConverter}, RelativeSource={RelativeSource AncestorType=Window}}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                <TextBlock x:Name="txtTipoBBDD" Text="Tipo de Base de Datos" Style="{StaticResource PrimaryTextStyle}" FontWeight="SemiBold" FontSize="16"/>
+                                <TextBlock x:Name="txtEligeBBDD" Text="Elige dónde almacenar tus datos" Style="{StaticResource SecondaryTextStyle}" FontSize="12" Margin="0,5,0,0"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
+                                <Image x:Name="localIcon" Width="20" Height="20">
+                                    <Image.Style>
+                                        <Style TargetType="Image">
+                                            <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/local2.png"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                                                    <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/local.png"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Image.Style>
+                                </Image>
+                                <TextBlock Text="Test " Style="{StaticResource PrimaryTextStyle}" VerticalAlignment="Center" Margin="5,0,10,0"/>
+                                <CheckBox x:Name="BBDD" Style="{StaticResource ToggleSwitchStyle}" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Nube" Style="{StaticResource PrimaryTextStyle}" VerticalAlignment="Center" Margin="10,0,5,0"/>
+                                <Image x:Name="cloudIcon" Width="20" Height="20">
+                                    <Image.Style>
+                                        <Style TargetType="Image">
+                                            <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/cloud2.png"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                                                    <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/cloud.png"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Image.Style>
+                                </Image>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
 
-                            <!-- Separador -->
-                            <Separator Background="#454545" Margin="0,10,0,20"/>
-
-                            <!-- Sección de Base de Datos -->
-                            <TextBlock Text="Base de Datos" FontSize="18" FontWeight="Bold" Foreground="White" Margin="0,0,0,15"/>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-
-                                <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                                    <TextBlock Text="Tipo de Base de Datos" Foreground="White" FontWeight="SemiBold" FontSize="16"/>
-                                    <TextBlock Text="Elige dónde almacenar tus datos" Foreground="#CCFFFFFF" FontSize="12" Margin="0,5,0,0"/>
-                                </StackPanel>
-
-                                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
-                                    <Image Source="/TFG V0.01;component/Recursos/Iconos/local.png" Width="20" Height="20"/>
-                                    <TextBlock Text="Test " Foreground="White" VerticalAlignment="Center" Margin="5,0,10,0"/>
-                                    <CheckBox x:Name="BBDD" Style="{StaticResource ToggleSwitchStyle}" Margin="0,0,10,0" VerticalAlignment="Center"/>
-                                    <TextBlock Text="Nube" Foreground="White" VerticalAlignment="Center" Margin="10,0,5,0"/>
-                                    <Image Source="/TFG V0.01;component/Recursos/Iconos/cloud.png" Width="20" Height="20"/>
-                                </StackPanel>
-                            </Grid>
-                        </StackPanel>
-                    </ScrollViewer>
-                </Border>
-
-                <!-- Botones de acción -->
-                <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
-                    <Button Content="Cancelar" Style="{StaticResource RoundedButtonStyle}" Width="120" Margin="0,0,10,0"/>
-                    <Button Content="Guardar" Style="{StaticResource RoundedButtonStyle}" Width="120" Background="#007AFF" Click="GuardarConfig"/>
-                </StackPanel>
-            </Grid>
+            <!-- Botones de acción -->
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+                <Button x:Name="btnCancelar" Content="Cancelar" Style="{StaticResource RoundedButtonStyle}" Width="120" Margin="0,0,10,0"/>
+                <Button x:Name="btnGuardar" Content="Guardar" Style="{StaticResource RoundedButtonStyle}" Width="120" Background="#007AFF" Click="GuardarConfig"/>
+            </StackPanel>
         </Grid>
     </Grid>
 </Window>

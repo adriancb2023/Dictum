@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
 
 namespace JurisprudenciaApi.Pages
 {
@@ -49,7 +50,10 @@ namespace JurisprudenciaApi.Pages
         public string? TipoOrgano { get; set; }
 
         [Display(Name = "Localización")]
-        public string? Localizacion { get; set; }
+        public List<string>? Localizacion { get; set; } = new List<string>();
+
+        [Display(Name = "Provincias")]
+        public List<string>? Provincias { get; set; } = new List<string>();
 
         [Display(Name = "Nº ROJ")]
         public string? Roj { get; set; }

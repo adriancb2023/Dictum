@@ -21,7 +21,6 @@ namespace TFG_V0._01.Ventanas.SubVentanas
                 documento.nombre,
                 documento.fecha_subid,
                 documento.ruta,
-                documento.descripcion,
                 documento.tipo_documento,
                 TamanoHumano = ObtenerTamanoHumano(documento.ruta)
             };
@@ -67,7 +66,6 @@ namespace TFG_V0._01.Ventanas.SubVentanas
                     _documento.nombre,
                     _documento.fecha_subid,
                     _documento.ruta,
-                    _documento.descripcion,
                     _documento.tipo_documento,
                     TamanoHumano = ObtenerTamanoHumano(_documento.ruta)
                 };

@@ -8,6 +8,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Configuration;
+using System.Windows;
 
 namespace TFG_V0._01.Supabase
 {
@@ -31,9 +32,27 @@ namespace TFG_V0._01.Supabase
             return result.Models;
         }
 
-        public async Task InsertarAsync(Documento entidad)
+        public async Task InsertarAsync(Documento.DocumentoInsertDto dto)
         {
-            await _client.From<Documento>().Insert(entidad);
+            MessageBox.Show(Newtonsoft.Json.JsonConvert.SerializeObject(dto), "DEBUG DTO antes de insertar");
+            try
+            {
+                var doc = new Documento
+                {
+                    id = null,
+                    id_caso = dto.id_caso,
+                    nombre = dto.nombre,
+                    ruta = dto.ruta,
+                    fecha_subid = dto.fecha_subid,
+                    tipo_documento = dto.tipo_documento,
+                    extension_archivo = dto.extension_archivo
+                };
+                await _client.From<Documento>().Insert(new List<Documento> { doc });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString(), "Error real al guardar documento");
+            }
         }
 
         public async Task ActualizarAsync(Documento entidad)

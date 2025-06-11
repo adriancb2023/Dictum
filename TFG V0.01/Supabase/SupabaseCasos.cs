@@ -113,10 +113,10 @@ namespace TFG_V0._01.Supabase
             return caso;
         }
 
-        public async Task InsertarAsync(Caso caso)
+        public async Task InsertarAsync(CasoInsertDto caso)
         {
             await InicializarAsync().ConfigureAwait(false);
-            await _client.From<Caso>().Insert(caso).ConfigureAwait(false);
+            await _client.From<CasoInsertDto>().Insert(new List<CasoInsertDto> { caso }).ConfigureAwait(false);
         }
 
         public async Task ActualizarAsync(Caso caso)

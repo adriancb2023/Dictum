@@ -12,7 +12,22 @@
         WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
-        <!-- Estilo para el botón de cambio de tema -->
+        <!-- Converters -->
+        <conv:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+        <conv:EstadoToColorConverter x:Key="EstadoToColorConverter"/>
+        <conv:EventoColorDotConverter x:Key="EventoColorDotConverter"/>
+        <conv:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+        <conv:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
+        <conv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <conv:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
+
+        <!-- Estilos y Brushes temáticos de Home -->
+        <SolidColorBrush x:Key="TextPrimaryDark" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="TextSecondaryDark" Color="#CCFFFFFF"/>
+        <SolidColorBrush x:Key="TextPrimaryLight" Color="#222222"/>
+        <SolidColorBrush x:Key="TextSecondaryLight" Color="#666666"/>
+
+        <!-- Estilo para el botón de cambio de tema (adaptado con DataTrigger) -->
         <Style x:Key="ThemeButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -21,7 +36,20 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}" CornerRadius="20">
-                            <Image x:Name="ThemeIcon" Source="/TFG V0.01;component/Recursos/Iconos/sol.png" Width="20" Height="20"/>
+                            <Image x:Name="ThemeIcon" Width="20" Height="20">
+                                <Image.Style>
+                                    <Style TargetType="Image">
+                                        <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/luna.png"/>
+                                        <!-- Icono por defecto (Claro) -->
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                                                <!-- Modo Oscuro -->
+                                                <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/sol.png"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
+                            </Image>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -32,7 +60,8 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        <!-- Botones redondeados -->
+
+        <!-- Estilo de botón redondeado (adaptado con DataTrigger para tema) -->
         <Style x:Key="RoundedButtonStyle" TargetType="{x:Type Button}">
             <Setter Property="Background" Value="#FFFFFF"/>
             <Setter Property="Foreground" Value="#333333"/>
@@ -41,13 +70,17 @@
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Button}">
                         <Border x:Name="border" Background="{TemplateBinding Background}" 
-                        CornerRadius="20" BorderThickness="{TemplateBinding BorderThickness}" 
-                        BorderBrush="{TemplateBinding BorderBrush}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                CornerRadius="20" BorderThickness="{TemplateBinding BorderThickness}" 
+                                BorderBrush="{TemplateBinding BorderBrush}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              RecognizesAccessKey="True" TextElement.Foreground="{TemplateBinding Foreground}"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -56,21 +89,81 @@
                             <Trigger Property="IsPressed" Value="true">
                                 <Setter Property="Background" Value="#DDDDDD" TargetName="border"/>
                             </Trigger>
+                            <!-- Trigger para cambiar el fondo en modo claro/oscuro -->
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                <Setter Property="Background" Value="#30000000" TargetName="border"/>
+                                <Setter Property="Foreground" Value="{StaticResource TextPrimaryLight}"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                                <Setter Property="Background" Value="#30FFFFFF" TargetName="border"/>
+                                <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
+                            </DataTrigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
-        <!-- Estilo de tarjeta -->
+
+        <!-- Estilo de botón redondeado que cambia con el tema (copiado de Home) -->
+        <Style x:Key="ThemeAwareRoundedButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource RoundedButtonStyle}">
+            <!-- Este estilo base ya maneja el foreground, pero lo mantenemos por claridad si fuera necesario -->
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Foreground" Value="{StaticResource TextPrimaryLight}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                    <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Estilo de botón redondeado sin borde (copiado de Home) -->
+        <Style x:Key="NoBorderRoundedButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource ThemeAwareRoundedButtonStyle}">
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" 
+                                CornerRadius="20" BorderThickness="{TemplateBinding BorderThickness}" 
+                                BorderBrush="{TemplateBinding BorderBrush}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              RecognizesAccessKey="True"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <!-- Anular triggers de hover/press del estilo base -->
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="Transparent" TargetName="border"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="true">
+                                <Setter Property="Background" Value="Transparent" TargetName="border"/>
+                            </Trigger>
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                <Setter Property="Foreground" Value="{StaticResource TextPrimaryLight}"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                                <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
+                            </DataTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Estilo de tarjeta (adaptado con DataTrigger para tema y efecto) -->
         <Style x:Key="CardStyle" TargetType="Border">
             <Setter Property="CornerRadius" Value="20"/>
             <Setter Property="Background">
                 <Setter.Value>
-                    <SolidColorBrush x:Name="colortarjeta" Color="#454545" Opacity="0.4"/>
+                    <SolidColorBrush Color="#282828" Opacity="0.8"/>
+                    <!-- Fondo oscuro por defecto -->
                 </Setter.Value>
             </Setter>
-            <Setter Property="BorderBrush" Value="#333" />
-            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Padding" Value="15"/>
             <Setter Property="Margin" Value="10"/>
             <Setter Property="Effect">
@@ -78,127 +171,286 @@
                     <DropShadowEffect Color="Black" BlurRadius="15" ShadowDepth="2" Opacity="0.3"/>
                 </Setter.Value>
             </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <!-- Modo Claro -->
+                    <Setter Property="Background" Value="#F0F0F0"/>
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect Color="#AAAAAA" BlurRadius="15" ShadowDepth="2" Opacity="0.3"/>
+                        </Setter.Value>
+                    </Setter>
+                </DataTrigger>
+            </Style.Triggers>
         </Style>
 
-        <!-- ModernComboBoxStyle de Clientes.xaml -->
+        <!-- Estilo para textos primarios (copiado de Home) -->
+        <Style x:Key="PrimaryTextStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Foreground" Value="{StaticResource TextPrimaryLight}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Estilo para textos secundarios (copiado de Home) -->
+        <Style x:Key="SecondaryTextStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource TextSecondaryDark}"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Foreground" Value="{StaticResource TextSecondaryLight}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Estilo para los contenedores de lista (copiado de Home) -->
+        <Style x:Key="ListItemContainerStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+            <Setter Property="Background">
+                <Setter.Value>
+                    <SolidColorBrush Color="#3A3A3A" Opacity="0.7"/>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl}, Path=(ItemsControl.AlternationIndex)}" Value="1">
+                </DataTrigger>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Background" Value="#E8E8E8"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Mesh Gradients accesibles globalmente (copiado de Home) -->
+        <RadialGradientBrush x:Key="Mesh1" Center="0.3,0.3" RadiusX="0.5" RadiusY="0.5">
+            <GradientStop Color="#de9cb8" Offset="0"/>
+            <GradientStop Color="#9dcde1" Offset="1"/>
+        </RadialGradientBrush>
+        <RadialGradientBrush x:Key="Mesh2" Center="0.7,0.7" RadiusX="0.6" RadiusY="0.6">
+            <GradientStop Color="#dc8eb8" Offset="0"/>
+            <GradientStop Color="#98d3ec" Offset="1"/>
+        </RadialGradientBrush>
+
+        <!-- Storyboards para animaciones de fade -->
+        <Storyboard x:Key="FadeInAnimation">
+            <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0.0" To="1.0" Duration="0:0:0.5"/>
+        </Storyboard>
+        <Storyboard x:Key="FadeOutAnimation">
+            <DoubleAnimation Storyboard.TargetProperty="Opacity" From="1.0" To="0.0" Duration="0:0:0.5"/>
+        </Storyboard>
+
+        <!-- ModernComboBoxStyle - Basado en BusquedaJurisprudencia.xaml -->
         <Style x:Key="ModernComboBoxStyle" TargetType="{x:Type ComboBox}">
             <Setter Property="Background" Value="#30FFFFFF"/>
-            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
             <Setter Property="BorderBrush" Value="#40FFFFFF"/>
             <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10,8"/> <!-- Ajustar padding para el texto -->
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="Padding" Value="10,5"/>
+                        <Setter Property="Foreground" Value="#FFFFFF"/> <!-- Default en modo oscuro -->
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                <Setter Property="Foreground" Value="{StaticResource TextPrimaryLight}"/>
+                                <Setter Property="Background" Value="Transparent"/>
+                            </DataTrigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#30000000"/> <!-- Hover color - semi-transparente oscuro -->
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="#50000000"/> <!-- Selected color - semi-transparente oscuro -->
+                            </Trigger>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False"/>
+                                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True"/>
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="Background" Value="#30FFFFFF"/> <!-- Hover color - semi-transparente claro -->
+                            </MultiDataTrigger>
+                             <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False"/>
+                                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}" Value="True"/>
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="Background" Value="#50FFFFFF"/> <!-- Selected color - semi-transparente claro -->
+                            </MultiDataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Setter.Value>
+            </Setter>
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type ComboBox}">
+                    <ControlTemplate TargetType="ComboBox">
                         <Grid>
-                            <Border
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="10">
-                                <ToggleButton
-                                    Name="MainToggle"
-                                    Grid.Column="0"
-                                    Focusable="False"
-                                    IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
-                                    Background="Transparent"
-                                    BorderThickness="0">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="30"/>
-                                        </Grid.ColumnDefinitions>
-                                        <ContentPresenter
-                                            Grid.Column="0"
-                                            Content="{TemplateBinding SelectedItem}"
-                                            ContentTemplate="{TemplateBinding ItemTemplate}"
-                                            Margin="10,0,0,0"
-                                            VerticalAlignment="Center"
-                                            HorizontalAlignment="Stretch"/>
-                                        <Path
-                                            Grid.Column="1"
-                                            Data="M0,0 L4,4 L8,0"
-                                            Stroke="White"
-                                            StrokeThickness="2"
-                                            Width="20"
-                                            Height="20"
-                                            Margin="0,0,10,0"
-                                            VerticalAlignment="Center"
-                                            HorizontalAlignment="Right"/>
-                                    </Grid>
-                                </ToggleButton>
-                            </Border>
-                            <Popup 
-                                IsOpen="{TemplateBinding IsDropDownOpen}" 
-                                Placement="Bottom"
-                                AllowsTransparency="True" 
-                                Focusable="False"
-                                PopupAnimation="Slide">
-                                <Grid MaxHeight="{TemplateBinding MaxDropDownHeight}"
-                                      MinWidth="{Binding Path=ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
-                                    <Border Background="#90454545" 
-                                            BorderBrush="#40FFFFFF"
-                                            BorderThickness="1" 
-                                            CornerRadius="10" 
-                                            Margin="0,5,0,0">
-                                        <ScrollViewer SnapsToDevicePixels="True">
-                                            <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained"/>
-                                        </ScrollViewer>
-                                    </Border>
+                            <Border x:Name="ComboBoxBorder"
+                                    Background="{TemplateBinding Background}"
+                                    CornerRadius="10"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    BorderBrush="{TemplateBinding BorderBrush}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <!-- Contenido seleccionado (texto) -->
+                                    <ContentPresenter Grid.Column="0"
+                                              Content="{TemplateBinding SelectionBoxItem}"
+                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                              ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              Margin="{TemplateBinding Padding}"/>
+                                    <!-- ToggleButton para abrir/cerrar desplegable -->
+                                    <ToggleButton Grid.Column="1"
+                                                x:Name="ToggleButton"
+                                                IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                                ClickMode="Press">
+                                        <ToggleButton.Template>
+                                            <ControlTemplate TargetType="ToggleButton">
+                                                <Border Background="Transparent"
+                                                        BorderThickness="0">
+                                                    <Path Data="M0,0 L4,4 L8,0"
+                                                          Stroke="{Binding RelativeSource={RelativeSource AncestorType=ComboBox}, Path=Foreground}"
+                                                          StrokeThickness="2"
+                                                          HorizontalAlignment="Center"
+                                                          VerticalAlignment="Center"
+                                                          Margin="0,0,8,0"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </ToggleButton.Template>
+                                    </ToggleButton>
                                 </Grid>
+                            </Border>
+                            <!-- Popup para los elementos del desplegable -->
+                            <Popup x:Name="PART_Popup"
+                                   AllowsTransparency="True"
+                                   IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   PlacementTarget="{Binding ElementName=ComboBoxBorder}" 
+                                   Placement="Bottom">
+                                <Border CornerRadius="10"
+                                        BorderThickness="1" MaxHeight="200"
+                                        MinWidth="{Binding Path=ActualWidth, ElementName=ComboBoxBorder}">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <!-- Fondo y borde del desplegable temático -->
+                                            <Setter Property="Background" Value="#3A3A3A"/> <!-- Oscuro por defecto -->
+                                            <Setter Property="BorderBrush" Value="#555"/> <!-- Borde oscuro -->
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                                    <Setter Property="Background" Value="#FFFFFF"/> <!-- Claro -->
+                                                    <Setter Property="BorderBrush" Value="#CCC"/> <!-- Borde claro -->
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <ScrollViewer SnapsToDevicePixels="True">
+                                        <ItemsPresenter />
+                                    </ScrollViewer>
+                                </Border>
                             </Popup>
                         </Grid>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Background" Value="#FFFFFF"/>
+                    <Setter Property="Foreground" Value="{StaticResource TextPrimaryLight}"/>
+                    <Setter Property="BorderBrush" Value="#CCCCCC"/>
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect Color="#CCCCCC" BlurRadius="5" ShadowDepth="2" Opacity="0.5"/>
+                        </Setter.Value>
+                    </Setter>
+                </DataTrigger>
+                 <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                    <Setter Property="Background" Value="#30FFFFFF"/>
+                    <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
+                     <Setter Property="BorderBrush" Value="#40FFFFFF"/>
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect Color="Black" BlurRadius="5" ShadowDepth="2" Opacity="0.3"/>
+                        </Setter.Value>
+                    </Setter>
+                </DataTrigger>
+            </Style.Triggers>
         </Style>
 
-        <!-- Estilo para el ToggleButton del ComboBox -->
-        <Style x:Key="ComboBoxToggleButtonStyle" TargetType="{x:Type ToggleButton}">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type ToggleButton}">
-                        <Border Background="Transparent" Width="30">
-                            <Path Data="M0,0 L4,4 L8,0" Stroke="White" StrokeThickness="2"
-                                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <conv:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
-        <conv:EstadoToColorConverter x:Key="EstadoToColorConverter" />
-        <conv:EventoColorDotConverter x:Key="EventoColorDotConverter" />
-        <conv:StringToVisibilityConverter x:Key="StringToVisibilityConverter" />
-        <conv:CountToVisibilityConverter x:Key="CountToVisibilityConverter" />
-        <conv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
-        <conv:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
-        <Style x:Key="ComboBoxWithClearStyle" TargetType="ComboBox" BasedOn="{StaticResource ModernComboBoxStyle}">
-            <Setter Property="Width" Value="400"/>
+        <!-- ComboBoxWithClearStyle - Adaptado de ModernComboBoxStyle -->
+        <Style x:Key="ComboBoxWithClearStyle" TargetType="ComboBox">
+            <Setter Property="Width" Value="400"/> <!-- Mantener ancho fijo si es necesario -->
             <Setter Property="IsEditable" Value="True"/>
             <Setter Property="StaysOpenOnEdit" Value="True"/>
             <Setter Property="IsTextSearchEnabled" Value="False"/>
+             <Setter Property="Background" Value="#30FFFFFF"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
+            <Setter Property="BorderBrush" Value="#40FFFFFF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+             <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="10,5"/>
+             <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="Padding" Value="10,5"/>
+                        <Setter Property="Foreground" Value="#FFFFFF"/> <!-- Default en modo oscuro -->
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                <Setter Property="Foreground" Value="{StaticResource TextPrimaryLight}"/>
+                                <Setter Property="Background" Value="Transparent"/>
+                            </DataTrigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#30000000"/> <!-- Hover color - semi-transparente oscuro -->
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="#50000000"/> <!-- Selected color - semi-transparente oscuro -->
+                            </Trigger>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False"/>
+                                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True"/>
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="Background" Value="#30FFFFFF"/> <!-- Hover color - semi-transparente claro -->
+                            </MultiDataTrigger>
+                             <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False"/>
+                                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}" Value="True"/>
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="Background" Value="#50FFFFFF"/> <!-- Selected color - semi-transparente claro -->
+                            </MultiDataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Setter.Value>
+            </Setter>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ComboBox">
                         <Grid>
-                            <Border
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="10">
+                            <Border x:Name="ComboBoxBorder"
+                                    Background="{TemplateBinding Background}"
+                                    CornerRadius="10"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    BorderBrush="{TemplateBinding BorderBrush}">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition/>
-                                        <ColumnDefinition Width="35"/>
-                                        <ColumnDefinition Width="30"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
+                                    <!-- TextBox editable -->
                                     <TextBox x:Name="PART_EditableTextBox"
                                             Grid.Column="0"
                                             Text="{Binding Text, RelativeSource={RelativeSource TemplatedParent}, UpdateSourceTrigger=PropertyChanged}"
                                             Background="Transparent"
-                                            Foreground="White"
+                                            Foreground="{TemplateBinding Foreground}"
                                             BorderThickness="0"
-                                            Padding="10,0,0,0"
+                                            Padding="10,5"
                                             VerticalAlignment="Center"/>
                                     <!-- Botón X -->
                                     <Button x:Name="ClearButton"
@@ -212,48 +464,225 @@
                                             Visibility="{Binding SelectedItem, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource NullToVisibilityConverter}}"
                                             Click="ClearComboBox_Click"/>
                                     <!-- Flecha desplegable -->
-                                    <ToggleButton
-                                        Name="MainToggle"
-                                        Grid.Column="2"
-                                        Focusable="False"
-                                        IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
-                                        Background="Transparent"
-                                        BorderThickness="0">
-                                        <Path
-                                            Data="M0,0 L4,4 L8,0"
-                                            Stroke="White"
-                                            StrokeThickness="2"
-                                            Width="20"
-                                            Height="20"
-                                            VerticalAlignment="Center"
-                                            HorizontalAlignment="Center"/>
+                                    <ToggleButton Grid.Column="2"
+                                                x:Name="ToggleButton"
+                                                IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                                ClickMode="Press">
+                                        <ToggleButton.Template>
+                                            <ControlTemplate TargetType="ToggleButton">
+                                                <Border Background="Transparent"
+                                                        BorderThickness="0">
+                                                    <Path Data="M0,0 L4,4 L8,0"
+                                                          Stroke="{Binding RelativeSource={RelativeSource AncestorType=ComboBox}, Path=Foreground}"
+                                                          StrokeThickness="2"
+                                                          HorizontalAlignment="Center"
+                                                          VerticalAlignment="Center"
+                                                          Margin="0,0,8,0"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </ToggleButton.Template>
                                     </ToggleButton>
                                 </Grid>
                             </Border>
-                            <Popup
-                                IsOpen="{TemplateBinding IsDropDownOpen}"
-                                Placement="Bottom"
-                                AllowsTransparency="True"
-                                Focusable="False"
-                                PopupAnimation="Slide">
-                                <Grid MaxHeight="{TemplateBinding MaxDropDownHeight}"
-                                      MinWidth="{Binding Path=ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
-                                    <Border Background="#90454545"
-                                            BorderBrush="#40FFFFFF"
-                                            BorderThickness="1"
-                                            CornerRadius="10"
-                                            Margin="0,5,0,0">
-                                        <ScrollViewer SnapsToDevicePixels="True">
-                                            <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained"/>
-                                        </ScrollViewer>
-                                    </Border>
-                                </Grid>
+                            <!-- Popup para los elementos del desplegable -->
+                            <Popup x:Name="PART_Popup"
+                                   AllowsTransparency="True"
+                                   IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   PlacementTarget="{Binding ElementName=ComboBoxBorder}"
+                                   Placement="Bottom">
+                                <Border CornerRadius="10"
+                                        BorderThickness="1" MaxHeight="200"
+                                        MinWidth="{Binding Path=ActualWidth, ElementName=ComboBoxBorder}">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <!-- Fondo y borde del desplegable temático -->
+                                            <Setter Property="Background" Value="#3A3A3A"/> <!-- Oscuro por defecto -->
+                                            <Setter Property="BorderBrush" Value="#555"/> <!-- Borde oscuro -->
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                                    <Setter Property="Background" Value="#FFFFFF"/> <!-- Claro -->
+                                                    <Setter Property="BorderBrush" Value="#CCC"/> <!-- Borde claro -->
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <ScrollViewer SnapsToDevicePixels="True">
+                                        <ItemsPresenter />
+                                    </ScrollViewer>
+                                </Border>
                             </Popup>
                         </Grid>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+             <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Background" Value="#FFFFFF"/>
+                    <Setter Property="Foreground" Value="{StaticResource TextPrimaryLight}"/>
+                    <Setter Property="BorderBrush" Value="#CCCCCC"/>
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect Color="#CCCCCC" BlurRadius="5" ShadowDepth="2" Opacity="0.5"/>
+                        </Setter.Value>
+                    </Setter>
+                </DataTrigger>
+                 <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                    <Setter Property="Background" Value="#30FFFFFF"/>
+                    <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
+                     <Setter Property="BorderBrush" Value="#40FFFFFF"/>
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect Color="Black" BlurRadius="5" ShadowDepth="2" Opacity="0.3"/>
+                        </Setter.Value>
+                    </Setter>
+                </DataTrigger>
+            </Style.Triggers>
         </Style>
+
+        <!-- Gradientes para el panel deslizante -->
+        <LinearGradientBrush x:Key="SlidePanelGradientDark" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#070055" Offset="0"/>
+            <GradientStop Color="#250055" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="SlidePanelGradientLight" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#ee6ef5" Offset="0"/>
+            <GradientStop Color="#57b9ff" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- Estilo para el panel deslizante -->
+        <Style x:Key="SlidePanelStyle" TargetType="Grid">
+            <Setter Property="Background" Value="{StaticResource SlidePanelGradientDark}"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Background" Value="{StaticResource SlidePanelGradientLight}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Estilo moderno para ComboBox -->
+        <Style x:Key="ModernSearchComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Background" Value="#30FFFFFF"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
+            <Setter Property="BorderBrush" Value="#40FFFFFF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <Border x:Name="ComboBoxBorder"
+                                    Background="{TemplateBinding Background}"
+                                    CornerRadius="8"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    BorderBrush="{TemplateBinding BorderBrush}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <!-- TextBox editable -->
+                                    <TextBox x:Name="PART_EditableTextBox"
+                                            Grid.Column="0"
+                                            Text="{Binding Text, RelativeSource={RelativeSource TemplatedParent}, UpdateSourceTrigger=PropertyChanged}"
+                                            Background="Transparent"
+                                            Foreground="{TemplateBinding Foreground}"
+                                            BorderThickness="0"
+                                            Padding="{TemplateBinding Padding}"
+                                            VerticalAlignment="Center"/>
+                                    <!-- ToggleButton para abrir/cerrar desplegable -->
+                                    <ToggleButton Grid.Column="1"
+                                                x:Name="ToggleButton"
+                                                IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                                ClickMode="Press">
+                                        <ToggleButton.Template>
+                                            <ControlTemplate TargetType="ToggleButton">
+                                                <Border Background="Transparent"
+                                                        BorderThickness="0">
+                                                    <Path Data="M0,0 L4,4 L8,0"
+                                                          Stroke="{Binding RelativeSource={RelativeSource AncestorType=ComboBox}, Path=Foreground}"
+                                                          StrokeThickness="2"
+                                                          HorizontalAlignment="Center"
+                                                          VerticalAlignment="Center"
+                                                          Margin="0,0,8,0"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </ToggleButton.Template>
+                                    </ToggleButton>
+                                </Grid>
+                            </Border>
+                            <Popup x:Name="PART_Popup"
+                                   AllowsTransparency="True"
+                                   IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   PlacementTarget="{Binding ElementName=ComboBoxBorder}"
+                                   Placement="Bottom">
+                                <Border CornerRadius="8"
+                                        BorderThickness="1"
+                                        MaxHeight="200"
+                                        MinWidth="{Binding Path=ActualWidth, ElementName=ComboBoxBorder}">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="#3A3A3A"/>
+                                            <Setter Property="BorderBrush" Value="#555"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                                    <Setter Property="Background" Value="#FFFFFF"/>
+                                                    <Setter Property="BorderBrush" Value="#CCC"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <ScrollViewer SnapsToDevicePixels="True">
+                                        <ItemsPresenter />
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="Padding" Value="10,8"/>
+                        <Setter Property="Foreground" Value="#FFFFFF"/>
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                <Setter Property="Foreground" Value="{StaticResource TextPrimaryLight}"/>
+                            </DataTrigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#30000000"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="#50000000"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Background" Value="#FFFFFF"/>
+                    <Setter Property="Foreground" Value="{StaticResource TextPrimaryLight}"/>
+                    <Setter Property="BorderBrush" Value="#CCCCCC"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <DataTemplate x:Key="CasoComboTemplate">
+            <StackPanel Orientation="Horizontal" Margin="5">
+                <Ellipse Width="16" Height="16" Margin="0,0,8,0">
+                    <Ellipse.Fill>
+                        <Binding Path="Estado.nombre" Converter="{StaticResource EstadoToColorConverter}"/>
+                    </Ellipse.Fill>
+                </Ellipse>
+                <TextBlock Text="{Binding referencia}" Style="{StaticResource PrimaryTextStyle}" FontWeight="Bold" Margin="0,0,10,0"/>
+                <TextBlock Text="{Binding titulo}" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,10,0"/>
+                <TextBlock Text="{Binding Estado.nombre}" Style="{StaticResource SecondaryTextStyle}"/>
+            </StackPanel>
+        </DataTemplate>
     </Window.Resources>
 
     <Grid>
@@ -264,12 +693,426 @@
         </Grid.ColumnDefinitions>
         <!-- Fondo -->
         <Grid.Background>
-            <ImageBrush x:Name="backgroundFondo" ImageSource="/TFG V0.01;component/Recursos/Background/oscuro/main.png"/>
+            <SolidColorBrush Color="#FF1E1E1E"/>
+            <!-- Establecer un color sólido temporal o transparente -->
         </Grid.Background>
         <!--Navbar-->
-        <controls:NavbarControl x:Name="navbar" Grid.Column="0" />
+        <controls:NavbarControl x:Name="navbar" Grid.Column="0" Tag="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}"/>
         <!-- Botón de tema claro/oscuro -->
         <Button x:Name="ThemeButton" Width="35" Height="35" Margin="0" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="ThemeButton_Click" Style="{StaticResource ThemeButtonStyle}" Grid.Column="2"/>
+
+        <!-- Grid deslizante para editar eventos -->
+        <Grid x:Name="EditarEventoGrid" 
+              Grid.Column="0" Grid.ColumnSpan="3"
+              Width="400"
+              HorizontalAlignment="Right"
+              Panel.ZIndex="1000"
+              Visibility="Collapsed"
+              Style="{StaticResource SlidePanelStyle}">
+            <Grid.RenderTransform>
+                <TranslateTransform x:Name="EditarEventoTransform" X="400"/>
+            </Grid.RenderTransform>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Encabezado -->
+            <Border Background="Transparent" Padding="20,15">
+                <Grid>
+                    <TextBlock x:Name="txtTituloEditarEvento" Text="Editar Evento" 
+                             Style="{StaticResource PrimaryTextStyle}" 
+                             FontSize="20" 
+                             FontWeight="Bold"/>
+                </Grid>
+            </Border>
+
+            <!-- Contenido -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="20">
+                    <TextBlock x:Name="txtTituloEventoLabel" Text="Título" 
+                             Style="{StaticResource PrimaryTextStyle}" 
+                             FontWeight="SemiBold" 
+                             FontSize="15" 
+                             Margin="0,0,0,8"/>
+                    <TextBox x:Name="txtTituloEvento" 
+                            Background="#30FFFFFF" 
+                            Foreground="{StaticResource TextPrimaryDark}" 
+                            BorderThickness="1" 
+                            BorderBrush="#40FFFFFF" 
+                            Padding="10,5" 
+                            Height="30" 
+                            FontSize="15" 
+                            Margin="0,0,0,20"/>
+
+                    <TextBlock x:Name="txtDescripcionEventoLabel" Text="Descripción" 
+                             Style="{StaticResource PrimaryTextStyle}" 
+                             FontWeight="SemiBold" 
+                             FontSize="15" 
+                             Margin="0,0,0,8"/>
+                    <TextBox x:Name="txtDescripcionEvento" 
+                            Background="#30FFFFFF" 
+                            Foreground="{StaticResource TextPrimaryDark}" 
+                            BorderThickness="1" 
+                            BorderBrush="#40FFFFFF" 
+                            Padding="10,5" 
+                            Height="60" 
+                            FontSize="15" 
+                            AcceptsReturn="True" 
+                            Margin="0,0,0,20"/>
+
+                    <TextBlock x:Name="txtHoraMinutosEvento" Text="Hora y minutos" 
+                             Style="{StaticResource PrimaryTextStyle}" 
+                             FontWeight="SemiBold" 
+                             FontSize="15" 
+                             Margin="0,0,0,8"/>
+                    <materialDesign:TimePicker x:Name="timePickerEvento" 
+                                             Margin="0,0,0,20" 
+                                             Height="32" />
+
+                    <TextBlock x:Name="txtEstadoEventoLabel" Text="Estado" 
+                             Style="{StaticResource PrimaryTextStyle}" 
+                             FontWeight="SemiBold" 
+                             FontSize="15" 
+                             Margin="0,0,0,8"/>
+                    <ComboBox x:Name="cbEstadoEvento" 
+                             Margin="0,0,0,20" 
+                             DisplayMemberPath="Nombre" 
+                             SelectedValuePath="Id" 
+                             Style="{StaticResource ModernComboBoxStyle}"
+                             Height="44"
+                             PreviewMouseLeftButtonDown="ComboBox_PreviewMouseLeftButtonDown"/>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- Botones -->
+            <StackPanel Grid.Row="2" 
+                      Orientation="Horizontal" 
+                      HorizontalAlignment="Right" 
+                      Margin="20">
+                <Button Content="Guardar" 
+                        Style="{StaticResource RoundedButtonStyle}" 
+                        Click="GuardarEvento_Click" 
+                        Margin="0,0,10,0" Width="100"/>
+                <Button Content="Cancelar" 
+                        Style="{StaticResource RoundedButtonStyle}" 
+                        Click="CancelarEvento_Click" Width="100"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Grid deslizante para editar notas -->
+        <Grid x:Name="EditarNotaGrid" 
+              Grid.Column="0" Grid.ColumnSpan="3"
+              Width="400"
+              HorizontalAlignment="Right"
+              Panel.ZIndex="1000"
+              Visibility="Collapsed"
+              Style="{StaticResource SlidePanelStyle}">
+            <Grid.RenderTransform>
+                <TranslateTransform x:Name="EditarNotaTransform" X="400"/>
+            </Grid.RenderTransform>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Encabezado -->
+            <Border Background="Transparent" Padding="20,15">
+                <Grid>
+                    <TextBlock x:Name="txtTituloEditarNota" Text="Editar Nota" 
+                             Style="{StaticResource PrimaryTextStyle}" 
+                             FontSize="20" 
+                             FontWeight="Bold"/>
+                </Grid>
+            </Border>
+
+            <!-- Contenido -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="20">
+                    <TextBlock x:Name="txtTituloNotaLabel" Text="Título" 
+                             Style="{StaticResource PrimaryTextStyle}" 
+                             FontWeight="SemiBold" 
+                             FontSize="15" 
+                             Margin="0,0,0,8"/>
+                    <TextBox x:Name="txtTituloNota" 
+                            Background="#30FFFFFF" 
+                            Foreground="{StaticResource TextPrimaryDark}" 
+                            BorderThickness="1" 
+                            BorderBrush="#40FFFFFF" 
+                            Padding="10,5" 
+                            Height="30" 
+                            FontSize="15" 
+                            Margin="0,0,0,20"/>
+
+                    <TextBlock x:Name="txtDescripcionNotaLabel" Text="Descripción" 
+                             Style="{StaticResource PrimaryTextStyle}" 
+                             FontWeight="SemiBold" 
+                             FontSize="15" 
+                             Margin="0,0,0,8"/>
+                    <TextBox x:Name="txtDescripcionNota" 
+                            Background="#30FFFFFF" 
+                            Foreground="{StaticResource TextPrimaryDark}" 
+                            BorderThickness="1" 
+                            BorderBrush="#40FFFFFF" 
+                            Padding="10,5" 
+                            Height="100" 
+                            FontSize="15" 
+                            AcceptsReturn="True" 
+                            TextWrapping="Wrap" 
+                            Margin="0,0,0,20"/>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- Botones -->
+            <StackPanel Grid.Row="2" 
+                      Orientation="Horizontal" 
+                      HorizontalAlignment="Right" 
+                      Margin="20">
+                <Button Content="Guardar" 
+                        Style="{StaticResource RoundedButtonStyle}" 
+                        Click="GuardarNota_Click" 
+                        Margin="0,0,10,0" Width="100" />
+                <Button Content="Cancelar" 
+                        Style="{StaticResource RoundedButtonStyle}" 
+                        Click="CancelarNota_Click" Width="100" />
+            </StackPanel>
+        </Grid>
+
+        <!-- Grid deslizante para editar tareas -->
+        <Grid x:Name="EditarTareaGrid" 
+              Grid.Column="0" Grid.ColumnSpan="3"
+              Width="400"
+              HorizontalAlignment="Right"
+              Panel.ZIndex="1000"
+              Visibility="Collapsed"
+              Style="{StaticResource SlidePanelStyle}">
+            <Grid.RenderTransform>
+                <TranslateTransform x:Name="EditarTareaTransform" X="400"/>
+            </Grid.RenderTransform>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Encabezado -->
+            <Border Background="Transparent" Padding="20,15">
+                <Grid>
+                    <TextBlock x:Name="txtTituloEditarTarea" Text="Editar Tarea" 
+                             Style="{StaticResource PrimaryTextStyle}" 
+                             FontSize="20" 
+                             FontWeight="Bold"/>
+                    <Button x:Name="btnCerrarEditarTarea" 
+                            Content="✕" 
+                            Style="{StaticResource NoBorderRoundedButtonStyle}"
+                            HorizontalAlignment="Right"
+                            Click="CerrarEditarTarea_Click"/>
+                </Grid>
+            </Border>
+
+            <!-- Contenido -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="20">
+                    <TextBlock x:Name="txtTituloTareaLabel" Text="Título" 
+                             Style="{StaticResource PrimaryTextStyle}" 
+                             FontWeight="SemiBold" 
+                             FontSize="15" 
+                             Margin="0,0,0,8"/>
+                    <TextBox x:Name="txtTituloTarea" 
+                            Background="#30FFFFFF" 
+                            Foreground="{StaticResource TextPrimaryDark}" 
+                            BorderThickness="1" 
+                            BorderBrush="#40FFFFFF" 
+                            Padding="10,5" 
+                            Height="30" 
+                            FontSize="15" 
+                            Margin="0,0,0,20"/>
+
+                    <TextBlock x:Name="txtDescripcionTareaLabel" Text="Descripción" 
+                             Style="{StaticResource PrimaryTextStyle}" 
+                             FontWeight="SemiBold" 
+                             FontSize="15" 
+                             Margin="0,0,0,8"/>
+                    <TextBox x:Name="txtDescripcionTarea" 
+                            Background="#30FFFFFF" 
+                            Foreground="{StaticResource TextPrimaryDark}" 
+                            BorderThickness="1" 
+                            BorderBrush="#40FFFFFF" 
+                            Padding="10,5" 
+                            Height="60" 
+                            FontSize="15" 
+                            AcceptsReturn="True" 
+                            TextWrapping="Wrap" 
+                            Margin="0,0,0,20"/>
+
+                    <TextBlock x:Name="txtPrioridadTareaLabel" Text="Prioridad" 
+                             Style="{StaticResource PrimaryTextStyle}" 
+                             FontWeight="SemiBold" 
+                             FontSize="15" 
+                             Margin="0,0,0,8"/>
+                    <ComboBox x:Name="cbPrioridadTarea" 
+                             Style="{StaticResource ModernComboBoxStyle}"
+                             Margin="0,0,0,20"
+                             PreviewMouseLeftButtonDown="ComboBox_PreviewMouseLeftButtonDown"/>
+
+                    <TextBlock x:Name="txtFechaVencimientoTareaLabel" Text="Fecha de vencimiento" 
+                             Style="{StaticResource PrimaryTextStyle}" 
+                             FontWeight="SemiBold" 
+                             FontSize="15" 
+                             Margin="0,0,0,8"/>
+                    <DatePicker x:Name="dpFechaVencimientoTarea" 
+                               Margin="0,0,0,20"/>
+
+                    <TextBlock x:Name="txtEstadoTareaLabel" Text="Estado" 
+                             Style="{StaticResource PrimaryTextStyle}" 
+                             FontWeight="SemiBold" 
+                             FontSize="15" 
+                             Margin="0,0,0,8"/>
+                    <ComboBox x:Name="cbEstadoTarea" 
+                             Style="{StaticResource ModernComboBoxStyle}"
+                             Margin="0,0,0,20"
+                             PreviewMouseLeftButtonDown="ComboBox_PreviewMouseLeftButtonDown"/>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- Botones -->
+            <StackPanel Grid.Row="2" 
+                      Orientation="Horizontal" 
+                      HorizontalAlignment="Right" 
+                      Margin="20">
+                <Button Content="Guardar" 
+                        Style="{StaticResource RoundedButtonStyle}" 
+                        Click="GuardarTarea_Click" 
+                        Margin="0,0,10,0"/>
+                <Button Content="Cancelar" 
+                        Style="{StaticResource RoundedButtonStyle}" 
+                        Click="CancelarTarea_Click"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Grid deslizante para editar documentos -->
+        <Grid x:Name="EditarDocumentoGrid" 
+              Grid.Column="0" Grid.ColumnSpan="3"
+              Width="400"
+              HorizontalAlignment="Right"
+              Panel.ZIndex="1000"
+              Visibility="Collapsed"
+              Style="{StaticResource SlidePanelStyle}">
+            <Grid.RenderTransform>
+                <TranslateTransform x:Name="EditarDocumentoTransform" X="400"/>
+            </Grid.RenderTransform>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Encabezado -->
+            <Border Background="Transparent" Padding="20,15">
+                <Grid>
+                    <TextBlock x:Name="txtTituloEditarDocumento" Text="Editar Documento" 
+                             Style="{StaticResource PrimaryTextStyle}" 
+                             FontSize="20" 
+                             FontWeight="Bold"/>
+                </Grid>
+            </Border>
+
+            <!-- Contenido -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="20">
+                    <!-- Nombre del documento -->
+                    <StackPanel Margin="0,0,0,15">
+                        <TextBlock x:Name="txtNombreDocumentoLabel" Text="Nombre del documento" 
+                                 Style="{StaticResource PrimaryTextStyle}" 
+                                 FontWeight="SemiBold" 
+                                 Margin="0,0,0,5"/>
+                        <TextBox x:Name="txtNombreDocumento" 
+                                Style="{StaticResource RoundedTextBoxStyle}"/>
+                    </StackPanel>
+
+                    <!-- Tipo de documento -->
+                    <StackPanel Margin="0,0,0,15">
+                        <TextBlock x:Name="txtTipoDocumentoLabel" Text="Tipo de documento" 
+                                 Style="{StaticResource PrimaryTextStyle}" 
+                                 FontWeight="SemiBold" 
+                                 Margin="0,0,0,5"/>
+                        <ComboBox x:Name="cbTipoDocumento" 
+                                 Style="{StaticResource ModernComboBoxStyle}"
+                                 DisplayMemberPath="Nombre"
+                                 SelectedValuePath="Id"
+                                 PreviewMouseLeftButtonDown="ComboBox_PreviewMouseLeftButtonDown"/>
+                    </StackPanel>
+
+                    <!-- Área de arrastrar y soltar -->
+                    <Border x:Name="DropZone"
+                            Background="#30FFFFFF"
+                            BorderBrush="#40FFFFFF"
+                            BorderThickness="2"
+                            CornerRadius="10"
+                            Height="200"
+                            Margin="0,0,0,15"
+                            AllowDrop="True"
+                            DragEnter="DropZone_DragEnter"
+                            DragLeave="DropZone_DragLeave"
+                            Drop="DropZone_Drop">
+                        <Grid>
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <TextBlock x:Name="txtArrastrarSoltar" Text="📄" 
+                                         FontSize="32" 
+                                         HorizontalAlignment="Center" 
+                                         Margin="0,0,0,10"/>
+                                <TextBlock x:Name="txtArrastrarSoltarTexto" Text="Arrastra y suelta archivos aquí" 
+                                         Style="{StaticResource SecondaryTextStyle}" 
+                                         HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="txtOSeleccionar" Text="o" 
+                                         Style="{StaticResource SecondaryTextStyle}" 
+                                         HorizontalAlignment="Center" 
+                                         Margin="0,5"/>
+                                <Button Content="Seleccionar archivo" 
+                                        Style="{StaticResource RoundedButtonStyle}" 
+                                        Click="ExaminarDocumento_Click" 
+                                        Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- Ruta del archivo -->
+                    <StackPanel Margin="0,0,0,15">
+                        <TextBlock x:Name="txtArchivoSeleccionado" Text="Archivo seleccionado" 
+                                 Style="{StaticResource PrimaryTextStyle}" 
+                                 FontWeight="SemiBold" 
+                                 Margin="0,0,0,5" />
+                        <TextBox x:Name="txtRutaArchivo" 
+                                Style="{StaticResource RoundedTextBoxStyle}" 
+                                IsReadOnly="True" />
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- Botones -->
+            <StackPanel Grid.Row="2" 
+                      Orientation="Horizontal" 
+                      HorizontalAlignment="Right" 
+                      Margin="20">
+                <Button Content="Guardar" 
+                        Style="{StaticResource RoundedButtonStyle}" 
+                        Click="GuardarDocumento_Click" 
+                        Margin="0,0,10,0" Width="100"/>
+                <Button Content="Cancelar" 
+                        Style="{StaticResource RoundedButtonStyle}" 
+                        Click="CancelarDocumento_Click" Width="100"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Overlay para cerrar al hacer clic fuera -->
+        <Grid x:Name="OverlayPanel" 
+              Grid.Column="0" Grid.ColumnSpan="3"
+              Background="#80000000" 
+              Panel.ZIndex="999"
+              Visibility="Collapsed"
+              MouseDown="OverlayPanel_MouseDown"/>
 
         <!-- Contenido principal -->
         <Grid Grid.Column="2" Margin="20">
@@ -279,7 +1122,7 @@
             </Grid.RowDefinitions>
 
             <!-- Header -->
-            <TextBlock Text="Gestión del Caso" FontSize="24" FontWeight="Bold" Foreground="White" Margin="0,0,0,20"/>
+            <TextBlock x:Name="txtHeaderGestionCaso" Text="Gestión del Caso" FontSize="24" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,20"/>
 
             <!-- Main Content Area -->
             <Grid Grid.Row="1">
@@ -287,11 +1130,11 @@
                 <Grid x:Name="Buscador" Visibility="Visible">
                     <Border Style="{StaticResource CardStyle}" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="30" Width="500" CornerRadius="12">
                         <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="20">
-                            <TextBlock Text="Buscar Caso" FontSize="22" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,10"/>
-                            <TextBlock Text="Paso 1: Seleccione un cliente" Foreground="#CCCCCC" FontSize="14" Margin="0,5,0,0"/>
+                            <TextBlock x:Name="txtBuscarCaso" Text="Buscar Caso" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20" Style="{StaticResource PrimaryTextStyle}"/>
+                            <TextBlock x:Name="txtPaso1Cliente" Text="Paso 1: Seleccione un cliente" Style="{StaticResource PrimaryTextStyle}"  FontSize="14" Margin="0,5,0,10"/>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <ComboBox x:Name="comboClientes"
-                                          Style="{StaticResource ComboBoxWithClearStyle}"
+                                          Style="{StaticResource ModernSearchComboBoxStyle}"
                                           IsEditable="True"
                                           StaysOpenOnEdit="True"
                                           IsTextSearchEnabled="False"
@@ -299,21 +1142,21 @@
                                           KeyUp="ComboClientes_KeyUp"
                                           SelectionChanged="ComboClientes_SelectionChanged"
                                           ItemsSource="{Binding Clientes}"
-                                          SelectedItem="{Binding ClienteSeleccionado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                          SelectedItem="{Binding ClienteSeleccionado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="400">
                                     <ComboBox.ItemTemplate>
                                         <DataTemplate>
                                             <StackPanel Margin="5">
-                                                <TextBlock Text="{Binding nombre_cliente}" Foreground="White" FontSize="16"/>
-                                                <TextBlock Text="{Binding email1}" Foreground="#CCFFFFFF" FontSize="12"/>
+                                                <TextBlock Text="{Binding nombre_cliente}" Style="{StaticResource PrimaryTextStyle}" FontSize="16"/>
+                                                <TextBlock Text="{Binding email1}" Style="{StaticResource SecondaryTextStyle}" FontSize="12"/>
                                             </StackPanel>
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
                                 </ComboBox>
                             </StackPanel>
-                            <TextBlock Text="Paso 2: Seleccione un caso del cliente" Foreground="#CCCCCC" FontSize="14" Margin="0,5,0,0"/>
+                            <TextBlock x:Name="txtPaso2Caso" Text="Paso 2: Seleccione un caso del cliente" Style="{StaticResource PrimaryTextStyle}" FontSize="14" Margin="0,15,0,10"/>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <ComboBox x:Name="comboCasosFiltrados"
-                                          Style="{StaticResource ComboBoxWithClearStyle}"
+                                          Style="{StaticResource ModernSearchComboBoxStyle}"
                                           IsEditable="True"
                                           StaysOpenOnEdit="True"
                                           IsTextSearchEnabled="False"
@@ -321,7 +1164,8 @@
                                           KeyUp="ComboCasosFiltrados_KeyUp"
                                           SelectionChanged="ComboCasosFiltrados_SelectionChanged"
                                           ItemsSource="{Binding CasosFiltrados}"
-                                          SelectedItem="{Binding SelectedCasoFiltrado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                          SelectedItem="{Binding SelectedCasoFiltrado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          Width="400">
                                     <ComboBox.ItemTemplate>
                                         <DataTemplate>
                                             <StackPanel Orientation="Horizontal" Margin="5">
@@ -330,25 +1174,26 @@
                                                         <Binding Path="Estado.nombre" Converter="{StaticResource EstadoToColorConverter}"/>
                                                     </Ellipse.Fill>
                                                 </Ellipse>
-                                                <TextBlock Text="{Binding titulo}" Foreground="White" FontWeight="Bold" FontSize="15"/>
-                                                <TextBlock Text="{Binding descripcion}" Foreground="#FFD6D6D6" FontSize="13" Margin="8,0,0,0"/>
+                                                <TextBlock Text="{Binding referencia}" Style="{StaticResource PrimaryTextStyle}" FontWeight="Bold" Margin="0,0,10,0"/>
+                                                <TextBlock Text="{Binding titulo}" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,10,0"/>
+                                                <TextBlock Text="{Binding Estado.nombre}" Style="{StaticResource SecondaryTextStyle}"/>
                                             </StackPanel>
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
                                 </ComboBox>
                             </StackPanel>
 
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,20,0,20" HorizontalAlignment="Center">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,15,0,15" HorizontalAlignment="Center">
                                 <Separator Margin="10,0" Width="100"/>
-                                <TextBlock Text="O" FontSize="14" Margin="10,0" VerticalAlignment="Center" Foreground="White"/>
+                                <TextBlock x:Name="txtO" Text="O" FontSize="14" Margin="10,0" FontWeight="Bold" VerticalAlignment="Center" Style="{StaticResource PrimaryTextStyle}"/>
                                 <Separator Margin="10,0" Width="100"/>
                             </StackPanel>
 
                             <!-- BÚSQUEDA DIRECTA -->
-                            <TextBlock Text="Buscar directamente un caso" Foreground="#CCCCCC" FontSize="14"/>
+                            <TextBlock x:Name="txtBuscarDirectamente" Text="Buscar directamente un caso" Style="{StaticResource PrimaryTextStyle}" FontSize="14" Margin="0,0,0,10"/>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <ComboBox x:Name="comboTodosLosCasos"
-                                          Style="{StaticResource ComboBoxWithClearStyle}"
+                                          Style="{StaticResource ModernSearchComboBoxStyle}"
                                           IsEditable="True"
                                           StaysOpenOnEdit="True"
                                           IsTextSearchEnabled="False"
@@ -357,13 +1202,18 @@
                                           SelectionChanged="ComboTodosLosCasos_SelectionChanged"
                                           ItemsSource="{Binding TodosLosCasos}"
                                           SelectedItem="{Binding SelectedCasoDirecto, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                          Text="{Binding TextoComboTodosLosCasos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                          Width="400">
                                     <ComboBox.ItemTemplate>
                                         <DataTemplate>
                                             <StackPanel Orientation="Horizontal" Margin="5">
-                                                <TextBlock Text="{Binding referencia}" Foreground="White" FontWeight="Bold" Margin="0,0,10,0"/>
-                                                <TextBlock Text="{Binding titulo}" Foreground="White" Margin="0,0,10,0"/>
-                                                <TextBlock Text="{Binding descripcion}" Foreground="#CCFFFFFF"/>
+                                                <Ellipse Width="16" Height="16" Margin="0,0,8,0">
+                                                    <Ellipse.Fill>
+                                                        <Binding Path="Estado.nombre" Converter="{StaticResource EstadoToColorConverter}"/>
+                                                    </Ellipse.Fill>
+                                                </Ellipse>
+                                                <TextBlock Text="{Binding referencia}" Style="{StaticResource PrimaryTextStyle}" FontWeight="Bold" Margin="0,0,10,0"/>
+                                                <TextBlock Text="{Binding titulo}" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,10,0"/>
+                                                <TextBlock Text="{Binding Estado.nombre}" Style="{StaticResource SecondaryTextStyle}"/>
                                             </StackPanel>
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
@@ -371,8 +1221,14 @@
                             </StackPanel>
 
                             <!-- Botón -->
-                            <Button x:Name="btnBuscar1" Content="Buscar" Style="{StaticResource RoundedButtonStyle}" Width="400" Margin="0,25,5,0" Background="#30FFFFFF" Click="BtnBuscar1_Click"/>
+                            <Button x:Name="btnBuscar1" Content="Buscar" Style="{StaticResource RoundedButtonStyle}" Width="400" Margin="0,20,5,0" Click="BtnBuscar1_Click"/>
                         </StackPanel>
+
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="15" Direction="-90" 
+                    RenderingBias="Quality" ShadowDepth="2" 
+                    Color="#20000000"/>
+                        </Border.Effect>
                     </Border>
                 </Grid>
 
@@ -438,7 +1294,7 @@
                                     </Grid.RowDefinitions>
 
                                     <!-- Título -->
-                                    <TextBlock x:Name="TituloEventos" Text="Eventos del día" FontSize="24" FontWeight="Bold" Foreground="White" Margin="0,0,0,10" Grid.Row="0"/>
+                                    <TextBlock x:Name="TituloEventos" Text="Eventos del día" FontSize="24" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,10" Grid.Row="0"/>
 
                                     <!-- Lista de eventos -->
                                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
@@ -458,24 +1314,33 @@
                                                         <Grid>
                                                             <Grid.ColumnDefinitions>
                                                                 <ColumnDefinition Width="Auto"/>
+                                                                <ColumnDefinition Width="Auto"/>
                                                                 <ColumnDefinition Width="*"/>
                                                             </Grid.ColumnDefinitions>
+                                                            <!-- Hora del evento -->
+                                                            <TextBlock Text="{Binding FechaInicio, StringFormat={}{0:hh\\:mm}}"
+                                                                       Foreground="Orange"
+                                                                       FontWeight="Bold"
+                                                                       FontSize="18"
+                                                                       VerticalAlignment="Center"
+                                                                       Margin="0,0,12,0"
+                                                                       Grid.Column="0"/>
                                                             <!-- Círculo de estado -->
-                                                            <Ellipse Width="18" Height="18" Margin="0,0,12,0" Grid.Column="0">
+                                                            <Ellipse Width="18" Height="18" Margin="0,0,12,0" Grid.Column="1">
                                                                 <Ellipse.Fill>
                                                                     <SolidColorBrush Color="{Binding EstadoColor}"/>
                                                                 </Ellipse.Fill>
                                                             </Ellipse>
                                                             <!-- Info del evento -->
-                                                            <StackPanel Grid.Column="1">
-                                                                <TextBlock Text="{Binding titulo}" 
-                                                                           Foreground="White" 
+                                                            <StackPanel Grid.Column="2">
+                                                                <TextBlock Text="{Binding Titulo}" 
+                                                                           Style="{StaticResource PrimaryTextStyle}" 
                                                                            FontWeight="SemiBold"/>
-                                                                <TextBlock Text="{Binding descripcion}" 
-                                                                           Foreground="#CCFFFFFF" 
+                                                                <TextBlock Text="{Binding Descripcion}" 
+                                                                           Style="{StaticResource SecondaryTextStyle}" 
                                                                            FontSize="12"/>
-                                                                <TextBlock Text="{Binding estado_nombre}" 
-                                                                           Foreground="#CCFFFFFF" 
+                                                                <TextBlock Text="{Binding EstadoNombre}" 
+                                                                           Style="{StaticResource SecondaryTextStyle}" 
                                                                            FontSize="12"/>
                                                             </StackPanel>
                                                         </Grid>
@@ -487,9 +1352,9 @@
 
                                     <!-- Botones -->
                                     <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
-                                        <Button Content="➕ Añadir" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0" Click="AñadirEvento_Click"/>
-                                        <Button Content="✏️ Modificar" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0" Click="ModificarEvento_Click"/>
-                                        <Button Content="🗑 Eliminar" Style="{StaticResource RoundedButtonStyle}" Click="EliminarEvento_Click"/>
+                                        <Button Content="🞧" Width="50" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0" Click="AñadirEvento_Click"/>
+                                        <Button Content="🖉" Width="50" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0" Click="ModificarEvento_Click"/>
+                                        <Button Content="🗙" Width="50" Style="{StaticResource RoundedButtonStyle}" Click="EliminarEvento_Click"/>
                                     </StackPanel>
                                 </Grid>
                             </Grid>
@@ -504,7 +1369,7 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
-                                <TextBlock Text="Notas" FontSize="16" FontWeight="Bold" Foreground="White" Margin="0,0,0,10"/>
+                                <TextBlock x:Name="txtNotas" Text="Notas" FontSize="16" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,10"/>
 
                                 <!-- Lista de notas -->
                                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
@@ -529,9 +1394,9 @@
                                                         </Grid.ColumnDefinitions>
                                                         <!-- Info de la nota -->
                                                         <StackPanel Grid.Column="1">
-                                                            <TextBlock Text="{Binding Nombre}" Foreground="White" FontWeight="SemiBold"/>
-                                                            <TextBlock Text="{Binding Descripcion}" Foreground="#CCFFFFFF" FontSize="12"/>
-                                                            <TextBlock Text="{Binding FechaCreacion, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" Foreground="#CCFFFFFF" FontSize="12"/>
+                                                            <TextBlock Text="{Binding Nombre}" Style="{StaticResource PrimaryTextStyle}" FontWeight="SemiBold"/>
+                                                            <TextBlock Text="{Binding Descripcion}" Style="{StaticResource SecondaryTextStyle}" FontSize="12"/>
+                                                            <TextBlock Text="{Binding FechaCreacion, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" Style="{StaticResource SecondaryTextStyle}" FontSize="12"/>
                                                         </StackPanel>
                                                     </Grid>
                                                 </Border>
@@ -541,15 +1406,15 @@
                                 </ScrollViewer>
 
                                 <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
-                                    <Button x:Name="btnAgregarNota" Content="➕ Añadir" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0" Click="AgregarNota_Click"/>
-                                    <Button x:Name="btnModificarNota" Content="✏️ Modificar" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0" Click="ModificarNota_Click"/>
-                                    <Button x:Name="btnEliminarNota" Content="🗑 Eliminar" Style="{StaticResource RoundedButtonStyle}" Click="EliminarNota_Click"/>
+                                    <Button x:Name="btnAgregarNota" Content="🞧" Width="50" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0" Click="AgregarNota_Click"/>
+                                    <Button x:Name="btnModificarNota" Content="🖉" Width="50" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0" Click="ModificarNota_Click"/>
+                                    <Button x:Name="btnEliminarNota" Content="🗙" Width="50" Style="{StaticResource RoundedButtonStyle}" Click="EliminarNota_Click"/>
                                 </StackPanel>
                             </Grid>
                         </Border>
 
                         <!-- Apartado 3: Documentos -->
-                        <Border Style="{StaticResource CardStyle}" Grid.Row="2">
+                        <Border Style="{StaticResource CardStyle}" Grid.Row="2" Margin="0,0,0,10">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -557,7 +1422,7 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
-                                <TextBlock Text="Documentos del Caso" FontSize="16" FontWeight="Bold" Foreground="White" Margin="0,0,0,10"/>
+                                <TextBlock x:Name="txtDocumentosCaso" Text="Documentos del Caso" FontSize="16" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,10"/>
 
                                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                                     <ListView x:Name="DocumentosList" 
@@ -576,20 +1441,27 @@
                                                         HorizontalAlignment="Stretch">
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="Auto"/>
                                                             <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
                                                         </Grid.ColumnDefinitions>
                                                         <!-- Info del documento -->
-                                                        <StackPanel Grid.Column="1">
+                                                        <StackPanel Grid.Column="0">
                                                             <TextBlock Text="{Binding nombre}" 
-                                                                       Foreground="White" 
+                                                                       Style="{StaticResource PrimaryTextStyle}"
                                                                        FontWeight="SemiBold"/>
-                                                            <TextBlock Text="{Binding descripcion}" 
-                                                                       Foreground="#CCFFFFFF" 
+                                                            <TextBlock Text="{Binding TipoDocumento.Nombre}" 
+                                                                       Style="{StaticResource SecondaryTextStyle}"
                                                                        FontSize="12"/>
-                                                            <TextBlock Text="{Binding tipo_documento}" 
-                                                                       Foreground="#CCFFFFFF" 
+                                                            <TextBlock Text="{Binding extension_archivo, StringFormat='Ext: {0}'}" 
+                                                                       Style="{StaticResource SecondaryTextStyle}"
                                                                        FontSize="12"/>
+                                                            <TextBlock Text="{Binding fecha_subid, StringFormat='Subido: {0:dd/MM/yyyy HH:mm}'}" 
+                                                                       Style="{StaticResource SecondaryTextStyle}"
+                                                                       FontSize="12"/>
+                                                        </StackPanel>
+                                                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                                            <Button Content="Ver" Margin="0,0,8,0" CommandParameter="{Binding}" Click="VerDocumento_Click"/>
+                                                            <Button Content="Descargar" CommandParameter="{Binding}" Click="DescargarDocumento_Click"/>
                                                         </StackPanel>
                                                     </Grid>
                                                 </Border>
@@ -599,16 +1471,16 @@
                                 </ScrollViewer>
 
                                 <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
-                                    <Button x:Name="btnAgregarDocumento" Content="➕ Añadir" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0" Click="AgregarDocumento_Click"/>
-                                    <Button x:Name="btnModificarDocumento" Content="✏️ Modificar" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0" Click="ModificarDocumento_Click"/>
-                                    <Button x:Name="btnEliminarDocumento" Content="🗑 Eliminar" Style="{StaticResource RoundedButtonStyle}" Click="EliminarDocumento_Click"/>
+                                    <Button x:Name="btnAgregarDocumento" Content="🞧" Width="50" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0" Click="AgregarDocumento_Click"/>
+                                    <Button x:Name="btnModificarDocumento" Content="🖉" Width="50" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0" Click="ModificarDocumento_Click"/>
+                                    <Button x:Name="btnEliminarDocumento" Content="🗙" Width="50" Style="{StaticResource RoundedButtonStyle}" Click="EliminarDocumento_Click"/>
                                 </StackPanel>
                             </Grid>
                         </Border>
                     </Grid>
 
                     <!-- Columna derecha: Tareas -->
-                    <Border Style="{StaticResource CardStyle}" Grid.Column="1" VerticalAlignment="Stretch">
+                    <Border Style="{StaticResource CardStyle}" Grid.Column="1" Margin="10,0,0,10">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -616,7 +1488,7 @@
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <TextBlock Text="Tareas Pendientes" FontSize="16" FontWeight="Bold" Foreground="White" Margin="0,0,0,10"/>
+                            <TextBlock x:Name="txtTareasPendientes" Text="Tareas Pendientes" FontSize="16" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,10"/>
 
                             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                                 <ListView x:Name="TareasList" 
@@ -640,22 +1512,22 @@
                                                     </Grid.ColumnDefinitions>
                                                     <!-- Checkbox de tarea -->
                                                     <CheckBox Grid.Column="0" 
-                                                            IsChecked="{Binding completada}"
+                                                            IsChecked="{Binding completada, Mode=TwoWay}"
                                                             Click="TareaCheckBox_Click"
                                                             Margin="0,0,12,0"/>
                                                     <!-- Info de la tarea -->
                                                     <StackPanel Grid.Column="1">
                                                         <TextBlock Text="{Binding titulo}" 
-                                                                   Foreground="White" 
+                                                                   Style="{StaticResource PrimaryTextStyle}" 
                                                                    FontWeight="SemiBold"/>
                                                         <TextBlock Text="{Binding descripcion}" 
-                                                                   Foreground="#CCFFFFFF" 
+                                                                   Style="{StaticResource SecondaryTextStyle}" 
                                                                    FontSize="12"/>
                                                         <TextBlock Text="{Binding fecha_vencimiento, StringFormat='Vence: {0:dd/MM/yyyy}'}" 
-                                                                   Foreground="#CCFFFFFF" 
+                                                                   Style="{StaticResource SecondaryTextStyle}" 
                                                                    FontSize="12"/>
                                                         <TextBlock Text="{Binding prioridad}" 
-                                                                   Foreground="#CCFFFFFF" 
+                                                                   Style="{StaticResource SecondaryTextStyle}" 
                                                                    FontSize="12"/>
                                                         <TextBlock Text="{Binding TiempoRestante}" Foreground="Orange" FontSize="12"/>
                                                     </StackPanel>
@@ -667,9 +1539,9 @@
                             </ScrollViewer>
 
                             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
-                                <Button x:Name="btnAgregarTarea" Content="➕ Añadir" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0" Click="AgregarTarea_Click"/>
-                                <Button x:Name="btnModificarTarea" Content="✏️ Modificar" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0" Click="ModificarTarea_Click"/>
-                                <Button x:Name="btnEliminarTarea" Content="🗑 Eliminar" Style="{StaticResource RoundedButtonStyle}" Click="EliminarTarea_Click"/>
+                                <Button x:Name="btnAgregarTarea" Content="🞧" Width="50" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0" Click="AgregarTarea_Click"/>
+                                <Button x:Name="btnModificarTarea" Content="🖉" Width="50" Style="{StaticResource RoundedButtonStyle}" Margin="0,0,5,0" Click="ModificarTarea_Click"/>
+                                <Button x:Name="btnEliminarTarea" Content="🗙" Width="50" Style="{StaticResource RoundedButtonStyle}" Click="EliminarTarea_Click"/>
                             </StackPanel>
                         </Grid>
                     </Border>

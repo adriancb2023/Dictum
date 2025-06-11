@@ -18,27 +18,27 @@ namespace TFG_V0._01.Controladores
 
         private void CargarIdioma(int idioma)
         {
-            var idiomas = new (string Inicio, string Buscar, string Agenda, string Casos, string Clientes, string Documentos, string Ajustes)[]
+            var idiomas = new (string Inicio, string Buscar, string Agenda, string Casos, string Clientes, string Documentos, string Ajustes, string Gpt)[]
             {
-                ("Inicio", "Buscar", "Agenda", "Casos", "Clientes", "Documentos", "Ajustes"),
-                ("Home", "Search", "Calendar", "Cases", "Clients", "Documents", "Settings"),
-                ("Inici", "Cercar", "Agenda", "Casos", "Clients", "Documents", "Ajustos"),
-                ("Inicio", "Buscar", "Axenda", "Casos", "Clientes", "Documentos", "Axustes"),
-                ("Hasiera", "Bilatu", "Agenda", "Kasuak", "Bezeroak", "Dokumentuak", "Ezarpenak")
+                ("Inicio", "Buscar", "Agenda", "Casos", "Clientes", "Documentos", "Ajustes", "GPT"),
+                ("Home", "Search", "Calendar", "Cases", "Clients", "Documents", "Settings", "GPT"),
+                ("Inici", "Cercar", "Agenda", "Casos", "Clients", "Documents", "Ajustos", "GPT"),
+                ("Inicio", "Buscar", "Axenda", "Casos", "Clientes", "Documentos", "Axustes", "GPT"),
+                ("Hasiera", "Bilatu", "Agenda", "Kasuak", "Bezeroak", "Dokumentuak", "Ezarpenak", "GPT"),
+                ("GPT", "GPT", "GPT", "GPT", "GPT", "GPT", "GPT", "GPT")
             };
 
-            if (idioma < 0 || idioma >= idiomas.Length)
-                idioma = 0;
-
-            var t = idiomas[idioma];
-
-            inicio.Text = t.Inicio;
-            buscar.Text = t.Buscar;
-            agenda.Text = t.Agenda;
-            casos.Text = t.Casos;
-            clientes.Text = t.Clientes;
-            documentos.Text = t.Documentos;
-            ajustes.Text = t.Ajustes;
+            if (idioma >= 0 && idioma < idiomas.Length)
+            {
+                inicio.Text = idiomas[idioma].Inicio;
+                buscar.Text = idiomas[idioma].Buscar;
+                agenda.Text = idiomas[idioma].Agenda;
+                casos.Text = idiomas[idioma].Casos;
+                clientes.Text = idiomas[idioma].Clientes;
+                documentos.Text = idiomas[idioma].Documentos;
+                ajustes.Text = idiomas[idioma].Ajustes;
+                GPT.Text = idiomas[idioma].Gpt;
+            }
         }
 
         public void CambiarVisibilidadNavbar(bool expandir)
@@ -52,6 +52,7 @@ namespace TFG_V0._01.Controladores
                 clientes.Visibility = Visibility.Visible;
                 documentos.Visibility = Visibility.Visible;
                 ajustes.Visibility = Visibility.Visible;
+                GPT.Visibility = Visibility.Visible;
                 _isExpanded = true;
             }
             else
@@ -63,6 +64,7 @@ namespace TFG_V0._01.Controladores
                 clientes.Visibility = Visibility.Collapsed;
                 documentos.Visibility = Visibility.Collapsed;
                 ajustes.Visibility = Visibility.Collapsed;
+                GPT.Visibility = Visibility.Collapsed;
                 _isExpanded = false;
             }
         }
@@ -77,28 +79,42 @@ namespace TFG_V0._01.Controladores
             CambiarVisibilidadNavbar(false);
         }
 
+        private void CambiarIcono(Image imagen, string rutaIcono)
+        {
+            try
+            {
+                imagen.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri(rutaIcono, UriKind.Relative));
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar el icono: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         public void CambiarIconosAOscuros()
         {
-            imagenHome2.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/home.png", UriKind.Relative));
-            imagenBuscar2.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/buscar.png", UriKind.Relative));
-            imagenAgenda2.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/agenda.png", UriKind.Relative));
-            imagenCasos2.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/casos.png", UriKind.Relative));
-            imagenClientes2.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/clientes.png", UriKind.Relative));
-            imagenDocumentos2.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/documentos.png", UriKind.Relative));
-            imagenAjustes2.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/ajustes.png", UriKind.Relative));
-            imagenAyuda2.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/ayuda.png", UriKind.Relative));
+            CambiarIcono(imagenHome2, "/TFG V0.01;component/Recursos/Iconos/home.png");
+            CambiarIcono(imagenBuscar2, "/TFG V0.01;component/Recursos/Iconos/buscar.png");
+            CambiarIcono(imagenAgenda2, "/TFG V0.01;component/Recursos/Iconos/agenda.png");
+            CambiarIcono(imagenCasos2, "/TFG V0.01;component/Recursos/Iconos/casos.png");
+            CambiarIcono(imagenClientes2, "/TFG V0.01;component/Recursos/Iconos/clientes.png");
+            CambiarIcono(imagenDocumentos2, "/TFG V0.01;component/Recursos/Iconos/documentos.png");
+            CambiarIcono(imagenAjustes2, "/TFG V0.01;component/Recursos/Iconos/ajustes.png");
+            CambiarIcono(imagenAyuda2, "/TFG V0.01;component/Recursos/Iconos/ayuda.png");
+            CambiarIcono(imagenGpt, "/TFG V0.01;component/Recursos/Iconos/ia2.png");
         }
 
         public void CambiarIconosAClaros()
         {
-            imagenHome2.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/home2.png", UriKind.Relative));
-            imagenBuscar2.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/buscar2.png", UriKind.Relative));
-            imagenAgenda2.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/agenda2.png", UriKind.Relative));
-            imagenCasos2.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/casos2.png", UriKind.Relative));
-            imagenClientes2.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/clientes2.png", UriKind.Relative));
-            imagenDocumentos2.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/documentos2.png", UriKind.Relative));
-            imagenAjustes2.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/ajustes2.png", UriKind.Relative));
-            imagenAyuda2.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri("/TFG V0.01;component/Recursos/Iconos/ayuda2.png", UriKind.Relative));
+            CambiarIcono(imagenHome2, "/TFG V0.01;component/Recursos/Iconos/home2.png");
+            CambiarIcono(imagenBuscar2, "/TFG V0.01;component/Recursos/Iconos/buscar2.png");
+            CambiarIcono(imagenAgenda2, "/TFG V0.01;component/Recursos/Iconos/agenda2.png");
+            CambiarIcono(imagenCasos2, "/TFG V0.01;component/Recursos/Iconos/casos2.png");
+            CambiarIcono(imagenClientes2, "/TFG V0.01;component/Recursos/Iconos/clientes2.png");
+            CambiarIcono(imagenDocumentos2, "/TFG V0.01;component/Recursos/Iconos/documentos2.png");
+            CambiarIcono(imagenAjustes2, "/TFG V0.01;component/Recursos/Iconos/ajustes2.png");
+            CambiarIcono(imagenAyuda2, "/TFG V0.01;component/Recursos/Iconos/ayuda2.png");
+            CambiarIcono(imagenGpt, "/TFG V0.01;component/Recursos/Iconos/ia.png");
         }
 
         private void irHome(object sender, RoutedEventArgs e)
@@ -141,6 +157,11 @@ namespace TFG_V0._01.Controladores
             AbrirVentana(new Ayuda());
         }
 
+        private void irGPT(object sender, RoutedEventArgs e)
+        {
+            AbrirVentana(new GPTChat());
+        }
+
         private void AbrirVentana(Window ventana)
         {
             Window currentWindow = Window.GetWindow(this);
@@ -160,6 +181,7 @@ namespace TFG_V0._01.Controladores
             clientes.Foreground = new SolidColorBrush(Colors.Black);
             documentos.Foreground = new SolidColorBrush(Colors.Black);
             ajustes.Foreground = new SolidColorBrush(Colors.Black);
+            GPT.Foreground = new SolidColorBrush(Colors.Black);
         }
 
         public void CambiarTextosBlanco()
@@ -171,6 +193,7 @@ namespace TFG_V0._01.Controladores
             clientes.Foreground = new SolidColorBrush(Colors.White);
             documentos.Foreground = new SolidColorBrush(Colors.White);
             ajustes.Foreground = new SolidColorBrush(Colors.White);
+            GPT.Foreground = new SolidColorBrush(Colors.White);
         }
 
         public void ActualizarTema(bool isDarkTheme)

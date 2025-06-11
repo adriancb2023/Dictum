@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Supabase.Postgrest.Models;
 using Supabase.Postgrest.Attributes;
 using System.ComponentModel;
+using Newtonsoft.Json;
 
 namespace TFG_V0._01.Supabase.Models
 {
@@ -13,26 +14,65 @@ namespace TFG_V0._01.Supabase.Models
     public class Tarea : BaseModel, INotifyPropertyChanged
     {
         [PrimaryKey("id", true)]
-        public int id { get; set; }
+        [Column("id")]
+        public int? id { get; set; }
+        [Column("titulo")]
         public string titulo { get; set; }
+        [Column("descripcion")]
         public string descripcion { get; set; }
+        [Column("fecha_creacion")]
         public DateTime fecha_creacion { get; set; }
-        public DateTime? fecha_vencimiento { get; set; }
-        public bool completada { get; set; }
-        public int id_caso { get; set; }
+        [Column("fecha_fin")]
+        public DateTime? fecha_fin { get; set; }
+        [JsonIgnore]
+        private bool _completada;
+        [JsonIgnore]
+        public bool completada 
+        { 
+            get => _completada;
+            set
+            {
+                if (_completada != value)
+                {
+                    _completada = value;
+                    estado = value ? "Completada" : "Pendiente";
+                    OnPropertyChanged(nameof(completada));
+                    OnPropertyChanged(nameof(estado));
+                }
+            }
+        }
+        [Column("id_caso")]
+        public int? id_caso { get; set; }
+        [Column("prioridad")]
         public string prioridad { get; set; } // Alta, Media, Baja
-        public string estado { get; set; } // Pendiente, En Progreso, Completada
+        private string _estado;
+        [Column("estado")]
+        public string estado 
+        { 
+            get => _estado;
+            set
+            {
+                if (_estado != value)
+                {
+                    _estado = value;
+                    _completada = value == "Completada";
+                    OnPropertyChanged(nameof(estado));
+                    OnPropertyChanged(nameof(completada));
+                }
+            }
+        }
 
         [Reference(typeof(Caso))]
         public Caso Caso { get; set; }
 
+        [JsonIgnore]
         public string TiempoRestante
         {
             get
             {
-                if (fecha_vencimiento == null)
+                if (fecha_fin == null)
                     return "Sin fecha";
-                var dias = (fecha_vencimiento.Value.Date - DateTime.Now.Date).Days;
+                var dias = (fecha_fin.Value.Date - DateTime.Now.Date).Days;
                 if (dias > 0)
                     return $"Faltan {dias} días";
                 else if (dias == 0)
@@ -42,10 +82,51 @@ namespace TFG_V0._01.Supabase.Models
             }
         }
 
+        [JsonIgnore]
+        public string estadoAnterior { get; set; }
+
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+    }
+
+    // DTO para inserción
+    [Table("tareas")]
+    public class TareaInsertDto : BaseModel
+    {
+        [Column("titulo")]
+        public string titulo { get; set; }
+        [Column("descripcion")]
+        public string descripcion { get; set; }
+        [Column("fecha_creacion")]
+        public DateTime fecha_creacion { get; set; }
+        [Column("fecha_fin")]
+        public DateTime? fecha_fin { get; set; }
+        [Column("id_caso")]
+        public int? id_caso { get; set; }
+        [Column("prioridad")]
+        public string prioridad { get; set; }
+        [Column("estado")]
+        public string estado { get; set; }
+    }
+
+    public class TareaUpdateDto
+    {
+        [Column("titulo")]
+        public string titulo { get; set; }
+        [Column("descripcion")]
+        public string descripcion { get; set; }
+        [Column("fecha_creacion")]
+        public DateTime fecha_creacion { get; set; }
+        [Column("fecha_fin")]
+        public DateTime? fecha_fin { get; set; }
+        [Column("id_caso")]
+        public int? id_caso { get; set; }
+        [Column("prioridad")]
+        public string prioridad { get; set; }
+        [Column("estado")]
+        public string estado { get; set; }
     }
 }

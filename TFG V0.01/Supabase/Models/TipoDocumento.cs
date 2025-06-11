@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Supabase.Postgrest.Models;
 using Supabase.Postgrest.Attributes;
 
-namespace TFG.Models
+namespace TFG_V0._01.Supabase.Models
 {
     [Table("tipo_documentos")]
     public class TipoDocumento : BaseModel

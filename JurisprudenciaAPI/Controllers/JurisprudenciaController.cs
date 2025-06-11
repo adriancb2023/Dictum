@@ -150,6 +150,807 @@ namespace JurisprudenciaApi.Controllers
             { "PAÍS VASCO", "ALL@ALL@PAÍS_VASCO" }
         };
 
+        private static readonly Dictionary<string, List<Provincia>> ProvinciasPorComunidad = new Dictionary<string, List<Provincia>>
+        {
+            {
+                "ANDALUCÍA", new List<Provincia>
+                {
+                    new Provincia 
+                    { 
+                        Codigo = "AL", 
+                        Nombre = "Almería", 
+                        CodigoComunidad = "ANDALUCÍA",
+                        Sedes = new List<string> 
+                        { 
+                            "ALMERÍA", "BERJA", "HUÉRCAL-OVERA", "PURCHENA", 
+                            "ROQUETAS DE MAR", "VÉLEZ-RUBIO" 
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    },
+                    new Provincia 
+                    { 
+                        Codigo = "CA", 
+                        Nombre = "Cádiz", 
+                        CodigoComunidad = "ANDALUCÍA",
+                        Sedes = new List<string> 
+                        { 
+                            "ALGECIRAS", "BARBATE", "CHICLANA DE LA FRONTERA", "CÁDIZ",
+                            "JEREZ DE LA FRONTERA", "PUERTO DE SANTA MARÍA (EL)", 
+                            "SAN FERNANDO", "SAN ROQUE", "SANLÚCAR DE BARRAMEDA"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    },
+                    new Provincia 
+                    { 
+                        Codigo = "CO", 
+                        Nombre = "Córdoba", 
+                        CodigoComunidad = "ANDALUCÍA",
+                        Sedes = new List<string> 
+                        { 
+                            "CABRA", "CÓRDOBA", "LUCENA", "PEÑARROYA-PUEBLONUEVO"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    },
+                    new Provincia 
+                    { 
+                        Codigo = "GR", 
+                        Nombre = "Granada", 
+                        CodigoComunidad = "ANDALUCÍA",
+                        Sedes = new List<string> 
+                        { 
+                            "ALMUÑÉCAR", "GRANADA", "GUADIX", "MOTRIL", "SANTA FE"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    },
+                    new Provincia 
+                    { 
+                        Codigo = "H", 
+                        Nombre = "Huelva", 
+                        CodigoComunidad = "ANDALUCÍA",
+                        Sedes = new List<string> 
+                        { 
+                            "AYAMONTE", "HUELVA", "MOGUER", "PALMA DEL CONDADO (LA)"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    },
+                    new Provincia 
+                    { 
+                        Codigo = "J", 
+                        Nombre = "Jaén", 
+                        CodigoComunidad = "ANDALUCÍA",
+                        Sedes = new List<string> 
+                        { 
+                            "ALCALÁ LA REAL", "CAZORLA", "JAÉN", "LINARES", 
+                            "VILLACARRILLO", "ÚBEDA"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    },
+                    new Provincia 
+                    { 
+                        Codigo = "MA", 
+                        Nombre = "Málaga", 
+                        CodigoComunidad = "ANDALUCÍA",
+                        Sedes = new List<string> 
+                        { 
+                            "ALAMEDA", "ANTEQUERA", "ARCHIDONA", "COÍN", "ESTEPONA",
+                            "FUENGIROLA", "MARBELLA", "MÁLAGA", "RONDA", "TORREMOLINOS",
+                            "VÉLEZ-MÁLAGA"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    },
+                    new Provincia 
+                    { 
+                        Codigo = "SE", 
+                        Nombre = "Sevilla", 
+                        CodigoComunidad = "ANDALUCÍA",
+                        Sedes = new List<string> 
+                        { 
+                            "ALCALÁ DE GUADAIRA", "CARMONA", "CAZALLA DE LA SIERRA",
+                            "CORIA DEL RÍO", "DOS HERMANAS", "LORA DEL RÍO", "MARCHENA",
+                            "SANLÚCAR LA MAYOR", "SEVILLA", "UTRERA", "ÉCIJA"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    }
+                }
+            },
+            {
+                "ARAGÓN", new List<Provincia>
+                {
+                    new Provincia 
+                    { 
+                        Codigo = "HU", 
+                        Nombre = "Huesca", 
+                        CodigoComunidad = "ARAGÓN",
+                        Sedes = new List<string> 
+                        { 
+                            "BARBASTRO", "BOLTAÑA", "FRAGA", "HUESCA", "JACA", "MONZÓN"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    },
+                    new Provincia 
+                    { 
+                        Codigo = "TE", 
+                        Nombre = "Teruel", 
+                        CodigoComunidad = "ARAGÓN",
+                        Sedes = new List<string> 
+                        { 
+                            "ALCAÑIZ", "CALAMOCHA", "CUBLA", "TERUEL"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    },
+                    new Provincia 
+                    { 
+                        Codigo = "Z", 
+                        Nombre = "Zaragoza", 
+                        CodigoComunidad = "ARAGÓN",
+                        Sedes = new List<string> 
+                        { 
+                            "ALMUNIA DE DOÑA GODINA (LA)", "CASPE", "ZAIDA (LA)", "ZARAGOZA"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    }
+                }
+            },
+            {
+                "ASTURIAS", new List<Provincia>
+                {
+                    new Provincia 
+                    { 
+                        Codigo = "O", 
+                        Nombre = "Asturias", 
+                        CodigoComunidad = "ASTURIAS",
+                        Sedes = new List<string> 
+                        { 
+                            "AVILÉS", "CANGAS DE ONÍS", "CANGAS DEL NARCEA", "CASTROPOL",
+                            "GIJÓN", "GRADO", "LANGREO", "LAVIANA", "LENA", "LLANES",
+                            "MIERES", "OVIEDO", "PILOÑA", "PRAVIA", "SIERO", "VALDÉS",
+                            "VILLAVICIOSA"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    }
+                }
+            },
+            {
+                "BALEARES", new List<Provincia>
+                {
+                    new Provincia 
+                    { 
+                        Codigo = "PM", 
+                        Nombre = "Baleares", 
+                        CodigoComunidad = "BALEARES",
+                        Sedes = new List<string> 
+                        { 
+                            "CIUTADELLA DE MENORCA", "EIVISSA", "INCA", "MAHÓN",
+                            "MANACOR", "PALMA DE MALLORCA"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    }
+                }
+            },
+            {
+                "CANARIAS", new List<Provincia>
+                {
+                    new Provincia 
+                    { 
+                        Codigo = "GC", 
+                        Nombre = "Las Palmas", 
+                        CodigoComunidad = "CANARIAS",
+                        Sedes = new List<string> 
+                        { 
+                            "ARRECIFE", "ARUCAS", "GÁLDAR", "PALMAS DE GRAN CANARIA (LAS)",
+                            "PUERTO DEL ROSARIO", "SAN BARTOLOMÉ DE TIRAJANA", "TELDE"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    },
+                    new Provincia 
+                    { 
+                        Codigo = "TF", 
+                        Nombre = "Santa Cruz de Tenerife", 
+                        CodigoComunidad = "CANARIAS",
+                        Sedes = new List<string> 
+                        { 
+                            "ARONA", "GRANADILLA DE ABONA", "GÜÍMAR", "ICOD DE LOS VINOS",
+                            "LLANOS DE ARIDANE (LOS)", "OROTAVA (LA)", "PUERTO DE LA CRUZ",
+                            "SAN CRISTÓBAL DE LA LAGUNA", "SAN SEBASTIÁN DE LA GOMERA",
+                            "SANTA CRUZ DE LA PALMA", "SANTA CRUZ DE TENERIFE"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    }
+                }
+            },
+            {
+                "CANTABRIA", new List<Provincia>
+                {
+                    new Provincia 
+                    { 
+                        Codigo = "S", 
+                        Nombre = "Cantabria", 
+                        CodigoComunidad = "CANTABRIA",
+                        Sedes = new List<string> 
+                        { 
+                            "CASTRO-URDIALES", "LAREDO", "MEDIO CUDEYO", "REINOSA",
+                            "SAN VICENTE DE LA BARQUERA", "SANTANDER", "SANTOÑA", "TORRELAVEGA"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    }
+                }
+            },
+            {
+                "CASTILLA LA MANCHA", new List<Provincia>
+                {
+                    new Provincia 
+                    { 
+                        Codigo = "AB", 
+                        Nombre = "Albacete", 
+                        CodigoComunidad = "CASTILLA_LA_MANCHA",
+                        Sedes = new List<string> 
+                        { 
+                            "ALBACETE", "ALCARAZ", "ALMANSA", "CASAS-IBÁÑEZ",
+                            "HELLÍN", "RODA (LA)", "VILLARROBLEDO"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    },
+                    new Provincia 
+                    { 
+                        Codigo = "CR", 
+                        Nombre = "Ciudad Real", 
+                        CodigoComunidad = "CASTILLA_LA_MANCHA",
+                        Sedes = new List<string> 
+                        { 
+                            "ALCÁZAR DE SAN JUAN", "ALMADÉN", "ALMAGRO", "CIUDAD REAL",
+                            "MANZANARES", "PUERTOLLANO", "TOMELLOSO", "VALDEPEÑAS",
+                            "VILLANUEVA DE LOS INFANTES"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    },
+                    new Provincia 
+                    { 
+                        Codigo = "CU", 
+                        Nombre = "Cuenca", 
+                        CodigoComunidad = "CASTILLA_LA_MANCHA",
+                        Sedes = new List<string> 
+                        { 
+                            "CUENCA", "MOTILLA DEL PALANCAR", "SAN CLEMENTE"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    },
+                    new Provincia 
+                    { 
+                        Codigo = "GU", 
+                        Nombre = "Guadalajara", 
+                        CodigoComunidad = "CASTILLA_LA_MANCHA",
+                        Sedes = new List<string> 
+                        { 
+                            "GUADALAJARA", "MOLINA DE ARAGÓN", "SIGÜENZA"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    },
+                    new Provincia 
+                    { 
+                        Codigo = "TO", 
+                        Nombre = "Toledo", 
+                        CodigoComunidad = "CASTILLA_LA_MANCHA",
+                        Sedes = new List<string> 
+                        { 
+                            "ILLESCAS", "OCAÑA", "ORGAZ", "QUINTANAR DE LA ORDEN",
+                            "TALAVERA DE LA REINA", "TOLEDO", "TORRIJOS"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    }
+                }
+            },
+            {
+                "CASTILLA Y LEÓN", new List<Provincia>
+                {
+                    new Provincia 
+                    { 
+                        Codigo = "AV", 
+                        Nombre = "Ávila", 
+                        CodigoComunidad = "CASTILLA_Y_LEÓN",
+                        Sedes = new List<string> 
+                        { 
+                            "ARENAS DE SAN PEDRO", "ARÉVALO", "PIEDRAHÍTA", "ÁVILA"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    },
+                    new Provincia 
+                    { 
+                        Codigo = "BU", 
+                        Nombre = "Burgos", 
+                        CodigoComunidad = "CASTILLA_Y_LEÓN",
+                        Sedes = new List<string> 
+                        { 
+                            "ARANDA DE DUERO", "BRIVIESCA", "BURGOS", "LERMA",
+                            "MIRANDA DE EBRO", "SALAS DE LOS INFANTES",
+                            "VILLARCAYO DE MERINDAD DE CASTILLA LA VIEJA"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    },
+                    new Provincia 
+                    { 
+                        Codigo = "LE", 
+                        Nombre = "León", 
+                        CodigoComunidad = "CASTILLA_Y_LEÓN",
+                        Sedes = new List<string> 
+                        { 
+                            "ASTORGA", "BAÑEZA (LA)", "CISTIERNA", "LEÓN",
+                            "PONFERRADA", "SAHAGÚN", "VILLABLINO"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    },
+                    new Provincia 
+                    { 
+                        Codigo = "P", 
+                        Nombre = "Palencia", 
+                        CodigoComunidad = "CASTILLA_Y_LEÓN",
+                        Sedes = new List<string> 
+                        { 
+                            "CARRIÓN DE LOS CONDES", "CERVERA DE PISUERGA", "PALENCIA"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    },
+                    new Provincia 
+                    { 
+                        Codigo = "SA", 
+                        Nombre = "Salamanca", 
+                        CodigoComunidad = "CASTILLA_Y_LEÓN",
+                        Sedes = new List<string> 
+                        { 
+                            "BÉJAR", "CIUDAD RODRIGO", "PEÑARANDA DE BRACAMONTE",
+                            "SALAMANCA", "VITIGUDINO"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    },
+                    new Provincia 
+                    { 
+                        Codigo = "SG", 
+                        Nombre = "Segovia", 
+                        CodigoComunidad = "CASTILLA_Y_LEÓN",
+                        Sedes = new List<string> 
+                        { 
+                            "ARENAS DE SAN PEDRO",
+                            "ARÉVALO",
+                            "CUÉLLAR",
+                            "PIEDRAHÍTA",
+                            "SANTA MARÍA LA REAL DE NIEVA",
+                            "SEGOVIA",
+                            "SEPÚLVEDA"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    },
+                    new Provincia 
+                    { 
+                        Codigo = "SO", 
+                        Nombre = "Soria", 
+                        CodigoComunidad = "CASTILLA_Y_LEÓN",
+                        Sedes = new List<string> 
+                        { 
+                            "ALMAZÁN",
+                            "BURGO DE OSMA-CIUDAD DE OSMA",
+                            "SORIA"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    },
+                    new Provincia 
+                    { 
+                        Codigo = "VA", 
+                        Nombre = "Valladolid", 
+                        CodigoComunidad = "CASTILLA_Y_LEÓN",
+                        Sedes = new List<string> 
+                        { 
+                            "MEDINA DE RIOSECO",
+                            "MEDINA DEL CAMPO",
+                            "VALLADOLID"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    },
+                    new Provincia 
+                    { 
+                        Codigo = "ZA", 
+                        Nombre = "Zamora", 
+                        CodigoComunidad = "CASTILLA_Y_LEÓN",
+                        Sedes = new List<string> 
+                        { 
+                            "BENAVENTE",
+                            "PUEBLA DE SANABRIA",
+                            "TORO",
+                            "VILLALPANDO",
+                            "ZAMORA"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    }
+                }
+            },
+            {
+                "CATALUÑA", new List<Provincia>
+                {
+                    new Provincia 
+                    { 
+                        Codigo = "B", 
+                        Nombre = "Barcelona", 
+                        CodigoComunidad = "CATALUÑA",
+                        Sedes = new List<string> 
+                        { 
+                            "ARENYS DE MAR",
+                            "BADALONA",
+                            "BARCELONA",
+                            "BERGA",
+                            "CERDANYOLA DEL VALLÈS",
+                            "CORBERA DE LLOBREGAT",
+                            "CORNELLÀ DE LLOBREGAT",
+                            "ESPLUGUES DE LLOBREGAT",
+                            "GAVÀ",
+                            "GRANOLLERS",
+                            "HOSPITALET DE LLOBREGAT (L')",
+                            "IGUALADA",
+                            "MANRESA",
+                            "MARTORELL",
+                            "MATARÓ",
+                            "MOLLET DEL VALLÈS",
+                            "MONTCADA I REIXAC",
+                            "PRAT DE LLOBREGAT (EL)",
+                            "RUBÍ",
+                            "SABADELL",
+                            "SANT BOI DE LLOBREGAT",
+                            "SANT FELIU DE LLOBREGAT",
+                            "SANTA COLOMA DE GRAMENET",
+                            "TERRASSA",
+                            "VIC",
+                            "VILAFRANCA DEL PENEDÈS",
+                            "VILANOVA I LA GELTRÚ"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    },
+                    new Provincia 
+                    { 
+                        Codigo = "GI", 
+                        Nombre = "Girona", 
+                        CodigoComunidad = "CATALUÑA",
+                        Sedes = new List<string> 
+                        { 
+                            "BISBAL D'EMPORDÀ (LA)",
+                            "BLANES",
+                            "FIGUERES",
+                            "GIRONA",
+                            "OLOT",
+                            "PUIGCERDÀ",
+                            "RIPOLL",
+                            "SANT FELIU DE GUÍXOLS",
+                            "SANTA COLOMA DE FARNERS"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    },
+                    new Provincia 
+                    { 
+                        Codigo = "L", 
+                        Nombre = "Lleida", 
+                        CodigoComunidad = "CATALUÑA",
+                        Sedes = new List<string> 
+                        { 
+                            "BALAGUER",
+                            "CERVERA",
+                            "LLEIDA",
+                            "SEU D'URGELL (LA)",
+                            "TREMP",
+                            "VIELHA E MIJARAN"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    },
+                    new Provincia 
+                    { 
+                        Codigo = "T", 
+                        Nombre = "Tarragona", 
+                        CodigoComunidad = "CATALUÑA",
+                        Sedes = new List<string> 
+                        { 
+                            "AMPOSTA",
+                            "FALSET",
+                            "GANDESA",
+                            "REUS",
+                            "TARRAGONA",
+                            "TORTOSA",
+                            "VALLS",
+                            "VENDRELL (EL)"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    }
+                }
+            },
+            {
+                "CEUTA", new List<Provincia>
+                {
+                    new Provincia 
+                    { 
+                        Codigo = "CE", 
+                        Nombre = "Ceuta", 
+                        CodigoComunidad = "CEUTA",
+                        Sedes = new List<string> 
+                        { 
+                            "CEUTA"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    }
+                }
+            },
+            {
+                "COMUNIDAD VALENCIANA", new List<Provincia>
+                {
+                    new Provincia 
+                    { 
+                        Codigo = "A", 
+                        Nombre = "Alicante", 
+                        CodigoComunidad = "COMUNIDAD_VALENCIANA",
+                        Sedes = new List<string> 
+                        { 
+                            "ALCOY/ALCOI",
+                            "ALICANTE/ALACANT",
+                            "BENIDORM",
+                            "DÉNIA",
+                            "ELCHE/ELX",
+                            "ELDA",
+                            "IBI",
+                            "NOVELDA",
+                            "ORIHUELA",
+                            "SAN VICENTE DEL RASPEIG/SANT VICENT DEL RASPEIG",
+                            "TORREVIEJA",
+                            "VILLAJOYOSA/VILA JOIOSA (LA)",
+                            "VILLENA"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    },
+                    new Provincia 
+                    { 
+                        Codigo = "CS", 
+                        Nombre = "Castellón", 
+                        CodigoComunidad = "COMUNIDAD_VALENCIANA",
+                        Sedes = new List<string> 
+                        { 
+                            "CASTELLÓN DE LA PLANA/CASTELLÓ DE LA PLANA",
+                            "NULES",
+                            "SEGORBE",
+                            "VILLARREAL/VILA-REAL",
+                            "VINARÒS"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    },
+                    new Provincia 
+                    { 
+                        Codigo = "V", 
+                        Nombre = "Valencia", 
+                        CodigoComunidad = "COMUNIDAD_VALENCIANA",
+                        Sedes = new List<string> 
+                        { 
+                            "ALZIRA",
+                            "CARLET",
+                            "CATARROJA",
+                            "GANDIA",
+                            "LLÍRIA",
+                            "MASSAMAGRELL",
+                            "MISLATA",
+                            "MONCADA",
+                            "PATERNA",
+                            "PICASSENT",
+                            "QUART DE POBLET",
+                            "REQUENA",
+                            "SAGUNTO/SAGUNT",
+                            "SUECA",
+                            "TORRENT",
+                            "VALENCIA",
+                            "XÀTIVA"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    }
+                }
+            },
+            {
+                "EXTREMADURA", new List<Provincia>
+                {
+                    new Provincia 
+                    { 
+                        Codigo = "BA", 
+                        Nombre = "Badajoz", 
+                        CodigoComunidad = "EXTREMADURA",
+                        Sedes = new List<string> 
+                        { 
+                            "ALMENDRALEJO",
+                            "BADAJOZ",
+                            "CASTUERA",
+                            "DON BENITO",
+                            "HERRERA DEL DUQUE",
+                            "JEREZ DE LOS CABALLEROS",
+                            "LLERENA",
+                            "MONTIJO",
+                            "MÉRIDA",
+                            "OLIVENZA",
+                            "VILLAFRANCA DE LOS BARROS",
+                            "VILLANUEVA DE LA SERENA",
+                            "ZAFRA"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    },
+                    new Provincia 
+                    { 
+                        Codigo = "CC", 
+                        Nombre = "Cáceres", 
+                        CodigoComunidad = "EXTREMADURA",
+                        Sedes = new List<string> 
+                        { 
+                            "ABADÍA",
+                            "CORIA",
+                            "CÁCERES",
+                            "LOGROSÁN",
+                            "NAVALMORAL DE LA MATA",
+                            "PLASENCIA",
+                            "TRUJILLO",
+                            "VALENCIA DE ALCÁNTARA"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    }
+                }
+            },
+            {
+                "GALICIA", new List<Provincia>
+                {
+                    new Provincia 
+                    { 
+                        Codigo = "C", 
+                        Nombre = "A Coruña", 
+                        CodigoComunidad = "GALICIA",
+                        Sedes = new List<string> 
+                        { 
+                            "BETANZOS",
+                            "CARBALLO",
+                            "CORCUBIÓN",
+                            "CORUÑA (A)",
+                            "FERROL",
+                            "NEGREIRA",
+                            "NOIA",
+                            "ORTIGUEIRA",
+                            "PADRÓN",
+                            "RIBEIRA",
+                            "SANTIAGO DE COMPOSTELA"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    },
+                    new Provincia 
+                    { 
+                        Codigo = "LU", 
+                        Nombre = "Lugo", 
+                        CodigoComunidad = "GALICIA",
+                        Sedes = new List<string> 
+                        { 
+                            "CHANTADA",
+                            "FONSAGRADA (A)",
+                            "LUGO",
+                            "MONDOÑEDO",
+                            "MONFORTE DE LEMOS",
+                            "SARRIA",
+                            "VILALBA",
+                            "VIVEIRO"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    },
+                    new Provincia 
+                    { 
+                        Codigo = "OU", 
+                        Nombre = "Ourense", 
+                        CodigoComunidad = "GALICIA",
+                        Sedes = new List<string> 
+                        { 
+                            "BANDE",
+                            "BARCO DE VALDEORRAS (O)",
+                            "CARBALLIÑO (O)",
+                            "CELANOVA",
+                            "OURENSE",
+                            "POBRA DE TRIVES (A)",
+                            "RIBADAVIA",
+                            "XINZO DE LIMIA"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    },
+                    new Provincia 
+                    { 
+                        Codigo = "PO", 
+                        Nombre = "Pontevedra", 
+                        CodigoComunidad = "GALICIA",
+                        Sedes = new List<string> 
+                        { 
+                            "CALDAS DE REIS",
+                            "CAMBADOS",
+                            "CANGAS",
+                            "ESTRADA (A)",
+                            "GROVE (O)",
+                            "LALÍN",
+                            "PONTEAREAS",
+                            "PONTEVEDRA",
+                            "PORRIÑO (O)",
+                            "REDONDELA",
+                            "TUI",
+                            "VIGO",
+                            "VILAGARCÍA DE AROUSA"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    }
+                }
+            },
+            {
+                "LA RIOJA", new List<Provincia>
+                {
+                    new Provincia 
+                    { 
+                        Codigo = "LO", 
+                        Nombre = "La Rioja", 
+                        CodigoComunidad = "LA_RIOJA",
+                        Sedes = new List<string> 
+                        { 
+                            "CALAHORRA", "HARO", "LOGROÑO"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    }
+                }
+            },
+            {
+                "MADRID", new List<Provincia>
+                {
+                    new Provincia 
+                    { 
+                        Codigo = "M", 
+                        Nombre = "Madrid", 
+                        CodigoComunidad = "MADRID",
+                        Sedes = new List<string> 
+                        { 
+                            "ALCALÁ DE HENARES", "ALCOBENDAS", "ALCORCÓN", "ARANJUEZ",
+                            "ARGANDA DEL REY", "COLLADO VILLALBA", "COLMENAR VIEJO",
+                            "COSLADA", "FUENLABRADA", "GETAFE", "LEGANÉS", "MADARCOS",
+                            "MADRID", "MAJADAHONDA", "MÓSTOLES", "NAVALCARNERO",
+                            "PARLA", "POZUELO DE ALARCÓN", "SAN LORENZO DE EL ESCORIAL",
+                            "TORREJÓN DE ARDOZ", "VALDEMORO"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    }
+                }
+            },
+            {
+                "MELILLA", new List<Provincia>
+                {
+                    new Provincia 
+                    { 
+                        Codigo = "ML", 
+                        Nombre = "Melilla", 
+                        CodigoComunidad = "MELILLA",
+                        Sedes = new List<string> 
+                        { 
+                            "MELILLA"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    }
+                }
+            },
+            {
+                "MURCIA", new List<Provincia>
+                {
+                    new Provincia 
+                    { 
+                        Codigo = "MU", 
+                        Nombre = "Murcia", 
+                        CodigoComunidad = "MURCIA",
+                        Sedes = new List<string> 
+                        { 
+                            "CARAVACA DE LA CRUZ", "CARTAGENA", "CIEZA", "JUMILLA",
+                            "LORCA", "MOLINA DE SEGURA", "MULA", "MURCIA",
+                            "SAN JAVIER", "TOTANA", "YECLA"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    }
+                }
+            },
+            {
+                "NAVARRA", new List<Provincia>
+                {
+                    new Provincia 
+                    { 
+                        Codigo = "NA", 
+                        Nombre = "Navarra", 
+                        CodigoComunidad = "NAVARRA",
+                        Sedes = new List<string> 
+                        { 
+                            "AOIZ/AGOITZ", "ESTELLA/LIZARRA", "PAMPLONA/IRUÑA",
+                            "PERALTA", "TAFALLA", "TUDELA"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    }
+                }
+            },
+            {
+                "PAÍS VASCO", new List<Provincia>
+                {
+                    new Provincia 
+                    { 
+                        Codigo = "VI", 
+                        Nombre = "Álava", 
+                        CodigoComunidad = "PAÍS_VASCO",
+                        Sedes = new List<string> 
+                        { 
+                            "AMURRIO", "VITORIA-GASTEIZ"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    },
+                    new Provincia 
+                    { 
+                        Codigo = "SS", 
+                        Nombre = "Guipúzcoa", 
+                        CodigoComunidad = "PAÍS_VASCO",
+                        Sedes = new List<string> 
+                        { 
+                            "AZPEITIA", "BERGARA", "DONOSTIA-SAN SEBASTIÁN",
+                            "EIBAR", "IRUN", "TOLOSA"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    },
+                    new Provincia 
+                    { 
+                        Codigo = "BI", 
+                        Nombre = "Vizcaya", 
+                        CodigoComunidad = "PAÍS_VASCO",
+                        Sedes = new List<string> 
+                        { 
+                            "BALMASEDA", "BARAKALDO", "BILBAO", "DURANGO",
+                            "GERNIKA-LUMO", "GETXO"
+                        }.Select(nombre => new Sede { Nombre = nombre }).ToList()
+                    }
+                }
+            }
+        };
+
         public JurisprudenciaController(
             IHttpClientFactory httpClientFactory,
             IMemoryCache cache,
@@ -373,9 +1174,20 @@ namespace JurisprudenciaApi.Controllers
             if (!string.IsNullOrEmpty(parameters.Idioma) && IdiomaMap.TryGetValue(parameters.Idioma, out var idiomaCode))
                 AddIfNotNull(formData, "IDIOMA", idiomaCode);
 
-            if (parameters.Localizaciones?.Any() == true) // Asumiendo que envías el nombre o código correcto
-                formData["AMBITOTERRITORIAL"] = string.Join("||", parameters.Localizaciones.Select(l => $"|{l}|"));
+            if (parameters.ComunidadesAutonomas?.Any() == true)
+            {
+                var comunidadesValues = parameters.ComunidadesAutonomas
+                    .Where(c => ComunidadOptions.ContainsKey(c))
+                    .Select(c => ComunidadOptions[c]);
+                formData["AMBITOTERRITORIAL"] = string.Join("||", comunidadesValues.Select(c => $"|{c}|"));
+            }
 
+            if (parameters.Provincias?.Any() == true)
+            {
+                var provinciasValues = parameters.Provincias
+                    .Select(p => p.ToUpper());
+                formData["PROVINCIA"] = string.Join("||", provinciasValues.Select(p => $"|{p}|"));
+            }
 
             _logger.LogInformation("API FormData construido para Pagina: {Pagina}, Registros: {Registros}, Start: {StartRecord} -> {@FormData}",
                 parameters.PaginaActual, parameters.RegistrosPorPagina, startRecord, formData);
@@ -539,6 +1351,43 @@ namespace JurisprudenciaApi.Controllers
             {
                 return relativeUrl ?? string.Empty;
             }
+        }
+
+        [HttpGet("comunidades")]
+        public ActionResult<List<ComunidadAutonoma>> GetComunidades()
+        {
+            var comunidades = ComunidadOptions.Select(c => new ComunidadAutonoma
+            {
+                Codigo = c.Value,
+                Nombre = c.Key,
+                Provincias = ProvinciasPorComunidad.ContainsKey(c.Key) ? ProvinciasPorComunidad[c.Key] : new List<Provincia>()
+            }).ToList();
+
+            return Ok(comunidades);
+        }
+
+        [HttpGet("provincias/{comunidad}")]
+        public ActionResult<List<Provincia>> GetProvincias(string comunidad)
+        {
+            if (ProvinciasPorComunidad.TryGetValue(comunidad, out var provincias))
+            {
+                return Ok(provincias);
+            }
+            return NotFound($"No se encontraron provincias para la comunidad {comunidad}");
+        }
+
+        [HttpGet("sedes/{comunidad}/{provincia}")]
+        public ActionResult<List<string>> GetSedes(string comunidad, string provincia)
+        {
+            if (ProvinciasPorComunidad.TryGetValue(comunidad, out var provincias))
+            {
+                var provinciaEncontrada = provincias.FirstOrDefault(p => p.Codigo == provincia);
+                if (provinciaEncontrada != null)
+                {
+                    return Ok(provinciaEncontrada.Sedes);
+                }
+            }
+            return NotFound($"No se encontraron sedes para la provincia {provincia} en la comunidad {comunidad}");
         }
     }
 

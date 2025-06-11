@@ -5,12 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TFG_V0._01.Ventanas"
         xmlns:controls="clr-namespace:TFG_V0._01.Controladores"
+        xmlns:system="clr-namespace:System;assembly=mscorlib"
+        xmlns:converters="clr-namespace:System.Windows.Controls;assembly=PresentationFramework"
         mc:Ignorable="d"
         Title="Ayuda" Height="850" Width="1200"
         WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
-        <!-- Estilo para el botón de cambio de tema -->
+        <!--Estilo boton M claro oscuro -->
         <Style x:Key="ThemeButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -19,7 +21,18 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}" CornerRadius="20">
-                            <Image x:Name="ThemeIcon" Source="/TFG V0.01;component/Recursos/Iconos/sol.png" Width="20" Height="20"/>
+                            <Image x:Name="ThemeIcon" Width="20" Height="20">
+                                <Image.Style>
+                                    <Style TargetType="Image">
+                                        <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/luna.png"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                                                <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/sol.png"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
+                            </Image>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -30,45 +43,40 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        <!-- Botones redondeados -->
-        <Style x:Key="RoundedButtonStyle" TargetType="{x:Type Button}">
-            <Setter Property="Background" Value="#FFFFFF"/>
-            <Setter Property="Foreground" Value="#333333"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Height" Value="45"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Button}">
-                        <Border x:Name="border" Background="{TemplateBinding Background}" 
-                                CornerRadius="20" BorderThickness="{TemplateBinding BorderThickness}" 
-                                BorderBrush="{TemplateBinding BorderBrush}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="aqua" TargetName="border"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="true">
-                                <Setter Property="Background" Value="#DDDDDD" TargetName="border"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        <!-- Convertidor para visibilidad -->
+        <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+
+        <!-- Mesh Gradients accesibles globalmente -->
+        <RadialGradientBrush x:Key="Mesh1" Center="0.3,0.3" RadiusX="0.5" RadiusY="0.5">
+            <GradientStop Color="#de9cb8" Offset="0"/>
+            <GradientStop Color="#9dcde1" Offset="1"/>
+        </RadialGradientBrush>
+        <RadialGradientBrush x:Key="Mesh2" Center="0.7,0.7" RadiusX="0.6" RadiusY="0.6">
+            <GradientStop Color="#dc8eb8" Offset="0"/>
+            <GradientStop Color="#98d3ec" Offset="1"/>
+        </RadialGradientBrush>
+
+        <!-- Gradientes para el panel de ayuda -->
+        <LinearGradientBrush x:Key="PanelGradientLight" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#ee6ef5" Offset="0"/>
+            <GradientStop Color="#57b9ff" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="PanelGradientDark" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#08a693" Offset="0"/>
+            <GradientStop Color="#3a4d5f" Offset="1"/>
+        </LinearGradientBrush>
+        
         <!-- Estilo de tarjeta -->
         <Style x:Key="CardStyle" TargetType="Border">
             <Setter Property="CornerRadius" Value="20"/>
             <Setter Property="Background">
                 <Setter.Value>
-                    <SolidColorBrush Color="#454545" Opacity="0.4"/>
+                    <SolidColorBrush Color="#282828" Opacity="0.8"/>
                 </Setter.Value>
             </Setter>
-            <Setter Property="BorderBrush" Value="#333" />
-            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Padding" Value="15"/>
             <Setter Property="Margin" Value="10"/>
             <Setter Property="Effect">
@@ -76,72 +84,493 @@
                     <DropShadowEffect Color="Black" BlurRadius="15" ShadowDepth="2" Opacity="0.3"/>
                 </Setter.Value>
             </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Background" Value="#F0F0F0"/>
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect Color="#AAAAAA" BlurRadius="15" ShadowDepth="2" Opacity="0.3"/>
+                        </Setter.Value>
+                    </Setter>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Colores y estilos para el botón de cerrar -->
+        <SolidColorBrush x:Key="CloseButtonForegroundDark" Color="#FFFFFFFF"/>
+        <SolidColorBrush x:Key="CloseButtonForegroundLight" Color="#FF222222"/>
+        <SolidColorBrush x:Key="CloseButtonHover" Color="#FFFF5252"/>
+
+        <!-- Colores para los botones-->
+        <SolidColorBrush x:Key="ButtonBackgroundDark" Color="#FFF"/>
+        <SolidColorBrush x:Key="ButtonBackgroundLight" Color="#FFF"/>
+        <SolidColorBrush x:Key="ButtonForegroundDark" Color="#222"/>
+        <SolidColorBrush x:Key="ButtonForegroundLight" Color="#222"/>
+        <SolidColorBrush x:Key="ButtonHoverDark" Color="#FF333333"/>
+        <SolidColorBrush x:Key="ButtonHoverLight" Color="#FFEEEEEE"/>
+        <SolidColorBrush x:Key="ButtonShadow" Color="#22000000"/>
+
+        <!-- Colores para el modo oscuro/claro -->
+        <SolidColorBrush x:Key="TextPrimaryDark" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="TextSecondaryDark" Color="#CCFFFFFF"/>
+        <SolidColorBrush x:Key="TextPrimaryLight" Color="#222222"/>
+        <SolidColorBrush x:Key="TextSecondaryLight" Color="#666666"/>
+
+        <!-- Estilo para textos primarios -->
+        <Style x:Key="PrimaryTextStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryDark}"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Foreground" Value="{DynamicResource TextPrimaryLight}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Estilo para textos secundarios -->
+        <Style x:Key="SecondaryTextStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryDark}"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryLight}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Estilo para los contenedores de lista -->
+        <Style x:Key="ListItemContainerStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+            <Setter Property="Background">
+                <Setter.Value>
+                    <SolidColorBrush Color="#3A3A3A" Opacity="0.7"/>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl}, Path=(ItemsControl.AlternationIndex)}" Value="1">
+                </DataTrigger>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Background" Value="#E8E8E8"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Estilos adicionales -->
+        <Style x:Key="MaterialDesignExpander" TargetType="Expander">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Expander">
+                        <ControlTemplate.Resources>
+                            <Storyboard x:Key="ExpandRotateStoryboard">
+                                <DoubleAnimation 
+                                    Storyboard.TargetName="ExpandPathTransform"
+                                    Storyboard.TargetProperty="Angle"
+                                    To="180"
+                                    Duration="0:0:0.2"/>
+                            </Storyboard>
+                            <Storyboard x:Key="CollapseRotateStoryboard">
+                                <DoubleAnimation 
+                                    Storyboard.TargetName="ExpandPathTransform"
+                                    Storyboard.TargetProperty="Angle"
+                                    To="0"
+                                    Duration="0:0:0.2"/>
+                            </Storyboard>
+                        </ControlTemplate.Resources>
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <ToggleButton x:Name="HeaderSite" 
+                                            IsChecked="{Binding IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            Padding="15,10">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" 
+                                                 Text="{TemplateBinding Header}"
+                                                 Foreground="{TemplateBinding Foreground}"
+                                                 FontWeight="SemiBold"/>
+                                        <Path x:Name="ExpandPath" 
+                                              Grid.Column="1"
+                                              Data="M0,0 L10,0 L5,5 Z" 
+                                              Width="10" 
+                                              Height="5" 
+                                              Stretch="Uniform" 
+                                              HorizontalAlignment="Right" 
+                                              VerticalAlignment="Center"
+                                              Fill="{TemplateBinding Foreground}">
+                                            <Path.RenderTransform>
+                                                <RotateTransform x:Name="ExpandPathTransform" Angle="0"/>
+                                            </Path.RenderTransform>
+                                        </Path>
+                                    </Grid>
+                                </ToggleButton>
+                                <ContentPresenter x:Name="ContentPresenter" 
+                                                Grid.Row="1" 
+                                                ContentSource="Content" 
+                                                Visibility="Collapsed"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsExpanded" Value="True">
+                                <Setter TargetName="ContentPresenter" Property="Visibility" Value="Visible"/>
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard Storyboard="{StaticResource ExpandRotateStoryboard}"/>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard Storyboard="{StaticResource CollapseRotateStoryboard}"/>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Foreground" Value="#212121"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="RoundedTextBoxStyle" TargetType="TextBox">
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="15,10"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Grid>
+                            <Border Background="{TemplateBinding Background}"
+                                    CornerRadius="8"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    BorderBrush="{TemplateBinding BorderBrush}">
+                                <ScrollViewer x:Name="PART_ContentHost" 
+                                            Margin="{TemplateBinding Padding}"
+                                            VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="{TemplateBinding Tag}"
+                                     Margin="15,10,0,0"
+                                     Visibility="{Binding Text.IsEmpty, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryDark}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                                <Setter Property="Foreground" Value="{DynamicResource TextSecondaryLight}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                 <!-- Estilos para el modo oscuro -->
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                    <Setter Property="Background" Value="#3A3A3A"/>
+                    <Setter Property="Foreground" Value="{DynamicResource TextPrimaryDark}"/>
+                </DataTrigger>
+                <!-- Estilos para el modo claro -->
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                    <Setter Property="Background" Value="#E8E8E8"/>
+                    <Setter Property="Foreground" Value="{DynamicResource TextPrimaryLight}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="RoundedButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource ButtonBackgroundDark}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ButtonForegroundDark}"/>
+            <Setter Property="Padding" Value="20,10"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="8"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                BorderBrush="{TemplateBinding BorderBrush}">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                            VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <!-- Trigger para hover en tema oscuro -->
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource ButtonHoverDark}"/>
+                </Trigger>
+
+                <!-- DataTrigger para tema claro (colores base) -->
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                     <Setter Property="Background" Value="{DynamicResource ButtonBackgroundLight}"/>
+                     <Setter Property="Foreground" Value="{DynamicResource ButtonForegroundLight}"/>
+                </DataTrigger>
+
+                 <!-- MultiDataTrigger para hover en tema claro -->
+                 <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False"/>
+                        <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}" Value="True"/>
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="Background" Value="{DynamicResource ButtonHoverLight}"/>
+                 </MultiDataTrigger>
+            </Style.Triggers>
         </Style>
     </Window.Resources>
 
-    <Grid>
+    <Grid x:Name="MainGrid">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="AUTO" />
             <ColumnDefinition Width="2" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <!-- Fondo -->
-        <Grid.Background>
-            <ImageBrush x:Name="backgroundFondo" ImageSource="/TFG V0.01;component/Recursos/Background/oscuro/main.png"/>
-        </Grid.Background>
 
-        <!-- Navbar -->
-        <controls:NavbarControl x:Name="navbar" Grid.Column="0" />
+            <!-- Navbar -->
+        <controls:NavbarControl x:Name="navbar" Grid.Column="0" Tag="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}">
+            <controls:NavbarControl.Style>
+                <Style TargetType="controls:NavbarControl">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                            <Setter Property="Foreground" Value="#FFFFFF"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                            <Setter Property="Foreground" Value="#222222"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </controls:NavbarControl.Style>
+        </controls:NavbarControl>
 
         <!-- Claro/Oscuro -->
         <Button x:Name="ThemeButton" Width="35" Height="35" Margin="0" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="ThemeButton_Click" Style="{StaticResource ThemeButtonStyle}" Grid.Column="2"/>
 
         <!-- Contenido principal -->
-        <Grid Grid.Column="2" Margin="20">
+        <Grid Grid.Column="2" Margin="24">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <!-- Header -->
-            <TextBlock Text="Centro de Ayuda" FontSize="24" FontWeight="Bold" Foreground="White" Margin="0,0,0,20"/>
+            <!-- Cabecera -->
+            <Grid Grid.Row="0" Margin="0,10,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock x:Name="txtTituloPrincipal" Text="Ayuda" FontSize="24" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}"/>
+                </StackPanel>
+            </Grid>
 
             <!-- Contenido de ayuda -->
             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                <StackPanel>
-                    <!-- Sección de Preguntas Frecuentes -->
-                    <Border Style="{StaticResource CardStyle}" Margin="0,0,0,20">
-                        <StackPanel>
-                            <TextBlock Text="Preguntas Frecuentes" FontSize="20" FontWeight="Bold" Foreground="White" Margin="0,0,0,15"/>
-                            <Expander Header="¿Cómo buscar jurisprudencia?" Foreground="White" Margin="0,5">
-                                <TextBlock Text="Utiliza la sección de búsqueda de jurisprudencia para encontrar casos relevantes. Puedes filtrar por jurisdicción, tipo de resolución y fecha." 
-                                           TextWrapping="Wrap" Margin="10" Foreground="White"/>
-                            </Expander>
-                            <Expander Header="¿Cómo gestionar casos?" Foreground="White" Margin="0,5">
-                                <TextBlock Text="En la sección de casos puedes crear, editar y dar seguimiento a tus casos. Organiza la información relevante y mantén un registro de las actuaciones." 
-                                           TextWrapping="Wrap" Margin="10" Foreground="White"/>
-                            </Expander>
-                            <Expander Header="¿Cómo administrar clientes?" Foreground="White" Margin="0,5">
-                                <TextBlock Text="La sección de clientes te permite mantener una base de datos organizada de tus clientes, incluyendo información de contacto y casos asociados." 
-                                           TextWrapping="Wrap" Margin="10" Foreground="White"/>
-                            </Expander>
-                        </StackPanel>
+                <StackPanel Orientation="Vertical" Margin="0,0,20,0">
+                    <!-- Secciones principales -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Preguntas Frecuentes Card -->
+                        <Border Grid.Column="0" Style="{StaticResource CardStyle}" Margin="0,0,10,0">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock x:Name="txtPreguntasFrecuentes" Text="Preguntas Frecuentes" FontSize="20" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,15"/>
+                                <StackPanel Grid.Row="1">
+                                    <Expander x:Name="expanderAnadirCaso" Header="¿Cómo puedo añadir un nuevo caso?" Style="{StaticResource MaterialDesignExpander}" Margin="0,0,0,10">
+                                        <TextBlock Text="Para añadir un nuevo caso, haz clic en el botón '+' en la barra superior de la ventana principal. Se abrirá un panel donde podrás introducir los detalles del caso, incluyendo título, descripción, cliente asociado y tipo de caso. También podrás establecer el estado inicial del caso y añadir documentos relacionados." 
+                                                 Style="{StaticResource SecondaryTextStyle}" TextWrapping="Wrap" Margin="10,0,0,0"/>
+                                    </Expander>
+                                    <Expander x:Name="expanderGestionarDocumentos" Header="¿Cómo gestiono los documentos?" Style="{StaticResource MaterialDesignExpander}" Margin="0,0,0,10">
+                                        <TextBlock Text="En la sección de Documentos puedes arrastrar y soltar archivos para subirlos, o usar el botón de subida. Los documentos se organizarán automáticamente por caso y tipo (PDF, imágenes, videos, audios y otros). Puedes filtrar los documentos por cliente, caso, fecha y tipo de archivo. También puedes previsualizar, descargar o eliminar documentos según tus necesidades." 
+                                                 Style="{StaticResource SecondaryTextStyle}" TextWrapping="Wrap" Margin="10,0,0,0"/>
+                                    </Expander>
+                                    <Expander x:Name="expanderGestionarClientes" Header="¿Cómo gestiono los clientes?" Style="{StaticResource MaterialDesignExpander}" Margin="0,0,0,10">
+                                        <TextBlock Text="En la sección de Clientes puedes ver un listado de todos tus clientes. Puedes añadir nuevos clientes con sus datos de contacto, ver su historial de casos, documentos asociados y casos activos. También puedes editar la información de los clientes y gestionar su documentación personal." 
+                                                 Style="{StaticResource SecondaryTextStyle}" TextWrapping="Wrap" Margin="10,0,0,0"/>
+                                    </Expander>
+                                    <Expander x:Name="expanderFuncionaCalendario" Header="¿Cómo funciona el calendario y las citas?" Style="{StaticResource MaterialDesignExpander}" Margin="0,0,0,10">
+                                        <TextBlock Text="El calendario te permite gestionar todas tus citas y eventos. Puedes añadir nuevos eventos asociados a casos específicos, establecer recordatorios y ver un resumen de las próximas actividades. Los eventos se pueden filtrar por caso y estado, y puedes recibir notificaciones de próximas citas." 
+                                                 Style="{StaticResource SecondaryTextStyle}" TextWrapping="Wrap" Margin="10,0,0,0"/>
+                                    </Expander>
+                                    <Expander x:Name="expanderGestionarTareas" Header="¿Cómo gestiono las tareas pendientes?" Style="{StaticResource MaterialDesignExpander}" Margin="0,0,0,10">
+                                        <TextBlock Text="En el panel de inicio puedes ver tus tareas pendientes. Cada tarea puede estar asociada a un caso específico y tiene un estado (Pendiente, En progreso, Finalizado). Puedes crear nuevas tareas, actualizar su estado y establecer fechas límite. Las tareas pendientes se muestran en el dashboard para un seguimiento rápido." 
+                                                 Style="{StaticResource SecondaryTextStyle}" TextWrapping="Wrap" Margin="10,0,0,0"/>
+                                    </Expander>
+                                    <Expander x:Name="expanderCambiarTema" Header="¿Cómo cambio entre modo claro y oscuro?" Style="{StaticResource MaterialDesignExpander}" Margin="0,0,0,10">
+                                        <TextBlock Text="Puedes cambiar entre los modos claro y oscuro usando el botón de tema ubicado en la esquina inferior derecha de la aplicación. El modo se guardará automáticamente y se aplicará en todas las ventanas de la aplicación." 
+                                                 Style="{StaticResource SecondaryTextStyle}" TextWrapping="Wrap" Margin="10,0,0,0"/>
+                                    </Expander>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <!-- Guías Rápidas Card -->
+                        <Border Grid.Column="1" Style="{StaticResource CardStyle}" Margin="10,0,0,0">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock x:Name="txtGuiasRapidas" Text="Guías Rápidas" FontSize="20" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,15"/>
+                                <ItemsControl x:Name="GuiasRapidasItemsControl" Grid.Row="1" Margin="0,0,10,0">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Style="{StaticResource ListItemContainerStyle}">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Image Source="{Binding Icon}" Width="24" Height="24" Margin="0,0,10,0"/>
+                                                    <StackPanel Grid.Column="1">
+                                                        <TextBlock Text="{Binding Title}" Style="{StaticResource PrimaryTextStyle}" FontWeight="SemiBold"/>
+                                                        <TextBlock Text="{Binding Description}" Style="{StaticResource SecondaryTextStyle}" TextWrapping="Wrap" Margin="0,5,0,0"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Grid>
+                        </Border>
+                    </Grid>
+
+                    <!-- Sección de consejos y mejores prácticas -->
+                    <Border Style="{StaticResource CardStyle}" Margin="0,20,0,0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock x:Name="txtConsejosPracticas" Text="Consejos y Mejores Prácticas" FontSize="20" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,15"/>
+                            <Grid Grid.Row="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <!-- Consejos de organización -->
+                                <StackPanel x:Name="ConsejosOrganizacion" Grid.Column="0" Margin="0,0,20,0">
+                                    <TextBlock x:Name="txtOrganizacionEficiente" Text="Organización Eficiente" FontSize="16" FontWeight="SemiBold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,10"/>
+                                    <TextBlock Text="• Mantén los nombres de los casos claros y descriptivos" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,5"/>
+                                    <TextBlock Text="• Utiliza etiquetas y estados para categorizar casos" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,5"/>
+                                    <TextBlock Text="• Actualiza regularmente el estado de tus casos" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,5"/>
+                                    <TextBlock Text="• Organiza los documentos por tipo y fecha" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,5"/>
+                                    <TextBlock Text="• Establece recordatorios para fechas importantes" Style="{StaticResource SecondaryTextStyle}"/>
+                                </StackPanel>
+
+                                <!-- Consejos de uso -->
+                                <StackPanel x:Name="ConsejosUso" Grid.Column="1">
+                                    <TextBlock x:Name="txtOptimizacionUso" Text="Optimización del Uso" FontSize="16" FontWeight="SemiBold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,10"/>
+                                    <TextBlock Text="• Utiliza los filtros para encontrar información rápidamente" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,5"/>
+                                    <TextBlock Text="• Mantén actualizada la información de los clientes" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,5"/>
+                                    <TextBlock Text="• Revisa regularmente el dashboard para tareas pendientes" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,5"/>
+                                    <TextBlock Text="• Utiliza el calendario para planificar citas" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,5"/>
+                                    <TextBlock Text="• Realiza copias de seguridad de documentos importantes" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,15"/>
+                                </StackPanel>
+                            </Grid>
+                        </Grid>
                     </Border>
 
-                    <!-- Sección de Contacto -->
-                    <Border Style="{StaticResource CardStyle}">
-                        <StackPanel>
-                            <TextBlock Text="Contacto y Soporte" FontSize="20" FontWeight="Bold" Foreground="White" Margin="0,0,0,15"/>
-                            <TextBlock Text="Si necesitas ayuda adicional, puedes contactarnos a través de:" Foreground="White" Margin="0,0,0,10"/>
-                            <StackPanel Margin="0,10">
-                                <TextBlock Text="📧 Email: soporte@ejemplo.com" Foreground="White" Margin="0,5"/>
-                                <TextBlock Text="📞 Teléfono: +34 900 123 456" Foreground="White" Margin="0,5"/>
-                                <TextBlock Text="⏰ Horario: Lunes a Viernes, 9:00 - 18:00" Foreground="White" Margin="0,5"/>
-                            </StackPanel>
-                        </StackPanel>
+                    <!-- Sección de contacto -->
+                    <Border Style="{StaticResource CardStyle}" Margin="0,20,0,0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock x:Name="txtNecesitasAyuda" Text="¿Necesitas más ayuda?" FontSize="20" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,15"/>
+                            <Grid Grid.Row="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <!-- Información de contacto -->
+                                <StackPanel x:Name="InfoContacto" Grid.Column="0" Margin="0,0,20,0">
+                                    <TextBlock x:Name="txtContacto" Text="Contacto" FontSize="16" FontWeight="SemiBold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,10"/>
+                                    <TextBlock Text="Email: soporte@tfgapp.com" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,5"/>
+                                    <TextBlock Text="Teléfono: +34 900 123 456" Style="{StaticResource SecondaryTextStyle}" Margin="0,0,0,5"/>
+                                    <TextBlock Text="Horario: L-V 11:00 - 14:00" Style="{StaticResource SecondaryTextStyle}"/>
+                                </StackPanel>
+
+                                <!-- Formulario de contacto -->
+                                <StackPanel Grid.Column="1" Margin="0,0,10,0">
+                                    <TextBlock x:Name="txtEnvianosMensaje" Text="Envíanos un mensaje" FontSize="16" FontWeight="SemiBold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,10"/>
+                                    <TextBox x:Name="NombreTextBox" Style="{StaticResource RoundedTextBoxStyle}" Margin="0,0,0,10" Tag="Tu nombre"/>
+                                    <TextBox x:Name="EmailTextBox" Style="{StaticResource RoundedTextBoxStyle}" Margin="0,0,0,10" Tag="Tu email"/>
+                                    <TextBox x:Name="MensajeTextBox" Style="{StaticResource RoundedTextBoxStyle}" Height="100" TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,20" Tag="Tu mensaje"/>
+                                    <Button x:Name="btnEnviarMensaje" 
+                                            Click="EnviarMensaje_Click"
+                                            Style="{StaticResource RoundedButtonStyle}" 
+                                            Height="40" 
+                                            Width="200"
+                                            Background="#007AFF"
+                                            Foreground="White"
+                                            FontWeight="SemiBold"
+                                            FontSize="15"
+                                            HorizontalAlignment="Right"
+                                            Margin="0,0,0,15">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Source="/TFG V0.01;component/Recursos/Iconos/whatsapp.png" Width="20" Height="20" Margin="0,0,5,0"/>
+                                            <TextBlock Text="Enviar mensaje"/>
+                                            <Image Source="/TFG V0.01;component/Recursos/Iconos/email.png" Width="20" Height="20" Margin="5,0,0,0"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                            </Grid>
+                        </Grid>
                     </Border>
                 </StackPanel>
             </ScrollViewer>
+
+            <!-- Footer -->
+            <Border Grid.Row="2" CornerRadius="10" Padding="15" Margin="0,20,0,0">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Background">
+                            <Setter.Value>
+                                <SolidColorBrush Color="#303030" Opacity="0.7"/>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                <Setter Property="Background" Value="#E8E8E8"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <Grid>
+                    <TextBlock x:Name="txtCopyright" Text="© 2025 TFG" Style="{StaticResource SecondaryTextStyle}" VerticalAlignment="Center" Margin="20,0,0,0" FontWeight="Bold" FontSize="15"/>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,20,0">
+                        <TextBlock x:Name="txtVersion" Text="Versión: " Style="{StaticResource SecondaryTextStyle}" VerticalAlignment="Center" HorizontalAlignment="Right" FontWeight="Bold" FontSize="15"/>
+                        <TextBlock Text="0.1" Style="{StaticResource SecondaryTextStyle}" VerticalAlignment="Center" HorizontalAlignment="Right" FontWeight="Bold" FontSize="15"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
         </Grid>
     </Grid>
 </Window>

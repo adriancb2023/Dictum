@@ -42,7 +42,28 @@
     </UserControl.Resources>
 
     <Grid x:Name="menu" Visibility="Visible" MouseEnter="Menu_MouseEnter" MouseLeave="Menu_MouseLeave">
-        <Border x:Name="backgroun_menu" BorderBrush="#454545" BorderThickness="0" Margin="0,0,0,0" CornerRadius="15" Background="#30FFFFFF" VerticalAlignment="Center">
+        <Border x:Name="backgroun_menu" BorderBrush="#454545" BorderThickness="0" Margin="0,0,0,0" CornerRadius="15" VerticalAlignment="Center">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Background">
+                        <Setter.Value>
+                            <SolidColorBrush Color="#282828" Opacity="0.8"/>
+                        </Setter.Value>
+                    </Setter>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                            <Setter Property="Background" Value="#F0F0F0"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                            <Setter Property="Background">
+                                <Setter.Value>
+                                    <SolidColorBrush Color="#282828" Opacity="0.8"/>
+                                </Setter.Value>
+                            </Setter>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
             <Border.Effect>
                 <DropShadowEffect BlurRadius="15" Direction="-90" 
                                 RenderingBias="Quality" ShadowDepth="2" 
@@ -83,6 +104,12 @@
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0">
                         <Image x:Name="imagenDocumentos2" Source="/TFG V0.01;component/Recursos/Iconos/documentos.png" Width="25" Height="25"/>
                         <TextBlock x:Name="documentos" Visibility="Collapsed" Text="Documentos" VerticalAlignment="Center" Margin="10,0"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="btnGpt" Margin="10" Style="{StaticResource RoundedButtonStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="Transparent" Click="irGPT">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0">
+                        <Image x:Name="imagenGpt" Source="/TFG V0.01;component/Recursos/Iconos/ia2.png" Width="25" Height="25"/>
+                        <TextBlock x:Name="GPT" Visibility="Collapsed" Text="GPT" VerticalAlignment="Center" Margin="10,0"/>
                     </StackPanel>
                 </Button>
                 <Button x:Name="btnAjustes" Margin="10" Style="{StaticResource RoundedButtonStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="Transparent" Click="irAjustes" >

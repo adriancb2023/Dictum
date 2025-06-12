@@ -139,23 +139,7 @@ namespace TFG_V0._01.Ventanas
         {
             this.Tag = MainWindow.isDarkTheme;
            
-            // Cambiar fondo mesh gradient
-            if (MainWindow.isDarkTheme)
-            {
-               // Colores mesh oscuro
-               mesh1Brush.GradientStops[0].Color = (Color)ColorConverter.ConvertFromString("#8C7BFF");
-               mesh1Brush.GradientStops[1].Color = (Color)ColorConverter.ConvertFromString("#08a693");
-               mesh2Brush.GradientStops[0].Color = (Color)ColorConverter.ConvertFromString("#3a4d5f");
-               mesh2Brush.GradientStops[1].Color = (Color)ColorConverter.ConvertFromString("#272c3f");
-            }
-            else
-            {
-               // Colores mesh claro
-               mesh1Brush.GradientStops[0].Color = (Color)ColorConverter.ConvertFromString("#de9cb8");
-               mesh1Brush.GradientStops[1].Color = (Color)ColorConverter.ConvertFromString("#9dcde1");
-               mesh2Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#dc8eb8"), 0));
-               mesh2Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#98d3ec"), 1));
-            }
+            // Los brushes se crean/actualizan en CrearBrushesParaTema() o CrearFondoAnimado()
            
            // Crear nuevos estilos dinámicamente para textos
            var primaryTextStyle = new Style(typeof(TextBlock));
@@ -191,7 +175,10 @@ namespace TFG_V0._01.Ventanas
             // Alternar el estado del tema
             MainWindow.isDarkTheme = !MainWindow.isDarkTheme;
 
-            // Obtener el botón y el icono
+            // Crear nuevos brushes con los colores del tema actual
+            CrearBrushesParaTema();
+            
+            // Aplicar el resto de cambios de tema
             AplicarModoSistema();
             var fadeAnimation = CrearFadeAnimation(0.7, 0.9, 0.3, true);
             this.BeginAnimation(OpacityProperty, fadeAnimation);
@@ -753,8 +740,7 @@ namespace TFG_V0._01.Ventanas
             mesh1Brush.RadiusY = 0.5;
             mesh1Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#de9cb8"), 0));
             mesh1Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#9dcde1"), 1));
-            mesh1Brush.Freeze();
-            mesh1Brush = mesh1Brush.Clone();
+            // NO congelar aquí para permitir modificaciones posteriores
 
             mesh2Brush = new RadialGradientBrush();
             mesh2Brush.Center = new Point(0.7, 0.7);
@@ -762,10 +748,50 @@ namespace TFG_V0._01.Ventanas
             mesh2Brush.RadiusY = 0.6;
             mesh2Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#dc8eb8"), 0));
             mesh2Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#98d3ec"), 1));
-            mesh2Brush.Freeze();
-            mesh2Brush = mesh2Brush.Clone();
+            // NO congelar aquí para permitir modificaciones posteriores
 
             // Crear el DrawingBrush
+            var drawingGroup = new DrawingGroup();
+            drawingGroup.Children.Add(new GeometryDrawing(mesh1Brush, null, new RectangleGeometry(new Rect(0, 0, 1, 1))));
+            drawingGroup.Children.Add(new GeometryDrawing(mesh2Brush, null, new RectangleGeometry(new Rect(0, 0, 1, 1))));
+            var meshGradientBrush = new DrawingBrush(drawingGroup) { Stretch = Stretch.Fill };
+            ((Grid)this.Content).Background = meshGradientBrush;
+        }
+
+        private void CrearBrushesParaTema()
+        {
+            // Detener la animación actual si existe
+            meshAnimStoryboard?.Stop();
+            
+            // Crear nuevos brushes con los colores del tema actual
+            mesh1Brush = new RadialGradientBrush();
+            mesh1Brush.Center = new Point(0.3, 0.3);
+            mesh1Brush.RadiusX = 0.5;
+            mesh1Brush.RadiusY = 0.5;
+
+            mesh2Brush = new RadialGradientBrush();
+            mesh2Brush.Center = new Point(0.7, 0.7);
+            mesh2Brush.RadiusX = 0.6;
+            mesh2Brush.RadiusY = 0.6;
+
+            if (MainWindow.isDarkTheme)
+            {
+                // Colores mesh oscuro
+                mesh1Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#8C7BFF"), 0));
+                mesh1Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#08a693"), 1));
+                mesh2Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#3a4d5f"), 0));
+                mesh2Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#272c3f"), 1));
+            }
+            else
+            {
+                // Colores mesh claro
+                mesh1Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#de9cb8"), 0));
+                mesh1Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#9dcde1"), 1));
+                mesh2Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#dc8eb8"), 0));
+                mesh2Brush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#98d3ec"), 1));
+            }
+
+            // Crear el nuevo DrawingBrush y aplicarlo al fondo
             var drawingGroup = new DrawingGroup();
             drawingGroup.Children.Add(new GeometryDrawing(mesh1Brush, null, new RectangleGeometry(new Rect(0, 0, 1, 1))));
             drawingGroup.Children.Add(new GeometryDrawing(mesh2Brush, null, new RectangleGeometry(new Rect(0, 0, 1, 1))));
@@ -928,8 +954,8 @@ namespace TFG_V0._01.Ventanas
             LocalizacionesJerarquicas = new ObservableCollection<ComunidadAutonomaFrontend>();
             this.DataContext = this;
 
-            // Inicializar brushes para el mesh gradient
-            CrearFondoAnimado();
+            // Inicializar brushes para el mesh gradient con los colores del tema actual
+            CrearBrushesParaTema();
             IniciarAnimacionMesh();
 
             InitializeAnimations();

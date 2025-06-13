@@ -826,11 +826,6 @@ namespace TFG_V0._01.Ventanas
                     // Usar solo el nombre del archivo para la descarga
                     string nombreArchivo = System.IO.Path.GetFileName(doc.ruta.Replace("\\", "/"));
 
-                    // Mostrar los archivos reales en Supabase antes de descargar
-                    var archivos = await storage.ListarArchivosAsync("documentos");
-                    string archivosLista = string.Join("\n", archivos.Select(a => a.Name));
-                    MessageBox.Show($"Nombre a buscar: '{nombreArchivo}'\n\nArchivos reales en Supabase:\n{archivosLista}", "Comparación de nombres");
-
                     string tempPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), nombreArchivo);
 
                     // Descargar el archivo como byte[] desde Supabase

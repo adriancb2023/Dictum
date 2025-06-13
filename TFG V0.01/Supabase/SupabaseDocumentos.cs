@@ -34,7 +34,6 @@ namespace TFG_V0._01.Supabase
 
         public async Task InsertarAsync(Documento.DocumentoInsertDto dto)
         {
-            MessageBox.Show(Newtonsoft.Json.JsonConvert.SerializeObject(dto), "DEBUG DTO antes de insertar");
             try
             {
                 var doc = new Documento

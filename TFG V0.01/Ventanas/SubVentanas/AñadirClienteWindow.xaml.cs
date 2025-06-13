@@ -217,7 +217,13 @@ namespace TFG_V0._01.Ventanas.SubVentanas
             string letras = "TRWAGMYFPDXBNJZSQVHLCKE";
             if (!int.TryParse(dni.Substring(0, 8), out int numero)) return false;
             char letraEsperada = letras[numero % 23];
-            return char.ToUpper(dni[8]) == letraEsperada;
+            char letraIntroducida = char.ToUpper(dni[8]);
+            if (letraIntroducida != letraEsperada)
+            {
+                MessageBox.Show($"La letra correcta para el DNI {dni.Substring(0, 8)} es '{letraEsperada}', no '{letraIntroducida}'", "Letra de DNI incorrecta", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+            return true;
         }
 
         private bool IsValidNie(string nie)

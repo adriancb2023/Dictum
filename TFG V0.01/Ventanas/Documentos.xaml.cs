@@ -494,17 +494,20 @@ namespace TFG_V0._01.Ventanas
                 var clienteSeleccionado = ComboClientesPanel.SelectedItem as TFG_V0._01.Supabase.Models.Cliente;
                 var casoSeleccionado = ComboCasosPanel.SelectedItem as TFG_V0._01.Supabase.Models.Caso;
 
+                // Restaurar el nombre original del archivo (con espacios)
+                string extension = System.IO.Path.GetExtension(filePath);
+                string originalName = System.IO.Path.GetFileNameWithoutExtension(filePath);
+                string uniqueName = $"{originalName}_{Guid.NewGuid()}{extension}";
+                
                 // Subir archivo a Supabase Storage
                 var storage = new TFG_V0._01.Supabase.SupaBaseStorage();
                 await storage.InicializarAsync();
-                string extension = System.IO.Path.GetExtension(filePath);
-                string uniqueName = $"{System.IO.Path.GetFileNameWithoutExtension(filePath)}_{Guid.NewGuid()}{extension}";
                 string storagePath = await storage.SubirArchivoAsync("documentos", filePath, uniqueName);
 
                 // Guardar registro en la base de datos
                 var documento = new TFG_V0._01.Supabase.Models.Documento.DocumentoInsertDto
                 {
-                    nombre = System.IO.Path.GetFileNameWithoutExtension(filePath),
+                    nombre = originalName,
                     ruta = storagePath,
                     fecha_subid = DateTime.Now,
                     id_caso = casoSeleccionado.id,

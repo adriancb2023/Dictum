@@ -429,7 +429,6 @@
         <!-- Claro/Oscuro  -->
         <Button x:Name="ThemeButton" Width="35" Height="35" Margin="0" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="ThemeButton_Click" Style="{StaticResource ThemeButtonStyle}" Grid.Column="2"/>
 
-
         <!-- Contenido -->
         <!-- Dashboard Content for Grid Column="2" -->
         <Grid x:Name="ContentGrid" Grid.Column="2" Margin="20">
@@ -641,7 +640,9 @@
                   Background="#80000000" 
                   Panel.ZIndex="999"
                   Visibility="Collapsed"
-                  MouseDown="OverlayPanel_MouseDown"/>
+                  MouseDown="OverlayPanel_MouseDown" Margin="-68,-22,-20,-20">
+                
+            </Grid>
 
             <!-- Cabeceras -->
             <Grid Grid.Row="0" Margin="0,10,0,20">

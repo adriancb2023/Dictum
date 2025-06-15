@@ -13,7 +13,7 @@
         WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
-        
+
         <!-- Colores para modo oscuro -->
         <SolidColorBrush x:Key="BackgroundDark" Color="#1a1a1a"/>
         <SolidColorBrush x:Key="BackgroundSecondaryDark" Color="#2d2d2d"/>
@@ -22,7 +22,7 @@
         <SolidColorBrush x:Key="TextPrimaryDark" Color="#FFFFFF"/>
         <SolidColorBrush x:Key="TextSecondaryDark" Color="#CCFFFFFF"/>
         <SolidColorBrush x:Key="BorderColorDark" Color="#40FFFFFF"/>
-        
+
         <!-- Colores para modo claro -->
         <SolidColorBrush x:Key="BackgroundLight" Color="#f0f0f0"/>
         <SolidColorBrush x:Key="BackgroundSecondaryLight" Color="#f5f5f5"/>
@@ -73,7 +73,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        
+
         <!-- Botones redondeados -->
         <Style x:Key="RoundedButtonStyle" TargetType="{x:Type Button}">
             <Setter Property="Background" Value="#FFFFFF"/>
@@ -105,7 +105,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        
+
         <!-- Estilo de botón redondeado que cambia con el tema -->
         <Style x:Key="ThemeAwareRoundedButtonStyle" TargetType="{x:Type Button}">
             <Setter Property="Background" Value="#30FFFFFF"/>
@@ -172,7 +172,7 @@
 
         <!-- Easing para suavizar la animación -->
         <QuadraticEase x:Key="SmoothEase" EasingMode="EaseInOut" />
-        
+
         <!-- ModernComboBoxStyle - Basado en Casos.xaml -->
         <Style x:Key="ModernComboBoxStyle" TargetType="ComboBox">
             <Setter Property="Background" Value="#30FFFFFF"/>
@@ -630,13 +630,13 @@
     </Window.Resources>
 
     <Grid>
-        
+
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="AUTO" />
             <ColumnDefinition Width="2" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        
+
         <!-- Fondo -->
         <Grid.Background>
             <DrawingBrush x:Name="meshGradientBrush" Stretch="Fill">
@@ -662,14 +662,14 @@
                 </DrawingBrush.Drawing>
             </DrawingBrush>
         </Grid.Background>
-        
+
         <!-- Navbar -->
         <controls:NavbarControl x:Name="navbar" Grid.Column="0">
             <controls:NavbarControl.Effect>
                 <DropShadowEffect BlurRadius="20" ShadowDepth="0" Color="Black" Opacity="0.3"/>
             </controls:NavbarControl.Effect>
         </controls:NavbarControl>
-        
+
         <!-- Claro/Oscuro -->
         <Button x:Name="ThemeButton" Width="35" Height="35" Margin="0" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="ThemeButton_Click" Style="{StaticResource ThemeButtonStyle}" Grid.Column="2"/>
 
@@ -741,7 +741,7 @@
 
                     <TextBlock Grid.Column="1" x:Name="ClienteNombreHeader" Text="{Binding SelectedCliente.nombre_cliente}" Style="{StaticResource PrimaryTextStyle}" FontSize="24" FontWeight="Bold" VerticalAlignment="Center" TextWrapping="Wrap"/>
                 </Grid>
-                
+
                 <!-- Contenido de los detalles -->
                 <ScrollViewer  Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="0,20,0,0">
                     <Grid>
@@ -785,7 +785,7 @@
                                 <Border x:Name="EditPersonalInfoPanel" Style="{StaticResource EditPanelStyle}" Visibility="{Binding IsEditPersonalInfoVisible, Converter={StaticResource BoolToVisibilityConverter}}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
                                     <StackPanel>
                                         <TextBlock Text="{Binding EditFechaContrato, StringFormat='Fecha de contrato: {0:dd/MM/yyyy}'}" Style="{StaticResource PrimaryTextStyle}" FontWeight="Bold" FontSize="16" Margin="0,0,0,20"/>
-                                        
+
                                         <StackPanel Style="{StaticResource EditFieldStyle}">
                                             <TextBlock x:Name="nombremod" Text="Nombre:" Style="{StaticResource EditLabelStyle}"/>
                                             <TextBox Text="{Binding EditNombre, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource EditTextBoxStyle}"/>
@@ -952,11 +952,10 @@
 
             <!-- Overlay para cerrar al hacer clic fuera -->
             <Grid x:Name="OverlayPanel" 
-                  Grid.RowSpan="3" 
                   Background="#80000000" 
                   Panel.ZIndex="999"
                   Visibility="Collapsed"
-                  MouseDown="OverlayPanel_MouseDown"/>
+                  MouseDown="OverlayPanel_MouseDown" Margin="-67,-20,-21,-20"/>
 
             <!-- Panel deslizante para detalles del caso -->
             <Grid x:Name="SlidePanelDetalles" 

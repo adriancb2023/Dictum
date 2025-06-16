@@ -829,7 +829,7 @@ namespace TFG_V0._01.Ventanas
                     string tempPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), nombreArchivo);
 
                     // Descargar el archivo como byte[] desde Supabase
-                    var fileBytes = await storage.DescargarArchivoAsync("documentos", rutaRelativa);
+                    var fileBytes = await storage.DescargarArchivoAsync("documentos", System.IO.Path.GetFileName(rutaRelativa));
 
                     // Guardar en una ruta temporal
                     await System.IO.File.WriteAllBytesAsync(tempPath, fileBytes);

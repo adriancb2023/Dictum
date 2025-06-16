@@ -978,7 +978,7 @@
                                     </ItemsControl>
                                 </ScrollViewer>
 
-                                <Button x:Name="btnAñadirTarea" Grid.Row="2" Content="+ Añadir Tarea" Style="{StaticResource ThemeAwareRoundedButtonStyle}" Margin="0,15,0,0" Click="btnAñadirTarea_Click"/>
+                                <Button x:Name="btnAñadirTarea" Grid.Row="2" Content="+ Añadir Tarea" Style="{StaticResource ThemeAwareRoundedButtonStyle}" Margin="0,15,0,0" Foreground="White" Background="#2196F3" Click="btnAñadirTarea_Click"/>
                             </Grid>
                         </Border>
 

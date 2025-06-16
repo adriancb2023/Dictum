@@ -1048,7 +1048,20 @@
                                                         <StackPanel Grid.Column="4" Orientation="Horizontal">
 
                                                             <Button Style="{StaticResource ThemeAwareRoundedButtonStyle}" Width="35" Height="35" Margin="0,0,5,0" Click="MostrarDetallesCaso_Click">
-                                                                <Image Source="/TFG V0.01;component/Recursos/Iconos/ver.png" Width="15" Height="15"/>
+                                                                <Image Width="15" Height="15">
+                                                                    <Image.Style>
+                                                                        <Style TargetType="Image">
+                                                                            <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/ver.png"/>
+                                                                            <!-- Icono modo oscuro -->
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
+                                                                                    <!-- Modo claro -->
+                                                                                    <Setter Property="Source" Value="/TFG V0.01;component/Recursos/Iconos/ver2.png"/>
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </Image.Style>
+                                                                </Image>
                                                             </Button>
 
                                                         </StackPanel>

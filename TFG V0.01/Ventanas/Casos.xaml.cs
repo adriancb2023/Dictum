@@ -562,7 +562,6 @@ namespace TFG_V0._01.Ventanas
         private void ThemeButton_Click(object sender, RoutedEventArgs e)
         {
             MainWindow.isDarkTheme = !MainWindow.isDarkTheme;
-
             AplicarModoSistema();
         }
         #endregion

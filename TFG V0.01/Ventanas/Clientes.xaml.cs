@@ -428,14 +428,8 @@ namespace TFG_V0._01.Ventanas
             // Alternar el estado del tema
             MainWindow.isDarkTheme = !MainWindow.isDarkTheme;
             AplicarModoSistema();
-            // Puedes añadir una animación de fade para la ventana si quieres
-            var fadeAnimation = new DoubleAnimation
-            {
-                From = 0.7, // o el valor actual
-                To = 1,
-                Duration = TimeSpan.FromMilliseconds(300) // duración de la transición
-            };
-            this.BeginAnimation(OpacityProperty, fadeAnimation);
+            // Aplicar el resto de cambios de tema
+            AplicarModoSistema();
         }
 
         #endregion

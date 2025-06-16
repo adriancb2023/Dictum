@@ -237,7 +237,7 @@ namespace TFG_V0._01.Ventanas
             MainWindow.isDarkTheme = !MainWindow.isDarkTheme;
             AplicarTema();
 
-            var fadeAnimation = CrearFadeAnimation(0.7, 0.9, 0.3, true);
+            // var fadeAnimation = CrearFadeAnimation(0.7, 0.9, 0.3, true);
         }
         #endregion
 

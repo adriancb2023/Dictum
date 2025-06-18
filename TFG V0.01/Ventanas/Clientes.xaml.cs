@@ -823,13 +823,13 @@ namespace TFG_V0._01.Ventanas
                     var storage = new TFG_V0._01.Supabase.SupaBaseStorage();
                     await storage.InicializarAsync();
 
-                    // Usar la ruta relativa completa (por si hay subcarpetas)
-                    string rutaRelativa = doc.ruta;
-                    string nombreArchivo = System.IO.Path.GetFileName(rutaRelativa);
+                    // Usar solo el nombre del archivo para la descarga
+                    string nombreArchivo = System.IO.Path.GetFileName(doc.ruta.Replace("\\", "/"));
+
                     string tempPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), nombreArchivo);
 
                     // Descargar el archivo como byte[] desde Supabase
-                    var fileBytes = await storage.DescargarArchivoAsync("documentos", System.IO.Path.GetFileName(rutaRelativa));
+                    var fileBytes = await storage.DescargarArchivoAsync("documentos", nombreArchivo);
 
                     // Guardar en una ruta temporal
                     await System.IO.File.WriteAllBytesAsync(tempPath, fileBytes);
@@ -854,7 +854,6 @@ namespace TFG_V0._01.Ventanas
             {
                 try
                 {
-                    // Crear el SaveFileDialog para que el usuario elija la ubicación
                     var saveFileDialog = new Microsoft.Win32.SaveFileDialog
                     {
                         FileName = doc.nombre + doc.extension_archivo,
@@ -864,15 +863,14 @@ namespace TFG_V0._01.Ventanas
 
                     if (saveFileDialog.ShowDialog() == true)
                     {
-                        // Inicializar Supabase Storage
                         var storage = new TFG_V0._01.Supabase.SupaBaseStorage();
                         await storage.InicializarAsync();
 
-                        // Usar la ruta relativa completa (por si hay subcarpetas)
-                        string rutaRelativa = doc.ruta;
+                        // Usar solo el nombre del archivo para la descarga
+                        string nombreArchivo = System.IO.Path.GetFileName(doc.ruta.Replace("\\", "/"));
 
                         // Descargar el archivo como byte[] desde Supabase
-                        var fileBytes = await storage.DescargarArchivoAsync("documentos", rutaRelativa);
+                        var fileBytes = await storage.DescargarArchivoAsync("documentos", nombreArchivo);
 
                         // Guardar el archivo en la ubicación seleccionada
                         await System.IO.File.WriteAllBytesAsync(saveFileDialog.FileName, fileBytes);
@@ -1022,6 +1020,30 @@ namespace TFG_V0._01.Ventanas
             PopupTipo.Text = t.Tipo;
             PopupEstado.Text = t.Estado;
             PopupFecha.Text = t.Subido;
+        }
+
+        // Método temporal de depuración para comparar nombres de archivos
+        private async void DebugCompararNombreDocumento(Documento doc)
+        {
+            try
+            {
+                var storage = new TFG_V0._01.Supabase.SupaBaseStorage();
+                await storage.InicializarAsync();
+                var archivos = await storage.ListarArchivosAsync("documentos");
+                string nombreBD = System.IO.Path.GetFileName(doc.ruta ?? "").Trim();
+                string resultado = $"Nombre en BD: '{nombreBD}'\n\nArchivos en Supabase:\n";
+                foreach (var archivo in archivos)
+                {
+                    resultado += $"'{archivo.Name}'\n";
+                    if (archivo.Name.Trim() == nombreBD)
+                        resultado += "--> ¡COINCIDE!\n";
+                }
+                MessageBox.Show(resultado, "Comparación de nombres de archivo");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error en depuración: {ex.Message}");
+            }
         }
     }
 }

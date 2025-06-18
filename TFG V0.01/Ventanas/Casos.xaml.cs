@@ -1771,9 +1771,10 @@ namespace TFG_V0._01.Ventanas
                     var storage = new TFG_V0._01.Supabase.SupaBaseStorage();
                     await storage.InicializarAsync();
                     // Descargar el archivo desde Supabase Storage usando solo el nombre del archivo
-                    var fileBytes = await storage.DescargarArchivoAsync("documentos", IOPath.GetFileName(doc.ruta));
+                    string nombreArchivo = IOPath.GetFileName(doc.ruta.Replace("\\", "/"));
+                    var fileBytes = await storage.DescargarArchivoAsync("documentos", nombreArchivo);
                     // Guardar en una ruta temporal
-                    string tempPath = IOPath.Combine(IOPath.GetTempPath(), IOPath.GetFileName(doc.ruta));
+                    string tempPath = IOPath.Combine(IOPath.GetTempPath(), nombreArchivo);
                     await File.WriteAllBytesAsync(tempPath, fileBytes);
                     // Abrir el archivo
                     System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
@@ -1795,7 +1796,6 @@ namespace TFG_V0._01.Ventanas
             {
                 try
                 {
-                    // Create a SaveFileDialog to let the user choose where to save the file
                     var saveFileDialog = new Microsoft.Win32.SaveFileDialog
                     {
                         FileName = doc.nombre + doc.extension_archivo,
@@ -1805,16 +1805,13 @@ namespace TFG_V0._01.Ventanas
 
                     if (saveFileDialog.ShowDialog() == true)
                     {
-                        // Initialize Supabase Storage
                         var storage = new TFG_V0._01.Supabase.SupaBaseStorage();
                         await storage.InicializarAsync();
-
-                        // Download the file from Supabase Storage usando solo el nombre del archivo
-                        var fileBytes = await storage.DescargarArchivoAsync("documentos", IOPath.GetFileName(doc.ruta));
-
-                        // Save the file to the selected location
+                        // Descargar el archivo desde Supabase Storage usando solo el nombre del archivo
+                        string nombreArchivo = IOPath.GetFileName(doc.ruta.Replace("\\", "/"));
+                        var fileBytes = await storage.DescargarArchivoAsync("documentos", nombreArchivo);
+                        // Guardar el archivo en la ubicación seleccionada
                         await File.WriteAllBytesAsync(saveFileDialog.FileName, fileBytes);
-
                         MessageBox.Show("Documento descargado correctamente.", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                 }

@@ -82,12 +82,18 @@ namespace TFG_V0._01.Supabase
             try
             {
                 ValidarNombreCuboYArchivo(bucketName, fileName);
+
+                // Comprobar si el archivo existe antes de descargar
+                var archivo = await BuscarArchivoEnCuboAsync(bucketName, fileName);
+                if (archivo == null)
+                    throw new FileNotFoundException($"El archivo '{fileName}' no existe en el bucket '{bucketName}'.");
+
                 var bucket = _storageClient.From(bucketName);
                 return await bucket.Download(fileName, (TransformOptions)null);
             }
             catch (Exception ex)
             {
-                throw new SupabaseStorageException("Error al descargar el archivo desde Supabase.", ex);
+                throw new SupabaseStorageException($"Error al descargar el archivo desde Supabase: {ex.Message}", ex);
             }
         }
 

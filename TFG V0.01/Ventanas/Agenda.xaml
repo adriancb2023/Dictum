@@ -650,6 +650,9 @@
 
                 <!-- Calendario y Eventos del día seleccionado -->
                 <Border Style="{StaticResource CardStyle}" Grid.Column="0" Margin="0,0,10,0">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="15" Direction="-90" RenderingBias="Quality" ShadowDepth="2" Color="#20000000"/>
+                    </Border.Effect>
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -711,6 +714,9 @@
 
                 <!-- Eventos de hoy -->
                 <Border Style="{StaticResource CardStyle}" Grid.Column="1" Margin="10,0">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="15" Direction="-90" RenderingBias="Quality" ShadowDepth="2" Color="#20000000"/>
+                    </Border.Effect>
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -766,7 +772,10 @@
                 </Border>
 
                 <!-- Lista de contactos -->
-                <Border Style="{StaticResource CardStyle}" Grid.Column="2" Margin="10,0,0,0">
+                <Border Style="{StaticResource CardStyle}" Grid.Column="2" Margin="10,0,5,0">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="15" Direction="-90" RenderingBias="Quality" ShadowDepth="2" Color="#20000000"/>
+                    </Border.Effect>
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -842,6 +851,7 @@
                         <Button x:Name="btnNuevoContacto" Grid.Row="2" Content="Nuevo Contacto" Style="{StaticResource RoundedButtonStyle}" Margin="0,15,0,0" Click="NuevoContactoButton_Click"/>
                     </Grid>
                 </Border>
+                
             </Grid>
         </Grid>
 

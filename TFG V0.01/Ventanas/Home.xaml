@@ -420,7 +420,7 @@
         <Grid.Background>
             <DrawingBrush x:Name="meshGradientBrush" Stretch="Fill"/>
         </Grid.Background>
-        <!-- Efecto movido a los paneles principales -->
+        
         <!-- Navbar -->
         <controls:NavbarControl x:Name="navbar" Grid.Column="0" >
             <controls:NavbarControl.Effect>
@@ -709,7 +709,7 @@
                     </Grid.RowDefinitions>
 
                     <!-- Cartas casos, clientes,documentos,eventos -->
-                    <Grid Grid.Row="0">
+                    <Grid Grid.Row="0" >
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
@@ -718,7 +718,10 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- Casos Activos Card -->
-                        <Border Grid.Column="0" Style="{StaticResource CardStyle}" Margin="0,0,10,0">
+                        <Border Grid.Column="0" Style="{StaticResource CardStyle}" Margin="10,5,10,0">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="15" Direction="-90" RenderingBias="Quality" ShadowDepth="2" Color="#20000000"/>
+                            </Border.Effect>
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -735,7 +738,10 @@
                         </Border>
 
                         <!-- Clientes Card -->
-                        <Border Grid.Column="1" Style="{StaticResource CardStyle}" Margin="10,0,10,0">
+                        <Border Grid.Column="1" Style="{StaticResource CardStyle}" Margin="10,6,10,0">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="15" Direction="-90" RenderingBias="Quality" ShadowDepth="2" Color="#20000000"/>
+                            </Border.Effect>
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -752,7 +758,10 @@
                         </Border>
 
                         <!-- Documentos Card -->
-                        <Border Grid.Column="2" Style="{StaticResource CardStyle}" Margin="10,0,10,0">
+                        <Border Grid.Column="2" Style="{StaticResource CardStyle}" Margin="10,5,10,0">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="15" Direction="-90" RenderingBias="Quality" ShadowDepth="2" Color="#20000000"/>
+                            </Border.Effect>
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -769,7 +778,10 @@
                         </Border>
 
                         <!-- Eventos Card -->
-                        <Border Grid.Column="3" Style="{StaticResource CardStyle}" Margin="10,0,0,0">
+                        <Border Grid.Column="3" Style="{StaticResource CardStyle}" Margin="10,5,10,0">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="15" Direction="-90" RenderingBias="Quality" ShadowDepth="2" Color="#20000000"/>
+                            </Border.Effect>
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -786,7 +798,6 @@
                         </Border>
                     </Grid>
 
-
                     <!-- 2 fila -->
                     <Grid Grid.Row="1" Margin="0,20,0,20">
                         <Grid.ColumnDefinitions>
@@ -795,7 +806,10 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- Calendario semanal personalizado mejorado -->
-                        <Border Grid.Column="0" Style="{StaticResource CardStyle}" Margin="0,0,10,0" MaxHeight="800">
+                        <Border Grid.Column="0" Style="{StaticResource CardStyle}" Margin="10,0,10,0" MaxHeight="800">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="15" Direction="-90" RenderingBias="Quality" ShadowDepth="2" Color="#20000000"/>
+                            </Border.Effect>
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -860,6 +874,7 @@
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
+
                                 <!-- Eventos del día seleccionado -->
                                 <StackPanel Grid.Row="2" Margin="0,10,0,0">
                                     <TextBlock x:Name="txtEventosDiaSeleccionado" Text="Eventos del día seleccionado" FontSize="16" FontWeight="SemiBold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,10"/>
@@ -878,20 +893,20 @@
                                                             <ColumnDefinition Width="Auto"/>
                                                             <ColumnDefinition Width="*"/>
                                                         </Grid.ColumnDefinitions>
-                                                        
+
                                                         <!-- Hora del evento -->
                                                         <TextBlock Grid.Row="0" Grid.Column="0" 
                                                                  Text="{Binding FechaInicio, StringFormat='{}{0:hh\\:mm}'}"
                                                                  Style="{StaticResource PrimaryTextStyle}"
                                                                  FontWeight="Bold"
                                                                  Margin="0,0,10,0"/>
-                                                        
+
                                                         <!-- Título del evento -->
                                                         <TextBlock Grid.Row="0" Grid.Column="1"
                                                                  Text="{Binding Titulo}"
                                                                  Style="{StaticResource PrimaryTextStyle}"
                                                                  FontWeight="Bold"/>
-                                                        
+
                                                         <!-- Descripción del evento -->
                                                         <TextBlock Grid.Row="1" Grid.Column="1"
                                                                  Text="{Binding Descripcion}"
@@ -908,7 +923,10 @@
                         </Border>
 
                         <!-- Tareas Pendientes -->
-                        <Border Grid.Column="1" Style="{StaticResource CardStyle}" Margin="10,0,0,0" MaxHeight="800">
+                        <Border Grid.Column="1" Style="{StaticResource CardStyle}" Margin="10,0,10,0" MaxHeight="800" >
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="15" Direction="-90" RenderingBias="Quality" ShadowDepth="2" Color="#20000000"/>
+                            </Border.Effect>
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -985,9 +1003,11 @@
 
                     </Grid>
 
-
                     <!-- Casos Recientes -->
-                    <Border Grid.Row="2" Style="{StaticResource CardStyle}" Margin="0,0,0,0" MaxHeight="310">
+                    <Border Grid.Row="2" Style="{StaticResource CardStyle}" Margin="10,0,10,10" MaxHeight="310">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="15" Direction="-90" RenderingBias="Quality" ShadowDepth="2" Color="#20000000"/>
+                        </Border.Effect>
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -1081,7 +1101,10 @@
             </ScrollViewer>
 
             <!-- Footer -->
-            <Border Grid.Row="2" CornerRadius="10" Padding="15" Margin="0,20,0,0">
+            <Border Grid.Row="2" CornerRadius="10" Padding="15" Margin="10,20,10,5">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="15" Direction="-90" RenderingBias="Quality" ShadowDepth="2" Color="#20000000"/>
+                </Border.Effect>
                 <Border.Style>
                     <Style TargetType="Border">
                         <Setter Property="Background">
@@ -1181,7 +1204,6 @@
             </Grid>
         </Grid>
 
-        <!-- puto paco -->
             
     </Grid>
 </Window>

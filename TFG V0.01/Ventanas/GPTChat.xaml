@@ -201,7 +201,7 @@
         <Button x:Name="ThemeButton" Width="35" Height="35" Margin="0" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="ThemeButton_Click" Style="{StaticResource ThemeButtonStyle}" Grid.Column="2"/>
 
         <!-- Contenido -->
-        <Border Grid.Column="2" Margin="20" Style="{StaticResource CardStyle}">
+        <Border Grid.Column="2" Margin="30" Style="{StaticResource CardStyle}" >
             <Border.Effect>
                 <DropShadowEffect BlurRadius="15" Direction="-90" RenderingBias="Quality" ShadowDepth="2" Color="#20000000"/>
             </Border.Effect>

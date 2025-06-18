@@ -9,7 +9,7 @@
         xmlns:System="clr-namespace:System.Windows.Media;assembly=PresentationFramework"
         xmlns:subventanas="clr-namespace:TFG_V0._01.Ventanas.SubVentanas"
         mc:Ignorable="d"
-        Title="Clientes" Height="850" Width="1200"
+        Title="Clientes" Height="1080" Width="1920"
         WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
@@ -751,11 +751,11 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
                             <RowDefinition Height="5"/>
-                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
                             <RowDefinition Height="5"/>
-                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
                         <!-- Columna Izquierda -->
@@ -782,7 +782,7 @@
                                 </StackPanel>
 
                                 <!-- Panel de edición -->
-                                <Border x:Name="EditPersonalInfoPanel" Style="{StaticResource EditPanelStyle}" Visibility="{Binding IsEditPersonalInfoVisible, Converter={StaticResource BoolToVisibilityConverter}}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                                <Border x:Name="EditPersonalInfoPanel"  Style="{StaticResource EditPanelStyle}" Visibility="{Binding IsEditPersonalInfoVisible, Converter={StaticResource BoolToVisibilityConverter}}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
                                     <StackPanel>
                                         <TextBlock Text="{Binding EditFechaContrato, StringFormat='Fecha de contrato: {0:dd/MM/yyyy}'}" Style="{StaticResource PrimaryTextStyle}" FontWeight="Bold" FontSize="16" Margin="0,0,0,20"/>
 

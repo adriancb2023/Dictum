@@ -600,7 +600,7 @@ namespace TFG_V0._01.Ventanas
                 // Mostrar el overlay
                 OverlayPanel.Visibility = Visibility.Visible;
 
-                // Mostrar el panel
+                // Mostrar el panel directamente sin animación
                 WebViewPanel.Visibility = Visibility.Visible;
 
                 // Inicializar WebView2 si es necesario
@@ -622,16 +622,6 @@ namespace TFG_V0._01.Ventanas
 
                 // Cargar la URL inicial que contiene la previsualización/enlace de descarga
                 DocumentWebView.CoreWebView2.Navigate(url);
-
-                // Animar la entrada del panel
-                var animation = new DoubleAnimation
-                {
-                    From = 650,
-                    To = 0,
-                    Duration = TimeSpan.FromMilliseconds(300),
-                    EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
-                };
-                WebViewPanelTransform.BeginAnimation(TranslateTransform.YProperty, animation);
             }
             catch (Exception ex)
             {
@@ -692,22 +682,9 @@ namespace TFG_V0._01.Ventanas
 
         private void CerrarWebView()
         {
-            // Animar la salida del panel
-            var animation = new DoubleAnimation
-            {
-                From = 0,
-                To = 600,
-                Duration = TimeSpan.FromMilliseconds(300),
-                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseIn }
-            };
-            
-            animation.Completed += (s, e) =>
-            {
-                WebViewPanel.Visibility = Visibility.Collapsed;
-                OverlayPanel.Visibility = Visibility.Collapsed;
-            };
-            
-            WebViewPanelTransform.BeginAnimation(TranslateTransform.YProperty, animation);
+            // Cerrar directamente sin animación
+            WebViewPanel.Visibility = Visibility.Collapsed;
+            OverlayPanel.Visibility = Visibility.Collapsed;
         }
 
         #region WebView
@@ -900,7 +877,7 @@ namespace TFG_V0._01.Ventanas
                     // Añadir las nuevas comunidades
                     if (comunidades != null)
                     {
-                        MessageBox.Show($"Comunidades tras filtro: {comunidades.Count}");
+                        //MessageBox.Show($"Comunidades tras filtro: {comunidades.Count}");
                         foreach (var comunidad in comunidades)
                         {
                             LocalizacionesJerarquicas.Add(comunidad);
@@ -976,6 +953,51 @@ namespace TFG_V0._01.Ventanas
 
             // Cargar localizaciones desde la API
             _ = CargarLocalizacionesDesdeApiAsync();
+        }
+    }
+
+    // Clase para realizar cálculos matemáticos en bindings
+    public class MathConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            if (value is double doubleValue && parameter is string operation)
+            {
+                if (operation.StartsWith("*"))
+                {
+                    if (double.TryParse(operation.Substring(1), out double multiplier))
+                    {
+                        return doubleValue * multiplier;
+                    }
+                }
+                else if (operation.StartsWith("/"))
+                {
+                    if (double.TryParse(operation.Substring(1), out double divisor))
+                    {
+                        return doubleValue / divisor;
+                    }
+                }
+                else if (operation.StartsWith("+"))
+                {
+                    if (double.TryParse(operation.Substring(1), out double addend))
+                    {
+                        return doubleValue + addend;
+                    }
+                }
+                else if (operation.StartsWith("-"))
+                {
+                    if (double.TryParse(operation.Substring(1), out double subtrahend))
+                    {
+                        return doubleValue - subtrahend;
+                    }
+                }
+            }
+            return value;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
         }
     }
 }

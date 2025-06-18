@@ -8,7 +8,7 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:controls="clr-namespace:TFG_V0._01.Controladores"
         mc:Ignorable="d"
-        Title="Casos" Height="1080" Width="1920"
+        Title="Dictum - Casos" Height="1080" Width="1920"
         WindowStartupLocation="CenterScreen"
         WindowState="Maximized">
 

@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:TFG_V0._01.Ventanas"
         xmlns:controls="clr-namespace:TFG_V0._01.Controladores"
         mc:Ignorable="d"
-        Title="GPTChat" Height="1080" Width="1920"
+        Title="Dictum - GPTChat" Height="1080" Width="1920"
         WindowStartupLocation="CenterScreen" Loaded="Window_Loaded"
         WindowState="Maximized">
 

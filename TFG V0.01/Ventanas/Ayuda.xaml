@@ -8,7 +8,7 @@
         xmlns:system="clr-namespace:System;assembly=mscorlib"
         xmlns:converters="clr-namespace:System.Windows.Controls;assembly=PresentationFramework"
         mc:Ignorable="d"
-        Title="Ayuda" Height="1080" Width="1920"
+        Title="Dictum - Ayuda" Height="1080" Width="1920"
         WindowStartupLocation="CenterScreen"
         WindowState="Maximized">
 

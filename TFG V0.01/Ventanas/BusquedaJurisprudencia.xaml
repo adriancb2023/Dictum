@@ -622,6 +622,11 @@
                 </Grid.ColumnDefinitions>
                 <!-- Tarjeta de filtros -->
                 <Border Style="{StaticResource CardStyle}" Grid.Column="0" Margin="10" VerticalAlignment="Stretch">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="15" Direction="-90" 
+RenderingBias="Quality" ShadowDepth="2" 
+Color="#20000000"/>
+                    </Border.Effect>
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                         <StackPanel>
                             <TextBlock Text="Filtros" FontSize="18" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Margin="0,0,0,10" />
@@ -784,7 +789,10 @@
                     </ScrollViewer>
                 </Border>
                 <!-- Tarjeta de resultados -->
-                <Border x:Name="ResultadosBorder" Style="{StaticResource CardStyle}" Grid.Column="1" VerticalAlignment="Stretch" Margin="10">
+                <Border x:Name="ResultadosBorder" Style="{StaticResource CardStyle}" Grid.Column="1" VerticalAlignment="Stretch" Margin="10,10,5,10">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="15" Direction="-90" RenderingBias="Quality" ShadowDepth="2" Color="#20000000"/>
+                    </Border.Effect>
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>

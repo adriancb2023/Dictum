@@ -390,7 +390,10 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- Preguntas Frecuentes Card -->
-                        <Border Grid.Column="0" Style="{StaticResource CardStyle}" Margin="0,0,10,0">
+                        <Border Grid.Column="0" Style="{StaticResource CardStyle}" Margin="10,10,10,0">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="15" Direction="-90" RenderingBias="Quality" ShadowDepth="2" Color="#20000000"/>
+                            </Border.Effect>
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -427,7 +430,10 @@
                         </Border>
 
                         <!-- Guías Rápidas Card -->
-                        <Border Grid.Column="1" Style="{StaticResource CardStyle}" Margin="10,0,0,0">
+                        <Border Grid.Column="1" Style="{StaticResource CardStyle}" Margin="10,10,0,0">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="15" Direction="-90" RenderingBias="Quality" ShadowDepth="2" Color="#20000000"/>
+                            </Border.Effect>
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -458,7 +464,10 @@
                     </Grid>
 
                     <!-- Sección de consejos y mejores prácticas -->
-                    <Border Style="{StaticResource CardStyle}" Margin="0,20,0,0">
+                    <Border Style="{StaticResource CardStyle}" Margin="10,20,0,0">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="15" Direction="-90" RenderingBias="Quality" ShadowDepth="2" Color="#20000000"/>
+                        </Border.Effect>
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -495,7 +504,10 @@
                     </Border>
 
                     <!-- Sección de contacto -->
-                    <Border Style="{StaticResource CardStyle}" Margin="0,20,0,0">
+                    <Border Style="{StaticResource CardStyle}" Margin="10,20,0,20">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="15" Direction="-90" RenderingBias="Quality" ShadowDepth="2" Color="#20000000"/>
+                        </Border.Effect>
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -562,6 +574,7 @@
                         </Style.Triggers>
                     </Style>
                 </Border.Style>
+                
                 <Grid>
                     <TextBlock x:Name="txtCopyright" Text="© 2025 TFG" Style="{StaticResource SecondaryTextStyle}" VerticalAlignment="Center" Margin="20,0,0,0" FontWeight="Bold" FontSize="15"/>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,20,0">
@@ -569,6 +582,7 @@
                         <TextBlock Text="0.1" Style="{StaticResource SecondaryTextStyle}" VerticalAlignment="Center" HorizontalAlignment="Right" FontWeight="Bold" FontSize="15"/>
                     </StackPanel>
                 </Grid>
+                
             </Border>
 
         </Grid>

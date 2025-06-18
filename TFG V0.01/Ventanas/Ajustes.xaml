@@ -193,6 +193,9 @@
 
             <!-- Contenido de ajustes -->
             <Border Grid.Row="1" Style="{StaticResource CardStyle}" Margin="0,0,0,20">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="15" Direction="-90" RenderingBias="Quality" ShadowDepth="2" Color="#20000000"/>
+                </Border.Effect>
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="10">
                         <!-- Sección de Apariencia -->

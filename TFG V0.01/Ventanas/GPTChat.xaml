@@ -201,6 +201,9 @@
 
         <!-- Contenido -->
         <Border Grid.Column="2" Margin="20" Style="{StaticResource CardStyle}">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="15" Direction="-90" RenderingBias="Quality" ShadowDepth="2" Color="#20000000"/>
+            </Border.Effect>
             <Grid x:Name="ContentGrid">
                 <Grid.Effect>
                     <DropShadowEffect BlurRadius="20" ShadowDepth="0" Color="Black" Opacity="0.3"/>

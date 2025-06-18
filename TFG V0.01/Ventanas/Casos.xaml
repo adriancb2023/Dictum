@@ -247,13 +247,15 @@
             <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
             <Setter Property="BorderBrush" Value="#40FFFFFF"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="10,8"/> <!-- Ajustar padding para el texto -->
+            <Setter Property="Padding" Value="10,8"/>
+            <!-- Ajustar padding para el texto -->
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="ItemContainerStyle">
                 <Setter.Value>
                     <Style TargetType="ComboBoxItem">
                         <Setter Property="Padding" Value="10,5"/>
-                        <Setter Property="Foreground" Value="#FFFFFF"/> <!-- Default en modo oscuro -->
+                        <Setter Property="Foreground" Value="#FFFFFF"/>
+                        <!-- Default en modo oscuro -->
                         <Setter Property="Background" Value="Transparent"/>
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
@@ -261,24 +263,28 @@
                                 <Setter Property="Background" Value="Transparent"/>
                             </DataTrigger>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#30000000"/> <!-- Hover color - semi-transparente oscuro -->
+                                <Setter Property="Background" Value="#30000000"/>
+                                <!-- Hover color - semi-transparente oscuro -->
                             </Trigger>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="Background" Value="#50000000"/> <!-- Selected color - semi-transparente oscuro -->
+                                <Setter Property="Background" Value="#50000000"/>
+                                <!-- Selected color - semi-transparente oscuro -->
                             </Trigger>
                             <MultiDataTrigger>
                                 <MultiDataTrigger.Conditions>
                                     <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False"/>
                                     <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True"/>
                                 </MultiDataTrigger.Conditions>
-                                <Setter Property="Background" Value="#30FFFFFF"/> <!-- Hover color - semi-transparente claro -->
+                                <Setter Property="Background" Value="#30FFFFFF"/>
+                                <!-- Hover color - semi-transparente claro -->
                             </MultiDataTrigger>
-                             <MultiDataTrigger>
+                            <MultiDataTrigger>
                                 <MultiDataTrigger.Conditions>
                                     <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False"/>
                                     <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}" Value="True"/>
                                 </MultiDataTrigger.Conditions>
-                                <Setter Property="Background" Value="#50FFFFFF"/> <!-- Selected color - semi-transparente claro -->
+                                <Setter Property="Background" Value="#50FFFFFF"/>
+                                <!-- Selected color - semi-transparente claro -->
                             </MultiDataTrigger>
                         </Style.Triggers>
                     </Style>
@@ -338,12 +344,16 @@
                                     <Border.Style>
                                         <Style TargetType="Border">
                                             <!-- Fondo y borde del desplegable temático -->
-                                            <Setter Property="Background" Value="#3A3A3A"/> <!-- Oscuro por defecto -->
-                                            <Setter Property="BorderBrush" Value="#555"/> <!-- Borde oscuro -->
+                                            <Setter Property="Background" Value="#3A3A3A"/>
+                                            <!-- Oscuro por defecto -->
+                                            <Setter Property="BorderBrush" Value="#555"/>
+                                            <!-- Borde oscuro -->
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
-                                                    <Setter Property="Background" Value="#FFFFFF"/> <!-- Claro -->
-                                                    <Setter Property="BorderBrush" Value="#CCC"/> <!-- Borde claro -->
+                                                    <Setter Property="Background" Value="#FFFFFF"/>
+                                                    <!-- Claro -->
+                                                    <Setter Property="BorderBrush" Value="#CCC"/>
+                                                    <!-- Borde claro -->
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -368,10 +378,10 @@
                         </Setter.Value>
                     </Setter>
                 </DataTrigger>
-                 <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
                     <Setter Property="Background" Value="#30FFFFFF"/>
                     <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
-                     <Setter Property="BorderBrush" Value="#40FFFFFF"/>
+                    <Setter Property="BorderBrush" Value="#40FFFFFF"/>
                     <Setter Property="Effect">
                         <Setter.Value>
                             <DropShadowEffect Color="Black" BlurRadius="5" ShadowDepth="2" Opacity="0.3"/>
@@ -383,21 +393,23 @@
 
         <!-- ComboBoxWithClearStyle - Adaptado de ModernComboBoxStyle -->
         <Style x:Key="ComboBoxWithClearStyle" TargetType="ComboBox">
-            <Setter Property="Width" Value="400"/> <!-- Mantener ancho fijo si es necesario -->
+            <Setter Property="Width" Value="400"/>
+            <!-- Mantener ancho fijo si es necesario -->
             <Setter Property="IsEditable" Value="True"/>
             <Setter Property="StaysOpenOnEdit" Value="True"/>
             <Setter Property="IsTextSearchEnabled" Value="False"/>
-             <Setter Property="Background" Value="#30FFFFFF"/>
+            <Setter Property="Background" Value="#30FFFFFF"/>
             <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
             <Setter Property="BorderBrush" Value="#40FFFFFF"/>
             <Setter Property="BorderThickness" Value="1"/>
-             <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Padding" Value="10,5"/>
-             <Setter Property="ItemContainerStyle">
+            <Setter Property="ItemContainerStyle">
                 <Setter.Value>
                     <Style TargetType="ComboBoxItem">
                         <Setter Property="Padding" Value="10,5"/>
-                        <Setter Property="Foreground" Value="#FFFFFF"/> <!-- Default en modo oscuro -->
+                        <Setter Property="Foreground" Value="#FFFFFF"/>
+                        <!-- Default en modo oscuro -->
                         <Setter Property="Background" Value="Transparent"/>
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
@@ -405,24 +417,28 @@
                                 <Setter Property="Background" Value="Transparent"/>
                             </DataTrigger>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#30000000"/> <!-- Hover color - semi-transparente oscuro -->
+                                <Setter Property="Background" Value="#30000000"/>
+                                <!-- Hover color - semi-transparente oscuro -->
                             </Trigger>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="Background" Value="#50000000"/> <!-- Selected color - semi-transparente oscuro -->
+                                <Setter Property="Background" Value="#50000000"/>
+                                <!-- Selected color - semi-transparente oscuro -->
                             </Trigger>
                             <MultiDataTrigger>
                                 <MultiDataTrigger.Conditions>
                                     <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False"/>
                                     <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True"/>
                                 </MultiDataTrigger.Conditions>
-                                <Setter Property="Background" Value="#30FFFFFF"/> <!-- Hover color - semi-transparente claro -->
+                                <Setter Property="Background" Value="#30FFFFFF"/>
+                                <!-- Hover color - semi-transparente claro -->
                             </MultiDataTrigger>
-                             <MultiDataTrigger>
+                            <MultiDataTrigger>
                                 <MultiDataTrigger.Conditions>
                                     <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False"/>
                                     <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}" Value="True"/>
                                 </MultiDataTrigger.Conditions>
-                                <Setter Property="Background" Value="#50FFFFFF"/> <!-- Selected color - semi-transparente claro -->
+                                <Setter Property="Background" Value="#50FFFFFF"/>
+                                <!-- Selected color - semi-transparente claro -->
                             </MultiDataTrigger>
                         </Style.Triggers>
                     </Style>
@@ -496,12 +512,16 @@
                                     <Border.Style>
                                         <Style TargetType="Border">
                                             <!-- Fondo y borde del desplegable temático -->
-                                            <Setter Property="Background" Value="#3A3A3A"/> <!-- Oscuro por defecto -->
-                                            <Setter Property="BorderBrush" Value="#555"/> <!-- Borde oscuro -->
+                                            <Setter Property="Background" Value="#3A3A3A"/>
+                                            <!-- Oscuro por defecto -->
+                                            <Setter Property="BorderBrush" Value="#555"/>
+                                            <!-- Borde oscuro -->
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
-                                                    <Setter Property="Background" Value="#FFFFFF"/> <!-- Claro -->
-                                                    <Setter Property="BorderBrush" Value="#CCC"/> <!-- Borde claro -->
+                                                    <Setter Property="Background" Value="#FFFFFF"/>
+                                                    <!-- Claro -->
+                                                    <Setter Property="BorderBrush" Value="#CCC"/>
+                                                    <!-- Borde claro -->
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -515,7 +535,7 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-             <Style.Triggers>
+            <Style.Triggers>
                 <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="False">
                     <Setter Property="Background" Value="#FFFFFF"/>
                     <Setter Property="Foreground" Value="{StaticResource TextPrimaryLight}"/>
@@ -526,10 +546,10 @@
                         </Setter.Value>
                     </Setter>
                 </DataTrigger>
-                 <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Tag}" Value="True">
                     <Setter Property="Background" Value="#30FFFFFF"/>
                     <Setter Property="Foreground" Value="{StaticResource TextPrimaryDark}"/>
-                     <Setter Property="BorderBrush" Value="#40FFFFFF"/>
+                    <Setter Property="BorderBrush" Value="#40FFFFFF"/>
                     <Setter Property="Effect">
                         <Setter.Value>
                             <DropShadowEffect Color="Black" BlurRadius="5" ShadowDepth="2" Opacity="0.3"/>
@@ -1249,6 +1269,11 @@
 
                         <!-- Apartado 1: Eventos y citas -->
                         <Border Style="{StaticResource CardStyle}" Grid.Row="0" Margin="0,0,0,10">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="15" Direction="-90" 
+RenderingBias="Quality" ShadowDepth="2" 
+Color="#20000000"/>
+                            </Border.Effect>
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="1.2*"/>
@@ -1360,8 +1385,14 @@
                             </Grid>
                         </Border>
 
+
                         <!-- Apartado 2: Notas -->
                         <Border Style="{StaticResource CardStyle}" Grid.Row="1" Margin="0,0,0,10">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="15" Direction="-90" 
+RenderingBias="Quality" ShadowDepth="2" 
+Color="#20000000"/>
+                            </Border.Effect>
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -1415,6 +1446,11 @@
 
                         <!-- Apartado 3: Documentos -->
                         <Border Style="{StaticResource CardStyle}" Grid.Row="2" Margin="0,0,0,10">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="15" Direction="-90" 
+RenderingBias="Quality" ShadowDepth="2" 
+Color="#20000000"/>
+                            </Border.Effect>
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -1481,6 +1517,11 @@
 
                     <!-- Columna derecha: Tareas -->
                     <Border Style="{StaticResource CardStyle}" Grid.Column="1" Margin="10,0,0,10">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="15" Direction="-90" 
+RenderingBias="Quality" ShadowDepth="2" 
+Color="#20000000"/>
+                        </Border.Effect>
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>

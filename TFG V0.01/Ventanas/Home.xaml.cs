@@ -285,6 +285,7 @@ namespace TFG_V0._01.Ventanas
                 _diaSeleccionado = value;
                 if (_diaSeleccionado != null) _diaSeleccionado.IsSelected = true;
                 OnPropertyChanged();
+                FiltrarEventosPorDia();
             }
         }
 

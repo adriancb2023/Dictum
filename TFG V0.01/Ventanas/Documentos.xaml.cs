@@ -15,6 +15,8 @@ using System.ComponentModel;
 using System.Windows.Media.Imaging;
 using TFG_V0._01.Supabase.Models;
 using System.Threading.Tasks;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace TFG_V0._01.Ventanas
 {
@@ -478,6 +480,25 @@ namespace TFG_V0._01.Ventanas
             return true;
         }
 
+        // --- FUNCIÓN PARA LIMPIAR NOMBRES DE ARCHIVO ---
+        public static string LimpiarNombreArchivo(string nombre)
+        {
+            string normalizado = nombre.Normalize(NormalizationForm.FormD);
+            var sb = new StringBuilder();
+            foreach (var c in normalizado)
+            {
+                var unicodeCategory = System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c);
+                if (unicodeCategory != System.Globalization.UnicodeCategory.NonSpacingMark)
+                {
+                    sb.Append(c);
+                }
+            }
+            string limpio = sb.ToString();
+            limpio = limpio.Replace('ñ', 'n').Replace('Ñ', 'N');
+            limpio = Regex.Replace(limpio, @"[^a-zA-Z0-9_\-\.]", "_");
+            return limpio;
+        }
+
         private async Task GuardarDocumentoAsync(string filePath)
         {
             if (!PuedeGuardarDocumento())
@@ -497,7 +518,8 @@ namespace TFG_V0._01.Ventanas
                 // Restaurar el nombre original del archivo (con espacios)
                 string extension = System.IO.Path.GetExtension(filePath);
                 string originalName = System.IO.Path.GetFileNameWithoutExtension(filePath);
-                string uniqueName = $"{originalName}_{Guid.NewGuid()}{extension}";
+                string nombreLimpio = LimpiarNombreArchivo(originalName);
+                string uniqueName = $"{nombreLimpio}_{Guid.NewGuid()}{extension}";
                 
                 // Subir archivo a Supabase Storage
                 var storage = new TFG_V0._01.Supabase.SupaBaseStorage();

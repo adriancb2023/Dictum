@@ -29,6 +29,7 @@ using IOPath = System.IO.Path;
 using CalendarControl = System.Windows.Controls.Calendar;
 using TFG_V0._01.Supabase;
 using TFG_V0._01.Supabase.Models;
+using System.Text.RegularExpressions;
 
 namespace TFG_V0._01.Ventanas
 {
@@ -1478,7 +1479,9 @@ namespace TFG_V0._01.Ventanas
                 var storage = new TFG_V0._01.Supabase.SupaBaseStorage();
                 await storage.InicializarAsync();
                 string extension = System.IO.Path.GetExtension(txtRutaArchivo.Text);
-                string uniqueName = $"{System.IO.Path.GetFileNameWithoutExtension(txtRutaArchivo.Text)}_{Guid.NewGuid()}{extension}";
+                string nombreOriginal = System.IO.Path.GetFileNameWithoutExtension(txtRutaArchivo.Text);
+                string nombreLimpio = LimpiarNombreArchivo(nombreOriginal);
+                string uniqueName = $"{nombreLimpio}_{Guid.NewGuid()}{extension}";
                 string storagePath = await storage.SubirArchivoAsync("documentos", txtRutaArchivo.Text, uniqueName);
 
                 // 2. Guardar registro en la base de datos
@@ -1995,6 +1998,25 @@ namespace TFG_V0._01.Ventanas
             if (txtEstadoTareaLabel != null) txtEstadoTareaLabel.Text = t.EstadoTareaLabel;
         }
         #endregion
+
+        // --- FUNCIÓN PARA LIMPIAR NOMBRES DE ARCHIVO ---
+        public static string LimpiarNombreArchivo(string nombre)
+        {
+            string normalizado = nombre.Normalize(NormalizationForm.FormD);
+            var sb = new StringBuilder();
+            foreach (var c in normalizado)
+            {
+                var unicodeCategory = System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c);
+                if (unicodeCategory != System.Globalization.UnicodeCategory.NonSpacingMark)
+                {
+                    sb.Append(c);
+                }
+            }
+            string limpio = sb.ToString();
+            limpio = limpio.Replace('ñ', 'n').Replace('Ñ', 'N');
+            limpio = Regex.Replace(limpio, @"[^a-zA-Z0-9_\-\.]", "_");
+            return limpio;
+        }
 
     }
 

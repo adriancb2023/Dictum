@@ -7,7 +7,8 @@
         xmlns:controls="clr-namespace:TFG_V0._01.Controladores"
         mc:Ignorable="d"
         Title="Ajustes" Height="1080" Width="1920"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized">
 
     <Window.Resources>
         <!-- Mesh Gradients accesibles globalmente -->

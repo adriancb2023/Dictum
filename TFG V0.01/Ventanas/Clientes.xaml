@@ -10,7 +10,8 @@
         xmlns:subventanas="clr-namespace:TFG_V0._01.Ventanas.SubVentanas"
         mc:Ignorable="d"
         Title="Clientes" Height="1080" Width="1920"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized">
 
     <Window.Resources>
 

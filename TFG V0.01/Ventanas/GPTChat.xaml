@@ -7,7 +7,8 @@
         xmlns:controls="clr-namespace:TFG_V0._01.Controladores"
         mc:Ignorable="d"
         Title="GPTChat" Height="1080" Width="1920"
-        WindowStartupLocation="CenterScreen" Loaded="Window_Loaded">
+        WindowStartupLocation="CenterScreen" Loaded="Window_Loaded"
+        WindowState="Maximized">
 
     <Window.Resources>
         <SolidColorBrush x:Key="TextPrimaryDark" Color="#FFFFFF"/>

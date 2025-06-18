@@ -12,7 +12,8 @@
         xmlns:system="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d" 
         Title="Agenda" Height="1080" Width="1920" 
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized">
 
     <Window.Resources>
         <SolidColorBrush x:Key="TextPrimaryDark" Color="#FFFFFF"/>

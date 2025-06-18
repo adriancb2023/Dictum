@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:TFG_V0._01.Ventanas"
         xmlns:controls="clr-namespace:TFG_V0._01.Controladores"
         mc:Ignorable="d"
-        Title="Ajustes" Height="850" Width="1200"
+        Title="Ajustes" Height="1080" Width="1920"
         WindowStartupLocation="CenterScreen">
 
     <Window.Resources>

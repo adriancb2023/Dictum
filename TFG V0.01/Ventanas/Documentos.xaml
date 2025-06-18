@@ -8,7 +8,7 @@
         xmlns:converters="clr-namespace:TFG_V0._01.Converters"
         xmlns:controls="clr-namespace:TFG_V0._01.Controladores"
         mc:Ignorable="d"
-        Title="Documentos" Height="850" Width="1200"
+        Title="Documentos" Height="1080" Width="1920"
         WindowStartupLocation="CenterScreen">
 
     <Window.Resources>

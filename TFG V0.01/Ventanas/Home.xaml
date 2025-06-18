@@ -11,7 +11,7 @@
        xmlns:helpers="clr-namespace:TFG_V0._01.Helpers"
        xmlns:conv="clr-namespace:TFG_V0._01.Converters"
        mc:Ignorable="d"
-       Title="TFG  v0.01" Height="850" Width="1200"
+       Title="TFG  v0.01" Height="1080" Width="1920"
        WindowStartupLocation="CenterScreen" Loaded="Window_Loaded">
 
 

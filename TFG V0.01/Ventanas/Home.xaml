@@ -749,8 +749,8 @@
                                 </Grid.RowDefinitions>
                                 <TextBlock x:Name="resumenClientes" Text="Clientes" FontSize="14" Style="{StaticResource SecondaryTextStyle}" Grid.Row="0"/>
                                 <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,15,0,0">
-                                    <TextBlock x:Name="txtClientCount" Text="{Binding ClientCount, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" FontSize="36" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" MinWidth="55" Width="0"/>
-                                    <Border Background="#2196F3" CornerRadius="5" Padding="5,2" Margin="15,10,0,0" VerticalAlignment="Top">
+                                    <TextBlock x:Name="txtClientCount" Text="{Binding ClientCount, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" FontSize="36" FontWeight="Bold" Style="{StaticResource PrimaryTextStyle}" Width="0"/>
+                                    <Border Background="#2196F3" CornerRadius="5" Padding="5,2" Margin="0,10,0,0" VerticalAlignment="Top">
                                         <TextBlock x:Name="txtClientCountChange" Text="+0" FontSize="12" Foreground="White"/>
                                     </Border>
                                 </StackPanel>

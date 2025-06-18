@@ -795,36 +795,37 @@ namespace TFG_V0._01.Ventanas
                 // Procesar clientes
                 var clientes = await clientesTask;
                 ClientCount = clientes?.Count ?? 0;
-                _previousClientCount = 0;
-                UpdateClientCountChange();
+                var fechaLimite = DateTime.Now.AddDays(-28);
+                var clientesNuevos = clientes?.Where(c => c.fecha_contrato >= fechaLimite).Count() ?? 0;
+                ClientCountChange = $"+{clientesNuevos}";
 
                 // Procesar casos
                 var casos = await casosTask;
                 CasosActivos = casos?.Count ?? 0;
+                var casosNuevos = casos?.Where(c => c.fecha_inicio >= fechaLimite).Count() ?? 0;
+                scoreCasos.Text = $"+{casosNuevos}";
 
                 // Procesar documentos (sin límite)
                 var documentos = await documentosTask;
                 Documentos = documentos?.Count ?? 0;
+                var documentosNuevos = documentos?.Where(d => d.fecha_subid >= fechaLimite).Count() ?? 0;
+                scoreDocumentos.Text = $"+{documentosNuevos}";
 
                 // Procesar tareas
                 var tareas = await tareasTask;
                 var tareasPendientes = tareas.Where(t => t.estado != "Completada").ToList();
                 TareasPendientes = tareasPendientes.Count();
-
                 TareasPendientesLista.Clear();
                 foreach (var tarea in tareasPendientes)
                     TareasPendientesLista.Add(tarea);
 
                 // Procesar casos recientes
                 CasosRecientesLista.Clear();
-                var fechaLimite = DateTime.Now.Date.AddDays(-28);
-
-                // Cargar casos recientes directamente desde la tabla casos
+                var fechaLimiteCasos = DateTime.Now.Date.AddDays(-28);
                 var casosRecientes = await _supabaseCasos.ObtenerTodosAsync();
                 var casosFiltrados = casosRecientes
-                    .Where(caso => caso.fecha_inicio.Date >= fechaLimite)
+                    .Where(caso => caso.fecha_inicio.Date >= fechaLimiteCasos)
                     .OrderByDescending(caso => caso.fecha_inicio);
-
                 foreach (var caso in casosFiltrados)
                 {
                     CasosRecientesLista.Add(new CasoViewModel
@@ -839,23 +840,23 @@ namespace TFG_V0._01.Ventanas
                 }
                 CasosRecientes = CasosRecientesLista.Count;
 
-                // Procesar eventos del día actual (comparando el string de la fecha)
+                // Procesar eventos del día actual (solo para hoy)
                 var eventosCitas = await eventosCitasTask;
-                var hoyStr = DateTime.Now.ToString("yyyy-MM-dd");
+                var hoy = DateTime.Now.Date;
                 var eventosHoy = eventosCitas
-                    .Where(e => e.FechaString == hoyStr)
+                    .Where(e => e.Fecha.Date == hoy)
                     .Count();
                 EventosProximos = eventosHoy;
-                OnPropertyChanged(nameof(EventosProximos));
+                if (ProxEventos != null)
+                {
+                    ProxEventos.Text = $"+{eventosHoy}";
+                }
 
                 // Llenar la colección de todos los eventos para la semana
                 var colores = new[] { "#1976D2", "#43A047", "#FFA726", "#E53935", "#8E24AA", "#00ACC1", "#FDD835", "#F4511E", "#3949AB", "#00897B" };
                 var random = new Random();
                 EventosProximosLista.Clear();
-
-                // Obtener estados y casos antes de procesar los eventos
                 var estados = await _estadosEventosService.ObtenerEstadosEventos();
-
                 foreach (var evento in eventosCitas)
                 {
                     var eventoViewModel = new EventoViewModel
@@ -873,11 +874,6 @@ namespace TFG_V0._01.Ventanas
                     EventosProximosLista.Add(eventoViewModel);
                 }
                 FiltrarEventosPorDia();
-
-                if (ProxEventos != null)
-                {
-                    ProxEventos.Text = EventosProximos.ToString();
-                }
             }
             catch (Exception ex)
             {

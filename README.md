@@ -36,3 +36,7 @@ Dictum es una solución compuesta por un ERP de escritorio y una API, diseñada es
 
 ## Licencia
 Este proyecto es de uso PRIVADO.
+
+## Desarrollado por:
+- **[Adrian Cruz Barranco]** - [a.cruz@kybernatech.com] - [https://github.com/adriancb2023]
+- **[Francisco Jose Navarro Ruiz]** - [f.navarro@kybernatech.com] - [https://github.com/KatEston23]

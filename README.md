@@ -1,42 +1,77 @@
 # Dictum
 
-Dictum es una solución compuesta por un ERP de escritorio y una API, diseñada específicamente para abogados y despachos jurídicos en España.
+<div align="center">
 
-## Componentes del Proyecto
+![C#](https://img.shields.io/badge/C%23-239120?style=for-the-badge&logo=c-sharp&logoColor=white)
+![.NET](https://img.shields.io/badge/.NET-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)
+![WPF](https://img.shields.io/badge/WPF-512BD4?style=for-the-badge&logo=windows&logoColor=white)
+![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-512BD4?style=for-the-badge&logo=.net&logoColor=white)
+
+**SoluciÃ³n integral de gestiÃ³n y documentaciÃ³n jurÃ­dica para despachos modernos.**
+
+</div>
+
+---
+
+## ðŸ“‹ DescripciÃ³n
+
+**Dictum** es una suite tecnolÃ³gica diseÃ±ada para optimizar el flujo de trabajo en despachos jurÃ­dicos en EspaÃ±a. Combina un potente **ERP de escritorio** para la gestiÃ³n interna con una **API especializada** para la recuperaciÃ³n automÃ¡tica de jurisprudencia desde CENDOJ.
+
+El sistema permite a los abogados centrarse en sus casos, automatizando la organizaciÃ³n de clientes, expedientes y la bÃºsqueda de documentaciÃ³n legal.
+
+## ðŸš€ Componentes del Ecosistema
 
 ### 1. ERP de Escritorio (`TFG V0.01`)
-- **Gestión de clientes**: Alta, edición y consulta de clientes.
-- **Gestión de casos**: Organización y seguimiento de casos jurídicos.
-- **Búsqueda de documentación**: Integración con la API propia para buscar documentación jurídica relevante en CENDOJ.
-- **Gestión documental**: Almacenamiento y organización de documentos asociados a clientes y casos.
-- **Notas y tareas**: Registro de notas internas y gestión de tareas pendientes.
-- **Multi-idioma**: Interfaz disponible en varios idiomas.
-- **Temas claro/oscuro**: Adaptación visual según preferencia o sistema.
+El nÃºcleo de gestiÃ³n para el dÃ­a a dÃ­a del despacho.
+- **ðŸ‘¥ GestiÃ³n de Clientes**: Base de datos centralizada con alta, ediciÃ³n y consulta rÃ¡pida.
+- **ðŸ“‚ Expedientes JurÃ­dicos**: OrganizaciÃ³n detallada y seguimiento de casos.
+- **ðŸ“„ GestiÃ³n Documental**: Almacenamiento seguro de documentos asociados a cada caso.
+- **ðŸ“ Notas y Tareas**: Sistema interno para notas rÃ¡pidas y control de tareas pendientes.
+- **ðŸ” Buscador Integrado**: ConexiÃ³n directa con la API para encontrar jurisprudencia sin salir de la aplicaciÃ³n.
+- **ðŸŽ¨ UI Adaptable**: Interfaz moderna con soporte nativo para temas Claro/Oscuro y multi-idioma.
 
-### 2. API de Jurisprudencia (`JurisprudenciaAPI`)
-- **Búsqueda en CENDOJ**: Permite realizar búsquedas automáticas de documentación jurídica en la web oficial de CENDOJ (Centro de Documentación Judicial de España).
-- **Exposición de resultados**: Devuelve la información relevante para su integración en el ERP.
+### 2. Jurisprudencia API (`JurisprudenciaAPI`)
+El motor de bÃºsqueda avanzado.
+- **ðŸ¤– AutomatizaciÃ³n**: BÃºsqueda automÃ¡tica de sentencias y resoluciones en CENDOJ.
+- **ðŸ”Œ IntegraciÃ³n**: Datos estructurados listos para ser consumidos por el ERP.
+- **âš¡ Rendimiento**: Optimizado para consultas rÃ¡pidas y precisas.
 
-## Tecnologías
-- **.NET 9**
-- **C# 13**
-- **WPF** para la interfaz de usuario del ERP
-- **ASP.NET Core** para la API
+## ðŸ› ï¸ Stack TecnolÃ³gico
 
-## Instalación y Uso
-1. Clona el repositorio.
-2. Abre la solución en Visual Studio 2022 o superior.
-3. Restaura los paquetes NuGet.
-4. Compila ambos proyectos.
-5. Ejecuta primero la API (`JurisprudenciaAPI`) y luego el ERP (`TFG V0.01`).
+Proyecto construido con las Ãºltimas tecnologÃ­as del ecosistema .NET:
 
-## Notas
-- El acceso a la documentación de CENDOJ se realiza mediante técnicas de scraping, respetando los términos de uso del sitio web.
-- El ERP está pensado para uso interno en despachos jurídicos.
+*   **Core**: .NET 9 y C# 13
+*   **Desktop**: Windows Presentation Foundation (WPF)
+*   **Backend**: ASP.NET Core Web API
+*   **Arquitectura**: Limpia y modular
 
-## Licencia
-Este proyecto es de uso PRIVADO.
+## ðŸ’» InstalaciÃ³n y Uso
 
-## Desarrollado por:
-- **Adrian Cruz Barranco** - a.cruz@kybernatech.com - https://github.com/adriancb2023
-- **Francisco Jose Navarro Ruiz** - f.navarro@kybernatech.com - https://github.com/KatEston23
+Sigue estos pasos para desplegar el entorno de desarrollo:
+
+1.  **Clonar el repositorio**
+    ```bash
+    git clone https://github.com/tu-usuario/Dictum.git
+    cd Dictum
+    ```
+
+2.  **Preparar el entorno**
+    *   Abre la soluciÃ³n `TFG V0.01.sln` en Visual Studio 2022 (o superior).
+    *   Restaura los paquetes NuGet para todos los proyectos.
+
+3.  **Ejecutar**
+    *   Inicia primero el proyecto de backend: `JurisprudenciaAPI`.
+    *   Una vez la API estÃ© activa, inicia el cliente de escritorio: `TFG V0.01` (o el ejecutable generado).
+
+## âš ï¸ Nota Importante
+> Este software utiliza tÃ©cnicas de *scraping* para obtener datos de fuentes pÃºblicas (CENDOJ). Su uso debe ser responsable y respetar los tÃ©rminos de servicio de los proveedores de datos. DiseÃ±ado exclusivamente para uso interno y educativo.
+
+## ðŸ“„ Licencia
+Este proyecto es **PRIVADO**. Todos los derechos reservados.
+
+## ðŸ‘¥ Autores
+
+Desarrollado por el equipo de **Kybernatech**:
+
+*   **Adrian Cruz Barranco** - [GitHub](https://github.com/adriancb2023) - ðŸ“§ [Email](mailto:a.cruz@kybernatech.com)
+*   **Francisco Jose Navarro Ruiz** - [GitHub](https://github.com/KatEston23) - ðŸ“§ [Email](mailto:f.navarro@kybernatech.com)
